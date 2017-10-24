@@ -1,0 +1,21 @@
+{
+    "name": "sezzle/sezzle-magento-2",
+    "description": "Sezzle extension for Magento 2",
+    "type": "magento2-module",
+    "homepage": "https://github.com/sezzle/sezzle-magento-2/",
+    "keywords": ["sezzle", "magento", "magento 2", "plugin", "extension", "payment", "gateway"],
+    "version": "1.0.0",
+    "license": [
+        "MIT"
+    ],
+    "require": {
+      "php": "~5.5.0|~5.6.0|~7.0.0",
+      "magento/framework": ">=100.0.4 <102"
+    },
+    "autoload": {
+      "files": [ "registration.php" ],
+      "psr-4": {
+        "Sezzle\\Pay\\": ""
+      }
+    }
+  }
