@@ -4,18 +4,40 @@
         <section id="payment">
             <group id="sezzle" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Sezzle Pay - Buy Now Pay Later</label>
+                <!-- active -->
                 <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>payment/sezzle/active</config_path>
                 </field>
+                <!-- title -->
                 <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Title</label>
+                    <config_path>payment/sezzle/title</config_path>
                 </field>
-                <field id="client_id" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Client ID</label>
+                <!-- api mode -->
+                <field id="api_mode" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>API Mode</label>
+                    <source_model>Sezzle\Pay\Model\Source\ApiMode</source_model>
+                    <config_path>payment/sezzle/api_mode</config_path>
                 </field>
-                <field id="client_secret" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Client Secret</label>
+                <!-- private key -->
+                <field id="private_key" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Private Key</label>
+                    <comment>Look for this in your Sezzle Dashboard</comment>
+                    <config_path>payment/sezzle/private_key</config_path>
+                </field>
+                <!-- public key -->
+                <field id="public_key" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Public Key</label>
+                    <comment>Look for this in your Sezzle Dashboard</comment>
+                    <config_path>payment/sezzle/public_key</config_path>
+                </field>
+                <!-- merchant id -->
+                <field id="merchant_id" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Merchant ID</label>
+                    <comment>Look for this in your Sezzle Dashboard</comment>
+                    <config_path>payment/sezzle/public_key</config_path>
                 </field>
             </group>
         </section>
