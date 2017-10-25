@@ -1,11 +1,11 @@
 <?php
 
-namespace Sezzle\Pay\Model;
+namespace Sezzle\Sezzlepay\Model;
 class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
 	protected $_isInitializeNeeded      = false;
     protected $redirect_uri;
-    protected $_code                    = 'sezzle';
+    protected $_code                    = 'sezzlepay';
  	protected $_canOrder                = true;
 	protected $_isGateway               = true; 
 	

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sezzle\Pay\Model\Source;
+namespace Sezzle\Sezzlepay\Model\Source;
 
 class ApiMode implements \Magento\Framework\Option\ArrayInterface
 {

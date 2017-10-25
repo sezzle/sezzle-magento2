@@ -10,7 +10,7 @@ define(
         'use strict';
         return Component.extend({
             defaults: {
-                template: 'Sezzle_Pay/payment/sezzlepay'
+                template: 'Sezzle_Sezzlepay/payment/sezzlepay'
             },
 
 			afterPlaceOrder: function () {

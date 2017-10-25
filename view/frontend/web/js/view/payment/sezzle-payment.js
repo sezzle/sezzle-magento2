@@ -13,7 +13,7 @@ define(
         rendererList.push(
             {
                 type: 'sezzlepay',
-                component: 'Sezzle_Pay/js/view/payment/method-renderer/sezzlepay'
+                component: 'Sezzle_Sezzlepay/js/view/payment/method-renderer/sezzlepay'
             }
         );
         /** Add view logic here if needed */

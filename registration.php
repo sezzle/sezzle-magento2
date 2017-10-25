@@ -1,6 +1,6 @@
 <?php
 \Magento\Framework\Component\ComponentRegistrar::register(
     \Magento\Framework\Component\ComponentRegistrar::MODULE,
-    'Sezzle_Pay',
+    'Sezzle_Sezzlepay',
     __DIR__
 );

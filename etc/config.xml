@@ -4,7 +4,7 @@
         <payment>
             <sezzle>
 				<active>1</active>
-                <model>Sezzle\Pay\Model\SezzlePaymentMethod</model>
+                <model>Sezzle\Sezzlepay\Model\SezzlePaymentMethod</model>
                 <order_status>pending</order_status>
                 <title>Sezzle Pay</title>
 			</sezzle>

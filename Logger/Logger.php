@@ -1,5 +1,5 @@
 <?php
-namespace Sezzle\Pay\Logger;
+namespace Sezzle\Sezzlepay\Logger;
 class Logger extends \Monolog\Logger
 {
 }

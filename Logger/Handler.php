@@ -1,5 +1,5 @@
 <?php
-namespace Sezzle\Pay\Logger;
+namespace Sezzle\Sezzlepay\Logger;
 //use Monolog\Logger as Logger;
 class Handler extends \Magento\Framework\Logger\Handler\Base
 {

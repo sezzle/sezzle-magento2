@@ -15,7 +15,7 @@
     "autoload": {
       "files": [ "registration.php" ],
       "psr-4": {
-        "Sezzle\\Pay\\": ""
+        "Sezzle\\Sezzlepay\\": ""
       }
     }
   }
