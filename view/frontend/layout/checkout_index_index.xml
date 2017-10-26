@@ -1,4 +1,5 @@
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd">
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="checkout.root">
             <arguments>
@@ -9,6 +10,7 @@
                                 <item name="steps" xsi:type="array">
                                     <item name="children" xsi:type="array">
                                         <item name="billing-step" xsi:type="array">
+                                            <item name="component" xsi:type="string">uiComponent</item>
                                             <item name="children" xsi:type="array">
                                                 <item name="payment" xsi:type="array">
                                                     <item name="children" xsi:type="array">
@@ -18,8 +20,8 @@
                                                                 <item name="sezzlepay" xsi:type="array">
                                                                     <item name="component" xsi:type="string">Sezzle_Sezzlepay/js/view/payment/sezzle-payment</item>
                                                                     <item name="methods" xsi:type="array">
-																		 <item name="sezzlepay" xsi:type="array">
-                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                        <item name="sezzlepay" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                     </item>
                                                                 </item>

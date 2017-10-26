@@ -2,12 +2,12 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <sezzle>
+            <sezzlepay>
 				<active>1</active>
                 <model>Sezzle\Sezzlepay\Model\SezzlePaymentMethod</model>
                 <order_status>pending</order_status>
                 <title>Sezzle Pay</title>
-			</sezzle>
+			</sezzlepay>
         </payment>
     </default>
 </config>
