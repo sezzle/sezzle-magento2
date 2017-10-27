@@ -16,6 +16,7 @@ define(
                 component: 'Sezzle_Sezzlepay/js/view/payment/method-renderer/sezzlepay'
             }
         );
+
         /** Add view logic here if needed */
         return Component.extend({});
     }
