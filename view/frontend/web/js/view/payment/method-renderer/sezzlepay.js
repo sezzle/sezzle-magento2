@@ -18,8 +18,29 @@ define(
                 template: 'Sezzle_Sezzlepay/payment/sezzlepay'
             },
 
+            getSezzlepayImgSrc: function() {
+                return 'https://d3svog4tlx445w.cloudfront.net/branding/sezzle-logos/png/sezzle-logo-sm-100w.png';
+            },
+
             redirectToSezzlepayController: function(sUrl) {
-                window.location.replace(window.checkoutConfig.payment.sezzlepay.redirectUrl);
+
+                // Make a post request to redirect
+                var url = window.checkoutConfig.payment.sezzlepay.redirectUrl;
+
+                $.ajax({
+                    url: url,
+                    method:'post',
+                    success: function(response) {
+                        // Send this response to sezzle api
+                        // This would redirect to sezzle
+                        var jsonData = JSON.parse(response);
+                        $.ajax({
+                            url: jsonData.redirectURL,
+                            method: 'post',
+                            data: jsonData.data
+                        });
+                    }
+                });
             },
 
             handleRedirectAction: function(sUrl) {
@@ -30,11 +51,11 @@ define(
                 this.isPlaceOrderActionAllowed(false);
 
                 this.getPlaceOrderDeferredObject()
-                    .fail(
-                        function () {
-                            self.isPlaceOrderActionAllowed(true);
-                        }
-                    ).done(
+                .fail(
+                    function () {
+                        self.isPlaceOrderActionAllowed(true);
+                    }
+                ).done(
                     function () {
                         self.afterPlaceOrder();
                         self.redirectToSezzlepayController(sUrl);
@@ -43,6 +64,7 @@ define(
             },
             
             continueToSezzlepay: function () {
+                console.log('config', JSON.stringify(window.checkoutConfig));
                 if (this.validate() && additionalValidators.validate()) {
                     this.handleRedirectAction('sezzlepay/standard/redirect/');
                     return false;

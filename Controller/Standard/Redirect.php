@@ -5,8 +5,12 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
     public function execute()
     {
         $order = $this->getOrder();
-        $this->getResponse()->setRedirect(
-            $this->getSezzlepayModel()->buildSezzlepayRequest($order)
+        $requestBody = $this->getSezzlepayModel()->buildSezzlepayRequest($order);
+
+        die(
+            json_encode(
+                $requestBody
+            )
         );
     }
 }
