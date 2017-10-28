@@ -27,18 +27,34 @@ define(
                 // Make a post request to redirect
                 var url = window.checkoutConfig.payment.sezzlepay.redirectUrl;
 
+                $.extend({
+                    redirectPost: function(location, args)
+                    {
+                        var form = $('<form></form>');
+                        form.attr("method", "post");
+                        form.attr("action", location);
+                
+                        $.each( args, function( key, value ) {
+                            var field = $('<input></input>');
+                
+                            field.attr("type", "hidden");
+                            field.attr("name", key);
+                            field.attr("value", value);
+                
+                            form.append(field);
+                        });
+                        $(form).appendTo('body').submit();
+                    }
+                });
+
                 $.ajax({
                     url: url,
                     method:'post',
                     success: function(response) {
                         // Send this response to sezzle api
                         // This would redirect to sezzle
-                        var jsonData = JSON.parse(response);
-                        $.ajax({
-                            url: jsonData.redirectURL,
-                            method: 'post',
-                            data: jsonData.data
-                        });
+                        var jsonData = $.parseJSON(response);
+                        $.redirectPost(jsonData.redirectURL, jsonData.data);
                     }
                 });
             },

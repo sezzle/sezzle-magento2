@@ -61,12 +61,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 		return "http://127.0.0.1:9001/v1";
 	}
 
-	protected function isTestMode() {
-		return false;
-	}
-
-	protected function signRequest($requestData, $privateKey) {
-		$data = $requestData;
+	protected function signRequest($data, $privateKey) {
 		$ver = explode('.', phpversion());
 		$major = (int) $ver[0];
 		$minor = (int) $ver[1];
@@ -79,15 +74,17 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 		// Create the message
 		$message = "";
 		foreach ($data as $key => $value) {
-			$jsonval = json_encode($value);
-			$this->_logger->info("$key : $jsonval");
 			$message .= "$key$value";
 		}
 
+		$this->_logger->info("message : $message");
+		$this->_logger->info("signkey : $privateKey");
+
 		// Create sign
 		$sign = hash_hmac("sha256", $message, $privateKey);
-		$requestData['x_signature'] = $sign;
-		return $requestData;
+		$data['x_signature'] = $sign;
+		$this->_logger->info("sign : $sign");
+		return $data;
 	}
 
 	public function buildSezzlepayRequest($order)
@@ -147,8 +144,10 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
 		// Reference
 		$reference = $orderID;
-		$countryCode = $this->_storeManager->getStore()->getConfig('general/store_information/country_id');
+		$countryCode = $this->_scopeConfig->getValue('general/store_information/country_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+		$this->_logger->info("Country ID: $countryCode");
 		$shopName = $this->_storeManager->getStore()->getFrontendName();
+		$testMode = false;
 		$tranID = uniqid() . "-" . $orderID;
 		$this->_logger->info("Transaction ID received");
 
@@ -184,7 +183,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 			"x_reference" => $orderID,
 			"x_shop_country" => $countryCode,
 			"x_shop_name" => $shopName,
-			"x_test" => $this->isTestMode(),
+			"x_test" => $testMode ? 1 : 0,
 			'x_url_complete' => $completeUrl,
 			'x_url_cancel' => $cancelUrl,
 		);
