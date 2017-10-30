@@ -58,8 +58,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	}
 
 	protected function getSezzleAPIURL() {
-		// TODO: Do it based on api mode
-		return "http://127.0.0.1:9001/v1";
+		return $this->_scopeConfig->getValue('payment/sezzlepay/base_url', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
 	}
 
 	protected function signRequest($data, $privateKey) {

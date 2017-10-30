@@ -20,11 +20,10 @@
                         <label>Title</label>
                         <config_path>payment/sezzlepay/title</config_path>
                     </field>
-                    <!-- api mode -->
-                    <field id="api_mode" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>API Mode</label>
-                        <source_model>Sezzle\Sezzlepay\Model\Source\ApiMode</source_model>
-                        <config_path>payment/sezzlepay/api_mode</config_path>
+                    <!-- base url -->
+                    <field id="base_url" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sezzle Base URL</label>
+                        <config_path>payment/sezzlepay/base_url</config_path>
                     </field>
                     <!-- private key -->
                     <field id="private_key" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
