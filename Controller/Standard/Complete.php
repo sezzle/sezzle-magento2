@@ -20,32 +20,21 @@ class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
                 $this->getResponse()->setRedirect(
                     $this->_url->getUrl('checkout/cart')
                 );
-            }
+            }            
+            $this->_logger->info("Can invoice");
+            $this->updatePayment($order, $sezzleId);
+            $this->_logger->info("Updated payment");
+            $order->setState($order::STATE_PROCESSING)
+                ->setStatus($this->_salesOrderConfig->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PROCESSING));
+            $order->addStatusHistoryComment(__('Payment approved by Sezzlepay'));
+            $this->_logger->info("Set order processing state");
+            // Create invoice
+            $this->createInvoice($order);
 
-            if ($order->canInvoice()) {
-                $this->_logger->info("Can invoice");
-                $this->updatePayment($order, $sezzleId);
-                $this->_logger->info("Updated payment");
-                $order->setState($order::STATE_PROCESSING)
-                    ->setStatus($this->_salesOrderConfig->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PROCESSING));
-                $order->addStatusHistoryComment(__('Payment approved by Sezzlepay'));
-                $this->_logger->info("Set order processing state");
-                // Create invoice
-                $this->createInvoice($order);
-
-                // Redirect to success
-                $this->getResponse()->setRedirect(
-                    $this->_url->getUrl('checkout/onepage/success')
-                );
-            } else {
-                $this->_logger->info("Could not create invoice");
-                $this->messageManager->addError(
-                    __('Sezzlepay payment cannot be processed. Please contact the administrator.')
-                );
-                $this->getResponse()->setRedirect(
-                    $this->_url->getUrl('checkout/cart')
-                );
-            }
+            // Redirect to success
+            $this->getResponse()->setRedirect(
+                $this->_url->getUrl('checkout/onepage/success')
+            );
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->_logger->info("LocalizedException : $e");
             $this->messageManager->addError(

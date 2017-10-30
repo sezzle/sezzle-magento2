@@ -74,18 +74,20 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
 
     public function createInvoice($order) {
         // create invoice
-        $this->_logger->info("Creating invoice");
-        $invoice = $this->_invoiceService->prepareInvoice($order);
-        $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
-        $invoice->register();
-        $this->_logger->info("Created invoice");
-
-        $this->_logger->info("Creating transaction");
-        $transaction = $this->_transactionFactory->create();
-        $transaction->addObject($order)
-            ->addObject($invoice)
-            ->addObject($invoice->getOrder())
-            ->save();
-        $this->_logger->info("Saved transaction");
+        if ($order->canInvoice()) {
+            $this->_logger->info("Creating invoice");
+            $invoice = $this->_invoiceService->prepareInvoice($order);
+            $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
+            $invoice->register();
+            $this->_logger->info("Created invoice");
+    
+            $this->_logger->info("Creating transaction");
+            $transaction = $this->_transactionFactory->create();
+            $transaction->addObject($order)
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder())
+                ->save();
+            $this->_logger->info("Saved transaction");
+        }
     }
 }
