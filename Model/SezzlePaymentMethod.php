@@ -13,6 +13,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
 	const XML_PATH_PRIVATE_KEY = 'payment/sezzle/private_key';
 	const XML_PATH_PUBLIC_KEY = 'payment/sezzle/public_key';
+	const ADDITIONAL_INFORMATION_KEY_ORDERID = 'sezzle_order_id';
 
 	public function __construct(
 		\Magento\Framework\Model\Context $context,
