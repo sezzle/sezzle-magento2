@@ -1,6 +1,6 @@
 <?php
 namespace Sezzle\Sezzlepay\Controller;
-
+use Magento\Sales\Model\Order;
 abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
 {
     protected $_customerSession;
@@ -45,4 +45,9 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         );
     }
 
+    public function cancelOrder($order, $comment) {
+        if ($order->getId() && $order->getState() != Order::STATE_CANCELED) {
+            $order->registerCancellation($comment)->save();
+        }
+    }
 }
