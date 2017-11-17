@@ -203,13 +203,6 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 		$orderId = $quote->getReservedOrderId();
 		$billingAddress  = $quote->getBillingAddress();
 		$shippingAddress = $quote->getShippingAddress();
-		$this->_logger->info(
-			json_encode(array(
-				"billingAddress" => $billingAddress,
-				"shippingAddress" => $shippingAddress,
-				"quote" => $quote,
-			))
-		);
 		$completeUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference", ['_secure' => true]);
 		$cancelUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/cancel", ['_secure' => true]);
 
