@@ -34,8 +34,7 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
         $payment = $quote->getPayment();
         $payment->setMethod('sezzlepay');
         $quote->reserveOrderId();
-        $orderUrl = $this->_getSezzleRedirectUrl($payment, $quote);
-
+        $orderUrl = $this->_getSezzleRedirectUrl($quote);
         die(
             json_encode(
                 array(
@@ -52,7 +51,7 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
     private function _getSezzleRedirectUrl($quote) {
         $reference = $this->createUniqueReferenceId($quote->getReservedOrderId());
         $response = $this->getSezzlepayModel()->getSezzleRedirectUrl($quote, $reference);
-        $json = $this->_jsonHelper->jsonDecode($response->getBody(), true);
+        $result = $this->_jsonHelper->jsonDecode($response->getBody(), true);
         $orderUrl = array_key_exists('checkout_url', $result) ? $result['checkout_url'] : false;
         if (!$orderUrl) {
             $this->_logger->info("No Token response from API");

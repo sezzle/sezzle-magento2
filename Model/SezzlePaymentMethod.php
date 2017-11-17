@@ -10,6 +10,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	protected $_logger;
 	protected $_scopeConfig;
 	protected $_urlBuilder;
+	protected $_sezzleApi;
 
 	const XML_PATH_PRIVATE_KEY = 'payment/sezzle/private_key';
 	const XML_PATH_PUBLIC_KEY = 'payment/sezzle/public_key';
@@ -25,12 +26,14 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Model\Method\Logger $mageLogger,
 		\Magento\Store\Model\StoreManagerInterface $storeManager,
 		\Psr\Log\LoggerInterface $logger,
-		\Magento\Framework\UrlInterface $urlBuilder
+		\Magento\Framework\UrlInterface $urlBuilder,
+		\Sezzle\Sezzlepay\Model\Api $sezzleApi
 	) {
 		$this->_storeManager = $storeManager;
 		$this->_logger = $logger;
 		$this->_scopeConfig = $scopeConfig;
 		$this->_urlBuilder = $urlBuilder;
+		$this->_sezzleApi = $sezzleApi;
 		parent::__construct(
 			$context,
             $registry,
@@ -197,16 +200,22 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	}
 
 	public function getSezzleRedirectUrl($quote, $reference) {
-		$data = $quote->getData();
 		$orderId = $quote->getReservedOrderId();
-		$billingAddress  = $object->getBillingAddress();
-		$shippingAddress = $object->getShippingAddress();
+		$billingAddress  = $quote->getBillingAddress();
+		$shippingAddress = $quote->getShippingAddress();
+		$this->_logger->info(
+			json_encode(array(
+				"billingAddress" => $billingAddress,
+				"shippingAddress" => $shippingAddress,
+				"quote" => $quote,
+			))
+		);
 		$completeUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference", ['_secure' => true]);
 		$cancelUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/cancel", ['_secure' => true]);
 
 		$requestBody = array();
 		$requestBody["amount_in_cents"] = $quote->getGrandTotal() * 100;
-        $requestBody["currency_code"] = $data['store_currency_code'];
+        $requestBody["currency_code"] = $this->getStoreCurrencyCode();
         $requestBody["order_description"] = $reference;
         $requestBody["order_reference_id"] = $reference;
         $requestBody["display_order_reference_id"] = $orderId;
@@ -248,7 +257,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 "quantity" => $productQuantity,
                 "price" => array(
                     "amount_in_cents" => $productPrice,
-                    "currency" => $data['store_currency_code']
+                    "currency" => $this->getStoreCurrencyCode()
                 )
             );
             array_push($requestBody["items"], $itemData);
@@ -256,16 +265,16 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
 		$requestBody["merchant_completes"] = true;
 		
-		// try {
-        //     $response = $this->afterpayApiCall->send(
-        //         $this->afterpayConfig->getApiUrl('v1/orders/'),
-        //         $requestData,
-        //         \Magento\Framework\HTTP\ZendClient::POST
-        //     );
-        // } catch (\Exception $e) {
-        //     $this->helper->debug($e->getMessage());
-        //     throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
-        // }
-        // return $response;
+		try {
+            $response = $this->_sezzleApi->call(
+                $this->getSezzleAPIURL() . '/v1/checkouts',
+                $requestBody,
+                \Magento\Framework\HTTP\ZendClient::POST
+            );
+        } catch (\Exception $e) {
+            $this->helper->debug($e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
+        }
+        return $response;
 	}
 }
