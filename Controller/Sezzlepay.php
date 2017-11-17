@@ -12,6 +12,8 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
     protected $_invoiceService;
     protected $_transactionFactory;
     protected $_logger;
+    protected $_scopeConfig;
+    protected $_jsonHelper;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -23,7 +25,9 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         \Magento\Sales\Model\Order\Config $salesOrderConfig,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory
+        \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Json\Helper\Data $jsonHelper
     ) {
         $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
@@ -34,6 +38,8 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         $this->_invoiceService = $invoiceService;
         $this->_transactionFactory = $transactionFactory;
         $this->_logger = $logger;
+        $this->_scopeConfig = $scopeConfig;
+        $this->_jsonHelper = $jsonHelper;
         parent::__construct($context);
     }
 

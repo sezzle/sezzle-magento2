@@ -195,4 +195,77 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 			"redirectURL" => $this->getSezzleAPIURL(),
 		);
 	}
+
+	public function getSezzleRedirectUrl($quote, $reference) {
+		$data = $quote->getData();
+		$orderId = $quote->getReservedOrderId();
+		$billingAddress  = $object->getBillingAddress();
+		$shippingAddress = $object->getShippingAddress();
+		$completeUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference", ['_secure' => true]);
+		$cancelUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/cancel", ['_secure' => true]);
+
+		$requestBody = array();
+		$requestBody["amount_in_cents"] = $quote->getGrandTotal() * 100;
+        $requestBody["currency_code"] = $data['store_currency_code'];
+        $requestBody["order_description"] = $reference;
+        $requestBody["order_reference_id"] = $reference;
+        $requestBody["display_order_reference_id"] = $orderId;
+        $requestBody["checkout_cancel_url"] = $cancelUrl;
+        $requestBody["checkout_complete_url"] = $completeUrl;
+        $requestBody["customer_details"] = array(
+            "first_name" => $quote->getCustomerFirstname() ? $quote->getCustomerFirstname() : $billingAddress->getFirstname(),
+            "last_name" => $quote->getCustomerLastname() ? $quote->getCustomerLastname() : $billingAddress->getLastname(),
+            "email" => $quote->getCustomerEmail(),
+            "phone" => $billingAddress->getTelephone()
+        );
+        $requestBody["billing_address"] = array(
+            "street" => $billingAddress->getStreetLine(1),
+            "street2" => $billingAddress->getStreetLine(2),
+            "city" => $billingAddress->getCity(),
+            "state" => $billingAddress->getRegionCode(),
+            "postal_code" => $billingAddress->getPostcode(),
+            "country_code" => $billingAddress->getCountryId(),
+            "phone" => $billingAddress->getTelephone()
+        );
+        $requestBody["shipping_address"] = array(
+            "street" => $shippingAddress->getStreetLine(1),
+            "street2" => $shippingAddress->getStreetLine(2),
+            "city" => $shippingAddress->getCity(),
+            "state" => $shippingAddress->getRegionCode(),
+            "postal_code" => $shippingAddress->getPostcode(),
+            "country_code" => $shippingAddress->getCountryId(),
+            "phone" => $shippingAddress->getTelephone()
+        );
+        $requestBody["items"] = array();
+        foreach ($quote->getAllVisibleItems() as $item) {
+            $productName = $item->getName();
+            $productPrice = $item->getPriceInclTax() * 100;
+            $productSKU = $item->getSku();
+            $productQuantity = $item->getQtyOrdered();
+            $itemData = array(
+                "name" => $productName,
+                "sku" => $productSKU,
+                "quantity" => $productQuantity,
+                "price" => array(
+                    "amount_in_cents" => $productPrice,
+                    "currency" => $data['store_currency_code']
+                )
+            );
+            array_push($requestBody["items"], $itemData);
+        }
+
+		$requestBody["merchant_completes"] = true;
+		
+		// try {
+        //     $response = $this->afterpayApiCall->send(
+        //         $this->afterpayConfig->getApiUrl('v1/orders/'),
+        //         $requestData,
+        //         \Magento\Framework\HTTP\ZendClient::POST
+        //     );
+        // } catch (\Exception $e) {
+        //     $this->helper->debug($e->getMessage());
+        //     throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
+        // }
+        // return $response;
+	}
 }
