@@ -50,6 +50,9 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
 
     private function _getSezzleRedirectUrl($quote) {
         $reference = $this->createUniqueReferenceId($quote->getReservedOrderId());
+        $payment = $quote->getPayment();
+        $payment->setAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePaymentMethod::ADDITIONAL_INFORMATION_KEY_ORDERID, $reference);
+        $payment->save();
         $response = $this->getSezzlepayModel()->getSezzleRedirectUrl($quote, $reference);
         $result = $this->_jsonHelper->jsonDecode($response->getBody(), true);
         $orderUrl = array_key_exists('checkout_url', $result) ? $result['checkout_url'] : false;

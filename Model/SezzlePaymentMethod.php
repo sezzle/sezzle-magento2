@@ -270,4 +270,20 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         }
         return $response;
 	}
+
+	public function capturePayment($reference) {
+		try {
+            $response = $this->_sezzleApi->call(
+                $this->getSezzleAPIURL() . '/v1/checkouts' . '/' . $reference . '/complete',
+                null,
+                \Magento\Framework\HTTP\ZendClient::POST
+			);
+			$responseBody = $response->getBody();
+            $debugData['response'] = $responseBody;
+        } catch (\Exception $e) {
+            $this->helper->debug($e->getMessage());
+            throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
+        }
+        return $response;
+	}
 }

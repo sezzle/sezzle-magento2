@@ -13,6 +13,8 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
     protected $_transactionFactory;
     protected $_logger;
     protected $_jsonHelper;
+    protected $_quoteManagement;
+    protected $_transactionBuilder;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -25,7 +27,9 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Framework\Json\Helper\Data $jsonHelper
+        \Magento\Framework\Json\Helper\Data $jsonHelper,
+        \Magento\Quote\Model\QuoteManagement $quoteManagement,
+        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
     ) {
         $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
@@ -37,6 +41,8 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         $this->_transactionFactory = $transactionFactory;
         $this->_logger = $logger;
         $this->_jsonHelper = $jsonHelper;
+        $this->_quoteManagement = $quoteManagement;
+        $this->_transactionBuilder = $transactionBuilder;
         parent::__construct($context);
     }
 
@@ -92,5 +98,33 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
                 ->save();
             $this->_logger->info("Saved transaction");
         }
+    }
+
+    public function _createTransaction($order, $reference) {
+        $payment = $order->getPayment();
+        $payment->setLastTransId($reference);
+        $payment->setTransactionId($reference);
+        $formatedPrice = $order->getBaseCurrency()->formatTxt(
+            $order->getGrandTotal()
+        );
+
+        $message = __('The authorized amount is %1.', $formatedPrice);
+
+        $trans = $this->_transactionBuilder;
+        $transaction = $trans->setPayment($payment)
+            ->setOrder($order)
+            ->setTransactionId($reference)
+            ->setFailSafe(true)
+            ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE);
+
+        $payment->addTransactionCommentsToOrder(
+            $transaction,
+            $message
+        );
+        $payment->setParentTransactionId(null);
+        $payment->save();
+        $order->save();
+
+        return $transaction->save()->getTransactionId();
     }
 }
