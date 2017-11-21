@@ -4,53 +4,43 @@ class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
 {
     public function execute()
     {
+        $redirect = 'checkout/cart';
         try {
-            $tranId = $this->getRequest()->getParam('id');
-            $this->_logger->info("Transaction id received : $tranId");
-            $sezzleId = $this->getRequest()->getQuery('x_gateway_reference');
-            $this->_logger->info("Sezzle Id received : $sezzleId");
-            // Get the order id from the request url
-            $orderTranId = explode('-', $tranId);
-            $transactionId = $orderTranId[0];
-            $orderId = $orderTranId[1];
-            $order = $this->getOrderById($orderId);
+            $quote = $this->_checkoutSession->getQuote();
+            $quoteId = $quote->getId();
+            $payment = $quote->getPayment();
+            $reference = $payment->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePaymentMethod::ADDITIONAL_INFORMATION_KEY_ORDERID);
+            $orderId = $quote->getReservedOrderId();
+            // Capture this payment
+            $response = $this->getSezzlepayModel()->capturePayment($reference);
 
-            // Sanity check
-            if ($order->getState() == \Magento\Sales\Model\Order::STATE_PROCESSING) {
-                $this->getResponse()->setRedirect(
-                    $this->_url->getUrl('checkout/cart')
-                );
-            }            
-            $this->_logger->info("Can invoice");
-            $this->updatePayment($order, $sezzleId);
-            $this->_logger->info("Updated payment");
-            $order->setState($order::STATE_PROCESSING)
-                ->setStatus($this->_salesOrderConfig->getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_PROCESSING));
-            $order->addStatusHistoryComment(__('Payment approved by Sezzlepay'));
-            $this->_logger->info("Set order processing state");
-            // Create invoice
-            $this->createInvoice($order);
-
-            // Redirect to success
-            $this->getResponse()->setRedirect(
-                $this->_url->getUrl('checkout/onepage/success')
-            );
+            $this->_checkoutSession
+                ->setLastQuoteId($quote->getId())
+                ->setLastSuccessQuoteId($quote->getId())
+                ->clearHelperData();
+            
+            $order = $this->_quoteManagement->submit($quote);
+            $newOrderId = $order->getId();
+            $order->setEmailSent(0);
+            if ($order) {
+                $this->_checkoutSession->setLastOrderId($order->getId())
+                                   ->setLastRealOrderId($order->getIncrementId())
+                                   ->setLastOrderStatus($order->getStatus());
+                $this->_createTransaction($order, $reference);
+                $this->messageManager->addSuccess("Sezzlepay Transaction Completed");
+                $redirect = 'checkout/onepage/success';
+            }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->_logger->info("LocalizedException : $e");
+            $this->_logger->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
                 $e->getMessage()
-            );
-            $this->getResponse()->setRedirect(
-                $this->_url->getUrl('checkout/cart')
             );
         } catch (\Exception $e) {
-            $this->_logger->info("Exception : $e");
+            $this->_logger->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
                 $e->getMessage()
             );
-            $this->getResponse()->setRedirect(
-                $this->_url->getUrl('checkout/cart')
-            );
         }
+        $this->_redirect($redirect);
     }
 }
