@@ -3,8 +3,16 @@
 namespace Sezzle\Sezzlepay\Model;
 class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 {
-    protected $_code      = 'sezzlepay';
+	protected $_code      = 'sezzlepay';
 	protected $_isGateway = true;
+    protected $_isInitializeNeeded = false;
+    protected $_canOrder = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canRefund = true;
+    protected $_canRefundInvoicePartial = true;
+	protected $_canUseInternal = false;
+	protected $_canFetchTransactionInfo = true;
 
 	protected $_storeManager;
 	protected $_logger;
@@ -15,6 +23,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	const XML_PATH_PRIVATE_KEY = 'payment/sezzle/private_key';
 	const XML_PATH_PUBLIC_KEY = 'payment/sezzle/public_key';
 	const ADDITIONAL_INFORMATION_KEY_ORDERID = 'sezzle_order_id';
+	const ADDITIONAL_INFORMATION_KEY_TOKENGENERATED = 'sezzlepay_token_generated';
 
 	public function __construct(
 		\Magento\Framework\Model\Context $context,

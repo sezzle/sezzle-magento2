@@ -7,10 +7,10 @@ class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
         $redirect = 'checkout/cart';
         try {
             $quote = $this->_checkoutSession->getQuote();
+            $quoteId = $quote->getId();
             $payment = $quote->getPayment();
             $reference = $payment->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePaymentMethod::ADDITIONAL_INFORMATION_KEY_ORDERID);
             $orderId = $quote->getReservedOrderId();
-    
             // Capture this payment
             $response = $this->getSezzlepayModel()->capturePayment($reference);
 
@@ -20,6 +20,7 @@ class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
                 ->clearHelperData();
             
             $order = $this->_quoteManagement->submit($quote);
+            $newOrderId = $order->getId();
             $order->setEmailSent(0);
             if ($order) {
                 $this->_checkoutSession->setLastOrderId($order->getId())
@@ -30,12 +31,12 @@ class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
                 $redirect = 'checkout/onepage/success';
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
+            $this->_logger->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
                 $e->getMessage()
             );
         } catch (\Exception $e) {
-            $this->_helper->debug("Transaction Exception: " . $e->getMessage());
+            $this->_logger->debug("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addError(
                 $e->getMessage()
             );

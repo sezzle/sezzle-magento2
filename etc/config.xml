@@ -5,7 +5,8 @@
             <sezzlepay>
 				<active>1</active>
                 <model>Sezzle\Sezzlepay\Model\SezzlePaymentMethod</model>
-                <order_status>pending</order_status>
+                <order_status>processing</order_status>
+                <payment_action>authorize_capture</payment_action>
                 <title>Sezzle Pay</title>
 			</sezzlepay>
         </payment>

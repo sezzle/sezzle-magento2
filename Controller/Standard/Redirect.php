@@ -15,7 +15,7 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
             $billingAddress  = $quote->getBillingAddress();
             $shippingAddress = $quote->getShippingAddress();
             if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) && empty($billingAddress) || empty($billingAddress->getStreetLine(1))  ) {
-                die( json_encode( array("success" => false, "message" => "Please select an Address") ) );
+                die( json_encode( array("message" => "Please select an Address") ) );
             } else if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))  || empty($shippingAddress->getFirstname()) ) {
                 $shippingAddress = $quote->getBillingAddress();
                 $quote->setShippingAddress($object->getBillingAddress());
@@ -34,6 +34,10 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
         $payment = $quote->getPayment();
         $payment->setMethod('sezzlepay');
         $quote->reserveOrderId();
+        $quote->setPayment($payment);
+        $quote->save();
+        $this->_checkoutSession->setQuote($quote);
+
         $orderUrl = $this->_getSezzleRedirectUrl($quote);
         die(
             json_encode(

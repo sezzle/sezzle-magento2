@@ -9,9 +9,10 @@ define(
         'mage/url',
         'mage/translate',
         'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method'
+        'Magento_Checkout/js/action/select-payment-method',
+        'Magento_Ui/js/model/messageList'
     ],
-    function (Component, $, additionalValidators, setPaymentInformationAction, url, $t, checkoutData, selectPaymentMethodAction) {
+    function (Component, $, additionalValidators, setPaymentInformationAction, url, $t, checkoutData, selectPaymentMethodAction, globalMessageList) {
         'use strict';
         return Component.extend({
             defaults: {
@@ -35,7 +36,13 @@ define(
                         // Send this response to sezzle api
                         // This would redirect to sezzle
                         var jsonData = $.parseJSON(response);
-                        location.href = jsonData.redirectURL;
+                        if (jsonData.redirectURL) {
+                            location.href = jsonData.redirectURL;
+                        } else if(typeof jsonData['message'] !== 'undefined') {
+                            globalMessageList.addErrorMessage({
+                                'message': jsonData['message']
+                            });
+                        }
                     }
                 });
             },
