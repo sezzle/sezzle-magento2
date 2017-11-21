@@ -295,4 +295,32 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         }
         return $response;
 	}
+
+	public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount) {
+		$orderId = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
+		if ($orderId) {
+			$currency = $payment->getOrder()->getGlobalCurrencyCode();
+			try {
+				$response = $this->_sezzleApi->call(
+					$this->getSezzleAPIURL() . '/v1/orders' . '/' . $orderId . '/refund',
+					array(
+						"amount" => array(
+							"amount_in_cents" => $amount * 100,
+							"currency" => $currency
+						)
+					),
+					\Magento\Framework\HTTP\ZendClient::POST
+				);
+				$responseBody = $response->getBody();
+				$debugData['response'] = $responseBody;
+				return $this;
+			} catch (\Exception $e) {
+				$this->helper->debug($e->getMessage());
+				throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
+			}
+		} else {
+			$message = __('There are no Sezzlepay payment linked to this order. Please use refund offline for this order.');
+		}
+        throw new \Magento\Framework\Exception\LocalizedException($message);
+	}
 }
