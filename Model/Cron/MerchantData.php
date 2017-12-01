@@ -41,6 +41,7 @@ class MerchantData
     public function execute()
     {
         $this->sendOrdersToSezzle();
+        $this->sendHeartbeat();
     }
 
     private function sendOrdersToSezzle() {
@@ -98,5 +99,31 @@ class MerchantData
 
     protected function getSezzleAPIURL() {
 		return $this->scopeConfig->getValue('payment/sezzlepay/base_url', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-	}
+    }
+    
+    private function sendHeartbeat() {
+        $is_public_key_entered = strlen($this->scopeConfig->getValue('payment/sezzle/public_key', 'default')) > 0 ? true : false;
+        $is_private_key_entered = strlen($this->scopeConfig->getValue('payment/sezzle/private_key', 'default')) > 0 ? true : false;
+        $is_widget_configured = strlen(explode('|', $this->scopeConfig->getValue('product/sezzlepay/xpath', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE))[0]) > 0 ? true : false;
+        $is_merchant_id_entered = strlen($this->scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) > 0 ? true : false;
+        $is_payment_active = $this->scopeConfig->getValue('payment/sezzle/active', 'default') == 1 ? true : false;
+
+        $body = array(
+            'is_payment_active' => $is_payment_active,
+            'is_widget_active' => true,
+            'is_widget_configured' => $is_widget_configured,
+            'is_merchant_id_entered' => $is_merchant_id_entered,
+        );
+
+        if ($is_public_key_entered && $is_private_key_entered) {
+            $response = $this->sezzleApi->call(
+                $this->getSezzleAPIURL() . '/v1/merchant_data' . '/magento/heartbeat',
+                $body,
+                \Magento\Framework\HTTP\ZendClient::POST
+            );
+            $this->logger->debug(print_r($response));
+        } else {
+            $this->logger->debug('Could not send Heartbeat to Sezzle. Please set api keys.');
+        }
+    }
 }
