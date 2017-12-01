@@ -20,8 +20,8 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 	protected $_urlBuilder;
 	protected $_sezzleApi;
 
-	const XML_PATH_PRIVATE_KEY = 'payment/sezzle/private_key';
-	const XML_PATH_PUBLIC_KEY = 'payment/sezzle/public_key';
+	const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
+	const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
 	const ADDITIONAL_INFORMATION_KEY_ORDERID = 'sezzle_order_id';
 	const ADDITIONAL_INFORMATION_KEY_TOKENGENERATED = 'sezzlepay_token_generated';
 
@@ -274,7 +274,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 \Magento\Framework\HTTP\ZendClient::POST
             );
         } catch (\Exception $e) {
-            $this->helper->debug($e->getMessage());
+            $this->_logger->debug($e->getMessage());
             throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
         }
         return $response;
@@ -290,7 +290,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 			$responseBody = $response->getBody();
             $debugData['response'] = $responseBody;
         } catch (\Exception $e) {
-            $this->helper->debug($e->getMessage());
+            $this->_logger->debug($e->getMessage());
             throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
         }
         return $response;
@@ -315,7 +315,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 				$debugData['response'] = $responseBody;
 				return $this;
 			} catch (\Exception $e) {
-				$this->helper->debug($e->getMessage());
+				$this->_logger->debug($e->getMessage());
 				throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));       
 			}
 		} else {

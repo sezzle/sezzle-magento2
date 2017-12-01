@@ -68,8 +68,8 @@ class Api {
         $method = \Magento\Framework\HTTP\ZendClient::POST;
         $url = $this->scopeConfig->getValue('payment/sezzlepay/base_url', \Magento\Store\Model\ScopeInterface::SCOPE_STORE) . '/v1/authentication';
         $client = $this->httpClientFactory->create();
-        $accountID = $this->scopeConfig->getValue('payment/sezzle/public_key', 'default');
-		$privateKey = $this->scopeConfig->getValue('payment/sezzle/private_key', 'default');
+        $accountID = $this->scopeConfig->getValue('payment/sezzlepay/public_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+		$privateKey = $this->scopeConfig->getValue('payment/sezzlepay/private_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $body = array(
             "public_key" => $accountID,
             "private_key" => $privateKey

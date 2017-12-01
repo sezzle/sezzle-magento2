@@ -102,11 +102,11 @@ class MerchantData
     }
     
     private function sendHeartbeat() {
-        $is_public_key_entered = strlen($this->scopeConfig->getValue('payment/sezzle/public_key', 'default')) > 0 ? true : false;
-        $is_private_key_entered = strlen($this->scopeConfig->getValue('payment/sezzle/private_key', 'default')) > 0 ? true : false;
+        $is_public_key_entered = strlen($this->scopeConfig->getValue('payment/sezzlepay/public_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) > 0 ? true : false;
+        $is_private_key_entered = strlen($this->scopeConfig->getValue('payment/sezzlepay/private_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) > 0 ? true : false;
         $is_widget_configured = strlen(explode('|', $this->scopeConfig->getValue('product/sezzlepay/xpath', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE))[0]) > 0 ? true : false;
         $is_merchant_id_entered = strlen($this->scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) > 0 ? true : false;
-        $is_payment_active = $this->scopeConfig->getValue('payment/sezzle/active', 'default') == 1 ? true : false;
+        $is_payment_active = $this->scopeConfig->getValue('payment/sezzlepay/active', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE) == 1 ? true : false;
 
         $body = array(
             'is_payment_active' => $is_payment_active,
