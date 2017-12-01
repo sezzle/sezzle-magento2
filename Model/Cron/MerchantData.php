@@ -88,6 +88,15 @@ class MerchantData
             );
             array_push($body, $orderForSezzle);
         }
-        $this->logger->debug(json_encode($body));
+        $response = $this->sezzleApi->call(
+            $this->getSezzleAPIURL() . '/v1/merchant_data' . '/magento/merchant_orders',
+            $body,
+            \Magento\Framework\HTTP\ZendClient::POST
+        );
+        $this->logger->debug(print_r($response));
     }
+
+    protected function getSezzleAPIURL() {
+		return $this->scopeConfig->getValue('payment/sezzlepay/base_url', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+	}
 }
