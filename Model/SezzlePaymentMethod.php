@@ -34,12 +34,11 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $mageLogger,
 		\Magento\Store\Model\StoreManagerInterface $storeManager,
-		\Psr\Log\LoggerInterface $logger,
 		\Magento\Framework\UrlInterface $urlBuilder,
 		\Sezzle\Sezzlepay\Model\Api $sezzleApi
 	) {
 		$this->_storeManager = $storeManager;
-		$this->_logger = $logger;
+		$this->_logger = $context->getLogger();
 		$this->_scopeConfig = $scopeConfig;
 		$this->_urlBuilder = $urlBuilder;
 		$this->_sezzleApi = $sezzleApi;
