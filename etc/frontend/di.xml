@@ -3,7 +3,7 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="sezzlepay" xsi:type="object">Sezzle\SezzlePay\Model\SezzleConfigProvider</item>
+                <item name="sezzlepay" xsi:type="object">Sezzle\Sezzlepay\Model\SezzleConfigProvider</item>
             </argument>
         </arguments>
     </type>
