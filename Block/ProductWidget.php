@@ -9,10 +9,9 @@ class ProductWidget extends Template
 
     public function __construct(
         Template\Context $context,
-        array $data,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+        array $data
     ) {
-        $this->_scopeConfig = $scopeConfig;
+        $this->_scopeConfig = $context->getScopeConfig();
         parent::__construct($context, $data);
     }
 

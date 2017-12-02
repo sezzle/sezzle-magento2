@@ -19,7 +19,6 @@ class Api {
         Logger $logger,
         ScopeConfig $scopeConfig
     ) {
-        /** HTTP Client and afterpay config */
         $this->httpClientFactory = $httpClientFactory;
         $this->jsonHelper = $jsonHelper;
         $this->logger = $logger;

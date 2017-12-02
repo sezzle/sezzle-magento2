@@ -12,7 +12,7 @@ define(
         'Magento_Checkout/js/action/select-payment-method',
         'Magento_Ui/js/model/messageList'
     ],
-    function (Component, $, additionalValidators, setPaymentInformationAction, url, $t, checkoutData, selectPaymentMethodAction, globalMessageList) {
+    function (Component, $, additionalValidators, setPaymentInformationAction, mageUrl, $t, checkoutData, selectPaymentMethodAction, globalMessageList) {
         'use strict';
         return Component.extend({
             defaults: {
@@ -26,7 +26,8 @@ define(
             redirectToSezzlepayController: function(data) {
 
                 // Make a post request to redirect
-                var url = window.checkoutConfig.payment.sezzlepay.redirectUrl;
+                var url = mageUrl.build("sezzlepay/standard/redirect");
+
                 $.ajax({
                     url: url,
                     method:'post',
