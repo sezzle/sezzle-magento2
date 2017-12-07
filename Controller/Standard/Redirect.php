@@ -36,7 +36,7 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
         $quote->reserveOrderId();
         $quote->setPayment($payment);
         $quote->save();
-        $this->_checkoutSession->setQuote($quote);
+        $this->_checkoutSession->replaceQuote($quote);
 
         $orderUrl = $this->_getSezzleRedirectUrl($quote);
         die(
