@@ -85,7 +85,8 @@ class MerchantData
                 'billing_city' => $billing->getCity(),
                 'billing_state' => $billing->getRegionCode(),
                 'billing_postcode' => $billing->getPostcode(),
-                'billing_country' => $billing->getCountryId()
+                'billing_country' => $billing->getCountryId(),
+                'merchant_id' => $this->scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE),
             );
             array_push($body, $orderForSezzle);
         }
@@ -113,9 +114,10 @@ class MerchantData
             'is_widget_active' => true,
             'is_widget_configured' => $is_widget_configured,
             'is_merchant_id_entered' => $is_merchant_id_entered,
+            'merchant_id' => $this->scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE),
         );
 
-        if ($is_public_key_entered && $is_private_key_entered) {
+        if ($is_public_key_entered && $is_private_key_entered && $is_merchant_id_entered) {
             $response = $this->sezzleApi->call(
                 $this->getSezzleAPIURL() . '/v1/merchant_data' . '/magento/heartbeat',
                 $body,
