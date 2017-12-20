@@ -1,5 +1,5 @@
 {
-    "name": "sezzle/sezzle-magento-2",
+    "name": "sezzle/sezzlepay",
     "description": "Sezzle extension for Magento 2",
     "type": "magento2-module",
     "homepage": "https://github.com/sezzle/sezzle-magento-2/",
