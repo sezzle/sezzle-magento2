@@ -1,5 +1,6 @@
 <?php
 namespace Sezzle\Sezzlepay\Controller\Standard;
+
 class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
 {
     public function execute()
@@ -8,24 +9,27 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $customerSession = $objectManager->get('Magento\Customer\Model\Session');
         $customerRepository = $objectManager->get('Magento\Customer\Api\CustomerRepositoryInterface');
-        if($customerSession->isLoggedIn()) {
+        if ($customerSession->isLoggedIn()) {
             $customerId = $customerSession->getCustomer()->getId();
             $customer = $customerRepository->getById($customerId);
             $quote->setCustomer($customer);
             $billingAddress  = $quote->getBillingAddress();
             $shippingAddress = $quote->getShippingAddress();
-            if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) && empty($billingAddress) || empty($billingAddress->getStreetLine(1))  ) {
-                die( json_encode( array("message" => "Please select an Address") ) );
-            } else if( empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))  || empty($shippingAddress->getFirstname()) ) {
+            if (empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) && empty($billingAddress) || empty($billingAddress->getStreetLine(1))) {
+                $json = json_encode(["message" => "Please select an Address"]);
+                $jsonResult = $this->_resultJsonFactory->create();
+                $jsonResult->setData($json);
+                return $jsonResult;
+            } elseif (empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) || empty($shippingAddress->getFirstname())) {
                 $shippingAddress = $quote->getBillingAddress();
                 $quote->setShippingAddress($object->getBillingAddress());
-            } else if( empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname()) ) {
+            } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
                 $billingAddress = $quote->getShippingAddress();
                 $quote->setBillingAddress($object->getShippingAddress());
             }
         } else {
             $post = $this->getRequest()->getPostValue();
-            if( !empty($post['email']) ) {
+            if (!empty($post['email'])) {
                 $quote->setCustomerEmail($post['email'])
                     ->setCustomerIsGuest(true)
                     ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
@@ -39,20 +43,19 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
         $this->_checkoutSession->replaceQuote($quote);
 
         $orderUrl = $this->_getSezzleRedirectUrl($quote);
-        die(
-            json_encode(
-                array(
-                    "redirectURL" => $orderUrl
-                )
-            )
-        );
+        $json = json_encode(["redirectURL" => $orderUrl]);
+        $jsonResult = $this->_resultJsonFactory->create();
+        $jsonResult->setData($json);
+        return $jsonResult;
     }
 
-    private function createUniqueReferenceId($referenceId) {
+    private function createUniqueReferenceId($referenceId)
+    {
         return uniqid() . "-" . $referenceId;
     }
 
-    private function _getSezzleRedirectUrl($quote) {
+    private function _getSezzleRedirectUrl($quote)
+    {
         $reference = $this->createUniqueReferenceId($quote->getReservedOrderId());
         $payment = $quote->getPayment();
         $payment->setAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePaymentMethod::ADDITIONAL_INFORMATION_KEY_ORDERID, $reference);

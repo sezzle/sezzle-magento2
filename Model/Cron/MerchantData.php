@@ -9,8 +9,8 @@ class MerchantData
     protected $date;
     protected $timezone;
     protected $logger;
-	protected $scopeConfig;
-	protected $urlBuilder;
+    protected $scopeConfig;
+    protected $urlBuilder;
     protected $sezzleApi;
     protected $orderInterface;
 
@@ -32,8 +32,8 @@ class MerchantData
         $this->timezone = $timezone;
 
         $this->logger = $logger;
-		$this->scopeConfig = $scopeConfig;
-		$this->urlBuilder = $urlBuilder;
+        $this->scopeConfig = $scopeConfig;
+        $this->urlBuilder = $urlBuilder;
         $this->sezzleApi = $sezzleApi;
         $this->orderInterface = $orderInterface;
     }
@@ -44,35 +44,38 @@ class MerchantData
         $this->sendHeartbeat();
     }
 
-    private function sendOrdersToSezzle() {
+    private function sendOrdersToSezzle()
+    {
         $today = date("Y-m-d H:i:s");
         $yesterday = date("Y-m-d H:i:s", strtotime("-1 days"));
 
         $yesterday = date('Y-m-d H:i:s', strtotime($yesterday));
         $today = date('Y-m-d H:i:s', strtotime($today));
         $ordersCollection = $this->orderFactory->create()->getCollection()
-            ->addFieldToFilter('status',
-                array(
+            ->addFieldToFilter(
+                'status',
+                [
                     'eq' => 'complete',
                     'eq' => 'processing'
-                )
+                ]
             )
             // Get last day to today
-            ->addAttributeToFilter('created_at',
-                array(
+            ->addAttributeToFilter(
+                'created_at',
+                [
                     'from' => $yesterday,
                     'to' => $today
-                )
+                ]
             )
             ->addAttributeToSelect('increment_id');
-        $body = array();
+        $body = [];
         foreach ($ordersCollection as $orderObj) {
             $orderIncrementId = $orderObj->getIncrementId();
             $order = $this->orderInterface->loadByIncrementId($orderIncrementId);
             $payment = $order->getPayment();
             $billing = $order->getBillingAddress();
 
-            $orderForSezzle = array(
+            $orderForSezzle = [
                 'order_number' => $orderIncrementId,
                 'payment_method' => $payment->getMethod(),
                 'amount' => $order->getGrandTotal() * 100,
@@ -87,7 +90,7 @@ class MerchantData
                 'billing_postcode' => $billing->getPostcode(),
                 'billing_country' => $billing->getCountryId(),
                 'merchant_id' => $this->scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE),
-            );
+            ];
             array_push($body, $orderForSezzle);
         }
         $response = $this->sezzleApi->call(
@@ -98,24 +101,26 @@ class MerchantData
         $this->logger->debug(print_r($response));
     }
 
-    protected function getSezzleAPIURL() {
-		return $this->scopeConfig->getValue('payment/sezzlepay/base_url', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+    protected function getSezzleAPIURL()
+    {
+        return $this->scopeConfig->getValue('payment/sezzlepay/base_url', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
     }
     
-    private function sendHeartbeat() {
+    private function sendHeartbeat()
+    {
         $is_public_key_entered = strlen($this->scopeConfig->getValue('payment/sezzlepay/public_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) > 0 ? true : false;
         $is_private_key_entered = strlen($this->scopeConfig->getValue('payment/sezzlepay/private_key', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) > 0 ? true : false;
         $is_widget_configured = strlen(explode('|', $this->scopeConfig->getValue('product/sezzlepay/xpath', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE))[0]) > 0 ? true : false;
         $is_merchant_id_entered = strlen($this->scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE)) > 0 ? true : false;
         $is_payment_active = $this->scopeConfig->getValue('payment/sezzlepay/active', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE) == 1 ? true : false;
 
-        $body = array(
+        $body = [
             'is_payment_active' => $is_payment_active,
             'is_widget_active' => true,
             'is_widget_configured' => $is_widget_configured,
             'is_merchant_id_entered' => $is_merchant_id_entered,
             'merchant_id' => $this->scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE),
-        );
+        ];
 
         if ($is_public_key_entered && $is_private_key_entered && $is_merchant_id_entered) {
             $response = $this->sezzleApi->call(

@@ -7,15 +7,15 @@ class WidthAlignment implements \Magento\Framework\Option\ArrayInterface
 
     public function toOptionArray()
     {
-        return array(
-            array(
+        return [
+            [
                 'value' => 'thin',
                 'label' => 'Thin',
-            ),
-            array(
+            ],
+            [
                 'value' => 'thick',
                 'label' => 'Thick',
-            ),
-        );
+            ],
+        ];
     }
 }

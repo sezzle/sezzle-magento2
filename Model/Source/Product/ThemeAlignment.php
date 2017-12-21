@@ -7,15 +7,15 @@ class ThemeAlignment implements \Magento\Framework\Option\ArrayInterface
 
     public function toOptionArray()
     {
-        return array(
-            array(
+        return [
+            [
                 'value' => 'light',
                 'label' => 'Light',
-            ),
-            array(
+            ],
+            [
                 'value' => 'dark',
                 'label' => 'Dark',
-            ),
-        );
+            ],
+        ];
     }
 }

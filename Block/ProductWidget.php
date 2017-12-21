@@ -15,7 +15,8 @@ class ProductWidget extends Template
         parent::__construct($context, $data);
     }
 
-    public function getJsConfig() {
+    public function getJsConfig()
+    {
         $alignment = $this->_scopeConfig->getValue('product/sezzlepay/alignment', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
         $targetXPath = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/xpath', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
         $renderToPath = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/render_x_path', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
@@ -27,7 +28,7 @@ class ProductWidget extends Template
         $imageUrl = $this->_scopeConfig->getValue('product/sezzlepay/image-url', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
         $hideClasses = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/hide-classes', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
 
-        return array(
+        return [
             'targetXPath'          => $targetXPath,
             'renderToPath'         => $renderToPath,
             'forcedShow'           => $forcedShow,
@@ -40,6 +41,6 @@ class ProductWidget extends Template
             'maxPrice'             => 100000,
             'imageUrl'             => $imageUrl,
             'hideClasses'          => $hideClasses,
-        );
+        ];
     }
 }

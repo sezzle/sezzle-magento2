@@ -1,6 +1,8 @@
 <?php
 namespace Sezzle\Sezzlepay\Controller;
+
 use Magento\Sales\Model\Order;
+
 abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
 {
     protected $_customerSession;
@@ -15,17 +17,19 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
     protected $_jsonHelper;
     protected $_quoteManagement;
     protected $_transactionBuilder;
+    protected $_resultJsonFactory;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\OrderFactory $orderFactory,
-		\Magento\Sales\Model\Order\Status\HistoryFactory $orderHistoryFactory,
+        \Magento\Sales\Model\Order\Status\HistoryFactory $orderHistoryFactory,
         \Sezzle\Sezzlepay\Model\SezzlePaymentMethod $sezzlepayModel,
         \Magento\Sales\Model\Order\Config $salesOrderConfig,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Psr\Log\LoggerInterface $logger,
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
@@ -43,6 +47,7 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         $this->_jsonHelper = $jsonHelper;
         $this->_quoteManagement = $quoteManagement;
         $this->_transactionBuilder = $transactionBuilder;
+        $this->_resultJsonFactory = $resultJsonFactory;
         parent::__construct($context);
     }
 
@@ -66,13 +71,15 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         );
     }
 
-    public function cancelOrder($order, $comment) {
+    public function cancelOrder($order, $comment)
+    {
         if ($order->getId() && $order->getState() != Order::STATE_CANCELED) {
             $order->registerCancellation($comment)->save();
         }
     }
 
-    public function updatePayment($order, $sezzleId) {
+    public function updatePayment($order, $sezzleId)
+    {
         $this->_logger->info("Updating payment");
         $payment = $order->getPayment();
         $payment->setTransactionId($sezzleId);
@@ -81,7 +88,8 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         $this->_logger->info("Saved payment");
     }
 
-    public function createInvoice($order) {
+    public function createInvoice($order)
+    {
         // create invoice
         if ($order->canInvoice()) {
             $this->_logger->info("Creating invoice");
@@ -100,7 +108,8 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         }
     }
 
-    public function _createTransaction($order, $reference) {
+    public function _createTransaction($order, $reference)
+    {
         $payment = $order->getPayment();
         $payment->setLastTransId($reference);
         $payment->setTransactionId($reference);

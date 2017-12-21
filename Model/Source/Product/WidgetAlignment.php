@@ -7,19 +7,19 @@ class WidgetAlignment implements \Magento\Framework\Option\ArrayInterface
 
     public function toOptionArray()
     {
-        return array(
-            array(
+        return [
+            [
                 'value' => 'center',
                 'label' => 'Center',
-            ),
-            array(
+            ],
+            [
                 'value' => 'right',
                 'label' => 'Right',
-            ),
-            array(
+            ],
+            [
                 'value' => 'left',
                 'label' => 'Left',
-            ),
-        );
+            ],
+        ];
     }
 }
