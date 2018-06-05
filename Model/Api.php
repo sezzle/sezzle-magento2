@@ -31,6 +31,7 @@ class Api
         // Client
         $client = $this->httpClientFactory->create();
         $client->setUri($url)->setRawData($this->jsonHelper->jsonEncode($body), 'application/json');
+        $client->setConfig(['timeout' => 80]);
 
         // Set the token header
         $authToken = $this->getAuthToken();
@@ -77,6 +78,7 @@ class Api
             "private_key" => $privateKey
         ];
         $client->setUri($url)->setRawData($this->jsonHelper->jsonEncode($body), 'application/json');
+        $client->setConfig(['timeout' => 80]);
         $requestLog = [
             'type' => 'Request',
             'method' => $method,
