@@ -7,7 +7,7 @@
                 <comment><![CDATA[<span class="logo">&nbsp;</span><strong class="text">Buy Now, Pay Later</strong>]]></comment>
                 <fieldset_css>complex sezzlepay-section</fieldset_css>
                 <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
-                <group id="sezzlepay-payment" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="sezzlepay_payment" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Payment Settings]]></label>
                     <!-- active -->
                     <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -44,7 +44,7 @@
                         <config_path>payment/sezzlepay/merchant_id</config_path>
                     </field>
                 </group>
-                <group id="sezzlepay-product-widget" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="sezzlepay_product_widget" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Product Widget Settings]]></label>
                     <field id="xpath" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Price block selector</label>
@@ -91,13 +91,13 @@
                     <field id="widthType" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Width Type</label>
                         <comment>Text width of the widget</comment>
-                        <config_path>product/sezzlepay/width-type</config_path>
+                        <config_path>product/sezzlepay/width_type</config_path>
                         <source_model>Sezzle\Sezzlepay\Model\Source\Product\WidthAlignment</source_model>
                     </field>
                     <field id="imageUrl" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Image URL</label>
                         <comment>(Optional) Override with URL to a different Logo you want else leave empty</comment>
-                        <config_path>product/sezzlepay/image-url</config_path>
+                        <config_path>product/sezzlepay/image_url</config_path>
                     </field>
                     <field id="hideClasses" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Hide classes</label>
@@ -108,7 +108,7 @@
                             To hide multiple elements enter their classes like the following.
                             Eg: class-to-hide|class-to-hide-2
                         </comment>
-                        <config_path>product/sezzlepay/hide-classes</config_path>
+                        <config_path>product/sezzlepay/hide_classes</config_path>
                     </field>
                 </group>
             </group>

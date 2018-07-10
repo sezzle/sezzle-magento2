@@ -24,9 +24,9 @@ class ProductWidget extends Template
         $alignment = $this->_scopeConfig->getValue('product/sezzlepay/alignment', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
         $merchantID = $this->_scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $theme = $this->_scopeConfig->getValue('product/sezzlepay/theme', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $widthType = $this->_scopeConfig->getValue('product/sezzlepay/width-type', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $imageUrl = $this->_scopeConfig->getValue('product/sezzlepay/image-url', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $hideClasses = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/hide-classes', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
+        $widthType = $this->_scopeConfig->getValue('product/sezzlepay/width_type', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+        $imageUrl = $this->_scopeConfig->getValue('product/sezzlepay/image_url', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+        $hideClasses = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/hide_classes', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
 
         return [
             'targetXPath'          => $targetXPath,
