@@ -210,6 +210,14 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         ];
     }
 
+    public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
+    {
+        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
+        $payment->setTransactionId($reference);
+        $payment->setParentTransactionId($reference);
+        return $this;
+    }
+
     public function getSezzleRedirectUrl($quote, $reference)
     {
         $orderId = $quote->getReservedOrderId();

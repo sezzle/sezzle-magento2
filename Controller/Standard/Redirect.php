@@ -15,14 +15,11 @@ class Redirect extends \Sezzle\Sezzlepay\Controller\Sezzlepay
             $quote->setCustomer($customer);
             $billingAddress  = $quote->getBillingAddress();
             $shippingAddress = $quote->getShippingAddress();
-            if (empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) && empty($billingAddress) || empty($billingAddress->getStreetLine(1))) {
+            if((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
                 $json = json_encode(["message" => "Please select an Address"]);
                 $jsonResult = $this->_resultJsonFactory->create();
                 $jsonResult->setData($json);
                 return $jsonResult;
-            } elseif (empty($shippingAddress) || empty($shippingAddress->getStreetLine(1)) || empty($shippingAddress->getFirstname())) {
-                $shippingAddress = $quote->getBillingAddress();
-                $quote->setShippingAddress($object->getBillingAddress());
             } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
                 $billingAddress = $quote->getShippingAddress();
                 $quote->setBillingAddress($object->getShippingAddress());

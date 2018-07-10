@@ -54,7 +54,6 @@ class Api
                 'method' => $method,
                 'url' => $url,
                 'httpStatusCode' => $response->getStatus(),
-                'body' => $this->jsonHelper->jsonDecode($response->getBody())
             ];
             $this->logger->debug($this->jsonHelper->jsonEncode($responseLog));
         } catch (\Exception $e) {
