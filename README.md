@@ -22,5 +22,5 @@ This extension allows you to use Sezzle as payment gateway in your Magento 2 sto
 ### Payment Setup
 1. Make sure you have the merchant ID and the API Keys from the Sezzle Merchant Dashboard.
 2. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay` in your Magento admin.
-3. Set the base URL to `https://gateway.sezzle.com/v1`.
+3. Set the base URL to `https://gateway.sezzle.com`.
 4. Set the Merchant ID, Public Key and Private Key.
