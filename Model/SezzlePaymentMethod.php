@@ -220,6 +220,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
     public function getSezzleRedirectUrl($quote, $reference)
     {
+        $precision = 2;
         $orderId = $quote->getReservedOrderId();
         $billingAddress  = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
@@ -227,7 +228,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $cancelUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/cancel", ['_secure' => true]);
 
         $requestBody = [];
-        $requestBody["amount_in_cents"] = $quote->getGrandTotal() * 100;
+        $requestBody["amount_in_cents"] = round($quote->getGrandTotal(), $precision) * 100;
         $requestBody["currency_code"] = $this->getStoreCurrencyCode();
         $requestBody["order_description"] = $reference;
         $requestBody["order_reference_id"] = $reference;
@@ -261,7 +262,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $requestBody["items"] = [];
         foreach ($quote->getAllVisibleItems() as $item) {
             $productName = $item->getName();
-            $productPrice = $item->getPriceInclTax() * 100;
+            $productPrice = round($item->getPriceInclTax(), $precision) * 100;
             $productSKU = $item->getSku();
             $productQuantity = $item->getQtyOrdered();
             $itemData = [
