@@ -13,6 +13,7 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
     protected $_salesOrderConfig;
     protected $_invoiceService;
     protected $_transactionFactory;
+    protected $_orderSender;
     protected $_logger;
     protected $_jsonHelper;
     protected $_quoteManagement;
@@ -33,7 +34,8 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         \Magento\Framework\DB\TransactionFactory $transactionFactory,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder
+        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     ) {
         $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
@@ -47,6 +49,7 @@ abstract class Sezzlepay extends \Magento\Framework\App\Action\Action
         $this->_jsonHelper = $jsonHelper;
         $this->_quoteManagement = $quoteManagement;
         $this->_transactionBuilder = $transactionBuilder;
+        $this->_orderSender = $orderSender;
         $this->_resultJsonFactory = $resultJsonFactory;
         parent::__construct($context);
     }

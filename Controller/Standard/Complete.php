@@ -26,15 +26,21 @@ class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
             
             $order = $this->_quoteManagement->submit($quote);
             $this->_logger->debug("Order created");
-            $newOrderId = $order->getId();
-            $order->setEmailSent(0);
-            $this->_logger->debug("Sent email");
+            
             if ($order) {
                 $this->_checkoutSession->setLastOrderId($order->getId())
                                    ->setLastRealOrderId($order->getIncrementId())
                                    ->setLastOrderStatus($order->getStatus());
                 $this->_createTransaction($order, $reference);
                 $this->_logger->debug("Created transaction with reference $reference");
+
+                // send email
+                try {
+                    $this->_orderSender->send($order);
+                } catch (\Exception $e) {
+                    $this->_helper->debug("Transaction Email Sending Error: " . json_encode($e));
+                }
+
                 $this->messageManager->addSuccess("Sezzlepay Transaction Completed");
                 $redirect = 'checkout/onepage/success';
             }
