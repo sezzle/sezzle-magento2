@@ -228,7 +228,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         $cancelUrl = $this->_urlBuilder->getUrl("sezzlepay/standard/cancel", ['_secure' => true]);
 
         $requestBody = [];
-        $requestBody["amount_in_cents"] = (int)($quote->getGrandTotal() * 100);
+        $requestBody["amount_in_cents"] = (int)(round($quote->getGrandTotal(), $precision) * 100);
         $requestBody["currency_code"] = $this->getStoreCurrencyCode();
         $requestBody["order_description"] = $reference;
         $requestBody["order_reference_id"] = $reference;
@@ -269,7 +269,7 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
                 "sku" => $productSKU,
                 "quantity" => $productQuantity,
                 "price" => [
-                    "amount_in_cents" => (int)($item->getPriceInclTax() * 100),
+                    "amount_in_cents" => (int)(round($item->getPriceInclTax(), $precision) * 100),
                     "currency" => $this->getStoreCurrencyCode()
                 ]
             ];
