@@ -1,12 +1,19 @@
 <?php
+
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
-use Magento\Framework\UrlInterface as UrlInterface;
 
+/**
+ * Class SezzleConfigProvider
+ * @package Sezzle\Sezzlepay\Model
+ */
 class SezzleConfigProvider implements ConfigProviderInterface
 {
 
+    /**
+     * @return array
+     */
     public function getConfig()
     {
         return [

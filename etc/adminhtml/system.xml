@@ -79,20 +79,20 @@
                     <field id="alignment" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Alignment</label>
                         <comment>Alignment of the widget in the div</comment>
-                        <source_model>Sezzle\Sezzlepay\Model\Source\Product\WidgetAlignment</source_model>
+                        <source_model>Sezzle\Sezzlepay\Model\Config\Source\Product\WidgetAlignment</source_model>
                         <config_path>product/sezzlepay/alignment</config_path>
                     </field>
                     <field id="theme" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Theme</label>
                         <comment>Select the theme depending on your site's background</comment>
-                        <source_model>Sezzle\Sezzlepay\Model\Source\Product\ThemeAlignment</source_model>
+                        <source_model>Sezzle\Sezzlepay\Model\Config\Source\Product\ThemeAlignment</source_model>
                         <config_path>product/sezzlepay/theme</config_path>
                     </field>
                     <field id="widthType" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Width Type</label>
                         <comment>Text width of the widget</comment>
                         <config_path>product/sezzlepay/width_type</config_path>
-                        <source_model>Sezzle\Sezzlepay\Model\Source\Product\WidthAlignment</source_model>
+                        <source_model>Sezzle\Sezzlepay\Model\Config\Source\Product\WidthAlignment</source_model>
                     </field>
                     <field id="imageUrl" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Image URL</label>

@@ -2,45 +2,63 @@
 namespace Sezzle\Sezzlepay\Block;
 
 use Magento\Framework\View\Element\Template;
+use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
+use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
+/**
+ * Class ProductWidget
+ * @package Sezzle\Sezzlepay\Block
+ */
 class ProductWidget extends Template
 {
-    protected $_scopeConfig;
 
+    const MIN_PRICE = 0;
+    const MAX_PRICE = 100000;
+    const WIDGET_TYPE = "product_page";
+
+    /**
+     * @var ProductWidgetConfigInterface
+     */
+    private $productWidgetConfig;
+
+    /**
+     * ProductWidget constructor.
+     *
+     * @param Template\Context $context
+     * @param ProductWidgetConfigInterface $productWidgetConfig
+     * @param array $data
+     */
     public function __construct(
         Template\Context $context,
+        ProductWidgetConfigInterface $productWidgetConfig,
+        SezzleApiConfigInterface $sezzleApiConfig,
         array $data
     ) {
-        $this->_scopeConfig = $context->getScopeConfig();
+        $this->productWidgetConfig = $productWidgetConfig;
+        $this->sezzleApiConfig = $sezzleApiConfig;
         parent::__construct($context, $data);
     }
 
+    /**
+     * Get JS Config
+     *
+     * @return array
+     */
     public function getJsConfig()
     {
-        $alignment = $this->_scopeConfig->getValue('product/sezzlepay/alignment', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $targetXPath = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/xpath', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
-        $renderToPath = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/render_x_path', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
-        $forcedShow = $this->_scopeConfig->getValue('product/sezzlepay/forced_show', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE) == "1" ? true : false;
-        $alignment = $this->_scopeConfig->getValue('product/sezzlepay/alignment', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $merchantID = $this->_scopeConfig->getValue('payment/sezzlepay/merchant_id', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $theme = $this->_scopeConfig->getValue('product/sezzlepay/theme', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $widthType = $this->_scopeConfig->getValue('product/sezzlepay/width_type', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $imageUrl = $this->_scopeConfig->getValue('product/sezzlepay/image_url', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        $hideClasses = explode('|', $this->_scopeConfig->getValue('product/sezzlepay/hide_classes', \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE));
-
         return [
-            'targetXPath'          => $targetXPath,
-            'renderToPath'         => $renderToPath,
-            'forcedShow'           => $forcedShow,
-            'alignment'            => $alignment,
-            'merchantID'           => $merchantID,
-            'theme'                => $theme,
-            'widthType'            => $widthType,
-            'widgetType'           => 'product-page',
-            'minPrice'             => 0,
-            'maxPrice'             => 100000,
-            'imageUrl'             => $imageUrl,
-            'hideClasses'          => $hideClasses,
+            'targetXPath'          => $this->productWidgetConfig->getTargetXPath(),
+            'renderToPath'         => $this->productWidgetConfig->getRenderToPath(),
+            'forcedShow'           => $this->productWidgetConfig->getForcedShow(),
+            'alignment'            => $this->productWidgetConfig->getAlignment(),
+            'merchantID'           => $this->sezzleApiConfig->getMerchantId(),
+            'theme'                => $this->productWidgetConfig->getTheme(),
+            'widthType'            => $this->productWidgetConfig->getWidthType(),
+            'widgetType'           => self::WIDGET_TYPE,
+            'minPrice'             => self::MIN_PRICE,
+            'maxPrice'             => self::MAX_PRICE,
+            'imageUrl'             => $this->productWidgetConfig->getImageUrl(),
+            'hideClasses'          => $this->productWidgetConfig->getHideClass(),
         ];
     }
 }

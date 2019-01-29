@@ -2,7 +2,9 @@
 
 namespace Sezzle\Sezzlepay\Model;
 
-class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
+use Magento\Sales\Model\Order;
+
+class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
 {
     protected $_code      = 'sezzlepay';
     protected $_isGateway = true;
@@ -28,6 +30,8 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
+        Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
         \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
@@ -39,6 +43,8 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         \Sezzle\Sezzlepay\Model\Api $sezzleApi
     ) {
         $this->_storeManager = $storeManager;
+        $this->_transactionBuilder = $transactionBuilder;
+        $this->jsonHelper = $jsonHelper;
         $this->_logger = $context->getLogger();
         $this->_scopeConfig = $scopeConfig;
         $this->_urlBuilder = $urlBuilder;
@@ -291,6 +297,22 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
         return $response;
     }
 
+    public function getSezzleCheckoutUrl($quote)
+    {
+        $reference = uniqid() . "-" . $quote->getReservedOrderId();
+        $payment = $quote->getPayment();
+        $payment->setAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID, $reference);
+        $payment->save();
+        $response = $this->getSezzleRedirectUrl($quote, $reference);
+        $result = $this->jsonHelper->jsonDecode($response->getBody(), true);
+        $orderUrl = array_key_exists('checkout_url', $result) ? $result['checkout_url'] : false;
+        if (!$orderUrl) {
+            $this->logger->info("No Token response from API");
+            throw new \Magento\Framework\Exception\LocalizedException(__('There is an issue processing your order.'));
+        }
+        return $orderUrl;
+    }
+
     public function capturePayment($reference)
     {
         try {
@@ -335,5 +357,39 @@ class SezzlePaymentMethod extends \Magento\Payment\Model\Method\AbstractMethod
             $message = __('There are no Sezzlepay payment linked to this order. Please use refund offline for this order.');
         }
         throw new \Magento\Framework\Exception\LocalizedException($message);
+    }
+
+    /**
+     * @param $order
+     * @param $reference
+     * @return mixed
+     */
+    public function createTransaction($order, $reference)
+    {
+        $payment = $order->getPayment();
+        $payment->setLastTransId($reference);
+        $payment->setTransactionId($reference);
+        $formattedPrice = $order->getBaseCurrency()->formatTxt(
+            $order->getGrandTotal()
+        );
+
+        $message = __('The authorized amount is %1.', $formattedPrice);
+
+        $transaction = $this->_transactionBuilder->setPayment($payment)
+            ->setOrder($order)
+            ->setTransactionId($reference)
+            ->setFailSafe(true)
+            ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE);
+
+        $payment->addTransactionCommentsToOrder(
+            $transaction,
+            $message
+        );
+        $payment->setParentTransactionId(null);
+        $payment->save();
+        $order->save();
+        $transactionId = $transaction->save()->getTransactionId();
+
+        return $transactionId;
     }
 }
