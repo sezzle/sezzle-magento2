@@ -57,7 +57,7 @@ class Transaction
 
 
     /**
-     *
+     * Send orders to Sezzle
      */
     public function sendOrdersToSezzle()
     {

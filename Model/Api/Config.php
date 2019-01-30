@@ -91,4 +91,14 @@ class Config
             );
         }
     }
+
+    public function getCompleteUrl($orderId, $reference)
+    {
+        return $this->_urlBuilder->getUrl("sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference", ['_secure' => true]);
+    }
+
+    public function getCancelUrl()
+    {
+        return $this->_urlBuilder->getUrl("sezzlepay/standard/cancel/", ['_secure' => true]);
+    }
 }

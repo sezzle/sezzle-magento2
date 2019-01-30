@@ -12,6 +12,7 @@ namespace Sezzle\Sezzlepay\Model\Config\Container;
 class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
 {
     const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
+    const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
     const XML_PATH_API_MODE = 'product/sezzlepay/api_mode';
     const XML_PATH_BASE_URL = 'product/sezzlepay/base_url';
     const XML_PATH_PRIVATE_KEY = 'product/sezzlepay/private_key';
@@ -22,7 +23,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     public function isEnabled()
     {
         return $this->scopeConfig->isSetFlag(
-            self::XML_PATH_EMAIL_ENABLED,
+            self::XML_PATH_PAYMENT_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $this->getStore()->getStoreId()
         );
