@@ -2,8 +2,8 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
-use Magento\Framework\Http\ZendClientFactory;
-use Magento\Framework\Http\ZendClient;
+use Magento\Framework\HTTP\ZendClientFactory;
+use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;

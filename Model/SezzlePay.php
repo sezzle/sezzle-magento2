@@ -141,6 +141,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     public function getSezzleCheckoutUrl($quote)
     {
         $reference = uniqid() . "-" . $quote->getReservedOrderId();
+		$reference = (string)$reference;
         $payment = $quote->getPayment();
         $payment->setAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID, $reference);
         $payment->save();
