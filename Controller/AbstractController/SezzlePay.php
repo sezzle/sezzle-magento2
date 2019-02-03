@@ -69,14 +69,14 @@ abstract class SezzlePay extends Action
     protected $_resultJsonFactory;
 
     /**
-     * @var \Magento\Customer\Api\CustomerRepository
+     * @var \Magento\Customer\Api\CustomerRepositoryInterface
      */
     protected $_customerRepository;
 
     /**
      * Sezzlepay constructor.
      * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Customer\Api\CustomerRepository $customerRepository
+     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
@@ -94,7 +94,7 @@ abstract class SezzlePay extends Action
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Magento\Customer\Api\CustomerRepository $customerRepository,
+        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         \Magento\Customer\Model\Session $customerSession,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\OrderFactory $orderFactory,

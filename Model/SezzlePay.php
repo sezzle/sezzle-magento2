@@ -82,7 +82,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var
      */
-    private $_logger;
+    protected $_logger;
 
     /**
      * SezzlePay constructor.

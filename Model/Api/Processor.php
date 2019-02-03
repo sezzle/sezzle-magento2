@@ -12,7 +12,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
  * Class Processor
  * @package Sezzle\Sezzlepay\Model\Api
  */
-class Processor
+class Processor implements ProcessorInterface
 {
     /**
      * @var JsonHelper

@@ -3,9 +3,14 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Magento\Framework\Http\ZendClient;
+use Magento\Framework\Http\ZendClientFactory;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Psr\Log\LoggerInterface as Logger;
+use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 
 
-class Config
+class Config implements ConfigInterface
 {
     /**
      * @var JsonHelper
@@ -27,10 +32,15 @@ class Config
      * @var SezzleApiConfigInterface
      */
     protected $sezzleApiIdentity;
+	/**
+     * @var \Magento\Framework\UrlInterface
+     */
+    protected $urlBuilder;
 
     /**
      * Processor constructor.
      * @param ZendClientFactory $httpClientFactory
+	 * @param \Magento\Framework\UrlInterface $urlBuilder
      * @param SezzleApiConfigInterface $sezzleApiIdentity
      * @param JsonHelper $jsonHelper
      * @param Logger $logger
@@ -38,6 +48,7 @@ class Config
      */
     public function __construct(
         ZendClientFactory $httpClientFactory,
+		\Magento\Framework\UrlInterface $urlBuilder,
         SezzleApiConfigInterface $sezzleApiIdentity,
         JsonHelper $jsonHelper,
         Logger $logger,
@@ -45,6 +56,7 @@ class Config
     )
     {
         $this->httpClientFactory = $httpClientFactory;
+		$this->_urlBuilder = $urlBuilder;
         $this->sezzleApiIdentity = $sezzleApiIdentity;
         $this->jsonHelper = $jsonHelper;
         $this->logger = $logger;
@@ -53,7 +65,7 @@ class Config
 
     public function getAuthToken()
     {
-        $method = \Magento\Framework\HTTP\ZendClient::POST;
+        $method = ZendClient::POST;
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl();
         $client = $this->httpClientFactory->create();
         $publicKey = $this->sezzleApiIdentity->getPublicKey();
