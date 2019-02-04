@@ -66,7 +66,7 @@ class Config implements ConfigInterface
     public function getAuthToken()
     {
         $method = ZendClient::POST;
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl();
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl(). '/v1/authentication';
         $client = $this->httpClientFactory->create();
         $publicKey = $this->sezzleApiIdentity->getPublicKey();
         $privateKey = $this->sezzleApiIdentity->getPrivateKey();

@@ -70,7 +70,7 @@ class Processor implements ProcessorInterface
     {
         $client = $this->httpClientFactory->create();
         $client->setUri($url)
-            ->setRawData($this->jsonHelper->jsonEncode($body), ApiParamsInterface::CONTENT_TYPE);
+            ->setRawData($this->jsonHelper->jsonEncode($body), ApiParamsInterface::CONTENT_TYPE_JSON);
         $client->setConfig(['timeout' => ApiParamsInterface::TIMEOUT]);
         try {
             $authToken = $this->sezzleApiConfig->getAuthToken();

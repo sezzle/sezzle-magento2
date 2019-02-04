@@ -50,20 +50,20 @@ class Complete extends SezzlePay
                     $this->_helper->debug("Transaction Email Sending Error: " . json_encode($e));
                 }
 
-                $this->_messageManager->addSuccess("Sezzlepay Transaction Completed");
+                $this->messageManager->addSuccess("Sezzlepay Transaction Completed");
                 $redirect = 'checkout/onepage/success';
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->_logger->debug("Transaction Exception: " . $e->getMessage());
-            $this->_messageManager->addError(
+            $this->messageManager->addError(
                 $e->getMessage()
             );
         } catch (\Exception $e) {
             $this->_logger->debug("Transaction Exception: " . $e->getMessage());
-            $this->_messageManager->addError(
+            $this->messageManager->addError(
                 $e->getMessage()
             );
         }
-        $this->redirect($redirect);
+        $this->_redirect($redirect);
     }
 }
