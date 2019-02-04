@@ -16,6 +16,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_API_MODE = 'payment/sezzlepay/api_mode';
     const XML_PATH_BASE_URL = 'payment/sezzlepay/base_url';
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
+    const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
 
     /**
      * @return bool

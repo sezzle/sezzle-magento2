@@ -15,7 +15,6 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     const XML_PATH_RENDER_TO_PATH = 'product/sezzlepay/render_x_path';
     const XML_PATH_FORCED_SHOW = 'product/sezzlepay/forced_show';
     const XML_PATH_ALIGNMENT = 'product/sezzlepay/alignment';
-    const XML_PATH_MERCHANT_ID = 'product/sezzlepay/merchant_id';
     const XML_PATH_THEME = 'product/sezzlepay/theme';
     const XML_PATH_WIDTH_TYPE = 'product/sezzlepay/width_type';
     const XML_PATH_IMAGE_URL = 'product/sezzlepay/image_url';
