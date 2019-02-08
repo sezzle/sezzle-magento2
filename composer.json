@@ -4,7 +4,7 @@
     "type": "magento2-module",
     "homepage": "https://github.com/sezzle/sezzle-magento-2/",
     "keywords": ["sezzle", "magento", "magento 2", "plugin", "extension", "payment", "gateway"],
-    "version": "1.2.0",
+    "version": "1.2.1",
     "license": [
         "MIT"
     ],
