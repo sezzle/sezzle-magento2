@@ -1,14 +1,23 @@
-require([
-    "jquery",
-    "domReady!"
-    ],
-    function ($, alert) {
+define([
+    'jquery',
+    'ko',
+    'uiComponent',
+    'domReady!'
+], function ($, ko, Component) {
     'use strict';
-    $.widget('mage.productWidget', {
-        _create: function () {
+
+    return Component.extend({
+        initialize: function () {
+            //initialize parent Component
+            this._super();
+            this.processSezzleDocument();
+        },
+
+        processSezzleDocument: function() {
             console.log("rendering started");
             var self = this;
-            document.sezzleConfig = self.options.jsConfig;
+            console.log(self.jsConfig);
+            document.sezzleConfig = self.jsConfig;
 
             if (!document.sezzleConfig) {
                 console.warn('SezzlePay: document.sezzleConfig is not set, cannot render widget');
@@ -18,11 +27,9 @@ require([
             var script = document.createElement('script');
             script.type = 'text/javascript';
             script.src = 'https://widget.sezzle.com/v1/javascript/price-widget?uuid=' + document.sezzleConfig.merchantID;
-            document.head.appendChild(script);
+            $("head").append(script);
 
             console.log("dom loaded");
-
         }
     });
-    return $.mage.productWidget
 });

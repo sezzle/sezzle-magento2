@@ -51,7 +51,7 @@ define(
             handleRedirectAction: function () {
                 var data = $("#co-shipping-form").serialize();
                 if (!window.checkoutConfig.quoteData.customer_id) {
-                    var email = document.getElementById("customer-email").value;
+                    var email = $("#customer-email").value;
                 } else {
                     var email = window.checkoutConfig.customerData.email;
                 }
