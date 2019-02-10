@@ -1,9 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: arijit
- * Date: 1/29/2019
- * Time: 11:03 PM
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
  */
 
 namespace Sezzle\Sezzlepay\Model\Api;
@@ -11,6 +11,10 @@ namespace Sezzle\Sezzlepay\Model\Api;
 use Magento\Framework\Http\ZendClient;
 
 
+/**
+ * Interface ApiParamsInterface
+ * @package Sezzle\Sezzlepay\Model\Api
+ */
 interface ApiParamsInterface
 {
     const CONTENT_TYPE_JSON = "application/json";

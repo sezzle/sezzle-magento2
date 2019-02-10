@@ -1,12 +1,18 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
+ */
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
-use Magento\Framework\HTTP\ZendClientFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 use Magento\Framework\HTTP\ZendClient;
+use Magento\Framework\HTTP\ZendClientFactory;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
-use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 
 /**
  * Class Processor

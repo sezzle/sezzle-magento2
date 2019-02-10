@@ -1,9 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: arijit
- * Date: 1/31/2019
- * Time: 12:15 AM
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
  */
 
 namespace Sezzle\Sezzlepay\Model\Api;

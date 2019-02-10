@@ -1,15 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: arijit
- * Date: 1/29/2019
- * Time: 11:45 PM
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
  */
 
 namespace Sezzle\Sezzlepay\Model\Gateway;
 
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
+use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Heartbeat

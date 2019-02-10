@@ -1,15 +1,25 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
+ */
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 use Magento\Framework\Http\ZendClient;
 use Magento\Framework\Http\ZendClientFactory;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
-use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
+use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 
+/**
+ * Class Config
+ * @package Sezzle\Sezzlepay\Model\Api
+ */
 class Config implements ConfigInterface
 {
     /**
@@ -32,7 +42,7 @@ class Config implements ConfigInterface
      * @var SezzleApiConfigInterface
      */
     protected $sezzleApiIdentity;
-	/**
+    /**
      * @var \Magento\Framework\UrlInterface
      */
     protected $urlBuilder;
@@ -40,7 +50,7 @@ class Config implements ConfigInterface
     /**
      * Processor constructor.
      * @param ZendClientFactory $httpClientFactory
-	 * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param \Magento\Framework\UrlInterface $urlBuilder
      * @param SezzleApiConfigInterface $sezzleApiIdentity
      * @param JsonHelper $jsonHelper
      * @param Logger $logger
@@ -48,7 +58,7 @@ class Config implements ConfigInterface
      */
     public function __construct(
         ZendClientFactory $httpClientFactory,
-		\Magento\Framework\UrlInterface $urlBuilder,
+        \Magento\Framework\UrlInterface $urlBuilder,
         SezzleApiConfigInterface $sezzleApiIdentity,
         JsonHelper $jsonHelper,
         Logger $logger,
@@ -56,17 +66,21 @@ class Config implements ConfigInterface
     )
     {
         $this->httpClientFactory = $httpClientFactory;
-		$this->_urlBuilder = $urlBuilder;
+        $this->_urlBuilder = $urlBuilder;
         $this->sezzleApiIdentity = $sezzleApiIdentity;
         $this->jsonHelper = $jsonHelper;
         $this->logger = $logger;
         $this->scopeConfig = $scopeConfig;
     }
 
+    /**
+     * Get auth token
+     * @return mixed
+     */
     public function getAuthToken()
     {
         $method = ZendClient::POST;
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl(). '/v1/authentication';
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/authentication';
         $client = $this->httpClientFactory->create();
         $publicKey = $this->sezzleApiIdentity->getPublicKey();
         $privateKey = $this->sezzleApiIdentity->getPrivateKey();
@@ -104,11 +118,21 @@ class Config implements ConfigInterface
         }
     }
 
+    /**
+     * Get complete url
+     * @param $orderId
+     * @param $reference
+     * @return mixed
+     */
     public function getCompleteUrl($orderId, $reference)
     {
         return $this->_urlBuilder->getUrl("sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference", ['_secure' => true]);
     }
 
+    /**
+     * Get cancel url
+     * @return mixed
+     */
     public function getCancelUrl()
     {
         return $this->_urlBuilder->getUrl("sezzlepay/standard/cancel/", ['_secure' => true]);

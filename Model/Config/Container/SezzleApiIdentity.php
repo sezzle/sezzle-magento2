@@ -1,14 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: arijit
- * Date: 1/27/2019
- * Time: 4:37 PM
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
  */
 
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
 
+/**
+ * Class SezzleApiIdentity
+ * @package Sezzle\Sezzlepay\Model\Config\Container
+ */
 class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
 {
     const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
@@ -19,7 +23,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function isEnabled()
     {
@@ -31,7 +35,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getPublicKey()
     {
@@ -40,6 +44,9 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
             $this->getStore()->getStoreId());
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getPrivateKey()
     {
         return $this->getConfigValue(
@@ -47,6 +54,9 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
             $this->getStore()->getStoreId());
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getApiMode()
     {
         return $this->getConfigValue(
@@ -55,7 +65,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getMerchantId()
     {
@@ -64,6 +74,9 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
             $this->getStore()->getStoreId());
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getSezzleBaseUrl()
     {
         return $this->getConfigValue(

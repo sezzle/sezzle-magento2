@@ -1,9 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: arijit
- * Date: 1/27/2019
- * Time: 4:06 PM
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
  */
 
 namespace Sezzle\Sezzlepay\Model\Config\Container;
@@ -12,6 +12,7 @@ namespace Sezzle\Sezzlepay\Model\Config\Container;
 class ProductWidgetIdentity extends Container implements ProductWidgetConfigInterface
 {
     const XML_PATH_TARGET_XPATH = 'product/sezzlepay/xpath';
+    const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
     const XML_PATH_RENDER_TO_PATH = 'product/sezzlepay/render_x_path';
     const XML_PATH_FORCED_SHOW = 'product/sezzlepay/forced_show';
     const XML_PATH_ALIGNMENT = 'product/sezzlepay/alignment';
@@ -19,20 +20,21 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     const XML_PATH_WIDTH_TYPE = 'product/sezzlepay/width_type';
     const XML_PATH_IMAGE_URL = 'product/sezzlepay/image_url';
     const XML_PATH_HIDE_CLASS = 'product/sezzlepay/hide_classes';
+
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function isEnabled()
     {
         return $this->scopeConfig->isSetFlag(
-            self::XML_PATH_EMAIL_ENABLED,
+            self::XML_PATH_PAYMENT_ACTIVE,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $this->getStore()->getStoreId()
         );
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getTargetXPath()
     {
@@ -47,7 +49,7 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getRenderToPath()
     {
@@ -62,7 +64,7 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getForcedShow()
     {
@@ -73,7 +75,7 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getAlignment()
     {
@@ -84,7 +86,7 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getTheme()
     {
@@ -95,7 +97,7 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getWidthType()
     {
@@ -106,7 +108,7 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getImageUrl()
     {
@@ -117,7 +119,7 @@ class ProductWidgetIdentity extends Container implements ProductWidgetConfigInte
     }
 
     /**
-     * @return mixed
+     * @inheritdoc
      */
     public function getHideClass()
     {

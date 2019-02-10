@@ -1,4 +1,11 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
+ */
+
 namespace Sezzle\Sezzlepay\Block;
 
 use Magento\Framework\View\Element\Template;
@@ -33,7 +40,8 @@ class ProductWidget extends Template
         ProductWidgetConfigInterface $productWidgetConfig,
         SezzleApiConfigInterface $sezzleApiConfig,
         array $data
-    ) {
+    )
+    {
         $this->productWidgetConfig = $productWidgetConfig;
         $this->sezzleApiConfig = $sezzleApiConfig;
         parent::__construct($context, $data);
@@ -47,18 +55,18 @@ class ProductWidget extends Template
     public function getJsConfig()
     {
         return [
-            'targetXPath'          => $this->productWidgetConfig->getTargetXPath(),
-            'renderToPath'         => $this->productWidgetConfig->getRenderToPath(),
-            'forcedShow'           => $this->productWidgetConfig->getForcedShow(),
-            'alignment'            => $this->productWidgetConfig->getAlignment(),
-            'merchantID'           => $this->sezzleApiConfig->getMerchantId(),
-            'theme'                => $this->productWidgetConfig->getTheme(),
-            'widthType'            => $this->productWidgetConfig->getWidthType(),
-            'widgetType'           => self::WIDGET_TYPE,
-            'minPrice'             => self::MIN_PRICE,
-            'maxPrice'             => self::MAX_PRICE,
-            'imageUrl'             => $this->productWidgetConfig->getImageUrl(),
-            'hideClasses'          => $this->productWidgetConfig->getHideClass(),
+            'targetXPath' => $this->productWidgetConfig->getTargetXPath(),
+            'renderToPath' => $this->productWidgetConfig->getRenderToPath(),
+            'forcedShow' => $this->productWidgetConfig->getForcedShow(),
+            'alignment' => $this->productWidgetConfig->getAlignment(),
+            'merchantID' => $this->sezzleApiConfig->getMerchantId(),
+            'theme' => $this->productWidgetConfig->getTheme(),
+            'widthType' => $this->productWidgetConfig->getWidthType(),
+            'widgetType' => self::WIDGET_TYPE,
+            'minPrice' => self::MIN_PRICE,
+            'maxPrice' => self::MAX_PRICE,
+            'imageUrl' => $this->productWidgetConfig->getImageUrl(),
+            'hideClasses' => $this->productWidgetConfig->getHideClass(),
         ];
     }
 }

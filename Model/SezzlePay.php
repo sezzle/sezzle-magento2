@@ -1,4 +1,10 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
+ */
 
 namespace Sezzle\Sezzlepay\Model;
 
@@ -135,6 +141,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
+     * Get Sezzle checkout url
      * @param $quote
      * @return bool
      */
@@ -155,6 +162,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
+     * Get Sezzle redirect url
      * @param $quote
      * @param $reference
      * @return mixed
@@ -177,6 +185,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
+     * Capture payment
      * @param $reference
      * @return mixed
      */
@@ -197,6 +206,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
+     * Create refund
      * @param \Magento\Payment\Model\InfoInterface $payment
      * @param $amount
      * @return $this
@@ -229,6 +239,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     /**
+     * Create transaction
      * @param $order
      * @param $reference
      * @return mixed

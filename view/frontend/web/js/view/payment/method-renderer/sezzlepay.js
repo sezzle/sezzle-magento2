@@ -1,5 +1,9 @@
-/*browser:true*/
-/*global define*/
+/*
+* @category    Sezzle
+* @package     Sezzle_Sezzlepay
+* @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+* @license     https://www.sezzle.com/LICENSE.txt
+*/
 define(
     [
         'Magento_Checkout/js/view/payment/default',

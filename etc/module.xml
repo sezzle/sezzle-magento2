@@ -1,4 +1,12 @@
 <?xml version="1.0" ?>
+<!--
+/*
+* @category    Sezzle
+* @package     Sezzle_Sezzlepay
+* @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+* @license     https://www.sezzle.com/LICENSE.txt
+*/
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
       <module name="Sezzle_Sezzlepay" setup_version="1.0.0">
             <sequence>

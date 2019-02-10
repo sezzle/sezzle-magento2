@@ -1,9 +1,15 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
+ */
 
 namespace Sezzle\Sezzlepay\Controller\AbstractController;
 
-use Magento\Sales\Model\Order;
 use Magento\Framework\App\Action\Action;
+use Magento\Sales\Model\Order;
 
 /**
  * Class Sezzlepay

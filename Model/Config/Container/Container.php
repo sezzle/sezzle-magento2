@@ -1,4 +1,10 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ * @license     https://www.sezzle.com/LICENSE.txt
+ */
 
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
@@ -6,6 +12,10 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
+/**
+ * Class Container
+ * @package Sezzle\Sezzlepay\Model\Config\Container
+ */
 abstract class Container implements IdentityInterface
 {
     /**
