@@ -53,12 +53,7 @@ From:
             continue;
         }
 To:
-        if ($index === 0 && preg_match('#^HTTP/\d+(?:\.\d+) [1-5]\d+#', $line)) {
-            // Status line; ignore
-            continue;
-        }
-
-        if ($index === 0 && preg_match('#^HTTP/2 200#', $line)) {
+        if ($index === 0 && preg_match('#^HTTP/\d+(?:\.\d+)? [1-5]\d+#', $line)) {
             // Status line; ignore
             continue;
         }
