@@ -6,17 +6,17 @@
  * @license     https://www.sezzle.com/LICENSE.txt
  */
 
-namespace Sezzle\Sezzlepay\Block;
+namespace Sezzle\Sezzlepay\Block\Product;
 
 use Magento\Framework\View\Element\Template;
 use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
- * Class ProductWidget
- * @package Sezzle\Sezzlepay\Block
+ * Class Widget
+ * @package Sezzle\Sezzlepay\Block\Product
  */
-class ProductWidget extends Template
+class Widget extends Template
 {
 
     const MIN_PRICE = 0;
