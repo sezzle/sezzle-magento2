@@ -152,7 +152,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID, $reference);
         $payment->save();
         $response = $this->getSezzleRedirectUrl($quote, $reference);
-        $result = $this->jsonHelper->jsonDecode($response->getBody(), true);
+        $result = $this->jsonHelper->jsonDecode($response, true);
         $orderUrl = array_key_exists('checkout_url', $result) ? $result['checkout_url'] : false;
         if (!$orderUrl) {
             $this->logger->info("No Token response from API");
@@ -172,8 +172,10 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/checkouts';
         $requestBody = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
         try {
+            $authToken = $this->sezzleApiConfig->getAuthToken();
             $response = $this->sezzleApiProcessor->call(
                 $url,
+                $authToken,
                 $requestBody,
                 \Magento\Framework\HTTP\ZendClient::POST
             );
@@ -193,8 +195,10 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     {
         try {
             $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/checkouts' . '/' . $reference . '/complete';
+            $authToken = $this->sezzleApiConfig->getAuthToken();
             $response = $this->sezzleApiProcessor->call(
                 $url,
+                $authToken,
                 null,
                 \Magento\Framework\HTTP\ZendClient::POST
             );
@@ -218,8 +222,10 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
             $currency = $payment->getOrder()->getGlobalCurrencyCode();
             try {
                 $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/orders' . '/' . $orderId . '/refund';
+                $authToken = $this->sezzleApiConfig->getAuthToken();
                 $this->sezzleApiProcessor->call(
                     $url,
+                    $authToken,
                     ["amount" => [
                         "amount_in_cents" => $amount * 100,
                         "currency" => $currency

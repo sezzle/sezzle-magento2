@@ -9,8 +9,7 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
-use Magento\Framework\Http\ZendClient;
-use Magento\Framework\Http\ZendClientFactory;
+use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
@@ -35,10 +34,6 @@ class Config implements ConfigInterface
      */
     protected $scopeConfig;
     /**
-     * @var ZendClientFactory
-     */
-    protected $httpClientFactory;
-    /**
      * @var SezzleApiConfigInterface
      */
     protected $sezzleApiIdentity;
@@ -46,27 +41,31 @@ class Config implements ConfigInterface
      * @var \Magento\Framework\UrlInterface
      */
     protected $urlBuilder;
+    /**
+     * @var ProcessorInterface
+     */
+    protected $apiProcessor;
 
     /**
-     * Processor constructor.
-     * @param ZendClientFactory $httpClientFactory
+     * Config constructor.
      * @param \Magento\Framework\UrlInterface $urlBuilder
+     * @param ProcessorInterface $apiProcessor
      * @param SezzleApiConfigInterface $sezzleApiIdentity
      * @param JsonHelper $jsonHelper
      * @param Logger $logger
      * @param ScopeConfig $scopeConfig
      */
     public function __construct(
-        ZendClientFactory $httpClientFactory,
         \Magento\Framework\UrlInterface $urlBuilder,
+        ProcessorInterface $apiProcessor,
         SezzleApiConfigInterface $sezzleApiIdentity,
         JsonHelper $jsonHelper,
         Logger $logger,
         ScopeConfig $scopeConfig
     )
     {
-        $this->httpClientFactory = $httpClientFactory;
         $this->_urlBuilder = $urlBuilder;
+        $this->apiProcessor = $apiProcessor;
         $this->sezzleApiIdentity = $sezzleApiIdentity;
         $this->jsonHelper = $jsonHelper;
         $this->logger = $logger;
@@ -79,36 +78,28 @@ class Config implements ConfigInterface
      */
     public function getAuthToken()
     {
-        $method = ZendClient::POST;
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/authentication';
-        $client = $this->httpClientFactory->create();
         $publicKey = $this->sezzleApiIdentity->getPublicKey();
         $privateKey = $this->sezzleApiIdentity->getPrivateKey();
         $body = [
             "public_key" => $publicKey,
             "private_key" => $privateKey
         ];
-        $client->setUri($url)
-            ->setRawData($this->jsonHelper->jsonEncode($body), ApiParamsInterface::CONTENT_TYPE_JSON);
-        $client->setConfig(['timeout' => ApiParamsInterface::TIMEOUT]);
         $requestLog = [
             'type' => 'Request',
-            'method' => $method,
+            'method' => ZendClient::POST,
             'url' => $url,
             'body' => $body
         ];
         $this->logger->debug($this->jsonHelper->jsonEncode($requestLog));
         try {
-            $response = $client->request($method);
-            $body = $this->jsonHelper->jsonDecode($response->getBody());
-            $responseLog = [
-                'type' => 'Response',
-                'method' => $method,
-                'url' => $url,
-                'httpStatusCode' => $response->getStatus(),
-                'body' => $body
-            ];
-            $this->logger->debug($this->jsonHelper->jsonEncode($responseLog));
+            $response = $this->apiProcessor->call(
+                $url,
+                null,
+                $body,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
             return $body['token'];
         } catch (\Exception $e) {
             $this->logger->debug($e->getMessage());

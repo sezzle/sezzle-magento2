@@ -9,6 +9,7 @@
 namespace Sezzle\Sezzlepay\Model\Gateway;
 
 use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
+use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
@@ -33,22 +34,29 @@ class Heartbeat
      * @var ProductWidgetConfigInterface
      */
     private $productWidgetConfig;
+    /**
+     * @var ConfigInterface
+     */
+    private $config;
 
     /**
      * Heartbeat constructor.
      * @param \Psr\Log\LoggerInterface $logger
+     * @param ConfigInterface $config
      * @param \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor
      * @param SezzleApiConfigInterface $sezzleApiConfig
      * @param ProductWidgetConfigInterface $productWidgetConfig
      */
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
+        ConfigInterface $config,
         \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
         SezzleApiConfigInterface $sezzleApiConfig,
         ProductWidgetConfigInterface $productWidgetConfig
     )
     {
         $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->config = $config;
         $this->productWidgetConfig = $productWidgetConfig;
         $this->sezzleApiProcessor = $sezzleApiProcessor;
         $this->logger = $logger;
@@ -76,8 +84,10 @@ class Heartbeat
         if ($isPublicKeyEntered && $isPrivateKeyEntered && $isMerchantIdEntered) {
             $url = $this->sezzleApiConfig->getSezzleBaseUrl() . '/v1/merchant_data' . '/magento/heartbeat';
             try {
+                $authToken = $this->config->getAuthToken();
                 $response = $this->sezzleApiProcessor->call(
                     $url,
+                    $authToken,
                     $body,
                     \Magento\Framework\HTTP\ZendClient::POST
                 );

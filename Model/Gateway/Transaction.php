@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Model\Gateway;
 
 
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
 
 /**
  * Class Transaction
@@ -37,10 +38,15 @@ class Transaction
      * @var \Magento\Sales\Api\Data\OrderInterface
      */
     private $orderInterface;
+    /**
+     * @var ConfigInterface
+     */
+    private $config;
 
     /**
      * Transaction constructor.
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
+     * @param ConfigInterface $config
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor
      * @param SezzleApiConfigInterface $sezzleApiConfig
@@ -48,6 +54,7 @@ class Transaction
      */
     public function __construct(
         \Magento\Sales\Model\OrderFactory $orderFactory,
+        ConfigInterface $config,
         \Psr\Log\LoggerInterface $logger,
         \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
         SezzleApiConfigInterface $sezzleApiConfig,
@@ -55,6 +62,7 @@ class Transaction
     )
     {
         $this->orderFactory = $orderFactory;
+        $this->config = $config;
         $this->sezzleApiConfig = $sezzleApiConfig;
         $this->sezzleApiProcessor = $sezzleApiProcessor;
         $this->logger = $logger;
@@ -90,8 +98,10 @@ class Transaction
                 ->addAttributeToSelect('increment_id');
             $body = $this->_buildOrderPayLoad($ordersCollection);
             $url = $this->sezzleApiConfig->getSezzleBaseUrl() . '/v1/merchant_data' . '/magento/merchant_orders';
+            $authToken = $this->config->getAuthToken();
             $response = $this->sezzleApiProcessor->call(
                 $url,
+                $authToken,
                 $body,
                 \Magento\Framework\HTTP\ZendClient::POST
             );

@@ -21,10 +21,15 @@ interface ProcessorInterface
      * Call to Sezzle Gateway
      *
      * @param $url
+     * @param $authToken
      * @param bool $body
      * @param $method
      * @return mixed
      */
-    public function call($url, $body = false, $method = ZendClient::GET);
+    public function call(
+        $url,
+        $authToken = null,
+        $body = false,
+        $method = ZendClient::GET);
 
 }
