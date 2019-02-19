@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <!--
 /*
-* @category    Sezzle
-* @package     Sezzle_Sezzlepay
-* @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
-* @license     https://www.sezzle.com/LICENSE.txt
-*/
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\Checkout\Model\CompositeConfigProvider">

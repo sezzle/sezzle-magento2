@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <!--
 /*
-* @category    Sezzle
-* @package     Sezzle_Sezzlepay
-* @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
-* @license     https://www.sezzle.com/LICENSE.txt
-*/
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
