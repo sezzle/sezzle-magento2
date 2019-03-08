@@ -51,8 +51,10 @@
                         <config_path>payment/sezzlepay/merchant_id</config_path>
                     </field>
                 </group>
-                <group id="sezzlepay_product_widget" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="sezzlepay_widget" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Product Widget Settings]]></label>
+                    <group id="sezzlepay_widget_product_page" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label><![CDATA[Product Page]]></label>
                     <field id="xpath" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Price block selector</label>
                         <comment>
@@ -117,6 +119,74 @@
                         </comment>
                         <config_path>product/sezzlepay/hide_classes</config_path>
                     </field>
+                    </group>
+                    <group id="sezzlepay_widget_cart_page" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label><![CDATA[Cart Page]]></label>
+                        <field id="xpath" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Price block selector</label>
+                            <comment>
+                                Path of the price element to watch for
+                                For multiple, separate by |
+                                Eg: .product-price/.price|.extra-info/.price-min
+                            </comment>
+                            <config_path>cart/sezzlepay/xpath</config_path>
+                        </field>
+                        <field id="renderXPath" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Product page: render to element path</label>
+                            <comment>
+                                Path of the element to which to render widget.
+                                For multiple, separate by |
+                                This path is relative to the corresponding price element.
+                                So, the first path in this will be relative to the first path in Price block selector.
+                                Second to the second and so on.
+                                Eg: If .product-price/.price is the path to the price element and you want to
+                                put the widget in the 2nd parent of that element, you should use ../..
+                            </comment>
+                            <config_path>cart/sezzlepay/render_x_path</config_path>
+                        </field>
+                        <field id="forced_show" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Show in all countries</label>
+                            <comment>
+                                If false, the widget is shown only in countries where Sezzle Pay is supported
+                            </comment>
+                            <config_path>cart/sezzlepay/forced_show</config_path>
+                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        </field>
+                        <field id="alignment" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Alignment</label>
+                            <comment>Alignment of the widget in the div</comment>
+                            <source_model>Sezzle\Sezzlepay\Model\Config\Source\Product\WidgetAlignment</source_model>
+                            <config_path>cart/sezzlepay/alignment</config_path>
+                        </field>
+                        <field id="theme" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Theme</label>
+                            <comment>Select the theme depending on your site's background</comment>
+                            <source_model>Sezzle\Sezzlepay\Model\Config\Source\Product\ThemeAlignment</source_model>
+                            <config_path>cart/sezzlepay/theme</config_path>
+                        </field>
+                        <field id="widthType" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Width Type</label>
+                            <comment>Text width of the widget</comment>
+                            <config_path>cart/sezzlepay/width_type</config_path>
+                            <source_model>Sezzle\Sezzlepay\Model\Config\Source\Product\WidthAlignment</source_model>
+                        </field>
+                        <field id="imageUrl" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Image URL</label>
+                            <comment>(Optional) Override with URL to a different Logo you want else leave empty</comment>
+                            <config_path>cart/sezzlepay/image_url</config_path>
+                        </field>
+                        <field id="hideClasses" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Hide classes</label>
+                            <comment>
+                                Classes to be hidden when sezzle widget is visible.
+                                There are other products like Sezzle Pay which do not work in countries where sezzle works.
+                                You can hide them by adding their classes here.
+                                To hide multiple elements enter their classes like the following.
+                                Eg: class-to-hide|class-to-hide-2
+                            </comment>
+                            <config_path>cart/sezzlepay/hide_classes</config_path>
+                        </field>
+                    </group>
                 </group>
             </group>
         </section>
