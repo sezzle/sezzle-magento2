@@ -14,6 +14,9 @@
                 <comment><![CDATA[<span class="logo">&nbsp;</span><strong class="text">Buy Now, Pay Later</strong>]]></comment>
                 <fieldset_css>complex sezzlepay-section</fieldset_css>
                 <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+                <field id="merchant_signup" type="note" translate="label" sortOrder="0" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\Field\MerchantSignup</frontend_model>
+                </field>
                 <group id="sezzlepay_payment" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Payment Settings]]></label>
                     <!-- active -->
