@@ -3,14 +3,35 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
-.sezzlepay-section {
-  span.logo {
-    padding-left: 110px;
-    background: url(../images/sezzlepay_logo.png) no-repeat 0 0;
-    line-height: 36px;
-    padding-bottom: 15px;
+
+.complex.sezzle-payment-section {
+  .sezzle-payment-logo {
+    display: inline-block;
+    background-position: left;
+    vertical-align: middle;
+    margin: 0 20px 0 0px;
+    width: 102px;
+    height: 60px;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-image: url('data:image/jpeg;base64,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');
   }
-  strong.text {
-    vertical-align: bottom;
+  .button-container {
+    float: right;
+  }
+  .sezzle-payment-byline {
+    display: inline-block;
+    vertical-align: middle;
+    width: 50%;
   }
 }
+.sezzle-payment-section.section-config.active {
+  >.admin__collapsible-block {
+    &+input {
+      &+fieldset {
+        margin-left: 40px;
+      }
+    }
+  }
+}
+
+

@@ -10,10 +10,9 @@
     <system>
         <section id="payment">
             <group id="sezzlepay" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Sezzle Pay</label>
-                <comment><![CDATA[<span class="logo">&nbsp;</span><strong class="text">Buy Now, Pay Later</strong>]]></comment>
-                <fieldset_css>complex sezzlepay-section</fieldset_css>
-                <frontend_model>Magento\Config\Block\System\Config\Form\Fieldset</frontend_model>
+                <label><![CDATA[<div class="sezzle-payment-logo"></div><div class="sezzle-payment-byline">Buy Now, Pay Later.</div>]]></label>
+                <fieldset_css>complex sezzle-payment-section</fieldset_css>
+                <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
                 <group id="sezzlepay_payment" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Payment Settings]]></label>
                     <!-- active -->
