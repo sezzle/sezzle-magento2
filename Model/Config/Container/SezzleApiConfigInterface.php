@@ -29,10 +29,10 @@ interface SezzleApiConfigInterface extends IdentityInterface
     public function getPrivateKey();
 
     /**
-     * Get Api mode
+     * Get Payment mode
      * @return mixed
      */
-    public function getApiMode();
+    public function getPaymentMode();
 
     /**
      * Get Merchant Id
