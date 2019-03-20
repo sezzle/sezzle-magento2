@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="Sezzle_Sezzlepay::styles.css"/>
+        <css src="Sezzle_Sezzlepay::css/sezzlepay.css"/>
     </head>
 </page>

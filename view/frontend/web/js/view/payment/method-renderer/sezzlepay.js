@@ -1,5 +1,8 @@
-/*browser:true*/
-/*global define*/
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 define(
     [
         'Magento_Checkout/js/view/payment/default',
@@ -51,7 +54,7 @@ define(
             handleRedirectAction: function () {
                 var data = $("#co-shipping-form").serialize();
                 if (!window.checkoutConfig.quoteData.customer_id) {
-                    var email = document.getElementById("customer-email").value;
+                    var email = $("#customer-email").value;
                 } else {
                     var email = window.checkoutConfig.customerData.email;
                 }

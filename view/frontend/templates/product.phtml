@@ -1,22 +1,16 @@
-<?php ?>
-<script type="text/javascript">
-    (function () {
-    Sezzle = {}
-    Sezzle.render = function () {
-        if (!document.sezzleConfig) {
-        console.warn('SezzlePay: document.sezzleConfig is not set, cannot render widget');
-        return;
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "productWidget": {
+                "jsConfig" : <?php echo json_encode($this->getJsConfig()) ?>
+            }
         }
-    
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = 'https://widget.sezzle.com/v1/javascript/price-widget?uuid=' + document.sezzleConfig.merchantID;
-        document.head.appendChild(script);
     }
-    })();
-    document.sezzleConfig = <?php echo json_encode($this->getJsConfig()) ?>;
-    require(["jquery", "domReady!"], function($){
-        Sezzle.render();
-        console.log('dom loaded');
-    });
 </script>

@@ -1,5 +1,8 @@
-/*browser:true*/
-/*global define*/
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 define(
     [
         'uiComponent',

@@ -1,21 +1,35 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+
 namespace Sezzle\Sezzlepay\Controller\Standard;
 
-class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
+use Sezzle\Sezzlepay\Controller\AbstractController\SezzlePay;
+
+/**
+ * Class Complete
+ * @package Sezzle\Sezzlepay\Controller\Standard
+ */
+class Complete extends SezzlePay
 {
+    /**
+     * Complete the order
+     */
     public function execute()
     {
         $redirect = 'checkout/cart';
         try {
             $this->_logger->debug("Returned from Sezzlepay.");
             $quote = $this->_checkoutSession->getQuote();
-            $quoteId = $quote->getId();
             $payment = $quote->getPayment();
-            $reference = $payment->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePaymentMethod::ADDITIONAL_INFORMATION_KEY_ORDERID);
+            $reference = $payment->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
             $orderId = $quote->getReservedOrderId();
             $this->_logger->debug("Order ID from quote $orderId.");
             // Capture this payment
-            $response = $this->getSezzlepayModel()->capturePayment($reference);
+            $response = $this->_sezzlepayModel->capturePayment($reference);
             $this->_logger->debug("Response received from Sezzle.");
 
             $this->_checkoutSession
@@ -23,15 +37,15 @@ class Complete extends \Sezzle\Sezzlepay\Controller\Sezzlepay
                 ->setLastSuccessQuoteId($quote->getId())
                 ->clearHelperData();
             $this->_logger->debug("Set data on checkout session");
-            
+
             $order = $this->_quoteManagement->submit($quote);
             $this->_logger->debug("Order created");
-            
+
             if ($order) {
                 $this->_checkoutSession->setLastOrderId($order->getId())
-                                   ->setLastRealOrderId($order->getIncrementId())
-                                   ->setLastOrderStatus($order->getStatus());
-                $this->_createTransaction($order, $reference);
+                    ->setLastRealOrderId($order->getIncrementId())
+                    ->setLastOrderStatus($order->getStatus());
+                $this->_sezzlepayModel->createTransaction($order, $reference);
                 $this->_logger->debug("Created transaction with reference $reference");
 
                 // send email

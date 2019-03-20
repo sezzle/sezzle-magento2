@@ -30,31 +30,21 @@ This extension allows you to use Sezzle as payment gateway in your Magento 2 sto
 
 ## Payment Setup
 1. Make sure you have the merchant ID and the API Keys from the Sezzle Merchant Dashboard.
-2. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay` in your Magento admin.
-3. Set the base URL to `https://gateway.sezzle.com`.
+2. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Payment Settings` in your Magento admin.
+3. Set the base URL to `https://gateway.sezzle.com` for LIVE and set it as `https://sandbox.gateway.sezzle.com` for SANDBOX.
 4. Set the Merchant ID, Public Key and Private Key.
+5. Save the configuration and clear the cache.
 
-## Troubleshooting
-
-### What to do if I see "Invalid header line detected" error message when placing an order with Sezzle?
-
-Reason for this error is: Our Load Balancers support both HTTP/1.1 and HTTP/2. As a result, clients that support HTTP/2 will auto upgrade. It's likely that cURL also auto upgrades to HTTP/2, transparently i.e. it sends HTTP/2 request with a HTTP/2 response, on the wire. We use magento's core Zend Framework library for curl request and it does not support HTTP/2. We have plans to switch to another library or Magento's curl in future, to fix the issue for now please follow these instructions to apply patch to add HTTP/2 support to ZF1 library.
-```php
-1. File path : <magento root>/vendor/magento/zendframework1/library/Zend/Http/Response.php, modify around line 185 :
-From: 
-        if (! preg_match('|^\d\.\d$|', $version)) {
-To:
-        if (! preg_match('|^\d\.\d$|', $version) && ($version != 2)) {
-
-2. File path : <magento root>/vendor/magento/zendframework1/library/Zend/Http/Response.php, modify around line 586 :
-From:
-        if ($index === 0 && preg_match('#^HTTP/\d+(?:\.\d+) [1-5]\d+#', $line)) {
-            // Status line; ignore
-            continue;
-        }
-To:
-        if ($index === 0 && preg_match('#^HTTP/\d+(?:\.\d+)? [1-5]\d+#', $line)) {
-            // Status line; ignore
-            continue;
-        }
+## Product Widget Setup
+1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Product Widget Settings` in your Magento admin.
+2. Provide the below necessary information so that Sezzle widget comes up in the product page in frontend.
+   - Price Block Selector : XPath of the price element.
+   - Render to element path : Location where to render the widget.
+   - Show in all countries : Provide as per your requirement.
+   - Alignment : Position of the widget.
+   - Theme : Widget theme that depends on your site’s background.
+   - Width type : Text width of the widget.
+   - Image url : If you want to have different logo, paste the url here.
+   - Hide classes : Classes to be hidden when sezzle widget is in place.
+4. Save the configuration and clear the cache.
 ```
