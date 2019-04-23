@@ -50,6 +50,13 @@
                         <comment>Look for this in your Sezzle Dashboard</comment>
                         <config_path>payment/sezzlepay/merchant_id</config_path>
                     </field>
+                    <!-- log tracker -->
+                    <field id="log_tracker" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable log tracker?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>If yes, all Sezzle actions will be logged</comment>
+                        <config_path>payment/sezzlepay/log_tracker</config_path>
+                    </field>
                 </group>
                 <group id="sezzlepay_product_widget" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Product Widget Settings]]></label>

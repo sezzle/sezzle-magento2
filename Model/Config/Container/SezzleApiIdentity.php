@@ -20,6 +20,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_BASE_URL = 'payment/sezzlepay/base_url';
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
+    const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
 
     /**
      * @inheritdoc
@@ -80,6 +81,16 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_BASE_URL,
+            $this->getStore()->getStoreId());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isLogTrackerEnabled()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_LOG_TRACKER,
             $this->getStore()->getStoreId());
     }
 }

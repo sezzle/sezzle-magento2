@@ -22,9 +22,12 @@ class Redirect extends SezzlePay
      */
     public function execute()
     {
+        $this->sezzleHelper->logSezzleActions("****Starting Sezzle Pay****");
         $quote = $this->_checkoutSession->getQuote();
+        $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         if ($this->_customerSession->isLoggedIn()) {
             $customerId = $this->_customerSession->getCustomer()->getId();
+            $this->sezzleHelper->logSezzleActions("Customer Id : $customerId");
             $customer = $this->_customerRepository->getById($customerId);
             $quote->setCustomer($customer);
             $billingAddress = $quote->getBillingAddress();
@@ -39,6 +42,7 @@ class Redirect extends SezzlePay
             }
         } else {
             $post = $this->getRequest()->getPostValue();
+            $this->sezzleHelper->logSezzleActions("Guest customer");
             if (!empty($post['email'])) {
                 $quote->setCustomerEmail($post['email'])
                     ->setCustomerIsGuest(true)
@@ -52,6 +56,7 @@ class Redirect extends SezzlePay
         $quote->save();
         $this->_checkoutSession->replaceQuote($quote);
         $checkoutUrl = $this->_sezzlepayModel->getSezzleCheckoutUrl($quote);
+        $this->sezzleHelper->logSezzleActions("Checkout Url : $checkoutUrl");
         $json = $this->_jsonHelper->jsonEncode(["redirectURL" => $checkoutUrl]);
         $jsonResult = $this->_resultJsonFactory->create();
         $jsonResult->setData($json);

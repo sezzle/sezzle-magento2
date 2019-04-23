@@ -79,6 +79,11 @@ abstract class SezzlePay extends Action
     protected $_customerRepository;
 
     /**
+     * @var \Sezzle\Sezzlepay\Helper\Data
+     */
+    protected $sezzleHelper;
+
+    /**
      * Sezzlepay constructor.
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
@@ -87,6 +92,7 @@ abstract class SezzlePay extends Action
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param Order\Status\HistoryFactory $orderHistoryFactory
      * @param \Sezzle\Sezzlepay\Model\SezzlePay $sezzlepayModel
+     * @param \Sezzle\Sezzlepay\Helper\Data $sezzleHelper
      * @param Order\Config $salesOrderConfig
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Psr\Log\LoggerInterface $logger
@@ -105,6 +111,7 @@ abstract class SezzlePay extends Action
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Sales\Model\Order\Status\HistoryFactory $orderHistoryFactory,
         \Sezzle\Sezzlepay\Model\SezzlePay $sezzlepayModel,
+        \Sezzle\Sezzlepay\Helper\Data $sezzleHelper,
         \Magento\Sales\Model\Order\Config $salesOrderConfig,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Psr\Log\LoggerInterface $logger,
@@ -117,6 +124,7 @@ abstract class SezzlePay extends Action
     )
     {
         $this->_customerSession = $customerSession;
+        $this->sezzleHelper = $sezzleHelper;
         $this->_jsonHelper = $jsonHelper;
         $this->_customerRepository = $customerRepository;
         $this->_checkoutSession = $checkoutSession;
