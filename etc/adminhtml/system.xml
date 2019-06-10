@@ -52,7 +52,7 @@
                     </field>
                 </group>
                 <group id="sezzlepay_widget" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[Product Widget Settings]]></label>
+                    <label><![CDATA[Widget Settings]]></label>
                     <group id="sezzlepay_widget_product_page" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label><![CDATA[Product Page]]></label>
                     <field id="xpath" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -127,19 +127,19 @@
                             <comment>
                                 Path of the price element to watch for
                                 For multiple, separate by |
-                                Eg: .product-price/.price|.extra-info/.price-min
+                                Eg: .grand/.price|.extra-info/.price-min
                             </comment>
                             <config_path>cart/sezzlepay/xpath</config_path>
                         </field>
                         <field id="renderXPath" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Product page: render to element path</label>
+                            <label>Cart page: render to element path</label>
                             <comment>
                                 Path of the element to which to render widget.
                                 For multiple, separate by |
                                 This path is relative to the corresponding price element.
                                 So, the first path in this will be relative to the first path in Price block selector.
                                 Second to the second and so on.
-                                Eg: If .product-price/.price is the path to the price element and you want to
+                                Eg: If .grand/.price is the path to the price element and you want to
                                 put the widget in the 2nd parent of that element, you should use ../..
                             </comment>
                             <config_path>cart/sezzlepay/render_x_path</config_path>
