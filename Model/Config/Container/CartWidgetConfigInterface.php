@@ -8,10 +8,10 @@
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
 /**
- * Interface ProductWidgetConfigInterface
+ * Interface CartWidgetConfigInterface
  * @package Sezzle\Sezzlepay\Model\Config\Container
  */
-interface ProductWidgetConfigInterface extends IdentityInterface
+interface CartWidgetConfigInterface extends IdentityInterface
 {
 
     /**

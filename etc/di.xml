@@ -11,4 +11,5 @@
 	<preference for="Sezzle\Sezzlepay\Model\Api\ProcessorInterface" type="Sezzle\Sezzlepay\Model\Api\Processor"/>
 	<preference for="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface" type="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiIdentity"/>
 	<preference for="Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface" type="Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetIdentity"/>
+	<preference for="Sezzle\Sezzlepay\Model\Config\Container\CartWidgetConfigInterface" type="Sezzle\Sezzlepay\Model\Config\Container\CartWidgetIdentity"/>
 </config>
