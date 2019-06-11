@@ -9,7 +9,7 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="head.additional">
-            <block class="Sezzle\Sezzlepay\Block\SezzleWidget\ProductView" name="sezzle.widget.product.view" template="product.phtml"/>
+            <block class="Sezzle\Sezzlepay\Block\SezzleWidget\Cart" name="sezzle.widget.cart.view" template="cart.phtml"/>
         </referenceBlock>
     </body>
 </page>

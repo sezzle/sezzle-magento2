@@ -67,6 +67,10 @@ define(
                     this.handleRedirectAction();
                 }
             },
+
+            placeOrder: function(data, event) {
+                this.continueToSezzlepay();
+            }
         });
     }
 );
