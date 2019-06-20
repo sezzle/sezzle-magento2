@@ -1,0 +1,16 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "productWidget": {
+                "jsConfig" : <?php echo json_encode($this->getJsConfig()) ?>
+            }
+        }
+    }
+</script>

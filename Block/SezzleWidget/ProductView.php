@@ -5,17 +5,17 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Block\Product;
+namespace Sezzle\Sezzlepay\Block\SezzleWidget;
 
 use Magento\Framework\View\Element\Template;
 use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
- * Class Widget
- * @package Sezzle\Sezzlepay\Block\Product
+ * Class ProductView
+ * @package Sezzle\Sezzlepay\Block\SezzleWidget
  */
-class Widget extends Template
+class ProductView extends Template
 {
 
     const MIN_PRICE = 0;
@@ -26,12 +26,17 @@ class Widget extends Template
      * @var ProductWidgetConfigInterface
      */
     private $productWidgetConfig;
+    /**
+     * @var SezzleApiConfigInterface
+     */
+    private $sezzleApiConfig;
 
     /**
      * ProductWidget constructor.
      *
      * @param Template\Context $context
      * @param ProductWidgetConfigInterface $productWidgetConfig
+     * @param SezzleApiConfigInterface $sezzleApiConfig
      * @param array $data
      */
     public function __construct(
