@@ -33,18 +33,32 @@ This extension allows you to use Sezzle as payment gateway in your Magento 2 sto
 2. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Payment Settings` in your Magento admin.
 3. Set the base URL to `https://gateway.sezzle.com` for LIVE and set it as `https://sandbox.gateway.sezzle.com` for SANDBOX.
 4. Set the Merchant ID, Public Key and Private Key.
-5. Save the configuration and clear the cache.
+5. Enable the log tracker to trace the Sezzle checkout process.
+6. Save the configuration and clear the cache.
 
 ## Product Widget Setup
-1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Product Widget Settings` in your Magento admin.
+1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Widget Settings/Product Page` in your Magento admin.
 2. Provide the below necessary information so that Sezzle widget comes up in the product page in frontend.
    - Price Block Selector : XPath of the price element.
-   - Render to element path : Location where to render the widget.
+   - Product page:render to element path : Location where to render the widget.
    - Show in all countries : Provide as per your requirement.
    - Alignment : Position of the widget.
    - Theme : Widget theme that depends on your site’s background.
    - Width type : Text width of the widget.
    - Image url : If you want to have different logo, paste the url here.
    - Hide classes : Classes to be hidden when sezzle widget is in place.
-4. Save the configuration and clear the cache.
+3. Save the configuration and clear the cache.
+
+## Cart Widget Setup
+1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Widget Settings/Cart Page` in your Magento admin.
+2. Provide the below necessary information so that Sezzle widget comes up in the product page in frontend.
+   - Price Block Selector : XPath of the price element.
+   - Cart page:render to element path : Location where to render the widget.
+   - Show in all countries : Provide as per your requirement.
+   - Alignment : Position of the widget.
+   - Theme : Widget theme that depends on your site’s background.
+   - Width type : Text width of the widget.
+   - Image url : If you want to have different logo, paste the url here.
+   - Hide classes : Classes to be hidden when sezzle widget is in place.
+3. Save the configuration and clear the cache.
 ```
