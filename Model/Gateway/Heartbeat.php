@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Model\Gateway;
 use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
 use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 
 /**
  * Class Heartbeat
@@ -39,8 +40,14 @@ class Heartbeat
     private $config;
 
     /**
+     * @var SezzleHelper
+     */
+    private $sezzleHelper;
+
+    /**
      * Heartbeat constructor.
      * @param \Psr\Log\LoggerInterface $logger
+     * @param SezzleHelper $sezzleHelper
      * @param ConfigInterface $config
      * @param \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor
      * @param SezzleApiConfigInterface $sezzleApiConfig
@@ -48,6 +55,7 @@ class Heartbeat
      */
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
+        SezzleHelper $sezzleHelper,
         ConfigInterface $config,
         \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
         SezzleApiConfigInterface $sezzleApiConfig,
@@ -55,6 +63,7 @@ class Heartbeat
     )
     {
         $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->sezzleHelper = $sezzleHelper;
         $this->config = $config;
         $this->productWidgetConfig = $productWidgetConfig;
         $this->sezzleApiProcessor = $sezzleApiProcessor;
@@ -66,6 +75,7 @@ class Heartbeat
      */
     public function send()
     {
+        $this->sezzleHelper->logSezzleActions("****Hearbeat process start****");
         $isPublicKeyEntered = $this->sezzleApiConfig->getPublicKey() ? true : false;
         $isPrivateKeyEntered = $this->sezzleApiConfig->getPrivateKey() ? true : false;
         $isWidgetConfigured = $this->productWidgetConfig->getTargetXPath() ? true : false;
@@ -84,18 +94,18 @@ class Heartbeat
             $url = $this->sezzleApiConfig->getSezzleBaseUrl() . '/v1/merchant_data' . '/magento/heartbeat';
             try {
                 $authToken = $this->config->getAuthToken();
-                $response = $this->sezzleApiProcessor->call(
+                $this->sezzleApiProcessor->call(
                     $url,
                     $authToken,
                     $body,
                     \Magento\Framework\HTTP\ZendClient::POST
                 );
-                $this->logger->debug(print_r($response));
+                $this->sezzleHelper->logSezzleActions("****Hearbeat process end****");
             } catch (\Exception $e) {
-                $this->logger->debug("Error while sending heartbeat to Sezzle" . $e->getMessage());
+                $this->sezzleHelper->logSezzleActions("Error while sending heartbeat to Sezzle" . $e->getMessage());
             }
         } else {
-            $this->logger->debug('Could not send Heartbeat to Sezzle. Please set api keys.');
+            $this->sezzleHelper->logSezzleActions('Could not send Heartbeat to Sezzle. Please set api keys.');
         }
     }
 }

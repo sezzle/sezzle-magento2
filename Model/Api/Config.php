@@ -12,6 +12,7 @@ use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 
 
 /**
@@ -46,10 +47,16 @@ class Config implements ConfigInterface
     protected $apiProcessor;
 
     /**
+     * @var SezzleHelper
+     */
+    protected $sezzleHelper;
+
+    /**
      * Config constructor.
      * @param \Magento\Framework\UrlInterface $urlBuilder
      * @param ProcessorInterface $apiProcessor
      * @param SezzleApiConfigInterface $sezzleApiIdentity
+     * @param SezzleHelper $sezzleHelper
      * @param JsonHelper $jsonHelper
      * @param Logger $logger
      * @param ScopeConfig $scopeConfig
@@ -58,14 +65,16 @@ class Config implements ConfigInterface
         \Magento\Framework\UrlInterface $urlBuilder,
         ProcessorInterface $apiProcessor,
         SezzleApiConfigInterface $sezzleApiIdentity,
+        SezzleHelper $sezzleHelper,
         JsonHelper $jsonHelper,
         Logger $logger,
         ScopeConfig $scopeConfig
     )
     {
-        $this->_urlBuilder = $urlBuilder;
+        $this->urlBuilder = $urlBuilder;
         $this->apiProcessor = $apiProcessor;
         $this->sezzleApiIdentity = $sezzleApiIdentity;
+        $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
         $this->logger = $logger;
         $this->scopeConfig = $scopeConfig;
@@ -74,6 +83,7 @@ class Config implements ConfigInterface
     /**
      * Get auth token
      * @return mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function getAuthToken()
     {
@@ -84,13 +94,6 @@ class Config implements ConfigInterface
             "public_key" => $publicKey,
             "private_key" => $privateKey
         ];
-        $requestLog = [
-            'type' => 'Request',
-            'method' => ZendClient::POST,
-            'url' => $url,
-            'body' => $body
-        ];
-        $this->logger->debug($this->jsonHelper->jsonEncode($requestLog));
         try {
             $response = $this->apiProcessor->call(
                 $url,
@@ -101,7 +104,7 @@ class Config implements ConfigInterface
             $body = $this->jsonHelper->jsonDecode($response);
             return $body['token'];
         } catch (\Exception $e) {
-            $this->logger->debug($e->getMessage());
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Gateway error: %1', $e->getMessage())
             );
@@ -116,7 +119,7 @@ class Config implements ConfigInterface
      */
     public function getCompleteUrl($orderId, $reference)
     {
-        return $this->_urlBuilder->getUrl("sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference", ['_secure' => true]);
+        return $this->urlBuilder->getUrl("sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference", ['_secure' => true]);
     }
 
     /**
@@ -125,6 +128,6 @@ class Config implements ConfigInterface
      */
     public function getCancelUrl()
     {
-        return $this->_urlBuilder->getUrl("sezzlepay/standard/cancel/", ['_secure' => true]);
+        return $this->urlBuilder->getUrl("sezzlepay/standard/cancel/", ['_secure' => true]);
     }
 }
