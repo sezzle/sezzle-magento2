@@ -10,7 +10,7 @@
     <default>
         <payment>
             <sezzlepay>
-				<active>1</active>
+		<active>0</active>
                 <model>Sezzle\Sezzlepay\Model\SezzlePay</model>
                 <order_status>processing</order_status>
                 <merchant_country>US</merchant_country>
@@ -18,7 +18,7 @@
                 <log_tracker>0</log_tracker>
                 <payment_action>authorize_capture</payment_action>
                 <title>Sezzle Pay</title>
-			</sezzlepay>
+	    </sezzlepay>
         </payment>
     </default>
 </config>
