@@ -19,6 +19,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
+    const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
 
     private $liveCheckoutUrl = "https://gateway.sezzle.com";
     private $sandboxCheckoutUrl = "https://sandbox.gateway.sezzle.com";
@@ -91,5 +92,15 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
             default:
                 break;
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isLogTrackerEnabled()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_LOG_TRACKER,
+            $this->getStore()->getStoreId());
     }
 }

@@ -27,7 +27,6 @@
                     <!-- merchant country -->
                     <field id="merchant_country" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant Country</label>
-                        <comment>If not specified, Default Country 'US' will be used</comment>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\MerchantCountry</source_model>
                         <config_path>payment/sezzlepay/merchant_country</config_path>
                     </field>
@@ -59,6 +58,13 @@
                         <label>Payment Mode</label>
                         <source_model>Sezzle\Sezzlepay\Model\Config\Source\Payment\Mode</source_model>
                         <config_path>payment/sezzlepay/payment_mode</config_path>
+                    </field>
+                    <!-- log tracker -->
+                    <field id="log_tracker" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable log tracker?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>If yes, all Sezzle actions will be logged</comment>
+                        <config_path>payment/sezzlepay/log_tracker</config_path>
                     </field>
                 </group>
                 <group id="sezzlepay_widget" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

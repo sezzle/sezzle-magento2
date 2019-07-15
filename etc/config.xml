@@ -13,6 +13,9 @@
 				<active>1</active>
                 <model>Sezzle\Sezzlepay\Model\SezzlePay</model>
                 <order_status>processing</order_status>
+                <merchant_country>US</merchant_country>
+                <payment_mode>sandbox</payment_mode>
+                <log_tracker>0</log_tracker>
                 <payment_action>authorize_capture</payment_action>
                 <title>Sezzle Pay</title>
 			</sezzlepay>

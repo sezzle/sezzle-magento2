@@ -31,15 +31,13 @@ class MerchantCountry implements \Magento\Framework\Option\ArrayInterface
     /**
      * {@inheritdoc}
      */
-    public function toOptionArray($isMultiselect = false)
+    public function toOptionArray()
     {
         $supported = $this->config->getSupportedMerchantCountryCodes();
         $options = $this->countryCollectionFactory->create()->addCountryCodeFilter(
             $supported,
             'iso2'
-        )->loadData()->toOptionArray(
-            $isMultiselect ? false : __('--Please Select--')
-        );
+        )->loadData()->toOptionArray(false);
 
         return $options;
     }

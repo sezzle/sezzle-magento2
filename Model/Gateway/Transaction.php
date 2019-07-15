@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Model\Gateway;
 
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
+use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 
 /**
  * Class Transaction
@@ -43,8 +44,14 @@ class Transaction
     private $config;
 
     /**
+     * @var SezzleHelper
+     */
+    private $sezzleHelper;
+
+    /**
      * Transaction constructor.
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
+     * @param SezzleHelper $sezzleHelper
      * @param ConfigInterface $config
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor
@@ -53,6 +60,7 @@ class Transaction
      */
     public function __construct(
         \Magento\Sales\Model\OrderFactory $orderFactory,
+        SezzleHelper $sezzleHelper,
         ConfigInterface $config,
         \Psr\Log\LoggerInterface $logger,
         \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
@@ -61,6 +69,7 @@ class Transaction
     )
     {
         $this->orderFactory = $orderFactory;
+        $this->sezzleHelper = $sezzleHelper;
         $this->config = $config;
         $this->sezzleApiConfig = $sezzleApiConfig;
         $this->sezzleApiProcessor = $sezzleApiProcessor;
@@ -74,7 +83,9 @@ class Transaction
      */
     public function sendOrdersToSezzle()
     {
+        $this->sezzleHelper->logSezzleActions("****Order sync process start****");
         $today = date("Y-m-d H:i:s");
+        $this->sezzleHelper->logSezzleActions("Current date : $today");
         $yesterday = date("Y-m-d H:i:s", strtotime("-1 days"));
         $yesterday = date('Y-m-d H:i:s', strtotime($yesterday));
         $today = date('Y-m-d H:i:s', strtotime($today));
@@ -98,15 +109,15 @@ class Transaction
             $body = $this->_buildOrderPayLoad($ordersCollection);
             $url = $this->sezzleApiConfig->getSezzleBaseUrl() . '/v1/merchant_data' . '/magento/merchant_orders';
             $authToken = $this->config->getAuthToken();
-            $response = $this->sezzleApiProcessor->call(
+            $this->sezzleApiProcessor->call(
                 $url,
                 $authToken,
                 $body,
                 \Magento\Framework\HTTP\ZendClient::POST
             );
-            $this->logger->debug(print_r($response));
+            $this->sezzleHelper->logSezzleActions("****Order sync process end****");
         } catch (\Exception $e) {
-            $this->logger->debug("Error while sending order to Sezzle" . $e->getMessage());
+            $this->sezzleHelper->logSezzleActions("Error while sending order to Sezzle" . $e->getMessage());
         }
     }
 

@@ -45,4 +45,10 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return mixed
      */
     public function getSezzleBaseUrl();
+
+    /**
+     * Get log tracker status
+     * @return mixed
+     */
+    public function isLogTrackerEnabled();
 }
