@@ -28,7 +28,7 @@ This extension allows you to use Sezzle as payment gateway in your Magento 2 sto
 10. Login to Magento Admin and navigate to System/Cache Management
 11. Flush the cache storage by selecting Flush Cache Storage
 
-You can now directly navigate from the Configuration Page to get signed up for Sezzle Pay. To do so, you need to click on `Register for Sezzle Pay` which will redirect you to the Sezzle Dashboard. If you have the details already, you can simply click on ` I've already setup Sezzle Pay, I want to edit my settings` to move ahead.
+You can now directly navigate from the Configuration Page to get signed up for Sezzle Pay. To do so, you need to click on `Register for Sezzle Pay` which will redirect you to the Sezzle Merchant Signup Page. If you have the details already, you can simply click on ` I've already setup Sezzle Pay, I want to edit my settings` to move ahead.
 
 ## Payment Setup
 1. Make sure you have the merchant ID and the API Keys from the Sezzle Merchant Dashboard.
