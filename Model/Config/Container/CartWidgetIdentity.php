@@ -41,10 +41,7 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
             self::XML_PATH_TARGET_XPATH,
             $this->getStore()->getStoreId(),
             \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        if (!empty($data)) {
-            return explode('|', $data);
-        }
-        return false;
+        return !empty($data) ? explode('|', $data) : '';
     }
 
     /**
@@ -56,10 +53,7 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
             self::XML_PATH_RENDER_TO_PATH,
             $this->getStore()->getStoreId(),
             \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        if (!empty($data)) {
-            return explode('|', $data);
-        }
-        return false;
+        return !empty($data) ? explode('|', $data) : '';
     }
 
     /**
@@ -126,9 +120,6 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
             self::XML_PATH_HIDE_CLASS,
             $this->getStore()->getStoreId(),
             \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
-        if (!empty($data)) {
-            return explode('|', $data);
-        }
-        return false;
+        return !empty($data) ? explode('|', $data) : '';
     }
 }
