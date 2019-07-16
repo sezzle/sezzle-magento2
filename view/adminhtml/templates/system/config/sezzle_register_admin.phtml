@@ -1,0 +1,20 @@
+<div id="sezzle_config">
+    <br/>
+    <div data-mage-init='{
+        "Sezzle_Sezzlepay/js/config": <?php echo /* @noEscape */
+    $block->getJsonConfig() ?> }'
+         id="sezzle_config">
+
+        <span class="sezzle-register">
+          <button>
+              <span><?= $block->escapeHtml(__('Register for Sezzle Pay')); ?></span>
+          </button>
+        </span>
+        <span class="sezzle-or">
+        &nbsp; <?= $block->escapeHtml(__('or')); ?> &nbsp;
+          <a href="#" id="sezzle-config-skip">
+            <?= $block->escapeHtml(__("I've already setup Sezzle Pay, I want to edit my settings")); ?>
+          </a>
+        </span>
+    </div>
+</div>

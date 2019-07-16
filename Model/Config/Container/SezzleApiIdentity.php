@@ -16,11 +16,13 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
 {
     const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
-    const XML_PATH_API_MODE = 'payment/sezzlepay/api_mode';
-    const XML_PATH_BASE_URL = 'payment/sezzlepay/base_url';
+    const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
     const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
+
+    private $liveCheckoutUrl = "https://gateway.sezzle.com";
+    private $sandboxCheckoutUrl = "https://sandbox.gateway.sezzle.com";
 
     /**
      * @inheritdoc
@@ -57,10 +59,10 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     /**
      * @inheritdoc
      */
-    public function getApiMode()
+    public function getPaymentMode()
     {
         return $this->getConfigValue(
-            self::XML_PATH_API_MODE,
+            self::XML_PATH_PAYMENT_MODE,
             $this->getStore()->getStoreId());
     }
 
@@ -79,9 +81,17 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
      */
     public function getSezzleBaseUrl()
     {
-        return $this->getConfigValue(
-            self::XML_PATH_BASE_URL,
-            $this->getStore()->getStoreId());
+        $paymentMode = $this->getPaymentMode();
+        switch ($paymentMode) {
+            case 'live':
+                return $this->liveCheckoutUrl;
+                break;
+            case 'sandbox':
+                return $this->sandboxCheckoutUrl;
+                break;
+            default:
+                break;
+        }
     }
 
     /**
