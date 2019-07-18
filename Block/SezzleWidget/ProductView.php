@@ -58,7 +58,7 @@ class ProductView extends Template
      */
     public function getJsConfig()
     {
-        return [
+        $result = [
             'targetXPath' => $this->productWidgetConfig->getTargetXPath(),
             'renderToPath' => $this->productWidgetConfig->getRenderToPath(),
             'forcedShow' => $this->productWidgetConfig->getForcedShow(),
@@ -70,7 +70,14 @@ class ProductView extends Template
             'minPrice' => self::MIN_PRICE,
             'maxPrice' => self::MAX_PRICE,
             'imageUrl' => $this->productWidgetConfig->getImageUrl(),
-            'hideClasses' => $this->productWidgetConfig->getHideClass(),
+            'hideClasses' => $this->productWidgetConfig->getHideClass()
         ];
+
+        foreach ($result as $key => $value) {
+            if (is_null($result[$key]) || $result[$key] == '') {
+                unset($result[$key]);
+            } 
+        }
+        return $result;
     }
 }

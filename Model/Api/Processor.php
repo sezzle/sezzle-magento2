@@ -20,6 +20,7 @@ use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
  */
 class Processor implements ProcessorInterface
 {
+    
     /**
      * @var JsonHelper
      */

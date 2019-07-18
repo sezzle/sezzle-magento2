@@ -16,6 +16,8 @@ use Magento\Framework\Http\ZendClient;
  */
 interface ProcessorInterface
 {
+    const BAD_REQUEST = 400;
+    
     /**
      * Call to Sezzle Gateway
      *
