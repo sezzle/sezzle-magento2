@@ -58,7 +58,7 @@ class Cart extends Template
      */
     public function getJsConfig()
     {
-        return [
+        $result = [
             'targetXPath' => $this->cartWidgetConfig->getTargetXPath(),
             'renderToPath' => $this->cartWidgetConfig->getRenderToPath(),
             'forcedShow' => $this->cartWidgetConfig->getForcedShow(),
@@ -70,7 +70,14 @@ class Cart extends Template
             'minPrice' => self::MIN_PRICE,
             'maxPrice' => self::MAX_PRICE,
             'imageUrl' => $this->cartWidgetConfig->getImageUrl(),
-            'hideClasses' => $this->cartWidgetConfig->getHideClass(),
+            'hideClasses' => $this->cartWidgetConfig->getHideClass()
         ];
+
+        foreach ($result as $key => $value) {
+            if (is_null($result[$key]) || $result[$key] == '') {
+                unset($result[$key]);
+            } 
+        }
+        return $result;
     }
 }

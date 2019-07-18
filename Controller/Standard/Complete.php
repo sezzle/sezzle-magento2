@@ -29,7 +29,7 @@ class Complete extends SezzlePay
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
             // Capture this payment
-            $this->_sezzlepayModel->capturePayment($reference);
+            $this->_sezzlepayModel->sezzleCapture($reference);
             $this->sezzleHelper->logSezzleActions("Response received from Sezzle.");
 
             $this->_checkoutSession
