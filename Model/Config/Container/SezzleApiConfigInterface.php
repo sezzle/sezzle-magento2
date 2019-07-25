@@ -51,4 +51,10 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return mixed
      */
     public function isLogTrackerEnabled();
+
+    /**
+     * Get payment action
+     * @return mixed
+     */
+    public function getPaymentAction();
 }

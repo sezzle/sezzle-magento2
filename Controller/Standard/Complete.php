@@ -28,8 +28,7 @@ class Complete extends SezzlePay
             $reference = $payment->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
-            // Capture this payment
-            $this->_sezzlepayModel->sezzleCapture($reference);
+            $this->forwardSezzleCapture($reference);
             $this->sezzleHelper->logSezzleActions("Response received from Sezzle.");
 
             $this->_checkoutSession
@@ -70,5 +69,26 @@ class Complete extends SezzlePay
             );
         }
         $this->_redirect($redirect);
+    }
+
+    /**
+     * Forward to Sezzle Capture
+     *
+     * @param float $amount
+     * @return void
+     */
+    private function forwardSezzleCapture($reference)
+    {
+        $paymentAction = $this->sezzleApiIdentity->getPaymentAction();
+        switch ($paymentAction) {
+            case \Sezzle\Sezzlepay\Model\SezzlePay::ACTION_AUTHORIZE :
+                $this->_sezzlepayModel->setSezzleCaptureExpiry($reference);
+                break;
+            case \Sezzle\Sezzlepay\Model\SezzlePay::ACTION_AUTHORIZE_CAPTURE :
+                $this->_sezzlepayModel->sezzleCapture($reference);
+                break;
+            default :
+                break;
+        }
     }
 }
