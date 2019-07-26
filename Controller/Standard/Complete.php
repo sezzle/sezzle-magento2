@@ -28,9 +28,6 @@ class Complete extends SezzlePay
             $reference = $payment->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
-            // Capture this payment
-            $this->_sezzlepayModel->sezzleCapture($reference);
-            $this->sezzleHelper->logSezzleActions("Response received from Sezzle.");
 
             $this->_checkoutSession
                 ->setLastQuoteId($quote->getId())

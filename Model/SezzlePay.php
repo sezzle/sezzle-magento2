@@ -98,6 +98,11 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     private $dateTime;
 
     /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
+    private $messageManager;
+
+    /**
      * SezzlePay constructor.
      * @param \Magento\Framework\Model\Context $context
      * @param Config\Container\SezzleApiIdentity $sezzleApiIdentity
@@ -113,6 +118,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
      * @param \Magento\Payment\Helper\Data $paymentData
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Payment\Model\Method\Logger $mageLogger
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
      */
     public function __construct(
@@ -130,6 +136,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Helper\Data $paymentData,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $mageLogger,
+        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
     )
     {
@@ -140,6 +147,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sezzleApiProcessor = $sezzleApiProcessor;
         $this->_transactionBuilder = $transactionBuilder;
         $this->jsonHelper = $jsonHelper;
+        $this->messageManager = $messageManager;
         $this->dateTime = $dateTime;
         parent::__construct(
             $context,
@@ -226,45 +234,53 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         if ($amount <= 0) {
             throw new \Magento\Framework\Exception\LocalizedException(__('Invalid amount for capture.'));
         }
+        try {
+            $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
+            $grandTotalInCents = round($amount, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100;
+            $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
+            $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
+            $result = $this->getSezzleOrderInfo($reference);
+            $sezzleOrderTotal = isset($result['amount_in_cents']) ? 
+                                    $result['amount_in_cents'] :
+                                    null;
+            $this->sezzleHelper->logSezzleActions("Sezzle Order Total : $sezzleOrderTotal");
 
-        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
-        $grandTotalInCents = round($amount, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100;
-        $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
-        $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
-        $result = $this->getSezzleOrderInfo($reference);
-        $sezzleOrderTotal = isset($result['amount_in_cents']) ? 
-                                $result['amount_in_cents'] :
-                                null;
-        $this->sezzleHelper->logSezzleActions("Sezzle Order Total : $sezzleOrderTotal");
+            if ($sezzleOrderTotal != null
+                && !$this->isOrderAmountMatched($grandTotalInCents, $sezzleOrderTotal))
+            {
+                $this->sezzleHelper->logSezzleActions("Sezzle Pay gateway has rejected request due to invalid order total");
+                throw new \Magento\Framework\Exception\LocalizedException(__('Sezzle Pay gateway has rejected request due to invalid order total.'));
+                return $this;
+            }
 
-        if ($sezzleOrderTotal != null
-            && !$this->isOrderAmountMatched($grandTotalInCents, $sezzleOrderTotal))
-        {
-            $this->sezzleHelper->logSezzleActions("Sezzle Pay gateway has rejected request due to invalid order total");
-            throw new \Magento\Framework\Exception\LocalizedException(__('Sezzle Pay gateway has rejected request due to invalid order total.'));
-            return $this;
-        }
-
-        $captureExpiration = (isset($result['capture_expiration']) && $result['capture_expiration']) ? $result['capture_expiration'] : null;
-        if ($captureExpiration === null) {
-            $this->sezzleHelper->logSezzleActions("Not authorized on Sezzle");
-            throw new \Magento\Framework\Exception\LocalizedException(__('Not authorized on Sezzle. Please try again.'));
-            return $this;
-        }
-        $captureExpirationTimestamp = $this->dateTime->timestamp($captureExpiration);
-        $currentTimestamp = $this->dateTime->timestamp("now");
-        $this->sezzleHelper->logSezzleActions("Capture Expiration Timestamp : $captureExpirationTimestamp");
-        $this->sezzleHelper->logSezzleActions("Current Timestamp : $currentTimestamp");
-        if ($captureExpirationTimestamp >= $currentTimestamp) {
-            $payment->setTransactionId($reference)->setIsTransactionClosed(false);
-            $this->sezzleHelper->logSezzleActions("Authorized on Sezzle");
-            $this->sezzleHelper->logSezzleActions("****Capture at Magento end****");
-            return $this;
-        }
-        else {
-            $this->sezzleHelper->logSezzleActions("Unable to capture amount");
-            throw new \Magento\Framework\Exception\LocalizedException(__('Unable to capture amount.'));
-            return $this;
+            $captureExpiration = (isset($result['capture_expiration']) && $result['capture_expiration']) ? $result['capture_expiration'] : null;
+            if ($captureExpiration === null) {
+                $this->sezzleHelper->logSezzleActions("Not authorized on Sezzle");
+                throw new \Magento\Framework\Exception\LocalizedException(__('Not authorized on Sezzle. Please try again.'));
+                return $this;
+            }
+            $captureExpirationTimestamp = $this->dateTime->timestamp($captureExpiration);
+            $currentTimestamp = $this->dateTime->timestamp("now");
+            $this->sezzleHelper->logSezzleActions("Capture Expiration Timestamp : $captureExpirationTimestamp");
+            $this->sezzleHelper->logSezzleActions("Current Timestamp : $currentTimestamp");
+            if ($captureExpirationTimestamp >= $currentTimestamp) {
+                $this->sezzleCapture($reference);
+                $payment->setTransactionId($reference)->setIsTransactionClosed(false);
+                $this->sezzleHelper->logSezzleActions("Authorized on Sezzle");
+                $this->sezzleHelper->logSezzleActions("****Capture at Magento end****");
+                return $this;
+            }
+            else {
+                $this->sezzleHelper->logSezzleActions("Unable to capture payment.");
+                throw new \Magento\Framework\Exception\LocalizedException(__('Unable to capture payment.'));
+                return $this;
+            }
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions('Capture issue : '.$e->getMessage());
+            $this->messageManager->addExceptionMessage(
+                $e,
+                __('Unable to capture payment.')
+            );
         }
     }
 
@@ -304,7 +320,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     public function sezzleCapture($reference)
     {
         try {
-            $this->sezzleHelper->logSezzleActions("****Capture Payment Start****");
+            $this->sezzleHelper->logSezzleActions("****Capture at Sezzle Start****");
             $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/checkouts' . '/' . $reference . '/complete';
             $authToken = $this->sezzleApiConfig->getAuthToken();
             $response = $this->sezzleApiProcessor->call(
@@ -313,7 +329,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                 null,
                 \Magento\Framework\HTTP\ZendClient::POST
             );
-            $this->sezzleHelper->logSezzleActions("****Capture Payment End****");
+            $this->sezzleHelper->logSezzleActions("****Capture at Sezzle End****");
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new \Magento\Framework\Exception\LocalizedException(__($e->getMessage()));

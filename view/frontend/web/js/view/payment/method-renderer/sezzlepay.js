@@ -5,6 +5,7 @@
  */
 define(
     [
+        'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/view/payment/default',
         'jquery',
         'Magento_Checkout/js/model/payment/additional-validators',
@@ -13,9 +14,10 @@ define(
         'mage/translate',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/action/select-payment-method',
-        'Magento_Ui/js/model/messageList'
+        'Magento_Ui/js/model/messageList',
+        'Magento_Checkout/js/model/quote'
     ],
-    function (Component, $, additionalValidators, setPaymentInformationAction, mageUrl, $t, checkoutData, selectPaymentMethodAction, globalMessageList) {
+    function (customer, Component, $, additionalValidators, setPaymentInformationAction, mageUrl, $t, checkoutData, selectPaymentMethodAction, globalMessageList, quote) {
         'use strict';
         return Component.extend({
             defaults: {
@@ -53,12 +55,10 @@ define(
 
             handleRedirectAction: function () {
                 var data = $("#co-shipping-form").serialize();
-                if (!window.checkoutConfig.quoteData.customer_id) {
-                    var email = $("#customer-email").value;
-                } else {
-                    var email = window.checkoutConfig.customerData.email;
+                if (!customer.isLoggedIn()) {
+                    var email = quote.guestEmail;
+                    data += '&email=' + email;
                 }
-                var data = data + '&email=' + email;
                 this.redirectToSezzlepayController(data);
             },
             
