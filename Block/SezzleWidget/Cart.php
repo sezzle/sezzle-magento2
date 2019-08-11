@@ -17,7 +17,6 @@ use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
  */
 class Cart extends Template
 {
-
     const MIN_PRICE = 0;
     const MAX_PRICE = 100000;
     const WIDGET_TYPE = "cart";
@@ -44,8 +43,7 @@ class Cart extends Template
         CartWidgetConfigInterface $cartWidgetConfig,
         SezzleApiConfigInterface $sezzleApiConfig,
         array $data
-    )
-    {
+    ) {
         $this->cartWidgetConfig = $cartWidgetConfig;
         $this->sezzleApiConfig = $sezzleApiConfig;
         parent::__construct($context, $data);
@@ -76,7 +74,7 @@ class Cart extends Template
         foreach ($result as $key => $value) {
             if (is_null($result[$key]) || $result[$key] == '') {
                 unset($result[$key]);
-            } 
+            }
         }
         return $result;
     }

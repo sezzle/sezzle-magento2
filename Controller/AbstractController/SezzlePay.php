@@ -9,6 +9,7 @@ namespace Sezzle\Sezzlepay\Controller\AbstractController;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Sales\Model\Order;
+use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Sezzlepay
@@ -84,6 +85,11 @@ abstract class SezzlePay extends Action
     protected $sezzleHelper;
 
     /**
+     * @var SezzleApiConfigInterface
+     */
+    protected $sezzleApiIdentity;
+
+    /**
      * Sezzlepay constructor.
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
@@ -102,6 +108,7 @@ abstract class SezzlePay extends Action
      * @param \Magento\Quote\Model\QuoteManagement $quoteManagement
      * @param Order\Payment\Transaction\BuilderInterface $transactionBuilder
      * @param Order\Email\Sender\OrderSender $orderSender
+     * @param SezzleApiConfigInterface $sezzleApiIdentity
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -120,7 +127,8 @@ abstract class SezzlePay extends Action
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        SezzleApiConfigInterface $sezzleApiIdentity
     )
     {
         $this->_customerSession = $customerSession;
@@ -140,6 +148,7 @@ abstract class SezzlePay extends Action
         $this->_transactionBuilder = $transactionBuilder;
         $this->_orderSender = $orderSender;
         $this->_resultJsonFactory = $resultJsonFactory;
+        $this->sezzleApiIdentity = $sezzleApiIdentity;
         parent::__construct($context);
     }
 

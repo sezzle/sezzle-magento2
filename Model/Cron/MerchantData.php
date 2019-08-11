@@ -32,8 +32,7 @@ class MerchantData
     public function __construct(
         Gateway\Transaction $transaction,
         Gateway\Heartbeat $heartbeat
-    )
-    {
+    ) {
         $this->transaction = $transaction;
         $this->heartbeat = $heartbeat;
     }

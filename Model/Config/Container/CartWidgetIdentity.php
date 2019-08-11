@@ -7,7 +7,6 @@
 
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
-
 class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
 {
     const XML_PATH_TARGET_XPATH = 'cart/sezzlepay/xpath';
@@ -40,7 +39,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         $data = $this->getConfigValue(
             self::XML_PATH_TARGET_XPATH,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
         return !empty($data) ? explode('|', $data) : '';
     }
 
@@ -52,7 +52,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         $data = $this->getConfigValue(
             self::XML_PATH_RENDER_TO_PATH,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
         return !empty($data) ? explode('|', $data) : '';
     }
 
@@ -64,7 +65,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         return $this->getConfigValue(
             self::XML_PATH_FORCED_SHOW,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
     }
 
     /**
@@ -75,7 +77,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         return $this->getConfigValue(
             self::XML_PATH_ALIGNMENT,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
     }
 
     /**
@@ -86,7 +89,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         return $this->getConfigValue(
             self::XML_PATH_THEME,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
     }
 
     /**
@@ -97,7 +101,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         return $this->getConfigValue(
             self::XML_PATH_WIDTH_TYPE,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
     }
 
     /**
@@ -108,7 +113,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         return $this->getConfigValue(
             self::XML_PATH_IMAGE_URL,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
     }
 
     /**
@@ -119,7 +125,8 @@ class CartWidgetIdentity extends Container implements CartWidgetConfigInterface
         $data = $this->getConfigValue(
             self::XML_PATH_HIDE_CLASS,
             $this->getStore()->getStoreId(),
-            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE);
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE
+        );
         return !empty($data) ? explode('|', $data) : '';
     }
 }

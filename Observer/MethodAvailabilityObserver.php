@@ -27,8 +27,7 @@ class MethodAvailabilityObserver implements ObserverInterface
     public function __construct(
         SezzleApiConfigInterface $sezzleApiIdentity,
         Logger $logger
-    )
-    {
+    ) {
         $this->sezzleApiIdentity = $sezzleApiIdentity;
         $this->logger = $logger;
     }

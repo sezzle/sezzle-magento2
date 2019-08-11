@@ -7,7 +7,6 @@
 
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
-
 /**
  * Class SezzleApiIdentity
  * @package Sezzle\Sezzlepay\Model\Config\Container
@@ -20,6 +19,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
     const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
+    const XML_PATH_PAYMENT_ACTION = 'payment/sezzlepay/payment_action';
 
     private $liveCheckoutUrl = "https://gateway.sezzle.com";
     private $sandboxCheckoutUrl = "https://sandbox.gateway.sezzle.com";
@@ -43,7 +43,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PUBLIC_KEY,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -53,7 +54,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PRIVATE_KEY,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -63,7 +65,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PAYMENT_MODE,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -73,7 +76,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_MERCHANT_ID,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -101,6 +105,18 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_LOG_TRACKER,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPaymentAction()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_PAYMENT_ACTION,
+            $this->getStore()->getStoreId()
+        );
     }
 }

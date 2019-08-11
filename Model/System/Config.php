@@ -2,7 +2,6 @@
 
 namespace Sezzle\Sezzlepay\Model\System;
 
-
 /**
  * Class Config
  * @package Sezzle\Sezzlepay\Model\System
@@ -64,8 +63,7 @@ class Config
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Store\Model\StoreManagerInterface $storeManager
-    )
-    {
+    ) {
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
         $this->storeManager = $storeManager;

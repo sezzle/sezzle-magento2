@@ -8,8 +8,8 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
-use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
@@ -20,7 +20,7 @@ use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
  */
 class Processor implements ProcessorInterface
 {
-    
+
     /**
      * @var JsonHelper
      */
@@ -57,8 +57,7 @@ class Processor implements ProcessorInterface
         JsonHelper $jsonHelper,
         Logger $logger,
         ScopeConfig $scopeConfig
-    )
-    {
+    ) {
         $this->curl = $curl;
         $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
@@ -80,7 +79,7 @@ class Processor implements ProcessorInterface
     {
         try {
             if ($authToken) {
-                $this->curl->addHeader("Authorization","Bearer $authToken");
+                $this->curl->addHeader("Authorization", "Bearer $authToken");
             }
             $this->sezzleHelper->logSezzleActions("Auth token : $authToken");
             $this->sezzleHelper->logSezzleActions("****Request Info****");
@@ -92,15 +91,15 @@ class Processor implements ProcessorInterface
             ];
             $this->sezzleHelper->logSezzleActions($requestLog);
             $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
-            $this->curl->addHeader("Content-Type",ApiParamsInterface::CONTENT_TYPE_JSON);
+            $this->curl->addHeader("Content-Type", ApiParamsInterface::CONTENT_TYPE_JSON);
             switch ($method) {
-                case 'POST' :
+                case 'POST':
                     $this->curl->post($url, $this->jsonHelper->jsonEncode($body));
                     break;
-                case 'GET' :
+                case 'GET':
                     $this->curl->get($url);
                     break;
-                default :
+                default:
                     break;
             }
 

@@ -19,6 +19,8 @@ class Redirect extends SezzlePay
      * Redirection
      *
      * @return mixed
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function execute()
     {

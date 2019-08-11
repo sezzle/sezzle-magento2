@@ -17,7 +17,6 @@ use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
  */
 class ProductView extends Template
 {
-
     const MIN_PRICE = 0;
     const MAX_PRICE = 100000;
     const WIDGET_TYPE = "product_page";
@@ -44,8 +43,7 @@ class ProductView extends Template
         ProductWidgetConfigInterface $productWidgetConfig,
         SezzleApiConfigInterface $sezzleApiConfig,
         array $data
-    )
-    {
+    ) {
         $this->productWidgetConfig = $productWidgetConfig;
         $this->sezzleApiConfig = $sezzleApiConfig;
         parent::__construct($context, $data);
@@ -76,7 +74,7 @@ class ProductView extends Template
         foreach ($result as $key => $value) {
             if (is_null($result[$key]) || $result[$key] == '') {
                 unset($result[$key]);
-            } 
+            }
         }
         return $result;
     }

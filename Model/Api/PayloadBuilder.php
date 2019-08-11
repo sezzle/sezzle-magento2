@@ -34,8 +34,7 @@ class PayloadBuilder
     public function __construct(
         ConfigInterface $sezzleApiConfig,
         StoreManagerInterface $storeManager
-    )
-    {
+    ) {
         $this->sezzleApiConfig = $sezzleApiConfig;
         $this->storeManager = $storeManager;
     }
@@ -58,7 +57,8 @@ class PayloadBuilder
             $customerPayload,
             $billingPayload,
             $shippingPayload,
-            $itemPayload);
+            $itemPayload
+        );
         $payload["merchant_completes"] = true;
         return $payload;
     }
@@ -68,6 +68,7 @@ class PayloadBuilder
      * @param $quote
      * @param $reference
      * @return mixed
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function buildCheckoutPayload($quote, $reference)
     {
@@ -145,6 +146,7 @@ class PayloadBuilder
      * Build Cart Item Payload
      * @param $quote
      * @return mixed
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     private function buildItemPayload($quote)
     {

@@ -25,8 +25,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         SezzleApiConfigInterface $sezzleApiConfig
-    )
-    {
+    ) {
         $this->sezzleApiConfig = $sezzleApiConfig;
         parent::__construct($context);
     }

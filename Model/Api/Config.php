@@ -11,9 +11,8 @@ use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
-
+use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Config
@@ -69,8 +68,7 @@ class Config implements ConfigInterface
         JsonHelper $jsonHelper,
         Logger $logger,
         ScopeConfig $scopeConfig
-    )
-    {
+    ) {
         $this->urlBuilder = $urlBuilder;
         $this->apiProcessor = $apiProcessor;
         $this->sezzleApiIdentity = $sezzleApiIdentity;

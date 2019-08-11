@@ -26,8 +26,7 @@ class SezzleRegisterAdmin extends \Magento\Framework\View\Element\Template
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         \Sezzle\Sezzlepay\Model\System\Config $config,
         array $data = []
-    )
-    {
+    ) {
         parent::__construct($context, $data);
         $this->config = $config;
         $this->jsonHelper = $jsonHelper;
