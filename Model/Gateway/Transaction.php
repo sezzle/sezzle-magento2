@@ -7,10 +7,9 @@
 
 namespace Sezzle\Sezzlepay\Model\Gateway;
 
-
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
-use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
+use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
+use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Transaction
@@ -66,8 +65,7 @@ class Transaction
         \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
         SezzleApiConfigInterface $sezzleApiConfig,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface
-    )
-    {
+    ) {
         $this->orderFactory = $orderFactory;
         $this->sezzleHelper = $sezzleHelper;
         $this->config = $config;
@@ -76,7 +74,6 @@ class Transaction
         $this->logger = $logger;
         $this->orderInterface = $orderInterface;
     }
-
 
     /**
      * Send orders to Sezzle

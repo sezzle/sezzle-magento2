@@ -7,7 +7,6 @@
 
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
-
 /**
  * Class SezzleApiIdentity
  * @package Sezzle\Sezzlepay\Model\Config\Container
@@ -44,7 +43,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PUBLIC_KEY,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -54,7 +54,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PRIVATE_KEY,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -64,7 +65,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PAYMENT_MODE,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -74,7 +76,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_MERCHANT_ID,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -102,7 +105,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_LOG_TRACKER,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 
     /**
@@ -112,6 +116,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PAYMENT_ACTION,
-            $this->getStore()->getStoreId());
+            $this->getStore()->getStoreId()
+        );
     }
 }

@@ -61,6 +61,7 @@ abstract class Container implements IdentityInterface
      * Return store
      *
      * @return Store
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getStore()
     {

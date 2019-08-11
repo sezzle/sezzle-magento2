@@ -7,10 +7,10 @@
 
 namespace Sezzle\Sezzlepay\Model\Gateway;
 
-use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
-use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
+use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
+use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
+use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Heartbeat
@@ -60,8 +60,7 @@ class Heartbeat
         \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
         SezzleApiConfigInterface $sezzleApiConfig,
         ProductWidgetConfigInterface $productWidgetConfig
-    )
-    {
+    ) {
         $this->sezzleApiConfig = $sezzleApiConfig;
         $this->sezzleHelper = $sezzleHelper;
         $this->config = $config;

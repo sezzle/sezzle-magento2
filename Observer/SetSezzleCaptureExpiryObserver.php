@@ -20,17 +20,17 @@ class SetSezzleCaptureExpiryObserver implements ObserverInterface
 {
     const PAYMENT_CODE = 'sezzlepay';
 
-    /** 
+    /**
      * @var SezzlePay
     */
     private $sezzlePayModel;
 
-    /** 
+    /**
      * @var Data
     */
     private $sezzleHelper;
 
-    /** 
+    /**
      * @var ManagerInterface
     */
     private $messageManager;
@@ -46,8 +46,7 @@ class SetSezzleCaptureExpiryObserver implements ObserverInterface
         SezzlePay $sezzlePayModel,
         Data $sezzleHelper,
         ManagerInterface $messageManager
-    )
-    {
+    ) {
         $this->sezzlePayModel = $sezzlePayModel;
         $this->sezzleHelper = $sezzleHelper;
         $this->messageManager = $messageManager;
@@ -70,15 +69,15 @@ class SetSezzleCaptureExpiryObserver implements ObserverInterface
             $paymentAction = $order->getPayment()->getAdditionalInformation('payment_type');
             $this->sezzleHelper->logSezzleActions("Payment Type : $paymentAction");
             switch ($paymentAction) {
-                case \Sezzle\Sezzlepay\Model\SezzlePay::ACTION_AUTHORIZE :
+                case \Sezzle\Sezzlepay\Model\SezzlePay::ACTION_AUTHORIZE:
                     $this->sezzlePayModel->setSezzleCaptureExpiry($reference, $order->getPayment());
                     $this->sezzleHelper->logSezzleActions('****Sezzle capture time setting end****');
                     break;
-                default :
+                default:
                     break;
             }
         } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions('Unable to set capture time : '.$e->getMessage());
+            $this->sezzleHelper->logSezzleActions('Unable to set capture time : ' . $e->getMessage());
             $this->messageManager->addExceptionMessage(
                 $e,
                 __('Unable to set capture time.')

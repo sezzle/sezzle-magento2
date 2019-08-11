@@ -9,7 +9,6 @@ namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\Http\ZendClient;
 
-
 /**
  * Interface ProcessorInterface
  * @package Sezzle\Sezzlepay\Model\Api
@@ -17,7 +16,7 @@ use Magento\Framework\Http\ZendClient;
 interface ProcessorInterface
 {
     const BAD_REQUEST = 400;
-    
+
     /**
      * Call to Sezzle Gateway
      *
@@ -31,6 +30,6 @@ interface ProcessorInterface
         $url,
         $authToken = null,
         $body = false,
-        $method = ZendClient::GET);
-
+        $method = ZendClient::GET
+    );
 }

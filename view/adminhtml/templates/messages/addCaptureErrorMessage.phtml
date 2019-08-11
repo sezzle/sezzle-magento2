@@ -1,0 +1,19 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+
+<?php if (!$block->getData('original_msg') && $block->getData('support_url')) : ?>
+    <?= $block->escapeHtml(__(
+        'Capture time for this order has been expired. Contact <a href="%1">Sezzle Merchant Support</a>.',
+        $block->getData('support_url')
+    ), ['a']); ?>
+
+<?php else: ?>
+    <?= $block->escapeHtml(__(
+        $block->getData('original_msg')
+    )); ?>
+<?php endif; ?>

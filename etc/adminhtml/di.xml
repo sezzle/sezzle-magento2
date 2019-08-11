@@ -10,4 +10,16 @@
 	<type name="Magento\Sales\Controller\Adminhtml\Order\Invoice\Save">
         <plugin name="delayed_capture" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice\SavePlugin" sortOrder="10"/>
     </type>
+    <type name="Magento\Framework\View\Element\Message\MessageConfigurationsPool">
+        <arguments>
+            <argument name="configurationsMap" xsi:type="array">
+                <item name="addCaptureErrorMessage" xsi:type="array">
+                    <item name="renderer" xsi:type="const">\Magento\Framework\View\Element\Message\Renderer\BlockRenderer::CODE</item>
+                    <item name="data" xsi:type="array">
+                        <item name="template" xsi:type="string">Sezzle_Sezzlepay::messages/addCaptureErrorMessage.phtml</item>
+                    </item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
 </config>

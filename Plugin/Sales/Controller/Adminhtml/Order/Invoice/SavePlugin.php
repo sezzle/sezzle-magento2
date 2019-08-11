@@ -7,27 +7,29 @@
 
 namespace Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice;
 
-use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Backend\Model\Session as BackendSession;
-use \Magento\Framework\Data\Form\FormKey\Validator;
-use Sezzle\Sezzlepay\Model\SezzlePay;
-use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Data\Form\FormKey\Validator;
+use Magento\Framework\DB\Transaction;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\ShipmentSender;
-use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Sales\Model\Service\InvoiceService;
-use Magento\Framework\Message\ManagerInterface;
-use Magento\Framework\Controller\Result\RedirectFactory;
 use Psr\Log\LoggerInterface;
-use Magento\Framework\DB\Transaction;
- 
+use Sezzle\Sezzlepay\Model\SezzlePay;
+
 class SavePlugin
-{        
+{
     const SUCCESS_CODE = 200;
     const CAPTURE_ONLINE = 'online';
+    const MERCHANT_SUPPORT_URL = "https://sezzle.com/contact-us/merchant-support";
+    const CAPTURE_ERROR_MSG = "Capture time for this order has been expired";
 
     private $order = null;
 
@@ -72,33 +74,33 @@ class SavePlugin
      */
     private $invoiceService;
 
-    /** 
+    /**
      * @var ManagerInterface
     */
     private $messageManager;
 
-    /** 
+    /**
      * @var RedirectFactory
     */
     private $resultRedirectFactory;
 
-    /** 
+    /**
      * @var Validator
     */
     private $formKeyValidator;
 
-    /** 
-     * @var BackendSession 
+    /**
+     * @var BackendSession
     */
     private $backendSession;
 
-    /** 
-     * @var Transaction 
+    /**
+     * @var Transaction
     */
     private $transaction;
 
-    /** 
-     * @var LoggerInterface 
+    /**
+     * @var LoggerInterface
     */
     private $logger;
 
@@ -157,7 +159,7 @@ class SavePlugin
      * @param \Magento\Sales\Model\Order\Invoice $invoice
      * @return \Magento\Sales\Model\Order\Shipment|false
      */
-    protected function _prepareShipment($invoice, $invoicePostData)
+    protected function _prepareShipment($invoice, $invoicePostData, $tracking)
     {
         $shipment = $this->shipmentFactory->create(
             $invoice->getOrder(),
@@ -181,8 +183,8 @@ class SavePlugin
      */
     public function aroundExecute(
         \Magento\Sales\Controller\Adminhtml\Order\Invoice\Save $subject,
-        \Closure $proceed)
-    {
+        \Closure $proceed
+    ) {
         $orderId = $subject->getRequest()->getParam('order_id');
         $order = $this->orderRepository->get($orderId);
         $this->order = !$this->order ? $order : $this->order;
@@ -199,7 +201,6 @@ class SavePlugin
             }
 
             $data = $subject->getRequest()->getPost('invoice');
-            
 
             if (!empty($data['comment_text'])) {
                 $this->backendSession->setCommentText($data['comment_text']);
@@ -231,9 +232,9 @@ class SavePlugin
                 }
                 $this->registry->register('current_invoice', $invoice);
                 if (!empty($data['capture_case'])) {
-                        if ($this->order->getId() && $data['capture_case'] == self::CAPTURE_ONLINE) {
-                            $this->handleCaptureAction($invoice);
-                        }
+                    if ($this->order->getId() && $data['capture_case'] == self::CAPTURE_ONLINE) {
+                        $this->handleCaptureAction($invoice);
+                    }
                 }
 
                 if (!empty($data['comment_text'])) {
@@ -295,7 +296,13 @@ class SavePlugin
                 $this->backendSession->getCommentText(true);
                 return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
             } catch (LocalizedException $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
+                $this->messageManager->addComplexErrorMessage(
+                    'addCaptureErrorMessage',
+                    [
+                        'original_msg' => self::CAPTURE_ERROR_MSG == $e->getMessage() ? false : $e->getMessage(),
+                        'support_url' => self::MERCHANT_SUPPORT_URL
+                    ]
+                );
             } catch (\Exception $e) {
                 $this->messageManager->addErrorMessage(
                     __("The invoice can't be saved at this time. Please try again later.")
@@ -303,8 +310,7 @@ class SavePlugin
                 $this->logger->critical($e->getMessage());
             }
             return $resultRedirect->setPath('sales/*/new', ['order_id' => $orderId]);
-        }
-        else {
+        } else {
             return $proceed();
         }
     }
@@ -314,37 +320,38 @@ class SavePlugin
      *
      * @param mixed $invoice
      * @return void
+     * @throws LocalizedException
      */
-    private function handleCaptureAction($invoice) 
+    private function handleCaptureAction($invoice)
     {
         $captureExpirationTimestamp = $this->dateTime->timestamp(
             $this->order->getPayment()
-            ->getAdditionalInformation(SezzlePay::SEZZLE_CAPTURE_EXPIRY));
+            ->getAdditionalInformation(SezzlePay::SEZZLE_CAPTURE_EXPIRY)
+        );
         $reference = $this->order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
         $currentTime = $this->dateTime->gmtDate("Y-m-d H:i:s");
         $currentTimestamp = $this->dateTime->timestamp($currentTime);
         $grandTotalInCents = round(
             $this->order->getGrandTotal(),
-            \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100;
+            \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION
+        ) * 100;
         $sezzleOrderInfo = $this->sezzlePay
                             ->getSezzleOrderInfo($reference);
-        
+
         if (isset($sezzleOrderInfo['amount_in_cents'])
             && ($grandTotalInCents != $sezzleOrderInfo['amount_in_cents'])) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Capture request has been rejected due to invalid order total.')
             );
-        }
-        elseif ($captureExpirationTimestamp >= $currentTimestamp) {
+        } elseif ($captureExpirationTimestamp >= $currentTimestamp) {
             $hasSezzleCaptured = $this->sezzlePay
                                         ->sezzleCapture($reference);
             if ($hasSezzleCaptured) {
                 $invoice->setRequestedCaptureCase(self::CAPTURE_ONLINE);
             }
-        }
-        else {
+        } else {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('Capture time for this order has been expired. Contact Sezzle Merchant Support.')
+                __(self::CAPTURE_ERROR_MSG)
             );
         }
     }
