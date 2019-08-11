@@ -31,13 +31,14 @@ This extension allows you to use Sezzle as payment gateway in your Magento 2 sto
 You can now directly navigate from the Configuration Page to get signed up for Sezzle Pay. To do so, you need to click on `Register for Sezzle Pay` which will redirect you to the Sezzle Merchant Signup Page. If you have the details already, you can simply click on ` I've already setup Sezzle Pay, I want to edit my settings` to move ahead.
 
 ## Payment Setup
-1. Make sure you have the merchant ID and the API Keys from the Sezzle Merchant Dashboard.
+1. Make sure you have the Merchant ID and the API Keys from the Sezzle Merchant Dashboard.
 2. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Payment Settings` in your Magento admin.
 3. Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
 4. Set the Merchant ID, Public Key and Private Key.
-5. Set the Merchant Country as per the origin.
-6. Enable the log tracker to trace the Sezzle checkout process.
-7. Save the configuration and clear the cache.
+5. Set `Payment Action` as `Authorize only` for doing payment authorization only and `Authorize and Capture` for doing authorization as well as payment capture.
+6. Set the Merchant Country as per the origin.
+7. Enable the log tracker to trace the Sezzle checkout process.
+8. Save the configuration and clear the cache.
 
 ## Product Widget Setup
 1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Widget Settings/Product Page` in your Magento admin.
@@ -64,4 +65,6 @@ You can now directly navigate from the Configuration Page to get signed up for S
    - Image url : If you want to have different logo, paste the url here.
    - Hide classes : Classes to be hidden when sezzle widget is in place.
 3. Save the configuration and clear the cache.
+
+For more information, please visit this [link](https://docs.sezzle.com/#magento-2). 
 ```
