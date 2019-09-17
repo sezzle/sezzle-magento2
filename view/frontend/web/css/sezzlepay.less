@@ -3,6 +3,9 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
+@color_1: #00C64A;
+@background_color_1: #f6f7f9;
+
 #sezzlepay-method {
   .payment-method-title {
     .label {
@@ -13,4 +16,187 @@
       }
     }
   }
+  .sezzlepay-redirect {
+    margin-top: 8rem;
+    text-align: left;
+    background-color: @background_color_1;
+    display: inline-block;
+    padding: 15px;
+    .redirection-info {
+      width: 100%;
+      float: left;
+    }
+  }
+  .actions-toolbar {
+    float: right;
+    margin-top: 1.5rem;
+    line-height: 1.1;
+    width: 100%;
+    text-align: center;
+  }
 }
+.progressbar-container {
+  margin-top: 60px;
+}
+.steps {
+  list-style-type: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  margin: 0;
+}
+.step {
+  background: #fff;
+  position: relative;
+  border-radius: 50%;
+  border: 4px solid #00C64A;
+  width: 11px;
+  height: 11px;
+  margin-bottom: -6px;
+  >.sezzle-installment-amount {
+    bottom: 30px;
+  }
+  >.time-period {
+    top: 30px;
+  }
+}
+.highlight {
+  box-shadow: 0px 0px 9px 8px rgba(38,194,129,0.3);
+  width: 18px;
+  height: 18px;
+  border: 4px solid #00C64A;
+  background: #fff;
+  position: relative;
+  border-radius: 50%;
+  margin-top: -4px;
+  >.sezzle-installment-amount {
+    bottom: 33px;
+  }
+  >.time-period {
+    top: 34px;
+  }
+}
+.bar {
+  width: 99%;
+  height: 4px;
+  margin: 0px 2px -12px 2px;
+  background: #00C64A;
+}
+.time-period {
+  position: absolute;
+  width: 75px;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.sezzle-installment-amount {
+  position: absolute;
+  width: 75px;
+  text-align: center;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.cover {
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 80%;
+  float: none;
+}
+.sezzle-payment-text {
+  font-size: 24px;
+  font-weight: 600;
+  color: @color_1;
+}
+.sezzle-grand-total {
+  font-size: 24px;
+  font-weight: 600;
+  color: @color_1;
+}
+@media only screen and (min-width: 1001px) {
+  .sezzle-grand-total {
+    float: right;
+  }
+  .progressbar-container {
+    padding: 10px;
+  }
+}
+@media only screen and (min-width: 768px) and (max-width: 1000px) {
+  .sezzle-grand-total {
+    display: block;
+    text-align: center;
+  }
+  .sezzle-payment-text {
+    display: block;
+    text-align: center;
+  }
+  .cover {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media only screen and (min-width: 600px) and (max-width: 767px) {
+  .sezzle-grand-total {
+    float: right;
+  }
+  .progressbar-container {
+    padding: 10px;
+  }
+}
+@media only screen and (max-width: 599px) {
+  .sezzle-grand-total {
+    display: block;
+    text-align: center;
+  }
+  .sezzle-payment-text {
+    display: block;
+    text-align: center;
+  }
+  .cover {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media only screen and (max-width: 359px) {
+  .cover {
+    width: 79%;
+    margin-bottom: 40px;
+  }
+  .time-period {
+    width: 60px;
+  }
+  .sezzle-installment-amount {
+    width: 60px;
+  }
+}
+@media only screen and (min-width: 992px) {
+  #sezzlepay-method {
+    .sezzlepay-redirect {
+      .redirection-info {
+        width: 57%;
+      }
+    }
+    .actions-toolbar {
+      width: auto;
+      margin-top: 0px;
+    }
+  }
+}
+@media only screen and (min-width: 1200px) {
+  #sezzlepay-method {
+    .sezzlepay-redirect {
+      .redirection-info {
+        width: 65%;
+      }
+    }
+  }
+}
+@media only screen and (min-width: 768px) {
+  #sezzlepay-method {
+    .actions-toolbar {
+      .primary {
+        width: 100%;
+      }
+    }
+  }
+}
+
