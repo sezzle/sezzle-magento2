@@ -405,7 +405,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                 $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/orders' . '/' . $orderId . '/refund';
                 $authToken = $this->sezzleApiConfig->getAuthToken();
                 $requestPayload = ["amount" => [
-                    "amount_in_cents" => round($amount, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100,
+                    "amount_in_cents" => (int)(round($amount, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100),
                     "currency" => $currency
                 ]
                 ];
