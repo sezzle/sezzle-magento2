@@ -21,6 +21,8 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     const PAYMENT_CODE = 'sezzlepay';
     const ADDITIONAL_INFORMATION_KEY_ORDERID = 'sezzle_order_id';
     const SEZZLE_CAPTURE_EXPIRY = 'sezzle_capture_expiry';
+    const STATE_CAPTURED       = 1;
+    const STATE_NOT_CAPTURED   = 0;
 
     /**
      * @var string
@@ -315,6 +317,17 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         }
     }
 
+    public function getCaptureStates()
+    {
+        if (is_null(self::$_states)) {
+            self::$_states = [
+                self::STATE_CAPTURED       => __('Captured'),
+                self::STATE_NOT_CAPTURED   => __('Not Captured'),
+            ];
+        }
+        return self::$_states;
+    }
+
     /**
      * Set Sezzle Capture Expiry
      *
@@ -379,6 +392,10 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                 \Magento\Framework\HTTP\ZendClient::POST
             );
             $this->sezzleHelper->logSezzleActions("****Capture at Sezzle End****");
+            $jsonResponse = $this->jsonHelper->jsonDecode($response);
+            if (isset($jsonResponse["captured_at"]) && $jsonResponse["captured_at"]) {
+                
+            }
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(__($e->getMessage()));
