@@ -31,12 +31,12 @@
                         <config_path>payment/sezzlepay/merchant_country</config_path>
                     </field>
                     <!-- title -->
-                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
                         <config_path>payment/sezzlepay/title</config_path>
                     </field>
                     <!-- private key -->
-                    <field id="private_key" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="private_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Key</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
                         <config_path>payment/sezzlepay/private_key</config_path>
@@ -48,26 +48,33 @@
                         <config_path>payment/sezzlepay/public_key</config_path>
                     </field>
                     <!-- merchant id -->
-                    <field id="merchant_id" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="merchant_id" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
                         <config_path>payment/sezzlepay/merchant_id</config_path>
                     </field>
                     <!--payment mode-->
-                    <field id="payment_mode" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Mode</label>
                         <source_model>Sezzle\Sezzlepay\Model\Config\Source\Payment\Mode</source_model>
                         <config_path>payment/sezzlepay/payment_mode</config_path>
                     </field>
                     <!-- log tracker -->
-                    <field id="log_tracker" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="log_tracker" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable log tracker?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>If yes, all Sezzle actions will be logged</comment>
                         <config_path>payment/sezzlepay/log_tracker</config_path>
                     </field>
+                    <!-- min checkout amount -->
+                    <field id="min_checkout_amount" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Min Checkout Amount</label>
+                        <validate>validate-not-negative-number</validate>
+                        <comment>Hide Gateway based on this amount</comment>
+                        <config_path>payment/sezzlepay/min_checkout_amount</config_path>
+                    </field>
                     <!-- payment action -->
-                    <field id="payment_action" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="payment_action" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
                         <source_model>Sezzle\Sezzlepay\Model\Config\Source\Payment\PaymentAction</source_model>
                         <config_path>payment/sezzlepay/payment_action</config_path>

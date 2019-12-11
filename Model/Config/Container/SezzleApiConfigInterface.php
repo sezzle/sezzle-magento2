@@ -57,4 +57,10 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return mixed
      */
     public function getPaymentAction();
+
+    /**
+     * Get min checkout amount
+     * @return mixed
+     */
+    public function getMinCheckoutAmount();
 }
