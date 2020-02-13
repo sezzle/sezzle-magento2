@@ -1,4 +1,10 @@
-
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
 <div class="payment-method" id="sezzlepay-method" data-bind="css: {'_active': (getCode() == isChecked())}">
     <div class="payment-method-title field choice">
         <input type="radio"
@@ -7,13 +13,13 @@
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label">
             <img data-bind="attr: {src: getSezzlepayImgSrc(), alt: getTitle()}"
-                 class="payment-icon"/>
+            class="payment-icon"/>
             <span>
                 <!-- ko i18n: 'Pay Later' --><!-- /ko -->
             </span>
         </label>
     </div>
-    <div class="payment-method-content" id="sezzlepay">
+    <div class="payment-method-content">
         <!-- ko foreach: getRegion('messages') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
@@ -22,50 +28,19 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        <div class="cover">
-            <span class="sezzle-payment-text" data-bind="text: getPaymentText()"></span>
-            <span class="sezzle-grand-total" data-bind="text: getGrandTotal()"></span>
-            <div class="progressbar-container">
-                <div class="bar"></div>
-                <ul class="steps">
-                    <li class="highlight">
-                        <span class="sezzle-installment-amount"></span>
-                        <span class="time-period">Today</span>
-                    </li>
-                    <li class="step">
-                        <span class="sezzle-installment-amount"></span>
-                        <span class="time-period">In 2 Weeks</span>
-                    </li>
-                    <li class="step">
-                        <span class="sezzle-installment-amount"></span>
-                        <span class="time-period">In 4 Weeks</span>
-                    </li>
-                    <li class="step">
-                        <span class="sezzle-installment-amount final"></span>
-                        <span class="time-period">In 6 Weeks</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="payment-method-content sezzlepay-redirect">
-            <div class="redirection-info">
-                <!-- ko i18n: 'You will be redirected to the Sezzle Checkout when you click on Continue to Sezzle. ' --><!-- /ko -->
-
-            </div>
-            <div class="actions-toolbar">
-                <div class="primary">
-                    <button class="action primary checkout"
-                            type="submit"
-                            data-bind="
-                                click: continueToSezzlepay,
-                                attr: {title: $t('Continue to Sezzle')},
-                                css: {disabled: !isPlaceOrderActionAllowed()},
-                                enable: (getCode() == isChecked())
-                                "
-                            disabled>
-                        <span data-bind="i18n: 'Continue to Sezzle  '"></span>
-                    </button>
-                </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: continueToSezzlepay,
+                        attr: {title: $t('Continue to Sezzle')},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: (getCode() == isChecked())
+                        "
+                        disabled>
+                    <span data-bind="i18n: 'Continue to Sezzle'"></span>
+                </button>
             </div>
         </div>
     </div>
