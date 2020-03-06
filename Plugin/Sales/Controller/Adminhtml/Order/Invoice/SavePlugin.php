@@ -332,7 +332,7 @@ class SavePlugin
         $currentTime = $this->dateTime->gmtDate("Y-m-d H:i:s");
         $currentTimestamp = $this->dateTime->timestamp($currentTime);
         $grandTotalInCents = round(
-            $this->order->getGrandTotal(),
+            (float)$this->order->getGrandTotal(),
             \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION
         ) * 100;
         $sezzleOrderInfo = $this->sezzlePay
