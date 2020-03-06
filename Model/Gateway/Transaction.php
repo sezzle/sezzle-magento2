@@ -137,7 +137,7 @@ class Transaction
                 $orderForSezzle = [
                     'order_number' => $orderIncrementId,
                     'payment_method' => $payment->getMethod(),
-                    'amount' => round((float)$order->getGrandTotal(), \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100,
+                    'amount' => (int)(round($order->getGrandTotal() * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION)),
                     'currency' => $order->getOrderCurrencyCode(),
                     'sezzle_reference' => $payment->getLastTransId(),
                     'customer_email' => $billing->getEmail(),

@@ -244,7 +244,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     {
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
-        $grandTotalInCents = round((float)$amount, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100;
+        $grandTotalInCents = (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
         $result = $this->getSezzleOrderInfo($reference);
@@ -279,7 +279,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
             throw new LocalizedException(__('Invalid amount for capture.'));
         }
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
-        $grandTotalInCents = round((float)$amount, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100;
+        $grandTotalInCents = (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
         $result = $this->getSezzleOrderInfo($reference);
@@ -405,7 +405,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                 $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/orders' . '/' . $orderId . '/refund';
                 $authToken = $this->sezzleApiConfig->getAuthToken();
                 $requestPayload = ["amount" => [
-                    "amount_in_cents" => round((float)$amount, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION) * 100,
+                    "amount_in_cents" => (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION)),
                     "currency" => $currency
                 ]
                 ];

@@ -331,10 +331,10 @@ class SavePlugin
         $reference = $this->order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
         $currentTime = $this->dateTime->gmtDate("Y-m-d H:i:s");
         $currentTimestamp = $this->dateTime->timestamp($currentTime);
-        $grandTotalInCents = round(
-            (float)$this->order->getGrandTotal(),
+        $grandTotalInCents = (int)(round(
+            $this->order->getGrandTotal() * 100,
             \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION
-        ) * 100;
+        ));
         $sezzleOrderInfo = $this->sezzlePay
                             ->getSezzleOrderInfo($reference);
 
