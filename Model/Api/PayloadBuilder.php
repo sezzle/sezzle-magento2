@@ -75,7 +75,7 @@ class PayloadBuilder
         $orderId = $quote->getReservedOrderId();
         $completeUrl = $this->sezzleApiConfig->getCompleteUrl($orderId, $reference);
         $cancelUrl = $this->sezzleApiConfig->getCancelUrl();
-        $checkoutPayload["amount_in_cents"] = (int)(round($quote->getGrandTotal(), self::PRECISION) * 100);
+        $checkoutPayload["amount_in_cents"] = (int)(round($quote->getGrandTotal() * 100, self::PRECISION));
         $checkoutPayload["currency_code"] = $this->storeManager->getStore()->getCurrentCurrencyCode();
         $checkoutPayload["order_description"] = $reference;
         $checkoutPayload["order_reference_id"] = $reference;
@@ -161,7 +161,7 @@ class PayloadBuilder
                 "sku" => $productSku,
                 "quantity" => $productQuantity,
                 "price" => [
-                    "amount_in_cents" => (int)(round($item->getPriceInclTax(), self::PRECISION) * 100),
+                    "amount_in_cents" => (int)(round($item->getPriceInclTax() * 100, self::PRECISION)),
                     "currency" => $currencyCode
                 ]
             ];
