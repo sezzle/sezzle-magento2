@@ -35,6 +35,7 @@ class Complete extends SezzlePay
                 ->clearHelperData();
             $this->sezzleHelper->logSezzleActions("Set data on checkout session");
 
+            $quote->collectTotals();
             $order = $this->_quoteManagement->submit($quote);
             $this->sezzleHelper->logSezzleActions("Order created");
 
