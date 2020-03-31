@@ -17,7 +17,7 @@
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>0</log_tracker>
                 <payment_action>authorize_capture</payment_action>
-                <title>Sezzle Pay</title>
+                <title>Sezzle</title>
 	    </sezzlepay>
         </payment>
     </default>

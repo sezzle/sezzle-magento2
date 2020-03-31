@@ -255,8 +255,8 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
 
         if ($sezzleOrderTotal != null
         && !$this->isOrderAmountMatched($grandTotalInCents, $sezzleOrderTotal)) {
-            $this->sezzleHelper->logSezzleActions("Sezzle Pay gateway has rejected request due to invalid order total");
-            throw new LocalizedException(__('Sezzle Pay gateway has rejected request due to invalid order total.'));
+            $this->sezzleHelper->logSezzleActions("Sezzle gateway has rejected request due to invalid order total");
+            throw new LocalizedException(__('Sezzle gateway has rejected request due to invalid order total.'));
         } else {
             $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
             $this->sezzleHelper->logSezzleActions("Authorization successful");
@@ -290,8 +290,8 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
 
         if ($sezzleOrderTotal != null
             && !$this->isOrderAmountMatched($grandTotalInCents, $sezzleOrderTotal)) {
-            $this->sezzleHelper->logSezzleActions("Sezzle Pay gateway has rejected request due to invalid order total");
-            throw new LocalizedException(__('Sezzle Pay gateway has rejected request due to invalid order total.'));
+            $this->sezzleHelper->logSezzleActions("Sezzle gateway has rejected request due to invalid order total");
+            throw new LocalizedException(__('Sezzle gateway has rejected request due to invalid order total.'));
         }
 
         $captureExpiration = (isset($result['capture_expiration']) && $result['capture_expiration']) ? $result['capture_expiration'] : null;

@@ -21,11 +21,10 @@ class Cancel extends SezzlePay
     public function execute()
     {
         $order = $this->getOrder();
-        $order->registerCancellation("Returned from Sezzlepay without completing payment.");
+        $order->registerCancellation("Returned from Sezzle Checkout without completing payment.");
         $this->sezzleHelper->logSezzleActions(
-            "Returned from Sezzlepay without completing payment. Order cancelled."
+            "Returned from Sezzle Checkout without completing payment. Order not created."
         );
-        $this->_checkoutSession->restoreQuote();
         $this->getResponse()->setRedirect(
             $this->_url->getUrl('checkout')
         );
