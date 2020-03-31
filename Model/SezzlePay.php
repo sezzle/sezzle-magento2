@@ -422,7 +422,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                 throw new LocalizedException(__($e->getMessage()));
             }
         } else {
-            $message = __('There are no Sezzle payment linked to this order. Please use refund offline for this order.');
+            $message = __('There is no Sezzle payment linked to this order. Please use refund offline for this order.');
             throw new LocalizedException($message);
         }
     }
