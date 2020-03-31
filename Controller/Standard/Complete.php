@@ -53,7 +53,7 @@ class Complete extends SezzlePay
                     $this->_helper->debug("Transaction Email Sending Error: " . json_encode($e));
                 }
 
-                $this->messageManager->addSuccess("Sezzlepay Transaction Completed");
+                $this->messageManager->addSuccess("Sezzle transaction has been completed successfully.");
                 $redirect = 'checkout/onepage/success';
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
