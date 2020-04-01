@@ -28,11 +28,11 @@ This extension allows you to use Sezzle as payment gateway in your Magento 2 sto
 10. Login to Magento Admin and navigate to System/Cache Management
 11. Flush the cache storage by selecting Flush Cache Storage
 
-You can now directly navigate from the Configuration Page to get signed up for Sezzle Pay. To do so, you need to click on `Register for Sezzle Pay` which will redirect you to the Sezzle Merchant Signup Page. If you have the details already, you can simply click on ` I've already setup Sezzle Pay, I want to edit my settings` to move ahead.
+You can now directly navigate from the Configuration Page to get signed up for Sezzle. To do so, you need to click on `Register for Sezzle` which will redirect you to the Sezzle Merchant Signup Page. If you have the details already, you can simply click on ` I've already setup Sezzle, I want to edit my settings` to move ahead.
 
 ## Payment Setup
 1. Make sure you have the Merchant ID and the API Keys from the Sezzle Merchant Dashboard.
-2. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Payment Settings` in your Magento admin.
+2. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle/Payment Settings` in your Magento admin.
 3. Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
 4. Set the Merchant ID, Public Key and Private Key.
 5. Set `Payment Action` as `Authorize only` for doing payment authorization only and `Authorize and Capture` for doing authorization as well as payment capture.
@@ -41,7 +41,7 @@ You can now directly navigate from the Configuration Page to get signed up for S
 8. Save the configuration and clear the cache.
 
 ## Product Widget Setup
-1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Widget Settings/Product Page` in your Magento admin.
+1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle/Widget Settings/Product Page` in your Magento admin.
 2. Provide the below necessary information so that Sezzle widget comes up in the product page in frontend.
    - Price Block Selector : XPath of the price element.
    - Product page:render to element path : Location where to render the widget.
@@ -54,7 +54,7 @@ You can now directly navigate from the Configuration Page to get signed up for S
 3. Save the configuration and clear the cache.
 
 ## Cart Widget Setup
-1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle Pay/Widget Settings/Cart Page` in your Magento admin.
+1. Navigate to `Stores/Configuration/Sales/Payment Methods/Sezzle/Widget Settings/Cart Page` in your Magento admin.
 2. Provide the below necessary information so that Sezzle widget comes up in the product page in frontend.
    - Price Block Selector : XPath of the price element.
    - Cart page:render to element path : Location where to render the widget.

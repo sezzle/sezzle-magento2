@@ -35,17 +35,17 @@
                         <label>Title</label>
                         <config_path>payment/sezzlepay/title</config_path>
                     </field>
-                    <!-- private key -->
-                    <field id="private_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Private Key</label>
-                        <comment>Look for this in your Sezzle Dashboard</comment>
-                        <config_path>payment/sezzlepay/private_key</config_path>
-                    </field>
                     <!-- public key -->
-                    <field id="public_key" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="public_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
                         <config_path>payment/sezzlepay/public_key</config_path>
+                    </field>
+                    <!-- private key -->
+                    <field id="private_key" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Private Key</label>
+                        <comment>Look for this in your Sezzle Dashboard</comment>
+                        <config_path>payment/sezzlepay/private_key</config_path>
                     </field>
                     <!-- merchant id -->
                     <field id="merchant_id" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -109,7 +109,7 @@
                     <field id="forced_show" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Show in all countries</label>
                         <comment>
-                            If false, the widget is shown only in countries where Sezzle Pay is supported
+                            If false, the widget is shown only in countries where Sezzle is supported
                         </comment>
                         <config_path>product/sezzlepay/forced_show</config_path>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -141,7 +141,7 @@
                         <label>Hide classes</label>
                         <comment>
                             Classes to be hidden when sezzle widget is visible.
-                            There are other products like Sezzle Pay which do not work in countries where sezzle works.
+                            There are other products like Sezzle which do not work in countries where sezzle works.
                             You can hide them by adding their classes here.
                             To hide multiple elements enter their classes like the following.
                             Eg: class-to-hide|class-to-hide-2
@@ -176,7 +176,7 @@
                         <field id="forced_show" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Show in all countries</label>
                             <comment>
-                                If false, the widget is shown only in countries where Sezzle Pay is supported
+                                If false, the widget is shown only in countries where Sezzle is supported
                             </comment>
                             <config_path>cart/sezzlepay/forced_show</config_path>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -208,7 +208,7 @@
                             <label>Hide classes</label>
                             <comment>
                                 Classes to be hidden when sezzle widget is visible.
-                                There are other products like Sezzle Pay which do not work in countries where sezzle works.
+                                There are other products like Sezzle which do not work in countries where sezzle works.
                                 You can hide them by adding their classes here.
                                 To hide multiple elements enter their classes like the following.
                                 Eg: class-to-hide|class-to-hide-2

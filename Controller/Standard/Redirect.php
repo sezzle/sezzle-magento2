@@ -24,7 +24,7 @@ class Redirect extends SezzlePay
      */
     public function execute()
     {
-        $this->sezzleHelper->logSezzleActions("****Starting Sezzle Pay****");
+        $this->sezzleHelper->logSezzleActions("****Starting Sezzle Checkout****");
         $quote = $this->_checkoutSession->getQuote();
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         if ($this->_customerSession->isLoggedIn()) {

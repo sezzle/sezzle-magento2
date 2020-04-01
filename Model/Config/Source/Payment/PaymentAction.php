@@ -12,7 +12,7 @@ namespace Sezzle\Sezzlepay\Model\Config\Source\Payment;
 use Magento\Framework\Option\ArrayInterface;
 
 /**
- * Sezzle Pay Payment Action Dropdown source
+ * Sezzle Payment Action Dropdown source
  */
 class PaymentAction implements ArrayInterface
 {
