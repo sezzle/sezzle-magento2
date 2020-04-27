@@ -63,4 +63,16 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return mixed
      */
     public function getMinCheckoutAmount();
+
+    /**
+     * Get widget script status for PDP
+     * @return mixed
+     */
+    public function isWidgetScriptAllowedForPDP();
+
+    /**
+     * Get widget script status for cart page
+     * @return mixed
+     */
+    public function isWidgetScriptAllowedForCartPage();
 }
