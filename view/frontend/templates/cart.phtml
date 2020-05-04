@@ -5,12 +5,14 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 ?>
+<?php if ($this->isWidgetScriptAllowedForCartPage()) : ?>
 <script type="text/x-magento-init">
     {
         "*": {
-            "productWidget": {
-                "jsConfig" : <?php echo json_encode($this->getJsConfig()) ?>
+            "widgetRenderer": {
+                "merchant_id" : <?php echo $this->getMerchantID() ?>
             }
         }
     }
 </script>
+<?php endif; ?>
