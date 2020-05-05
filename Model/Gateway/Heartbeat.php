@@ -9,7 +9,6 @@ namespace Sezzle\Sezzlepay\Model\Gateway;
 
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
-use Sezzle\Sezzlepay\Model\Config\Container\ProductWidgetConfigInterface;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
@@ -31,10 +30,6 @@ class Heartbeat
      */
     private $logger;
     /**
-     * @var ProductWidgetConfigInterface
-     */
-    private $productWidgetConfig;
-    /**
      * @var ConfigInterface
      */
     private $config;
@@ -51,20 +46,17 @@ class Heartbeat
      * @param ConfigInterface $config
      * @param \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor
      * @param SezzleApiConfigInterface $sezzleApiConfig
-     * @param ProductWidgetConfigInterface $productWidgetConfig
      */
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         SezzleHelper $sezzleHelper,
         ConfigInterface $config,
         \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
-        SezzleApiConfigInterface $sezzleApiConfig,
-        ProductWidgetConfigInterface $productWidgetConfig
+        SezzleApiConfigInterface $sezzleApiConfig
     ) {
         $this->sezzleApiConfig = $sezzleApiConfig;
         $this->sezzleHelper = $sezzleHelper;
         $this->config = $config;
-        $this->productWidgetConfig = $productWidgetConfig;
         $this->sezzleApiProcessor = $sezzleApiProcessor;
         $this->logger = $logger;
     }
@@ -77,14 +69,15 @@ class Heartbeat
         $this->sezzleHelper->logSezzleActions("****Hearbeat process start****");
         $isPublicKeyEntered = $this->sezzleApiConfig->getPublicKey() ? true : false;
         $isPrivateKeyEntered = $this->sezzleApiConfig->getPrivateKey() ? true : false;
-        $isWidgetConfigured = $this->productWidgetConfig->getTargetXPath() ? true : false;
+        $isWidgetConfiguredForPDP = $this->sezzleApiConfig->isWidgetScriptAllowedForPDP() ? true : false;
+        $isWidgetConfiguredForCartPage = $this->sezzleApiConfig->isWidgetScriptAllowedForCartPage() ? true : false;
         $isMerchantIdEntered = $this->sezzleApiConfig->getMerchantId() ? true : false;
         $isPaymentMethodActive = $this->sezzleApiConfig->isEnabled() ? true : false;
 
         $body = [
             'is_payment_active' => $isPaymentMethodActive,
             'is_widget_active' => true,
-            'is_widget_configured' => $isWidgetConfigured,
+            'is_widget_configured' => $isWidgetConfiguredForPDP && $isWidgetConfiguredForCartPage,
             'is_merchant_id_entered' => $isMerchantIdEntered,
             'merchant_id' => $this->sezzleApiConfig->getMerchantId()
         ];
