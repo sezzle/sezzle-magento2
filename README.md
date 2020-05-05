@@ -102,6 +102,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Select the order you want to refund.
 * Click on `Credit Memo` and verify your input in the `Create Credit Memo` page.
 * Save it and the refunded will be initiated in `Sezzle`.
+* In `Sezzle Merchant Dashboard`, `Order Status` as `Refunded` means payment has been fully refunded and `Order Status` as `Partially Refunded` means payment has been partially refunded.
 
 ## Order Verification in Magento Admin
 
