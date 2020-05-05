@@ -88,6 +88,21 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Select `Sezzle` and move forward.
 * Once you click `Place Order`, you will be redirected to `Sezzle Checkout` to complete the checkout and eventually in `Magento` too.
 
+## Capture Payment
+
+* If `Payment Action` is set to `Authorize and Capture`, capture will be performed instantly from the extension after order is created and validated in `Magento`.
+* If `Payment Action` is set to `Authorize`, capture needs to be performed manually from the `Magento` admin. Follow the below steps to do so.
+    * Go the order and click on `Invoice`.
+    * Verify your input in the `Create Invoice` page and click on `Save` to create the invoice.
+    * This will automatically capture the payment in `Sezzle`.
+
+## Refund Payment
+
+* Go to `Sales > Orders` in the `Magento` admin.
+* Select the order you want to refund.
+* Click on `Credit Memo` and verify your input in the `Create Credit Memo` page.
+* Save it and the refunded will be initiated in `Sezzle`.
+
 ## Order Verification in Magento Admin
 
 * Login to `Magento` admin and navigate to `Sales > Orders`.
@@ -102,3 +117,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Status as `Approved` means payment is successfully captured by `Sezzle`.
 * Status as `Authorized`, uncaptured means payment is authorized but yet not captured.
 
+## Troubleshooting/Debugging
+* There is logging enabled by `Sezzle` for tracing the `Sezzle` actions.
+* In case merchant is facing issues which is unknown to `Merchant Success` and `Support` team, they can ask for this logs and forward to the `Platform Integrations` team.
+* Name of the log should be like `sezzlepay.log`.Its always recommended to send the `system.log` and `exception.log` for better tracing of issues.
