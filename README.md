@@ -67,7 +67,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 
 ## Configure Sezzle
 
-* Make sure you have the `Merchant ID` and the `API Keys` from the `Sezzle Merchant Dashboard`.
+* Make sure you have the `Merchant ID` and the `API Keys` from the [`Sezzle Merchant Dashboard`](https://dashboard.sezzle.com/merchant/). Sign Up if you have not signed up to get the necessities.
 * Navigate to `Stores > Configuration > Sales > Payment Methods > Sezzle > Payment Settings` in your `Magento` admin.
 * Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
 * Set the `Merchant ID`, `Public Key` and `Private Key`.
@@ -75,7 +75,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Set the Merchant Country as per the origin.
 * Enable the log tracker to trace the `Sezzle` checkout process.
 * Set `Payment from Applicable Countries` to `Specific Countries`.
-* Set `Payment from Specific Countries` to `United States` or `Canada`.
+* Set `Payment from Specific Countries` to `United States` or `Canada` as Sezzle is currently available for US and Canada only.
 * Set `Add Widget Script in PDP` to `Yes` for adding widget script in the Product Display Page which will help in enabling `Sezzle Widget` Modal in PDP.
 * Set `Add Widget Script in Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Sezzle Widget` Modal in Cart Page.
 * Save the configuration and clear the cache.
@@ -120,7 +120,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 
 ## How Sandbox works?
 
-* In the `Sezzle` configuration page of your `Magento` admin, enter the `Sandbox` `API Keys` from your `Sezzle Merchant Sandbox Dashboard` and set the `Payment Mode` to `Sandbox`, then save the configuration. Make sure you are doing this on your `dev/staging` website.
+* In the `Sezzle` configuration page of your `Magento` admin, enter the `Sandbox` `API Keys` from your [`Sezzle Merchant Sandbox Dashboard`](https://sandbox.dashboard.sezzle.com/merchant/) and set the `Payment Mode` to `Sandbox`, then save the configuration. Make sure you are doing this on your `dev/staging` website.
 * On your website, add an item to the cart, then proceed to `Checkout` and select `Sezzle` as the payment method.
 * Click `Continue` then `Place Order` and you should be redirected to the `Sezzle Checkout` page. If prompted, sign in and continue.
 * Enter the payment details using test data, then click `Complete Order`.
