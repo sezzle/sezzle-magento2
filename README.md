@@ -25,7 +25,7 @@ There are two ways of installing and upgrading the extension.
 * Navigate to `Magento` `[Magento]/app/code/` either through `SFTP` or `SSH`.
 * Copy `Sezzle` directory from unzipped folder to `[Magento]/app/code/`.
 * Open the terminal.
-* Run the below command to enable `Sezzle`:
+* Run the following command to enable `Sezzle`:
 ```php bin/magento module:enable Sezzle_Sezzlepay```
 * Run the `Magento` setup upgrade:
 ```php bin/magento setup:upgrade```
@@ -53,7 +53,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Unzip the file and follow the following instructions.
 * Copy `Sezzle` directory from unzipped folder to `[Magento]/app/code/`. Make sure you are overwriting the files.
 * Open the terminal.
-* Run the below command to enable `Sezzle`:
+* Run the following command to enable `Sezzle`:
 ```php bin/magento module:enable Sezzle_Sezzlepay```
 * Run the `Magento` setup upgrade:
 ```php bin/magento setup:upgrade```
@@ -117,6 +117,15 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Proceed into the corresponding order.
 * Status as `Approved` means payment is successfully captured by `Sezzle`.
 * Status as `Authorized`, uncaptured means payment is authorized but yet not captured.
+
+## How Sandbox works?
+
+* In the `Sezzle` configuration page of your `Magento` admin, enter the `Sandbox` `API Keys` from your `Sezzle Merchant Sandbox Dashboard` and set the `Payment Mode` to `Sandbox`, then save the configuration. Make sure you are doing this on your `dev/staging` website.
+* On your website, add an item to the cart, then proceed to `Checkout` and select `Sezzle` as the payment method.
+* Click `Continue` then `Place Order` and you should be redirected to the `Sezzle Checkout` page. If prompted, sign in and continue.
+* Enter the payment details using test data, then click `Complete Order`.
+* After the payment is completed on `Sezzle`, you should be redirected back to your website and see a successful payment page.
+* `Sandbox` testing is complete. You can login to your `Sezzle Merchant Sandbox Dashboard` to see the test order you just placed.
 
 ## Troubleshooting/Debugging
 * There is logging enabled by `Sezzle` for tracing the `Sezzle` actions.
