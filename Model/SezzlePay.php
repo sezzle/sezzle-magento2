@@ -11,6 +11,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Sales\Model\Order;
+use Sezzle\Sezzlepay\Model\Api\V2;
 
 /**
  * Class SezzlePay
@@ -110,6 +111,11 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     private $messageManager;
 
     /**
+     * @var Api\V2
+     */
+    private $v2;
+
+    /**
      * SezzlePay constructor.
      * @param Context $context
      * @param Config\Container\SezzleApiIdentity $sezzleApiIdentity
@@ -125,9 +131,10 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
      * @param \Magento\Payment\Helper\Data $paymentData
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Payment\Model\Method\Logger $mageLogger
+     * @param CheckoutSession $checkoutSession
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
-     * @param CheckoutSession $checkoutSession
+     * @param V2 $v2
      */
     public function __construct(
         Context $context,
@@ -146,7 +153,8 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Payment\Model\Method\Logger $mageLogger,
         CheckoutSession $checkoutSession,
         \Magento\Framework\Message\ManagerInterface $messageManager,
-        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+        \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        V2 $v2
     ) {
         $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->sezzleHelper = $sezzleHelper;
@@ -158,6 +166,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $this->messageManager = $messageManager;
         $this->dateTime = $dateTime;
         $this->checkoutSession = $checkoutSession;
+        $this->v2 = $v2;
         parent::__construct(
             $context,
             $registry,
@@ -205,10 +214,12 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/checkouts';
         $requestBody = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
         try {
-            $authToken = $this->sezzleApiConfig->getAuthToken();
+            //$authToken = $this->sezzleApiConfig->getAuthToken();
+            /** @var \Sezzle\Sezzlepay\Api\Data\AuthInterface $authToken */
+            $auth = $this->v2->authenticate();
             $response = $this->sezzleApiProcessor->call(
                 $url,
-                $authToken,
+                $auth->getToken(),
                 $requestBody,
                 \Magento\Framework\HTTP\ZendClient::POST
             );

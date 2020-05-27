@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
 use Magento\Store\Model\Store;
+use Magento\Tests\NamingConvention\true\bool;
 
 /**
  * Interface IdentityInterface
@@ -75,4 +76,16 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return mixed
      */
     public function isWidgetScriptAllowedForCartPage();
+
+    /**
+     * Get tokenization status
+     * @return bool
+     */
+    public function isTokenizationAllowed();
+
+    /**
+     * Get create checkout status
+     * @return bool
+     */
+    public function isCheckoutAllowed();
 }

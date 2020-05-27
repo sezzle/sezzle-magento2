@@ -23,6 +23,8 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
     const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
+    const XML_PATH_TOKENIZE = 'payment/sezzlepay/tokenize';
+    const XML_PATH_CHECKOUT = 'payment/sezzlepay/checkout';
 
     private $liveCheckoutUrl = "https://gateway.sezzle.com";
     private $sandboxCheckoutUrl = "https://sandbox.gateway.sezzle.com";
@@ -152,6 +154,28 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_CART,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isTokenizationAllowed()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_TOKENIZE,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isCheckoutAllowed()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_CHECKOUT,
             $this->getStore()->getStoreId()
         );
     }
