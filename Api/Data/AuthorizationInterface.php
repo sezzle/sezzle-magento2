@@ -21,13 +21,13 @@ interface AuthorizationInterface
     /**
      * @return string
      */
-    public function getUUID();
+    public function getUuid();
 
     /**
      * @param string $uuid
      * @return $this
      */
-    public function setUUID($uuid);
+    public function setUuid($uuid);
 
     /**
      * @return AmountInterface|null

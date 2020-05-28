@@ -72,7 +72,7 @@ class Auth extends AbstractExtensibleObject implements AuthInterface
     /**
      * @inheritDoc
      */
-    public function setMerchantUUID($merchantUUID)
+    public function setMerchantUuid($merchantUUID)
     {
         $this->setData(self::MERCHANT_UUID, $merchantUUID);
     }

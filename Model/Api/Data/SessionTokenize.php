@@ -6,6 +6,7 @@ namespace Sezzle\Sezzlepay\Model\Api\Data;
 
 use Magento\Framework\Api\AbstractExtensibleObject;
 use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
+use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
 
 class SessionTokenize extends AbstractExtensibleObject implements SessionTokenizeInterface
 {
@@ -29,7 +30,7 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function getApprovalURL()
+    public function getApprovalUrl()
     {
         return $this->_get(self::APPROVAL_URL);
     }
@@ -37,7 +38,7 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setApprovalURL($approvalURL)
+    public function setApprovalUrl($approvalURL)
     {
         $this->setData(self::APPROVAL_URL, $approvalURL);
     }
@@ -69,7 +70,7 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setCustomer($customer)
+    public function setCustomer(TokenizeCustomerInterface $customer = null)
     {
         $this->setData(self::CUSTOMER, $customer);
     }

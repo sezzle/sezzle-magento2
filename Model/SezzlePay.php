@@ -115,6 +115,10 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
      * @var Api\V2
      */
     private $v2;
+    /**
+     * @var \Magento\Quote\Model\QuoteRepository
+     */
+    private $quoteRepository;
 
     /**
      * SezzlePay constructor.
@@ -135,6 +139,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
      * @param CheckoutSession $checkoutSession
      * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+     * @param \Magento\Quote\Model\QuoteRepository $quoteRepository
      * @param V2 $v2
      */
     public function __construct(
@@ -155,6 +160,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         CheckoutSession $checkoutSession,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        \Magento\Quote\Model\QuoteRepository $quoteRepository,
         V2 $v2
     ) {
         $this->apiPayloadBuilder = $apiPayloadBuilder;
@@ -167,6 +173,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $this->messageManager = $messageManager;
         $this->dateTime = $dateTime;
         $this->checkoutSession = $checkoutSession;
+        $this->quoteRepository = $quoteRepository;
         $this->v2 = $v2;
         parent::__construct(
             $context,
@@ -185,21 +192,25 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
      * @return string
      * @throws LocalizedException
      */
-    public function getSezzleCheckoutUrl($quote)
+    public function getSezzleRedirectUrl($quote)
     {
-        $reference = uniqid() . "-" . $quote->getReservedOrderId();
-        $this->sezzleHelper->logSezzleActions("Reference Id : $reference");
+        $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
+        $this->sezzleHelper->logSezzleActions("Reference Id : $referenceID");
         $payment = $quote->getPayment();
-        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID, $reference);
-        $payment->save();
-        $session = $this->v2->createSession();
-        $checkoutURL = $session->getOrder()->getCheckoutURL();
-        $this->sezzleHelper->logSezzleActions("Checkout URL : $checkoutURL");
-        if (!$checkoutURL) {
+        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID, $referenceID);
+        $this->quoteRepository->save($quote);
+        $session = $this->v2->createSession($referenceID);
+        if ($session->getOrder()) {
+            $redirectURL = $session->getOrder()->getCheckoutUrl();
+        } else {
+            $redirectURL = $session->getTokenize()->getApprovalUrl();
+        }
+        $this->sezzleHelper->logSezzleActions("Redirect URL : $redirectURL");
+        if (!$redirectURL) {
             $this->sezzleHelper->logSezzleActions("No Token response from API");
             throw new LocalizedException(__('There is an issue processing your order.'));
         }
-        return $checkoutURL;
+        return $redirectURL;
     }
 
     /**

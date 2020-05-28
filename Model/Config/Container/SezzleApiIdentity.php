@@ -166,7 +166,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
         return $this->getConfigValue(
             self::XML_PATH_TOKENIZE,
             $this->getStore()->getStoreId()
-        );
+        ) ? true : false;
     }
 
     /**
@@ -177,7 +177,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
         return $this->getConfigValue(
             self::XML_PATH_CHECKOUT,
             $this->getStore()->getStoreId()
-        );
+        ) ? true : false;
     }
 
     /**

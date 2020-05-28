@@ -14,7 +14,7 @@ class PaymentAction extends AbstractExtensibleObject implements PaymentActionInt
     /**
      * @inheritDoc
      */
-    public function getUUID()
+    public function getUuid()
     {
         $this->_get(self::UUID);
     }
@@ -22,7 +22,7 @@ class PaymentAction extends AbstractExtensibleObject implements PaymentActionInt
     /**
      * @inheritDoc
      */
-    public function setUUID($uuid)
+    public function setUuid($uuid)
     {
         $this->setData(self::UUID, $uuid);
     }

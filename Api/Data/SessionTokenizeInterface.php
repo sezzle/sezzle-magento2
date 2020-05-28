@@ -29,13 +29,13 @@ interface SessionTokenizeInterface
     /**
      * @return string|null
      */
-    public function getApprovalURL();
+    public function getApprovalUrl();
 
     /**
      * @param string $approvalURL
      * @return $this
      */
-    public function setApprovalURL($approvalURL);
+    public function setApprovalUrl($approvalURL);
 
     /**
      * @return string|null
@@ -49,14 +49,14 @@ interface SessionTokenizeInterface
     public function setExpiration($expiration);
 
     /**
-     * @return TokenizeCustomerInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface|null
      */
     public function getCustomer();
 
     /**
-     * @param TokenizeCustomerInterface $customer
+     * @param \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface $customer
      * @return $this
      */
-    public function setCustomer(TokenizeCustomerInterface $customer);
+    public function setCustomer(TokenizeCustomerInterface $customer = null);
 
 }

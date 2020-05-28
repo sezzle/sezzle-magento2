@@ -16,33 +16,33 @@ interface SessionInterface
     /**
      * @return string|null
      */
-    public function getUUID();
+    public function getUuid();
 
     /**
      * @param $uuid
      * @return $this
      */
-    public function setUUID($uuid);
+    public function setUuid($uuid);
 
     /**
-     * @return SessionOrderInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\SessionOrderInterface|null
      */
     public function getOrder();
 
     /**
-     * @param SessionOrderInterface $sessionOrder
+     * @param \Sezzle\Sezzlepay\Api\Data\SessionOrderInterface $sessionOrder
      * @return $this
      */
-    public function setOrder(SessionOrderInterface $sessionOrder);
+    public function setOrder(SessionOrderInterface $sessionOrder = null);
 
     /**
-     * @return SessionTokenizeInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface|null
      */
     public function getTokenize();
 
     /**
-     * @param SessionTokenizeInterface $sessionTokenize
+     * @param \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface $sessionTokenize
      * @return mixed
      */
-    public function setTokenize(SessionTokenizeInterface $sessionTokenize);
+    public function setTokenize(SessionTokenizeInterface $sessionTokenize = null);
 }

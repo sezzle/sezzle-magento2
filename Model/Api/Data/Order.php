@@ -16,7 +16,7 @@ class Order extends AbstractExtensibleObject implements OrderInterface
     /**
      * @inheritDoc
      */
-    public function getUUID()
+    public function getUuid()
     {
         return $this->_get(self::UUID);
     }
@@ -24,7 +24,7 @@ class Order extends AbstractExtensibleObject implements OrderInterface
     /**
      * @inheritDoc
      */
-    public function setUUID($uuid)
+    public function setUuid($uuid)
     {
         $this->setData(self::UUID, $uuid);
     }

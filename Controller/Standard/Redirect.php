@@ -57,7 +57,7 @@ class Redirect extends SezzlePay
         $quote->setPayment($payment);
         $quote->save();
         $this->_checkoutSession->replaceQuote($quote);
-        $checkoutUrl = $this->_sezzlepayModel->getSezzleCheckoutUrl($quote);
+        $checkoutUrl = $this->_sezzlepayModel->getSezzleRedirectUrl($quote);
         $this->sezzleHelper->logSezzleActions("Checkout Url : $checkoutUrl");
         $json = $this->_jsonHelper->jsonEncode(["redirectURL" => $checkoutUrl]);
         $jsonResult = $this->_resultJsonFactory->create();

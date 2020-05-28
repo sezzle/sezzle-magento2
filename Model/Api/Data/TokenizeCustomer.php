@@ -13,7 +13,7 @@ class TokenizeCustomer extends AbstractExtensibleObject implements TokenizeCusto
     /**
      * @inheritDoc
      */
-    public function getUUID()
+    public function getUuid()
     {
         return $this->_get(self::UUID);
     }
@@ -21,7 +21,7 @@ class TokenizeCustomer extends AbstractExtensibleObject implements TokenizeCusto
     /**
      * @inheritDoc
      */
-    public function setUUID($uuid)
+    public function setUuid($uuid)
     {
         $this->setData(self::UUID, $uuid);
     }

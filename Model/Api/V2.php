@@ -17,6 +17,8 @@ use Sezzle\Sezzlepay\Api\Data\AuthorizationInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\OrderInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\SessionOrderInterface;
+use Sezzle\Sezzlepay\Api\Data\SessionOrderInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterfaceFactory;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
@@ -93,6 +95,10 @@ class V2
      * @var SezzleApiConfigInterface
      */
     private $sezzleApiConfig;
+    /**
+     * @var SessionOrderInterfaceFactory
+     */
+    private $sessionOrderInterfaceFactory;
 
     /**
      * V2 constructor.
@@ -110,6 +116,7 @@ class V2
      * @param PayloadBuilder $apiPayloadBuilder
      * @param SessionInterfaceFactory $sessionInterfaceFactory
      * @param SezzleApiConfigInterface $sezzleApiConfig
+     * @param SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -125,7 +132,8 @@ class V2
         CheckoutSession $checkoutSession,
         PayloadBuilder $apiPayloadBuilder,
         SessionInterfaceFactory $sessionInterfaceFactory,
-        SezzleApiConfigInterface $sezzleApiConfig
+        SezzleApiConfigInterface $sezzleApiConfig,
+        SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -141,6 +149,7 @@ class V2
         $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->sessionInterfaceFactory = $sessionInterfaceFactory;
         $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->sessionOrderInterfaceFactory = $sessionOrderInterfaceFactory;
     }
 
 
@@ -186,14 +195,14 @@ class V2
     /**
      * Create Sezzle Checkout Session
      *
+     * @param string $reference
      * @return SessionInterface
      * @throws LocalizedException
      */
-    public function createSession()
+    public function createSession($reference)
     {
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_CREATE_SESSION_ENDPOINT;
         $quote = $this->checkoutSession->getQuote();
-        $reference = uniqid() . "-" . $quote->getReservedOrderId();
         $body = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
         /** @var SessionInterface $sessionModel */
         $sessionModel = $this->sessionInterfaceFactory->create();
@@ -206,16 +215,23 @@ class V2
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            $this->dataObjectHelper->populateWithArray(
-                $sessionModel,
-                $body,
-                SessionInterface::class
-            );
             if (isset($body['order'])) {
-                $sessionModel->setOrder($body['order']);
+                $sessionOrderModel = $this->sessionOrderInterfaceFactory->create();
+                $this->dataObjectHelper->populateWithArray(
+                    $sessionOrderModel,
+                    $body['order'],
+                    SessionOrderInterface::class
+                );
+                $sessionModel->setOrder($sessionOrderModel);
             }
             if (isset($body['tokenize'])) {
-                $sessionModel->setTokenize($body['tokenize']);
+                $sessionTokenizeModel = $this->sessionTokenizeInterfaceFactory->create();
+                $this->dataObjectHelper->populateWithArray(
+                    $sessionTokenizeModel,
+                    $body['tokenize'],
+                    SessionTokenizeInterface::class
+                );
+                $sessionModel->setTokenize($sessionTokenizeModel);
             }
             return $sessionModel;
         } catch (\Exception $e) {
@@ -409,7 +425,7 @@ class V2
                 $body,
                 SessionTokenizeInterface::class
             );
-            return $sessionTokenizeModel->getCustomer()->getUUID();
+            return $sessionTokenizeModel->getCustomer()->getUuid();
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

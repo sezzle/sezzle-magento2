@@ -3,7 +3,6 @@
 
 namespace Sezzle\Sezzlepay\Api\Data;
 
-
 /**
  * Interface SessionOrderInterface
  * @package Sezzle\Sezzlepay\Api\Data
@@ -16,23 +15,22 @@ interface SessionOrderInterface
     /**
      * @return string|null
      */
-    public function getUUID();
+    public function getUuid();
 
     /**
      * @param string $uuid
      * @return $this
      */
-    public function setUUID($uuid);
+    public function setUuid($uuid);
 
     /**
      * @return string|null
      */
-    public function getCheckoutURL();
+    public function getCheckoutUrl();
 
     /**
      * @param string $checkoutURL
      * @return $this
      */
-    public function setCheckoutURL($checkoutURL);
-
+    public function setCheckoutUrl($checkoutURL);
 }

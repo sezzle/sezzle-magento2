@@ -38,8 +38,7 @@ class PayloadBuilder
     public function __construct(
         StoreManagerInterface $storeManager,
         SezzleApiConfigInterface $sezzleApiConfig
-    )
-    {
+    ) {
         $this->storeManager = $storeManager;
         $this->sezzleApiConfig = $sezzleApiConfig;
     }
@@ -60,9 +59,9 @@ class PayloadBuilder
         $cancelURL['cancel_url'] = [
             "href" => $this->sezzleApiConfig->getCancelUrl()
         ];
-        //if ($this->sezzleApiConfig->isCheckoutAllowed()) {
-        $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
-        //}
+        if ($this->sezzleApiConfig->isCheckoutAllowed()) {
+            $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
+        }
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
         return array_merge(
             $completeURL,
@@ -136,7 +135,7 @@ class PayloadBuilder
     {
         $billingAddress = $quote->getBillingAddress();
         return [
-            "tokenize" => false,
+            "tokenize" => $this->sezzleApiConfig->isTokenizationAllowed(),
             "email" => $quote->getCustomerEmail(),
             "first_name" => $quote->getCustomerFirstname()
                 ? $quote->getCustomerFirstname()

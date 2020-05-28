@@ -52,13 +52,13 @@ interface AuthInterface
     /**
      * @return string|null
      */
-    public function getMerchantUUID();
+    public function getMerchantUuid();
 
     /**
      * @param string $merchantUUID
      * @return $this
      */
-    public function setMerchantUUID($merchantUUID);
+    public function setMerchantUuid($merchantUUID);
 
     /**
      * @return string|null

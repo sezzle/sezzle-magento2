@@ -3,7 +3,6 @@
 
 namespace Sezzle\Sezzlepay\Model\Api\Data;
 
-
 use Magento\Framework\Api\AbstractExtensibleObject;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionOrderInterface;
@@ -15,7 +14,7 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function getUUID()
+    public function getUuid()
     {
         return $this->_get(self::UUID);
     }
@@ -23,7 +22,7 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setUUID($uuid)
+    public function setUuid($uuid)
     {
         $this->setData(self::UUID, $uuid);
     }
@@ -39,7 +38,7 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setOrder(SessionOrderInterface $sessionOrder)
+    public function setOrder(SessionOrderInterface $sessionOrder = null)
     {
         $this->setData(self::ORDER, $sessionOrder);
     }
@@ -55,7 +54,7 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setTokenize(SessionTokenizeInterface $sessionTokenize)
+    public function setTokenize(SessionTokenizeInterface $sessionTokenize = null)
     {
         $this->setData(self::TOKENIZE, $sessionTokenize);
     }

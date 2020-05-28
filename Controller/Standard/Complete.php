@@ -22,10 +22,12 @@ class Complete extends SezzlePay
     {
         $redirect = 'checkout/cart';
         try {
-            $this->sezzleHelper->logSezzleActions("Returned from Sezzlepay.");
+            $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
             $quote = $this->_checkoutSession->getQuote();
             $payment = $quote->getPayment();
-            $reference = $payment->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
+            $reference = $payment->getAdditionalInformation(
+                \Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID
+            );
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
 
@@ -53,17 +55,17 @@ class Complete extends SezzlePay
                     $this->_helper->debug("Transaction Email Sending Error: " . json_encode($e));
                 }
 
-                $this->messageManager->addSuccess("Sezzle transaction has been completed successfully.");
+                $this->messageManager->addSuccessMessage("Sezzle transaction has been completed successfully.");
                 $redirect = 'checkout/onepage/success';
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->sezzleHelper->logSezzleActions("Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addError(
+            $this->messageManager->addErrorMessage(
                 $e->getMessage()
             );
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions("Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addError(
+            $this->messageManager->addErrorMessage(
                 $e->getMessage()
             );
         }
