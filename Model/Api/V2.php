@@ -3,18 +3,25 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
-use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Api\Data\AuthInterface;
 use Sezzle\Sezzlepay\Api\Data\AuthInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
+use Sezzle\Sezzlepay\Api\Data\AuthorizationInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\OrderInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
+use Sezzle\Sezzlepay\Api\Data\SessionInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
+use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterfaceFactory;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
-use Psr\Log\LoggerInterface as Logger;
+use Sezzle\Sezzlepay\Model\SezzlePay;
 
 /**
  * Class V2
@@ -22,7 +29,7 @@ use Psr\Log\LoggerInterface as Logger;
  */
 class V2
 {
-    const SEZZLE_AUTH_ENDPOINT = "/v1/authentication";
+    const SEZZLE_AUTH_ENDPOINT = "/v2/authentication";
     const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%1";
     const SEZZLE_CAPTURE_ENDPOINT = "/v2/order/%1/capture";
     const SEZZLE_REFUND_ENDPOINT = "/v2/order/%1/refund";
@@ -30,9 +37,21 @@ class V2
     const SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT = "/v2/customer/%1/authorize";
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%1/session";
 
+    /**
+     * @var SezzleApiConfigInterface
+     */
     private $sezzleApiIdentity;
+    /**
+     * @var ProcessorInterface
+     */
     private $apiProcessor;
+    /**
+     * @var JsonHelper
+     */
     private $jsonHelper;
+    /**
+     * @var SezzleHelper
+     */
     private $sezzleHelper;
     /**
      * @var AuthInterfaceFactory
@@ -46,98 +65,87 @@ class V2
      * @var StoreManagerInterface
      */
     private $storeManager;
+    /**
+     * @var OrderInterfaceFactory
+     */
+    private $orderInterfaceFactory;
+    /**
+     * @var AuthorizationInterfaceFactory
+     */
+    private $authorizationInterfaceFactory;
+    /**
+     * @var SessionTokenizeInterfaceFactory
+     */
+    private $sessionTokenizeInterfaceFactory;
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
+    /**
+     * @var PayloadBuilder
+     */
+    private $apiPayloadBuilder;
+    /**
+     * @var SessionInterfaceFactory
+     */
+    private $sessionInterfaceFactory;
+    /**
+     * @var SezzleApiConfigInterface
+     */
+    private $sezzleApiConfig;
 
     /**
      * V2 constructor.
      * @param AuthInterfaceFactory $authFactory
      * @param DataObjectHelper $dataObjectHelper
+     * @param ProcessorInterface $apiProcessor
+     * @param SezzleApiConfigInterface $sezzleApiIdentity
+     * @param SezzleHelper $sezzleHelper
+     * @param JsonHelper $jsonHelper
+     * @param StoreManagerInterface $storeManager
+     * @param OrderInterfaceFactory $orderInterfaceFactory
+     * @param AuthorizationInterfaceFactory $authorizationInterfaceFactory
+     * @param SessionTokenizeInterfaceFactory $sessionTokenizeInterfaceFactory
+     * @param CheckoutSession $checkoutSession
+     * @param PayloadBuilder $apiPayloadBuilder
+     * @param SessionInterfaceFactory $sessionInterfaceFactory
+     * @param SezzleApiConfigInterface $sezzleApiConfig
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
         DataObjectHelper $dataObjectHelper,
-        \Magento\Framework\UrlInterface $urlBuilder,
         ProcessorInterface $apiProcessor,
         SezzleApiConfigInterface $sezzleApiIdentity,
         SezzleHelper $sezzleHelper,
         JsonHelper $jsonHelper,
-        Logger $logger,
-        ScopeConfig $scopeConfig,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        OrderInterfaceFactory $orderInterfaceFactory,
+        AuthorizationInterfaceFactory $authorizationInterfaceFactory,
+        SessionTokenizeInterfaceFactory $sessionTokenizeInterfaceFactory,
+        CheckoutSession $checkoutSession,
+        PayloadBuilder $apiPayloadBuilder,
+        SessionInterfaceFactory $sessionInterfaceFactory,
+        SezzleApiConfigInterface $sezzleApiConfig
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
-        $this->urlBuilder = $urlBuilder;
         $this->apiProcessor = $apiProcessor;
         $this->sezzleApiIdentity = $sezzleApiIdentity;
         $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
-        $this->logger = $logger;
-        $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
+        $this->orderInterfaceFactory = $orderInterfaceFactory;
+        $this->authorizationInterfaceFactory = $authorizationInterfaceFactory;
+        $this->sessionTokenizeInterfaceFactory = $sessionTokenizeInterfaceFactory;
+        $this->checkoutSession = $checkoutSession;
+        $this->apiPayloadBuilder = $apiPayloadBuilder;
+        $this->sessionInterfaceFactory = $sessionInterfaceFactory;
+        $this->sezzleApiConfig = $sezzleApiConfig;
     }
 
-    /**
-     *
-     */
-    public function getOrder()
-    {
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_GET_ORDER_ENDPOINT;
-        $authToken = "abcd";
-        try {
-            $response = $this->apiProcessor->call(
-                $url,
-                $authToken,
-                null,
-                ZendClient::GET
-            );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return $body['token'];
-        } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('Gateway error: %1', $e->getMessage())
-            );
-        }
-    }
 
     /**
-     *
-     * @param string $orderUUID
-     * @param int $amount
-     * @param bool $isPartialCapture
-     * @return bool
-     * @throws LocalizedException
-     */
-    public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture)
-    {
-        $captureEndpoint = __(self::SEZZLE_CAPTURE_ENDPOINT, $orderUUID)->getText();
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
-        $auth = $this->authenticate();
-        $payload = [
-            "capture_amount" => [
-                "amount_in_cents" => $amount,
-                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
-            ],
-            "partial_capture" => $isPartialCapture
-        ];
-        try {
-            $response = $this->apiProcessor->call(
-                $url,
-                $auth->getToken(),
-                $payload,
-                ZendClient::POST
-            );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
-        } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('Gateway error: %1', $e->getMessage())
-            );
-        }
-    }
-
-    /**
+     * Authenticate user
      *
      * @return AuthInterface
      * @throws LocalizedException
@@ -176,6 +184,8 @@ class V2
     }
 
     /**
+     * Create Sezzle Checkout Session
+     *
      * @return SessionInterface
      * @throws LocalizedException
      */
@@ -186,7 +196,7 @@ class V2
         $reference = uniqid() . "-" . $quote->getReservedOrderId();
         $body = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
         /** @var SessionInterface $sessionModel */
-        $sessionModel = $this->sessionFactory->create();
+        $sessionModel = $this->sessionInterfaceFactory->create();
         try {
             $auth = $this->authenticate();
             $response = $this->apiProcessor->call(
@@ -201,8 +211,12 @@ class V2
                 $body,
                 SessionInterface::class
             );
-            $sessionModel->setOrder($body['order']);
-            $sessionModel->setTokenize($body['tokenize']);
+            if (isset($body['order'])) {
+                $sessionModel->setOrder($body['order']);
+            }
+            if (isset($body['tokenize'])) {
+                $sessionModel->setTokenize($body['tokenize']);
+            }
             return $sessionModel;
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
@@ -213,73 +227,193 @@ class V2
     }
 
     /**
+     * Capture payment by Order UUID
      *
+     * @param string $orderUUID
+     * @param int $amount
+     * @param bool $isPartialCapture
+     * @return bool
+     * @throws LocalizedException
      */
-    public function authorizePayment()
+    public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture)
     {
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT;
-        $authToken = "abcd";
+        $captureEndpoint = __(self::SEZZLE_CAPTURE_ENDPOINT, $orderUUID)->getText();
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
+        $auth = $this->authenticate();
+        $payload = [
+            "capture_amount" => [
+                "amount_in_cents" => $amount,
+                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            ],
+            "partial_capture" => $isPartialCapture
+        ];
         try {
             $response = $this->apiProcessor->call(
                 $url,
-                $authToken,
-                null,
+                $auth->getToken(),
+                $payload,
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return $body['token'];
+            return isset($body['uuid']);
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway error: %1', $e->getMessage())
+                __('Gateway capture error: %1', $e->getMessage())
             );
         }
     }
 
     /**
+     * Refund payment by Order uuid
      *
+     * @param $orderUUID
+     * @param $amount
+     * @return bool
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function getCustomerUUID()
+    public function refundByOrderUUID($orderUUID, $amount)
     {
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT;
-        $authToken = "abcd";
+        $refundEndpoint = __(self::SEZZLE_REFUND_ENDPOINT, $orderUUID)->getText();
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
+        $auth = $this->authenticate();
+        $payload = [
+            "amount_in_cents" => $amount,
+            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+        ];
         try {
             $response = $this->apiProcessor->call(
                 $url,
-                $authToken,
-                null,
-                ZendClient::GET
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return $body['token'];
+            return isset($body['uuid']);
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway error: %1', $e->getMessage())
+                __('Gateway refund error: %1', $e->getMessage())
             );
         }
     }
 
     /**
+     * Get Order by Order UUID
      *
+     * @param string $orderUUID
+     * @return \Magento\Sales\Api\Data\OrderInterface
+     * @throws LocalizedException
      */
-    public function refundByOrderUUID()
+    public function getOrder($orderUUID)
     {
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_REFUND_ENDPOINT;
-        $authToken = "abcd";
+        $orderEndpoint = __(self::SEZZLE_GET_ORDER_ENDPOINT, $orderUUID)->getText();
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $orderEndpoint;
+        $auth = $this->authenticate();
         try {
             $response = $this->apiProcessor->call(
                 $url,
-                $authToken,
+                $auth->getToken(),
                 null,
                 ZendClient::GET
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return $body['token'];
+            $orderModel = $this->orderInterfaceFactory->create();
+            //return isset($body['uuid']);
+            $this->dataObjectHelper->populateWithArray(
+                $orderModel,
+                $body,
+                OrderInterface::class
+            );
+            return $orderModel;
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway error: %1', $e->getMessage())
+                __('Gateway order error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * Authorize Payment by Customer UUID
+     *
+     * @param string $customerUUID
+     * @param int $amount
+     * @return AuthorizationInterface
+     * @throws LocalizedException
+     */
+    public function authorizePayment($customerUUID, $amount)
+    {
+        $quote = $this->checkoutSession->getQuote();
+        $reference = uniqid() . "-" . $quote->getReservedOrderId();
+        $doCapture = $this->sezzleApiConfig->getPaymentAction() == SezzlePay::ACTION_AUTHORIZE_CAPTURE;
+        $authorizeEndpoint = __(self::SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT, $customerUUID)->getText();
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
+        $auth = $this->authenticate();
+        $payload = [
+            "reference_id" => $reference,
+            "payment_amount" => [
+                "amount_in_cents" => $amount,
+                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            ],
+            "capture" => $doCapture
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            $authorizationModel = $this->authorizationInterfaceFactory->create();
+            $this->dataObjectHelper->populateWithArray(
+                $authorizationModel,
+                $body,
+                AuthorizationInterface::class
+            );
+            return $authorizationModel;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Gateway authorize payment error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * Get Customer UUID by Session token
+     *
+     * @param string $token
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getCustomerUUID($token)
+    {
+        $sessionTokenEndpoint = __(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token)->getText();
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $sessionTokenEndpoint;
+        $auth = $this->authenticate();
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                null,
+                ZendClient::GET
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            /** @var SessionTokenizeInterface $sessionTokenizeModel */
+            $sessionTokenizeModel = $this->sessionTokenizeInterfaceFactory->create();
+            $this->dataObjectHelper->populateWithArray(
+                $sessionTokenizeModel,
+                $body,
+                SessionTokenizeInterface::class
+            );
+            return $sessionTokenizeModel->getCustomer()->getUUID();
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Gateway get customer uuid error: %1', $e->getMessage())
             );
         }
     }

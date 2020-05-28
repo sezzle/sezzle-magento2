@@ -10,5 +10,16 @@
 	<preference for="Sezzle\Sezzlepay\Model\Api\ConfigInterface" type="Sezzle\Sezzlepay\Model\Api\Config"/>
 	<preference for="Sezzle\Sezzlepay\Model\Api\ProcessorInterface" type="Sezzle\Sezzlepay\Model\Api\Processor"/>
 	<preference for="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface" type="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiIdentity"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\AddressInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Address"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\AmountInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Amount"/>
     <preference for="Sezzle\Sezzlepay\Api\Data\AuthInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Auth"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\AuthorizationInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Authorization"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\CustomerInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Customer"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\OrderInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Order"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\PaymentActionInterface" type="Sezzle\Sezzlepay\Model\Api\Data\PaymentAction"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\SessionInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Session"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\SessionOrderInterface" type="Sezzle\Sezzlepay\Model\Api\Data\SessionOrder"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface" type="Sezzle\Sezzlepay\Model\Api\Data\SessionTokenize"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface" type="Sezzle\Sezzlepay\Model\Api\Data\TokenizeCustomer"/>
+
 </config>

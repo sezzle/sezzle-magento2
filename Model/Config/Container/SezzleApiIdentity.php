@@ -179,4 +179,24 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
             $this->getStore()->getStoreId()
         );
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCompleteUrl($orderId, $reference)
+    {
+        return $this->urlBuilder
+            ->getUrl(
+                "sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference",
+                ['_secure' => true]
+            );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCancelUrl()
+    {
+        return $this->urlBuilder->getUrl("sezzlepay/standard/cancel/", ['_secure' => true]);
+    }
 }

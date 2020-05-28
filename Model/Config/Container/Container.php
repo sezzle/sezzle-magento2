@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\UrlInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -43,16 +44,22 @@ abstract class Container implements IdentityInterface
      * @var string
      */
     protected $customerEmail;
+    /**
+     * @var UrlInterface
+     */
+    public $urlBuilder;
 
     /**
+     * @param UrlInterface $urlBuilder
      * @param ScopeConfigInterface $scopeConfig
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
+        UrlInterface $urlBuilder,
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager
-    )
-    {
+    ) {
+        $this->urlBuilder = $urlBuilder;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
     }

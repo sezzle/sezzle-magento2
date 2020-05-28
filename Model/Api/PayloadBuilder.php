@@ -22,7 +22,7 @@ class PayloadBuilder
     const PRECISION = 2;
 
     /**
-     * @var ConfigInterface
+     * @var SezzleApiConfigInterface
      */
     private $sezzleApiConfig;
     /**
@@ -38,9 +38,10 @@ class PayloadBuilder
     public function __construct(
         StoreManagerInterface $storeManager,
         SezzleApiConfigInterface $sezzleApiConfig
-    ) {
-        $this->sezzleApiConfig = $sezzleApiConfig;
+    )
+    {
         $this->storeManager = $storeManager;
+        $this->sezzleApiConfig = $sezzleApiConfig;
     }
 
     /**
@@ -53,16 +54,16 @@ class PayloadBuilder
     public function buildSezzleCheckoutPayload($quote, $reference)
     {
         $orderPayload = [];
-        $completeURL = [
+        $completeURL['complete_url'] = [
             "href" => $this->sezzleApiConfig->getCompleteUrl($quote->getReservedOrderId(), $reference)
         ];
-        $cancelURL = [
+        $cancelURL['cancel_url'] = [
             "href" => $this->sezzleApiConfig->getCancelUrl()
         ];
-        if ($this->sezzleApiConfig->isCheckoutAllowed()) {
-            $orderPayload = $this->buildOrderPayload($quote, $reference);
-        }
-        $customerPayload = $this->buildCustomerPayload($quote);
+        //if ($this->sezzleApiConfig->isCheckoutAllowed()) {
+        $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
+        //}
+        $customerPayload['customer'] = $this->buildCustomerPayload($quote);
         return array_merge(
             $completeURL,
             $cancelURL,
@@ -84,17 +85,18 @@ class PayloadBuilder
         $intent = $this->sezzleApiConfig->getPaymentAction() == SezzlePay::ACTION_AUTHORIZE_CAPTURE
             ? "CAPTURE"
             : "AUTH";
-        $checkoutPayload["intent"] = $intent;
-        $checkoutPayload["reference_id"] = $reference;
-        $checkoutPayload["description"] = $this->storeManager->getStore()->getName();
-        $checkoutPayload["requires_shipping_info"] = false;
-        $checkoutPayload["items"] = $this->buildItemPayload($quote);
-        $checkoutPayload["discounts"] = $this->getPriceObject($quote->getShippingAddress()->getBaseDiscountAmount());
-        $checkoutPayload["shipping_amount"] = $this->getPriceObject($quote->getShippingAddress()
-            ->getBaseShippingAmount());
-        $checkoutPayload["tax_amount"] = $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount());
-        $checkoutPayload["order_amount"] = $this->getPriceObject($quote->getBaseGrandTotal());
-        return $checkoutPayload;
+        return [
+            "intent" => $intent,
+            "reference_id" => $reference,
+            "description" => $this->storeManager->getStore()->getName(),
+            "requires_shipping_info" => false,
+            "items" => $this->buildItemPayload($quote),
+            "discounts" => [$this->getPriceObject($quote->getShippingAddress()->getBaseDiscountAmount())],
+            "shipping_amount" => $this->getPriceObject($quote->getShippingAddress()
+                ->getBaseShippingAmount()),
+            "tax_amount" => $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount()),
+            "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal()),
+        ];
     }
 
     /**
@@ -133,8 +135,8 @@ class PayloadBuilder
     private function buildCustomerPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
-        $customerPayload["customer"] = [
-            "tokenize" => $this->sezzleApiConfig->isTokenizationAllowed(),
+        return [
+            "tokenize" => false,
             "email" => $quote->getCustomerEmail(),
             "first_name" => $quote->getCustomerFirstname()
                 ? $quote->getCustomerFirstname()
@@ -147,7 +149,6 @@ class PayloadBuilder
             "billing_address" => $this->buildBillingPayload($quote),
             "shipping_address" => $this->buildShippingPayload($quote),
         ];
-        return $customerPayload;
     }
 
     /**
@@ -159,7 +160,7 @@ class PayloadBuilder
     {
         /** @var Quote\Address $billingAddress */
         $billingAddress = $quote->getBillingAddress();
-        $billingPayload["billing_address"] = [
+        return [
             "name" => $billingAddress->getName(),
             "street" => $billingAddress->getStreetLine(1),
             "street2" => $billingAddress->getStreetLine(2),
@@ -169,7 +170,6 @@ class PayloadBuilder
             "country_code" => $billingAddress->getCountryId(),
             "phone" => $billingAddress->getTelephone()
         ];
-        return $billingPayload;
     }
 
     /**
@@ -181,7 +181,7 @@ class PayloadBuilder
     {
         /** @var Quote\Address $shippingAddress */
         $shippingAddress = $quote->getShippingAddress();
-        $shippingPayload["shipping_address"] = [
+        return [
             "name" => $shippingAddress->getName(),
             "street" => $shippingAddress->getStreetLine(1),
             "street2" => $shippingAddress->getStreetLine(2),
@@ -191,7 +191,6 @@ class PayloadBuilder
             "country_code" => $shippingAddress->getCountryId(),
             "phone" => $shippingAddress->getTelephone()
         ];
-        return $shippingPayload;
     }
 
     /**
@@ -203,7 +202,7 @@ class PayloadBuilder
     private function buildItemPayload($quote)
     {
         $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
-        $itemPayload["items"] = [];
+        $itemPayload = [];
         foreach ($quote->getAllVisibleItems() as $item) {
             $productName = $item->getName();
             $productSku = $item->getSku();
@@ -217,7 +216,7 @@ class PayloadBuilder
                     "currency" => $currencyCode
                 ]
             ];
-            array_push($itemPayload["items"], $itemData);
+            array_push($itemPayload, $itemData);
         }
         return $itemPayload;
     }

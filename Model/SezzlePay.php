@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Model;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Model\Api\V2;
 
@@ -180,8 +181,8 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
 
     /**
      * Get Sezzle checkout url
-     * @param $quote
-     * @return bool
+     * @param Quote $quote
+     * @return string
      * @throws LocalizedException
      */
     public function getSezzleCheckoutUrl($quote)
@@ -191,43 +192,14 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $payment = $quote->getPayment();
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID, $reference);
         $payment->save();
-        $response = $this->getSezzleRedirectUrl($quote, $reference);
-        $result = $this->jsonHelper->jsonDecode($response, true);
-        $orderUrl = array_key_exists('checkout_url', $result) ? $result['checkout_url'] : false;
-        $this->sezzleHelper->logSezzleActions("Order url : $orderUrl");
-        if (!$orderUrl) {
+        $session = $this->v2->createSession();
+        $checkoutURL = $session->getOrder()->getCheckoutURL();
+        $this->sezzleHelper->logSezzleActions("Checkout URL : $checkoutURL");
+        if (!$checkoutURL) {
             $this->sezzleHelper->logSezzleActions("No Token response from API");
             throw new LocalizedException(__('There is an issue processing your order.'));
         }
-        return $orderUrl;
-    }
-
-    /**
-     * Get Sezzle redirect url
-     * @param $quote
-     * @param $reference
-     * @return mixed
-     * @throws LocalizedException
-     */
-    public function getSezzleRedirectUrl($quote, $reference)
-    {
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/checkouts';
-        $requestBody = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
-        try {
-            //$authToken = $this->sezzleApiConfig->getAuthToken();
-            /** @var \Sezzle\Sezzlepay\Api\Data\AuthInterface $authToken */
-            $auth = $this->v2->authenticate();
-            $response = $this->sezzleApiProcessor->call(
-                $url,
-                $auth->getToken(),
-                $requestBody,
-                \Magento\Framework\HTTP\ZendClient::POST
-            );
-        } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(__($e->getMessage()));
-        }
-        return $response;
+        return $checkoutURL;
     }
 
     /**

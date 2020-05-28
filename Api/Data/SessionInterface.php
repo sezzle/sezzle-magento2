@@ -3,9 +3,6 @@
 
 namespace Sezzle\Sezzlepay\Api\Data;
 
-use Magento\Setup\Test\Unit\Controller\SessionTest;
-use Magento\Tests\NamingConvention\true\string;
-
 /**
  * Interface SessionInterface
  * @package Sezzle\Sezzlepay\Api\Data

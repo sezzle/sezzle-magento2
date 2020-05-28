@@ -8,7 +8,6 @@
 namespace Sezzle\Sezzlepay\Model\Config\Container;
 
 use Magento\Store\Model\Store;
-use Magento\Tests\NamingConvention\true\bool;
 
 /**
  * Interface IdentityInterface
@@ -88,4 +87,18 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return bool
      */
     public function isCheckoutAllowed();
+
+    /**
+     * Get complete url
+     * @param string $orderId
+     * @param string $reference
+     * @return string
+     */
+    public function getCompleteUrl($orderId, $reference);
+
+    /**
+     * Get cancel url
+     * @return string
+     */
+    public function getCancelUrl();
 }

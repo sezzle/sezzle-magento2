@@ -13,6 +13,7 @@ interface SessionTokenizeInterface
     const TOKEN = "token";
     const APPROVAL_URL = "approval_url";
     const EXPIRATION = "expiration";
+    const CUSTOMER = "customer";
 
     /**
      * @return string|null
@@ -46,5 +47,16 @@ interface SessionTokenizeInterface
      * @return $this
      */
     public function setExpiration($expiration);
+
+    /**
+     * @return TokenizeCustomerInterface|null
+     */
+    public function getCustomer();
+
+    /**
+     * @param TokenizeCustomerInterface $customer
+     * @return $this
+     */
+    public function setCustomer(TokenizeCustomerInterface $customer);
 
 }
