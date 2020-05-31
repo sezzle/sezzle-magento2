@@ -26,7 +26,7 @@ class Complete extends SezzlePay
             $quote = $this->_checkoutSession->getQuote();
             $payment = $quote->getPayment();
             $reference = $payment->getAdditionalInformation(
-                \Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID
+                \Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID
             );
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");

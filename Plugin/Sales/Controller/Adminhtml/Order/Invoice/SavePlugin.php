@@ -328,7 +328,7 @@ class SavePlugin
             $this->order->getPayment()
             ->getAdditionalInformation(SezzlePay::SEZZLE_CAPTURE_EXPIRY)
         );
-        $reference = $this->order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
+        $reference = $this->order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $currentTime = $this->dateTime->gmtDate("Y-m-d H:i:s");
         $currentTimestamp = $this->dateTime->timestamp($currentTime);
         $grandTotalInCents = (int)(round(

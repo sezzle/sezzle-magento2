@@ -21,7 +21,8 @@ use Sezzle\Sezzlepay\Model\Api\V2;
 class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
 {
     const PAYMENT_CODE = 'sezzlepay';
-    const ADDITIONAL_INFORMATION_KEY_ORDERID = 'sezzle_order_id';
+    const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'sezzle_reference_id';
+    const ADDITIONAL_INFORMATION_KEY_ORDER_UUID = 'sezzle_order_uuid';
     const SEZZLE_CAPTURE_EXPIRY = 'sezzle_capture_expiry';
 
     /**
@@ -197,7 +198,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
         $this->sezzleHelper->logSezzleActions("Reference Id : $referenceID");
         $payment = $quote->getPayment();
-        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID, $referenceID);
+        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID, $referenceID);
         $this->quoteRepository->save($quote);
         $session = $this->v2->createSession($referenceID);
         if ($session->getOrder()) {
@@ -237,7 +238,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
-        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
+        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $grandTotalInCents = (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
@@ -272,7 +273,8 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         if ($amount <= 0) {
             throw new LocalizedException(__('Invalid amount for capture.'));
         }
-        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
+        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        $orderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
         $grandTotalInCents = (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
@@ -300,6 +302,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         if ($captureExpirationTimestamp >= $currentTimestamp) {
             $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
             $this->sezzleCapture($reference);
+            $this->v2->captureByOrderUUID($orderUUID, $grandTotalInCents, false);
             $payment->setTransactionId($reference)->setIsTransactionClosed(false);
             $this->sezzleHelper->logSezzleActions("Authorized on Sezzle");
             $this->sezzleHelper->logSezzleActions("****Capture at Magento end****");
@@ -390,7 +393,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         $this->sezzleHelper->logSezzleActions("****Refund Start****");
-        $orderId = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
+        $orderId = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $this->sezzleHelper->logSezzleActions("Order Id : $orderId");
         if ($orderId) {
             $currency = $payment->getOrder()->getGlobalCurrencyCode();

@@ -64,7 +64,7 @@ class SetSezzleCaptureExpiryObserver implements ObserverInterface
         try {
             $this->sezzleHelper->logSezzleActions('****Sezzle capture time setting start****');
             $order = $observer->getEvent()->getOrder();
-            $reference = $order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
+            $reference = $order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
             $this->sezzleHelper->logSezzleActions("Sezzle Reference : $reference");
             $paymentAction = $order->getPayment()->getAdditionalInformation('payment_type');
             $this->sezzleHelper->logSezzleActions("Payment Type : $paymentAction");
