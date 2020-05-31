@@ -74,25 +74,25 @@ interface CustomerInterface
     public function setDob($dob);
 
     /**
-     * @return AddressInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\AddressInterface|null
      */
     public function getBillingAddress();
 
     /**
-     * @param AddressInterface $billingAddress
+     * @param \Sezzle\Sezzlepay\Api\Data\AddressInterface $billingAddress
      * @return $this
      */
-    public function setBillingAddress(AddressInterface $billingAddress);
+    public function setBillingAddress(AddressInterface $billingAddress = null);
 
     /**
-     * @return AddressInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\AddressInterface|null
      */
     public function getShippingAddress();
 
     /**
-     * @param AddressInterface $shippingAddress
+     * @param \Sezzle\Sezzlepay\Api\Data\AddressInterface $shippingAddress
      * @return $this
      */
-    public function setShippingAddress(AddressInterface $shippingAddress);
+    public function setShippingAddress(AddressInterface $shippingAddress = null);
 
 }

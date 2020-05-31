@@ -8,19 +8,22 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\Store\Model\StoreManagerInterface;
+use Sezzle\Sezzlepay\Api\Data\AmountInterface;
+use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\AuthInterface;
 use Sezzle\Sezzlepay\Api\Data\AuthInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
 use Sezzle\Sezzlepay\Api\Data\AuthorizationInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\OrderInterface;
+use Sezzle\Sezzlepay\Api\Data\OrderInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\SessionOrderInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionOrderInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterfaceFactory;
+use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Sezzlepay\Model\SezzlePay;
@@ -29,15 +32,15 @@ use Sezzle\Sezzlepay\Model\SezzlePay;
  * Class V2
  * @package Sezzle\Sezzlepay\Model\Api
  */
-class V2
+class V2 implements V2Interface
 {
     const SEZZLE_AUTH_ENDPOINT = "/v2/authentication";
-    const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%1";
-    const SEZZLE_CAPTURE_ENDPOINT = "/v2/order/%1/capture";
-    const SEZZLE_REFUND_ENDPOINT = "/v2/order/%1/refund";
+    const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%s";
+    const SEZZLE_CAPTURE_ENDPOINT = "/v2/order/%s/capture";
+    const SEZZLE_REFUND_ENDPOINT = "/v2/order/%s/refund";
     const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
-    const SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT = "/v2/customer/%1/authorize";
-    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%1/session";
+    const SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT = "/v2/customer/%s/authorize";
+    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
 
     /**
      * @var SezzleApiConfigInterface
@@ -99,6 +102,10 @@ class V2
      * @var SessionOrderInterfaceFactory
      */
     private $sessionOrderInterfaceFactory;
+    /**
+     * @var AmountInterfaceFactory
+     */
+    private $amountInterfaceFactory;
 
     /**
      * V2 constructor.
@@ -117,6 +124,7 @@ class V2
      * @param SessionInterfaceFactory $sessionInterfaceFactory
      * @param SezzleApiConfigInterface $sezzleApiConfig
      * @param SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
+     * @param AmountInterfaceFactory $amountInterfaceFactory
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -133,7 +141,8 @@ class V2
         PayloadBuilder $apiPayloadBuilder,
         SessionInterfaceFactory $sessionInterfaceFactory,
         SezzleApiConfigInterface $sezzleApiConfig,
-        SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
+        SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
+        AmountInterfaceFactory $amountInterfaceFactory
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -150,14 +159,12 @@ class V2
         $this->sessionInterfaceFactory = $sessionInterfaceFactory;
         $this->sezzleApiConfig = $sezzleApiConfig;
         $this->sessionOrderInterfaceFactory = $sessionOrderInterfaceFactory;
+        $this->amountInterfaceFactory = $amountInterfaceFactory;
     }
 
 
     /**
-     * Authenticate user
-     *
-     * @return AuthInterface
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function authenticate()
     {
@@ -193,11 +200,7 @@ class V2
     }
 
     /**
-     * Create Sezzle Checkout Session
-     *
-     * @param string $reference
-     * @return SessionInterface
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function createSession($reference)
     {
@@ -243,17 +246,11 @@ class V2
     }
 
     /**
-     * Capture payment by Order UUID
-     *
-     * @param string $orderUUID
-     * @param int $amount
-     * @param bool $isPartialCapture
-     * @return bool
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture)
     {
-        $captureEndpoint = __(self::SEZZLE_CAPTURE_ENDPOINT, $orderUUID)->getText();
+        $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_ENDPOINT, $orderUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
         $auth = $this->authenticate();
         $payload = [
@@ -281,17 +278,11 @@ class V2
     }
 
     /**
-     * Refund payment by Order uuid
-     *
-     * @param $orderUUID
-     * @param $amount
-     * @return bool
-     * @throws LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @inheritDoc
      */
     public function refundByOrderUUID($orderUUID, $amount)
     {
-        $refundEndpoint = __(self::SEZZLE_REFUND_ENDPOINT, $orderUUID)->getText();
+        $refundEndpoint = sprintf(self::SEZZLE_REFUND_ENDPOINT, $orderUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
         $auth = $this->authenticate();
         $payload = [
@@ -316,15 +307,11 @@ class V2
     }
 
     /**
-     * Get Order by Order UUID
-     *
-     * @param string $orderUUID
-     * @return \Magento\Sales\Api\Data\OrderInterface
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function getOrder($orderUUID)
     {
-        $orderEndpoint = __(self::SEZZLE_GET_ORDER_ENDPOINT, $orderUUID)->getText();
+        $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $orderEndpoint;
         $auth = $this->authenticate();
         try {
@@ -335,8 +322,18 @@ class V2
                 ZendClient::GET
             );
             $body = $this->jsonHelper->jsonDecode($response);
+            /** @var OrderInterface $orderModel */
             $orderModel = $this->orderInterfaceFactory->create();
-            //return isset($body['uuid']);
+            if (isset($body['order_amount'])) {
+                /** @var AmountInterface $amountModel */
+                $amountModel = $this->amountInterfaceFactory->create();
+                $this->dataObjectHelper->populateWithArray(
+                    $amountModel,
+                    $body['order_amount'],
+                    AmountInterface::class
+                );
+                $orderModel->setOrderAmount($amountModel);
+            }
             $this->dataObjectHelper->populateWithArray(
                 $orderModel,
                 $body,
@@ -352,19 +349,14 @@ class V2
     }
 
     /**
-     * Authorize Payment by Customer UUID
-     *
-     * @param string $customerUUID
-     * @param int $amount
-     * @return AuthorizationInterface
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function authorizePayment($customerUUID, $amount)
     {
         $quote = $this->checkoutSession->getQuote();
         $reference = uniqid() . "-" . $quote->getReservedOrderId();
         $doCapture = $this->sezzleApiConfig->getPaymentAction() == SezzlePay::ACTION_AUTHORIZE_CAPTURE;
-        $authorizeEndpoint = __(self::SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT, $customerUUID)->getText();
+        $authorizeEndpoint = sprintf(self::SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT, $customerUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
         $auth = $this->authenticate();
         $payload = [
@@ -399,15 +391,11 @@ class V2
     }
 
     /**
-     * Get Customer UUID by Session token
-     *
-     * @param string $token
-     * @return string
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function getCustomerUUID($token)
     {
-        $sessionTokenEndpoint = __(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token)->getText();
+        $sessionTokenEndpoint = sprintf(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $sessionTokenEndpoint;
         $auth = $this->authenticate();
         try {

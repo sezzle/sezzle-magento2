@@ -102,7 +102,7 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setBillingAddress(AddressInterface $billingAddress)
+    public function setBillingAddress(AddressInterface $billingAddress = null)
     {
         $this->setData(self::BILLING_ADDRESS, $billingAddress);
     }
@@ -118,7 +118,7 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setShippingAddress(AddressInterface $shippingAddress)
+    public function setShippingAddress(AddressInterface $shippingAddress = null)
     {
         $this->setData(self::SHIPPING_ADDRESS, $shippingAddress);
     }

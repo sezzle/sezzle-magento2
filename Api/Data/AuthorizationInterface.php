@@ -63,34 +63,34 @@ interface AuthorizationInterface
     public function setExpiration($expiration);
 
     /**
-     * @return PaymentActionInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[]|null
      */
     public function getReleases();
 
     /**
-     * @param PaymentActionInterface[] $releases
+     * @param \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[] $releases
      * @return $this
      */
     public function setReleases(array $releases = null);
 
     /**
-     * @return PaymentActionInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[]|null
      */
     public function getCaptures();
 
     /**
-     * @param PaymentActionInterface[] $captures
+     * @param \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[] $captures
      * @return $this
      */
     public function setCaptures(array $captures = null);
 
     /**
-     * @return PaymentActionInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[]|null
      */
     public function getRefunds();
 
     /**
-     * @param PaymentActionInterface[] $refunds
+     * @param \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[] $refunds
      * @return $this
      */
     public function setRefunds(array $refunds = null);

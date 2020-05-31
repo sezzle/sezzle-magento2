@@ -21,5 +21,6 @@
     <preference for="Sezzle\Sezzlepay\Api\Data\SessionOrderInterface" type="Sezzle\Sezzlepay\Model\Api\Data\SessionOrder"/>
     <preference for="Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface" type="Sezzle\Sezzlepay\Model\Api\Data\SessionTokenize"/>
     <preference for="Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface" type="Sezzle\Sezzlepay\Model\Api\Data\TokenizeCustomer"/>
+    <preference for="Sezzle\Sezzlepay\Api\V2Interface" type="Sezzle\Sezzlepay\Model\Api\V2"/>
 
 </config>

@@ -88,7 +88,7 @@ class Order extends AbstractExtensibleObject implements OrderInterface
     /**
      * @inheritDoc
      */
-    public function setOrderAmount(AmountInterface $orderAmount)
+    public function setOrderAmount(AmountInterface $orderAmount = null)
     {
         $this->setData(self::ORDER_AMOUNT, $orderAmount);
     }
@@ -104,7 +104,7 @@ class Order extends AbstractExtensibleObject implements OrderInterface
     /**
      * @inheritDoc
      */
-    public function setCustomer(CustomerInterface $customer)
+    public function setCustomer(CustomerInterface $customer = null)
     {
         $this->setData(self::CUSTOMER, $customer);
     }
@@ -120,7 +120,7 @@ class Order extends AbstractExtensibleObject implements OrderInterface
     /**
      * @inheritDoc
      */
-    public function setAuthorization(AuthorizationInterface $authorization)
+    public function setAuthorization(AuthorizationInterface $authorization = null)
     {
         $this->setData(self::AUTHORIZATION, $authorization);
     }
