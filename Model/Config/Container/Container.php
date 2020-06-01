@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Config\Container;
+namespace Sezzle\Payment\Model\Config\Container;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\UrlInterface;
@@ -14,7 +14,7 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Container
- * @package Sezzle\Sezzlepay\Model\Config\Container
+ * @package Sezzle\Payment\Model\Config\Container
  */
 abstract class Container implements IdentityInterface
 {

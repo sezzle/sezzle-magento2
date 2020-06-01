@@ -1,19 +1,31 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Api\Data;
+namespace Sezzle\Payment\Api\Data;
 
 
 /**
  * Interface SessionTokenizeInterface
- * @package Sezzle\Sezzlepay\Api\Data
+ * @package Sezzle\Payment\Api\Data
  */
 interface SessionTokenizeInterface
 {
     const TOKEN = "token";
+    const STATUS = "status";
     const APPROVAL_URL = "approval_url";
     const EXPIRATION = "expiration";
     const CUSTOMER = "customer";
+
+    /**
+     * @return string|null
+     */
+    public function getStatus();
+
+    /**
+     * @param string $status
+     * @return $this
+     */
+    public function setStatus($status);
 
     /**
      * @return string|null
@@ -49,12 +61,12 @@ interface SessionTokenizeInterface
     public function setExpiration($expiration);
 
     /**
-     * @return \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface|null
+     * @return \Sezzle\Payment\Api\Data\TokenizeCustomerInterface|null
      */
     public function getCustomer();
 
     /**
-     * @param \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface $customer
+     * @param \Sezzle\Payment\Api\Data\TokenizeCustomerInterface $customer
      * @return $this
      */
     public function setCustomer(TokenizeCustomerInterface $customer = null);

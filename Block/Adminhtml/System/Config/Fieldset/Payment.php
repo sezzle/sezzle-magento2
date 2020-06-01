@@ -1,5 +1,5 @@
 <?php
-namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Fieldset;
+namespace Sezzle\Payment\Block\Adminhtml\System\Config\Fieldset;
 
 /**
  * Fieldset renderer for Sezzle solution

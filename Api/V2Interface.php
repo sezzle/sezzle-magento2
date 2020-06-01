@@ -1,13 +1,13 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Api;
+namespace Sezzle\Payment\Api;
 
 use Magento\Framework\Exception\LocalizedException;
-use Sezzle\Sezzlepay\Api\Data\AuthInterface;
-use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
-use Sezzle\Sezzlepay\Api\Data\OrderInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionInterface;
+use Sezzle\Payment\Api\Data\AuthInterface;
+use Sezzle\Payment\Api\Data\AuthorizationInterface;
+use Sezzle\Payment\Api\Data\OrderInterface;
+use Sezzle\Payment\Api\Data\SessionInterface;
 
 interface V2Interface
 {

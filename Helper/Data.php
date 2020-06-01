@@ -1,15 +1,15 @@
 <?php
 
-namespace Sezzle\Sezzlepay\Helper;
+namespace Sezzle\Payment\Helper;
 
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Sezzle Helper
  */
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
+    const SEZZLE_LOG_FILE_PATH = '/var/log/sezzle.log';
 
     /**
      * @var SezzleApiConfigInterface

@@ -1,15 +1,31 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Model\Api\Data;
+namespace Sezzle\Payment\Model\Api\Data;
 
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
-use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
+use Sezzle\Payment\Api\Data\SessionTokenizeInterface;
+use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
 
 class SessionTokenize extends AbstractExtensibleObject implements SessionTokenizeInterface
 {
+
+    /**
+     * @inheritDoc
+     */
+    public function getStatus()
+    {
+        return $this->_get(self::STATUS);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setStatus($status)
+    {
+        $this->setData(self::STATUS, $status);
+    }
 
     /**
      * @inheritDoc

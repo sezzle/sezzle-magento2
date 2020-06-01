@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Model\Api\Data;
+namespace Sezzle\Payment\Model\Api\Data;
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Sezzlepay\Api\Data\SessionInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionOrderInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
+use Sezzle\Payment\Api\Data\SessionInterface;
+use Sezzle\Payment\Api\Data\SessionOrderInterface;
+use Sezzle\Payment\Api\Data\SessionTokenizeInterface;
 
 class Session extends AbstractExtensibleObject implements SessionInterface
 {

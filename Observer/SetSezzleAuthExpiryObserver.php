@@ -1,30 +1,30 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Observer;
+namespace Sezzle\Payment\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\SezzlePay;
+use Sezzle\Payment\Helper\Data;
+use Sezzle\Payment\Model\Sezzle;
 
 /**
  * Class SetSezzleCaptureExpiryObserver
- * @package Sezzle\Sezzlepay\Observer
+ * @package Sezzle\Payment\Observer
  */
 class SetSezzleAuthExpiryObserver implements ObserverInterface
 {
-    const PAYMENT_CODE = 'sezzlepay';
+    const PAYMENT_CODE = 'sezzle';
 
     /**
-     * @var SezzlePay
+     * @var Sezzle
     */
-    private $sezzlePayModel;
+    private $sezzleModel;
 
     /**
      * @var Data
@@ -39,16 +39,16 @@ class SetSezzleAuthExpiryObserver implements ObserverInterface
     /**
      * Construct
      *
-     * @param SezzlePay $sezzlePayModel
+     * @param Sezzle $sezzleModel
      * @param Data $sezzleHelper
      * @param ManagerInterface $messageManager
      */
     public function __construct(
-        SezzlePay $sezzlePayModel,
+        Sezzle $sezzleModel,
         Data $sezzleHelper,
         ManagerInterface $messageManager
     ) {
-        $this->sezzlePayModel = $sezzlePayModel;
+        $this->sezzleModel = $sezzleModel;
         $this->sezzleHelper = $sezzleHelper;
         $this->messageManager = $messageManager;
     }
@@ -69,8 +69,8 @@ class SetSezzleAuthExpiryObserver implements ObserverInterface
             $paymentAction = $order->getPayment()->getAdditionalInformation('payment_type');
             $this->sezzleHelper->logSezzleActions("Payment Type : $paymentAction");
             switch ($paymentAction) {
-                case SezzlePay::ACTION_AUTHORIZE:
-                    $this->sezzlePayModel->setSezzleAuthExpiry($order);
+                case sezzle::ACTION_AUTHORIZE:
+                    $this->sezzleModel->setSezzleAuthExpiry($order);
                     $this->sezzleHelper->logSezzleActions('****Sezzle capture time setting end****');
                     break;
                 default:

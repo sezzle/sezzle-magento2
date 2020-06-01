@@ -13,7 +13,7 @@ define(
 
                 defaults: {
                     $sezzleMerchantId: null,
-                    selector: 'sezzlepay_sezzlepay',
+                    selector: 'sezzle_sezzle',
                     $container: null,
                     $form: null,
                 },
@@ -26,7 +26,7 @@ define(
                     var self = this;
 
                     self.$sezzleConfig = $('#sezzle_config');
-                    self.$sezzlePaymentHeader = $('#payment_' + self.getCountry() + '_' + self.selector
+                    self.$sezzlementHeader = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_payment-head');
                     self.$sezzleMerchantId = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_payment_merchant_id').val();
@@ -83,8 +83,8 @@ define(
                  */
                 showSezzleConfig: function () {
                     this.$sezzleConfig.show();
-                    if (this.$sezzlePaymentHeader.hasClass('open')) {
-                        this.$sezzlePaymentHeader.click();
+                    if (this.$sezzlementHeader.hasClass('open')) {
+                        this.$sezzlementHeader.click();
                     }
                 },
 
@@ -93,8 +93,8 @@ define(
                  */
                 hideSezzleConfig: function () {
                     this.$sezzleConfig.hide();
-                    if (!this.$sezzlePaymentHeader.hasClass('open')) {
-                        this.$sezzlePaymentHeader.click();
+                    if (!this.$sezzlementHeader.hasClass('open')) {
+                        this.$sezzlementHeader.click();
                     }
                 },
 

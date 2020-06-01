@@ -1,18 +1,18 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Block;
+namespace Sezzle\Payment\Block;
 
 use Magento\Framework\View\Element\Template;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Widget
- * @package Sezzle\Sezzlepay\Block
+ * @package Sezzle\Payment\Block
  */
 class Widget extends Template
 {

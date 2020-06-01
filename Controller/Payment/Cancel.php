@@ -1,19 +1,19 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Controller\Standard;
+namespace Sezzle\Payment\Controller\Payment;
 
-use Sezzle\Sezzlepay\Controller\AbstractController\SezzlePay;
+use Sezzle\Payment\Controller\AbstractController\Sezzle;
 
 /**
  * Class Cancel
- * @package Sezzle\Sezzlepay\Controller\Standard
+ * @package Sezzle\Payment\Controller\Payment
  */
-class Cancel extends SezzlePay
+class Cancel extends Sezzle
 {
     /**
      * Cancel the order

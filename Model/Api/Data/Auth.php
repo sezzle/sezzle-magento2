@@ -1,14 +1,14 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Model\Api\Data;
+namespace Sezzle\Payment\Model\Api\Data;
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Sezzlepay\Api\Data\AuthInterface;
+use Sezzle\Payment\Api\Data\AuthInterface;
 
 /**
  * Class Auth
- * @package Sezzle\Sezzlepay\Model\Api\Data
+ * @package Sezzle\Payment\Model\Api\Data
  */
 class Auth extends AbstractExtensibleObject implements AuthInterface
 {

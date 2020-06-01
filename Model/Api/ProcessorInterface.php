@@ -1,17 +1,17 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Api;
+namespace Sezzle\Payment\Model\Api;
 
 use Magento\Framework\Http\ZendClient;
 
 /**
  * Interface ProcessorInterface
- * @package Sezzle\Sezzlepay\Model\Api
+ * @package Sezzle\Payment\Model\Api
  */
 interface ProcessorInterface
 {

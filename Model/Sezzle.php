@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model;
+namespace Sezzle\Payment\Model;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\DataObject;
@@ -17,16 +17,16 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction;
-use Sezzle\Sezzlepay\Api\V2Interface;
-use Sezzle\Sezzlepay\Model\Api\PayloadBuilder;
+use Sezzle\Payment\Api\V2Interface;
+use Sezzle\Payment\Model\Api\PayloadBuilder;
 
 /**
- * Class SezzlePay
- * @package Sezzle\Sezzlepay\Model
+ * Class Sezzle
+ * @package Sezzle\Payment\Model
  */
-class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
+class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
 {
-    const PAYMENT_CODE = 'sezzlepay';
+    const PAYMENT_CODE = 'sezzle';
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'sezzle_reference_id';
     const ADDITIONAL_INFORMATION_KEY_ORDER_UUID = 'sezzle_order_uuid';
     const SEZZLE_CAPTURE_EXPIRY = 'sezzle_capture_expiry';
@@ -104,7 +104,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     private $jsonHelper;
 
     /**
-     * @var \Sezzle\Sezzlepay\Helper\Data
+     * @var \Sezzle\Payment\Helper\Data
      */
     protected $sezzleHelper;
 
@@ -133,11 +133,11 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     private $quoteRepository;
 
     /**
-     * SezzlePay constructor.
+     * Sezzle constructor.
      * @param Context $context
      * @param Config\Container\SezzleApiIdentity $sezzleApiIdentity
      * @param Api\ConfigInterface $sezzleApiConfig
-     * @param \Sezzle\Sezzlepay\Helper\Data $sezzleHelper
+     * @param \Sezzle\Payment\Helper\Data $sezzleHelper
      * @param Api\PayloadBuilder $apiPayloadBuilder
      * @param Api\ProcessorInterface $sezzleApiProcessor
      * @param Order\Payment\Transaction\BuilderInterface $transactionBuilder
@@ -158,7 +158,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
         Context $context,
         Config\Container\SezzleApiIdentity $sezzleApiIdentity,
         Api\ConfigInterface $sezzleApiConfig,
-        \Sezzle\Sezzlepay\Helper\Data $sezzleHelper,
+        \Sezzle\Payment\Helper\Data $sezzleHelper,
         Api\PayloadBuilder $apiPayloadBuilder,
         Api\ProcessorInterface $sezzleApiProcessor,
         Order\Payment\Transaction\BuilderInterface $transactionBuilder,
@@ -219,7 +219,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                     $session->getOrder()->getUuid()
                 );
             }
-        } else {
+        } elseif ($session->getTokenize()) {
             $redirectURL = $session->getTokenize()->getApprovalUrl();
         }
         $this->sezzleHelper->logSezzleActions("Redirect URL : $redirectURL");

@@ -1,19 +1,19 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Controller\Standard;
+namespace Sezzle\Payment\Controller\Payment;
 
-use Sezzle\Sezzlepay\Controller\AbstractController\SezzlePay;
+use Sezzle\Payment\Controller\AbstractController\Sezzle;
 
 /**
  * Class Complete
- * @package Sezzle\Sezzlepay\Controller\Standard
+ * @package Sezzle\Payment\Controller\Payment
  */
-class Complete extends SezzlePay
+class Complete extends Sezzle
 {
     /**
      * Complete the order
@@ -26,7 +26,7 @@ class Complete extends SezzlePay
             $quote = $this->_checkoutSession->getQuote();
             $payment = $quote->getPayment();
             $reference = $payment->getAdditionalInformation(
-                \Sezzle\Sezzlepay\Model\SezzlePay::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID
+                \Sezzle\Payment\Model\Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID
             );
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
@@ -45,7 +45,7 @@ class Complete extends SezzlePay
                 $this->_checkoutSession->setLastOrderId($order->getId())
                     ->setLastRealOrderId($order->getIncrementId())
                     ->setLastOrderStatus($order->getStatus());
-                $this->_sezzlepayModel->createTransaction($order, $reference);
+                $this->_sezzleModel->createTransaction($order, $reference);
                 $this->sezzleHelper->logSezzleActions("Created transaction with reference $reference");
 
                 // send email

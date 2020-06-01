@@ -1,5 +1,5 @@
 <?php
-namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form;
+namespace Sezzle\Payment\Block\Adminhtml\System\Config\Form;
 
 class SezzleRegisterConfig extends \Magento\Config\Block\System\Config\Form\Field
 {
@@ -14,8 +14,8 @@ class SezzleRegisterConfig extends \Magento\Config\Block\System\Config\Form\Fiel
     public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         $html = $this->_layout
-            ->createBlock(\Sezzle\Sezzlepay\Block\Adminhtml\System\Config\SezzleRegisterAdmin::class)
-            ->setTemplate('Sezzle_Sezzlepay::system/config/sezzle_register_admin.phtml')
+            ->createBlock(\Sezzle\Payment\Block\Adminhtml\System\Config\SezzleRegisterAdmin::class)
+            ->setTemplate('Sezzle_Payment::system/config/sezzle_register_admin.phtml')
             ->setCacheable(false)
             ->toHtml();
 

@@ -1,19 +1,19 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Controller\Standard;
+namespace Sezzle\Payment\Controller\Payment;
 
-use Sezzle\Sezzlepay\Controller\AbstractController\SezzlePay;
+use Sezzle\Payment\Controller\AbstractController\Sezzle;
 
 /**
  * Class Redirect
- * @package Sezzle\Sezzlepay\Controller\Standard
+ * @package Sezzle\Payment\Controller\Payment
  */
-class Redirect extends SezzlePay
+class Redirect extends Sezzle
 {
     /**
      * Redirection
@@ -52,12 +52,12 @@ class Redirect extends SezzlePay
             }
         }
         $payment = $quote->getPayment();
-        $payment->setMethod('sezzlepay');
+        $payment->setMethod('sezzle');
         $quote->reserveOrderId();
         $quote->setPayment($payment);
         $quote->save();
         $this->_checkoutSession->replaceQuote($quote);
-        $checkoutUrl = $this->_sezzlepayModel->getSezzleRedirectUrl($quote);
+        $checkoutUrl = $this->_sezzleModel->getSezzleRedirectUrl($quote);
         $this->sezzleHelper->logSezzleActions("Checkout Url : $checkoutUrl");
         $json = $this->_jsonHelper->jsonEncode(["redirectURL" => $checkoutUrl]);
         $jsonResult = $this->_resultJsonFactory->create();

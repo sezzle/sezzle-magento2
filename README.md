@@ -1,7 +1,7 @@
 ## Sezzle Extension for Magento 2
 
 ## Introduction
-This document will help you in installing `Sezzle's Magento 2` extension. This extension is a certified one and listed [here](https://marketplace.magento.com/sezzle-sezzlepay.html) in the marketplace. The plugin can also be downloaded from [github](https://github.com/sezzle/sezzle-magento2).
+This document will help you in installing `Sezzle's Magento 2` extension. This extension is a certified one and listed [here](https://marketplace.magento.com/sezzle-sezzle.html) in the marketplace. The plugin can also be downloaded from [github](https://github.com/sezzle/sezzle-magento2).
 
 ## How to install the extension?
 
@@ -13,7 +13,7 @@ There are two ways of installing and upgrading the extension.
 
 ### Composer
 * Open terminal and navigate to `Magento` root path.
-* `composer require sezzle/sezzlepay`
+* `composer require sezzle/sezzle`
 * `php bin/magento setup:upgrade`
 * `php bin/magento setup:di:compile`
 * `php bin/magento setup:static-content:deploy`
@@ -26,7 +26,7 @@ There are two ways of installing and upgrading the extension.
 * Copy `Sezzle` directory from unzipped folder to `[Magento]/app/code/`.
 * Open the terminal.
 * Run the following command to enable `Sezzle`:
-```php bin/magento module:enable Sezzle_Sezzlepay```
+```php bin/magento module:enable Sezzle_Payment```
 * Run the `Magento` setup upgrade:
 ```php bin/magento setup:upgrade```
 * Run the `Magento` Dependencies Injection Compile:
@@ -42,7 +42,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 
 ### Composer
 * Open terminal and navigate to `Magento` root path.
-* `composer update sezzle/sezzlepay`
+* `composer update sezzle/sezzle`
 * `php bin/magento setup:upgrade`
 * `php bin/magento setup:di:compile`
 * `php bin/magento setup:static-content:deploy`
@@ -54,7 +54,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Copy `Sezzle` directory from unzipped folder to `[Magento]/app/code/`. Make sure you are overwriting the files.
 * Open the terminal.
 * Run the following command to enable `Sezzle`:
-```php bin/magento module:enable Sezzle_Sezzlepay```
+```php bin/magento module:enable Sezzle_Payment```
 * Run the `Magento` setup upgrade:
 ```php bin/magento setup:upgrade```
 * Run the `Magento` Dependencies Injection Compile:
@@ -130,4 +130,4 @@ You can now directly navigate from the Configuration Page to get signed up for `
 ## Troubleshooting/Debugging
 * There is logging enabled by `Sezzle` for tracing the `Sezzle` actions.
 * In case merchant is facing issues which is unknown to `Merchant Success` and `Support` team, they can ask for this logs and forward to the `Platform Integrations` team.
-* Name of the log should be like `sezzlepay.log`.Its always recommended to send the `system.log` and `exception.log` for better tracing of issues.
+* Name of the log should be like `sezzle.log`.Its always recommended to send the `system.log` and `exception.log` for better tracing of issues.

@@ -2,20 +2,20 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <body>     
+    <body>
         <referenceBlock name="order_info">
             <action method="setTemplate">
-                <argument name="template" xsi:type="string">Sezzle_Sezzlepay::order/view/info.phtml</argument>
+                <argument name="template" xsi:type="string">Sezzle_Payment::order/view/info.phtml</argument>
             </action>
         </referenceBlock>
         <referenceBlock name="order_items">
             <action method="setTemplate">
-                <argument name="template" xsi:type="string">Sezzle_Sezzlepay::order/invoice/create/items.phtml</argument>
+                <argument name="template" xsi:type="string">Sezzle_Payment::order/invoice/create/items.phtml</argument>
             </action>
         </referenceBlock>
     </body>

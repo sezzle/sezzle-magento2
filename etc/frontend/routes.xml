@@ -2,14 +2,14 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
     <router id="standard">
-        <route id="sezzlepay" frontName="sezzlepay">
-            <module name="Sezzle_Sezzlepay" />
+        <route id="sezzle" frontName="sezzle">
+            <module name="Sezzle_Payment" />
         </route>
     </router>
 </config>

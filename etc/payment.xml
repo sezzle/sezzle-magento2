@@ -2,14 +2,14 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
     <methods>
-        <method name="sezzlepay">
+        <method name="sezzle">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
     </methods>

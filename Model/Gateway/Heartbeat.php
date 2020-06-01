@@ -1,19 +1,19 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Gateway;
+namespace Sezzle\Payment\Model\Gateway;
 
-use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
-use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Helper\Data as SezzleHelper;
+use Sezzle\Payment\Model\Api\ConfigInterface;
+use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Heartbeat
- * @package Sezzle\Sezzlepay\Model\Gateway
+ * @package Sezzle\Payment\Model\Gateway
  */
 class Heartbeat
 {
@@ -22,7 +22,7 @@ class Heartbeat
      */
     private $sezzleApiConfig;
     /**
-     * @var \Sezzle\Sezzlepay\Model\Api\ProcessorInterface
+     * @var \Sezzle\Payment\Model\Api\ProcessorInterface
      */
     private $sezzleApiProcessor;
     /**
@@ -44,14 +44,14 @@ class Heartbeat
      * @param \Psr\Log\LoggerInterface $logger
      * @param SezzleHelper $sezzleHelper
      * @param ConfigInterface $config
-     * @param \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor
+     * @param \Sezzle\Payment\Model\Api\ProcessorInterface $sezzleApiProcessor
      * @param SezzleApiConfigInterface $sezzleApiConfig
      */
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         SezzleHelper $sezzleHelper,
         ConfigInterface $config,
-        \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
+        \Sezzle\Payment\Model\Api\ProcessorInterface $sezzleApiProcessor,
         SezzleApiConfigInterface $sezzleApiConfig
     ) {
         $this->sezzleApiConfig = $sezzleApiConfig;

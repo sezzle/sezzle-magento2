@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Model\Api\Data;
+namespace Sezzle\Payment\Model\Api\Data;
 
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Sezzlepay\Api\Data\AddressInterface;
+use Sezzle\Payment\Api\Data\AddressInterface;
 
 class Address extends AbstractExtensibleObject implements AddressInterface
 {

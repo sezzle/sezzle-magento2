@@ -1,7 +1,7 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
@@ -102,7 +102,7 @@
                       <label for="invoice_do_capture" class="admin__field-label"><?= /* @escapeNotVerified */ __('Amount') ?></label>
                       <select class="admin__control-select" name="invoice[capture_case]">
                           <option value="online"><?= /* @escapeNotVerified */ __('Capture Online') ?></option>
-                          <?php if ($block->getOrder()->getPayment()->getMethodInstance()->getCode() != \Sezzle\Sezzlepay\Model\SezzlePay::PAYMENT_CODE) : ?>
+                          <?php if ($block->getOrder()->getPayment()->getMethodInstance()->getCode() != \Sezzle\Payment\Model\sezzle::PAYMENT_CODE) : ?>
                           <option value="offline"><?= /* @escapeNotVerified */ __('Capture Offline') ?></option>
                           <?php endif; ?>
                           <option value="not_capture"><?= /* @escapeNotVerified */ __('Not Capture') ?></option>

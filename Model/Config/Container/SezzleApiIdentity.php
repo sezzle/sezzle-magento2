@@ -1,30 +1,30 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Config\Container;
+namespace Sezzle\Payment\Model\Config\Container;
 
 /**
  * Class SezzleApiIdentity
- * @package Sezzle\Sezzlepay\Model\Config\Container
+ * @package Sezzle\Payment\Model\Config\Container
  */
 class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
 {
-    const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
-    const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
-    const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
-    const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
-    const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
-    const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
-    const XML_PATH_PAYMENT_ACTION = 'payment/sezzlepay/payment_action';
-    const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
-    const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
-    const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
-    const XML_PATH_TOKENIZE = 'payment/sezzlepay/tokenize';
-    const XML_PATH_CHECKOUT = 'payment/sezzlepay/checkout';
+    const XML_PATH_PUBLIC_KEY = 'payment/sezzle/public_key';
+    const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzle/active';
+    const XML_PATH_PAYMENT_MODE = 'payment/sezzle/payment_mode';
+    const XML_PATH_PRIVATE_KEY = 'payment/sezzle/private_key';
+    const XML_PATH_MERCHANT_ID = 'payment/sezzle/merchant_id';
+    const XML_PATH_LOG_TRACKER = 'payment/sezzle/log_tracker';
+    const XML_PATH_PAYMENT_ACTION = 'payment/sezzle/payment_action';
+    const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzle/min_checkout_amount';
+    const XML_PATH_WIDGET_PDP = 'payment/sezzle/widget_pdp';
+    const XML_PATH_WIDGET_CART = 'payment/sezzle/widget_cart';
+    const XML_PATH_TOKENIZE = 'payment/sezzle/tokenize';
+    const XML_PATH_CHECKOUT = 'payment/sezzle/checkout';
 
     private $liveCheckoutUrl = "https://gateway.sezzle.com";
     private $sandboxCheckoutUrl = "https://staging.gateway.sezzle.com";
@@ -187,7 +187,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->urlBuilder
             ->getUrl(
-                "sezzlepay/standard/complete/id/$orderId/magento_sezzle_id/$reference",
+                "sezzle/payment/complete/id/$orderId/magento_sezzle_id/$reference",
                 ['_secure' => true]
             );
     }
@@ -197,6 +197,20 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
      */
     public function getCancelUrl()
     {
-        return $this->urlBuilder->getUrl("sezzlepay/standard/cancel/", ['_secure' => true]);
+        return $this->urlBuilder->getUrl("sezzle/payment/cancel/", ['_secure' => true]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTokenizeURL($customerID)
+    {
+        return $this->urlBuilder->getUrl(
+            "sezzle/payment/tokenize/",
+            [
+                '_secure' => true,
+                'customer_id' => $customerID
+            ]
+        );
     }
 }

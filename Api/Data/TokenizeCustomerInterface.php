@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Api\Data;
+namespace Sezzle\Payment\Api\Data;
 
 
 /**
  * Interface TokenizeCustomerInterface
- * @package Sezzle\Sezzlepay\Api\Data
+ * @package Sezzle\Payment\Api\Data
  */
 interface TokenizeCustomerInterface
 {

@@ -1,19 +1,19 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Gateway;
+namespace Sezzle\Payment\Model\Gateway;
 
-use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
-use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Helper\Data as SezzleHelper;
+use Sezzle\Payment\Model\Api\ConfigInterface;
+use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Transaction
- * @package Sezzle\Sezzlepay\Model\Gateway
+ * @package Sezzle\Payment\Model\Gateway
  */
 class Transaction
 {
@@ -26,7 +26,7 @@ class Transaction
      */
     private $sezzleApiConfig;
     /**
-     * @var \Sezzle\Sezzlepay\Model\Api\ProcessorInterface
+     * @var \Sezzle\Payment\Model\Api\ProcessorInterface
      */
     private $sezzleApiProcessor;
     /**
@@ -53,7 +53,7 @@ class Transaction
      * @param SezzleHelper $sezzleHelper
      * @param ConfigInterface $config
      * @param \Psr\Log\LoggerInterface $logger
-     * @param \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor
+     * @param \Sezzle\Payment\Model\Api\ProcessorInterface $sezzleApiProcessor
      * @param SezzleApiConfigInterface $sezzleApiConfig
      * @param \Magento\Sales\Api\Data\OrderInterface $orderInterface
      */
@@ -62,7 +62,7 @@ class Transaction
         SezzleHelper $sezzleHelper,
         ConfigInterface $config,
         \Psr\Log\LoggerInterface $logger,
-        \Sezzle\Sezzlepay\Model\Api\ProcessorInterface $sezzleApiProcessor,
+        \Sezzle\Payment\Model\Api\ProcessorInterface $sezzleApiProcessor,
         SezzleApiConfigInterface $sezzleApiConfig,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface
     ) {
@@ -137,7 +137,7 @@ class Transaction
                 $orderForSezzle = [
                     'order_number' => $orderIncrementId,
                     'payment_method' => $payment->getMethod(),
-                    'amount' => (int)(round($order->getGrandTotal() * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION)),
+                    'amount' => (int)(round($order->getGrandTotal() * 100, \Sezzle\Payment\Model\Api\PayloadBuilder::PRECISION)),
                     'currency' => $order->getOrderCurrencyCode(),
                     'sezzle_reference' => $payment->getLastTransId(),
                     'customer_email' => $billing->getEmail(),

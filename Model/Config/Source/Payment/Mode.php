@@ -1,15 +1,15 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Config\Source\Payment;
+namespace Sezzle\Payment\Model\Config\Source\Payment;
 
 /**
  * Class Mode
- * @package Sezzle\Sezzlepay\Model\Config\Source\Payment
+ * @package Sezzle\Payment\Model\Config\Source\Payment
  */
 class Mode implements \Magento\Framework\Option\ArrayInterface
 {

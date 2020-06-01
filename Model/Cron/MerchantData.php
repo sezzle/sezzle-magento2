@@ -1,17 +1,17 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Cron;
+namespace Sezzle\Payment\Model\Cron;
 
-use Sezzle\Sezzlepay\Model\Gateway;
+use Sezzle\Payment\Model\Gateway;
 
 /**
  * Class MerchantData
- * @package Sezzle\Sezzlepay\Model\Cron
+ * @package Sezzle\Payment\Model\Cron
  */
 class MerchantData
 {

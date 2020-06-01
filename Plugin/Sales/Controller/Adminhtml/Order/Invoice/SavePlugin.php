@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice;
+namespace Sezzle\Payment\Plugin\Sales\Controller\Adminhtml\Order\Invoice;
 
 use Magento\Backend\Model\Session as BackendSession;
 use Magento\Framework\Controller\Result\RedirectFactory;
@@ -22,7 +22,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
-use Sezzle\Sezzlepay\Model\SezzlePay;
+use Sezzle\Payment\Model\sezzle;
 
 class SavePlugin
 {
@@ -40,9 +40,9 @@ class SavePlugin
 
     /**
      *
-     * @var SezzlePay
+     * @var sezzle
      */
-    private $sezzlePay;
+    private $sezzle;
 
     /**
      * @var DateTime
@@ -106,7 +106,7 @@ class SavePlugin
 
     /**
      *
-     * @param SezzlePay $sezzlePay
+     * @param sezzle $sezzle
      * @param OrderRepositoryInterface $orderRepository
      * @param DateTime $dateTime
      * @param Registry $registry
@@ -122,7 +122,7 @@ class SavePlugin
      * @param LoggerInterface $logger
      */
     public function __construct(
-        SezzlePay $sezzlePay,
+        sezzle $sezzle,
         OrderRepositoryInterface $orderRepository,
         DateTime $dateTime,
         Registry $registry,
@@ -138,7 +138,7 @@ class SavePlugin
         LoggerInterface $logger
     ) {
         $this->orderRepository = $orderRepository;
-        $this->sezzlePay = $sezzlePay;
+        $this->sezzle = $sezzle;
         $this->dateTime = $dateTime;
         $this->registry = $registry;
         $this->invoiceSender = $invoiceSender;
@@ -188,7 +188,7 @@ class SavePlugin
         $orderId = $subject->getRequest()->getParam('order_id');
         $order = $this->orderRepository->get($orderId);
         $this->order = !$this->order ? $order : $this->order;
-        if ($order->getPayment()->getMethodInstance()->getCode() == SezzlePay::PAYMENT_CODE) {
+        if ($order->getPayment()->getMethodInstance()->getCode() == sezzle::PAYMENT_CODE) {
             /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
             $resultRedirect = $this->resultRedirectFactory->create();
 
@@ -326,16 +326,16 @@ class SavePlugin
     {
         $captureExpirationTimestamp = $this->dateTime->timestamp(
             $this->order->getPayment()
-            ->getAdditionalInformation(SezzlePay::SEZZLE_CAPTURE_EXPIRY)
+            ->getAdditionalInformation(sezzle::SEZZLE_CAPTURE_EXPIRY)
         );
-        $reference = $this->order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        $reference = $this->order->getPayment()->getAdditionalInformation(sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $currentTime = $this->dateTime->gmtDate("Y-m-d H:i:s");
         $currentTimestamp = $this->dateTime->timestamp($currentTime);
         $grandTotalInCents = (int)(round(
             $this->order->getGrandTotal() * 100,
-            \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION
+            \Sezzle\Payment\Model\Api\PayloadBuilder::PRECISION
         ));
-        $sezzleOrderInfo = $this->sezzlePay
+        $sezzleOrderInfo = $this->sezzle
                             ->getSezzleOrderInfo($reference);
 
         if (isset($sezzleOrderInfo['amount_in_cents'])
@@ -344,7 +344,7 @@ class SavePlugin
                 __('Capture request has been rejected due to invalid order total.')
             );
         } elseif ($captureExpirationTimestamp >= $currentTimestamp) {
-            $hasSezzleCaptured = $this->sezzlePay
+            $hasSezzleCaptured = $this->sezzle
                                         ->sezzleCapture($reference);
             if ($hasSezzleCaptured) {
                 $invoice->setRequestedCaptureCase(self::CAPTURE_ONLINE);

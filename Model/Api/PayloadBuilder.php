@@ -1,21 +1,21 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Api;
+namespace Sezzle\Payment\Model\Api;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
-use Sezzle\Sezzlepay\Model\SezzlePay;
+use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\Sezzle;
 
 /**
  * Class PayloadBuilder
- * @package Sezzle\Sezzlepay\Model\Api
+ * @package Sezzle\Payment\Model\Api
  */
 class PayloadBuilder
 {
@@ -53,8 +53,13 @@ class PayloadBuilder
     public function buildSezzleCheckoutPayload($quote, $reference)
     {
         $orderPayload = [];
+        $completeHref = $this->sezzleApiConfig->getCompleteUrl($quote->getReservedOrderId(), $reference);
+        if ($this->sezzleApiConfig->isTokenizationAllowed() &&
+            !$this->sezzleApiConfig->isCheckoutAllowed()) {
+            $completeHref = $this->sezzleApiConfig->getTokenizeURL($quote->getCustomer()->getId());
+        }
         $completeURL['complete_url'] = [
-            "href" => $this->sezzleApiConfig->getCompleteUrl($quote->getReservedOrderId(), $reference)
+            "href" => $completeHref
         ];
         $cancelURL['cancel_url'] = [
             "href" => $this->sezzleApiConfig->getCancelUrl()
@@ -81,7 +86,7 @@ class PayloadBuilder
      */
     private function buildOrderPayload($quote, $reference)
     {
-        $intent = $this->sezzleApiConfig->getPaymentAction() == SezzlePay::ACTION_AUTHORIZE_CAPTURE
+        $intent = $this->sezzleApiConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE
             ? "CAPTURE"
             : "AUTH";
         return [

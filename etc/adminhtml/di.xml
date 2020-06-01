@@ -2,13 +2,13 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 	<type name="Magento\Sales\Controller\Adminhtml\Order\Invoice\Save">
-        <plugin name="delayed_capture" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice\SavePlugin" sortOrder="10"/>
+        <plugin name="delayed_capture" type="Sezzle\Payment\Plugin\Sales\Controller\Adminhtml\Order\Invoice\SavePlugin" sortOrder="10"/>
     </type>
     <type name="Magento\Framework\View\Element\Message\MessageConfigurationsPool">
         <arguments>
@@ -16,7 +16,7 @@
                 <item name="addCaptureErrorMessage" xsi:type="array">
                     <item name="renderer" xsi:type="const">\Magento\Framework\View\Element\Message\Renderer\BlockRenderer::CODE</item>
                     <item name="data" xsi:type="array">
-                        <item name="template" xsi:type="string">Sezzle_Sezzlepay::messages/addCaptureErrorMessage.phtml</item>
+                        <item name="template" xsi:type="string">Sezzle_Payment::messages/addCaptureErrorMessage.phtml</item>
                     </item>
                 </item>
             </argument>

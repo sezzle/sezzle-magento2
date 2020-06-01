@@ -1,21 +1,22 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Controller\AbstractController;
+namespace Sezzle\Payment\Controller\AbstractController;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Sales\Model\Order;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\Tokenize;
 
 /**
- * Class Sezzlepay
- * @package Sezzle\Sezzlepay\Controller\AbstractController
+ * Class Sezzle
+ * @package Sezzle\Payment\Controller\AbstractController
  */
-abstract class SezzlePay extends Action
+abstract class Sezzle extends Action
 {
     /**
      * @var \Magento\Customer\Model\Session
@@ -34,9 +35,9 @@ abstract class SezzlePay extends Action
      */
     protected $_orderHistoryFactory;
     /**
-     * @var \Sezzle\Sezzlepay\Model\SezzlePay
+     * @var \Sezzle\Payment\Model\Sezzle
      */
-    protected $_sezzlepayModel;
+    protected $_sezzleModel;
     /**
      * @var Order\Config
      */
@@ -80,7 +81,7 @@ abstract class SezzlePay extends Action
     protected $_customerRepository;
 
     /**
-     * @var \Sezzle\Sezzlepay\Helper\Data
+     * @var \Sezzle\Payment\Helper\Data
      */
     protected $sezzleHelper;
 
@@ -88,17 +89,21 @@ abstract class SezzlePay extends Action
      * @var SezzleApiConfigInterface
      */
     protected $sezzleApiIdentity;
+    /**
+     * @var Tokenize
+     */
+    public $tokenize;
 
     /**
-     * Sezzlepay constructor.
+     * Payment constructor.
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Sales\Model\OrderFactory $orderFactory
      * @param Order\Status\HistoryFactory $orderHistoryFactory
-     * @param \Sezzle\Sezzlepay\Model\SezzlePay $sezzlepayModel
-     * @param \Sezzle\Sezzlepay\Helper\Data $sezzleHelper
+     * @param \Sezzle\Payment\Model\Sezzle $sezzleModel
+     * @param \Sezzle\Payment\Helper\Data $sezzleHelper
      * @param Order\Config $salesOrderConfig
      * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
      * @param \Psr\Log\LoggerInterface $logger
@@ -109,6 +114,7 @@ abstract class SezzlePay extends Action
      * @param Order\Payment\Transaction\BuilderInterface $transactionBuilder
      * @param Order\Email\Sender\OrderSender $orderSender
      * @param SezzleApiConfigInterface $sezzleApiIdentity
+     * @param Tokenize $tokenize
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -117,8 +123,8 @@ abstract class SezzlePay extends Action
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Magento\Sales\Model\Order\Status\HistoryFactory $orderHistoryFactory,
-        \Sezzle\Sezzlepay\Model\SezzlePay $sezzlepayModel,
-        \Sezzle\Sezzlepay\Helper\Data $sezzleHelper,
+        \Sezzle\Payment\Model\Sezzle $sezzleModel,
+        \Sezzle\Payment\Helper\Data $sezzleHelper,
         \Magento\Sales\Model\Order\Config $salesOrderConfig,
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Psr\Log\LoggerInterface $logger,
@@ -128,9 +134,9 @@ abstract class SezzlePay extends Action
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        SezzleApiConfigInterface $sezzleApiIdentity
-    )
-    {
+        SezzleApiConfigInterface $sezzleApiIdentity,
+        Tokenize $tokenize
+    ) {
         $this->_customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
         $this->_jsonHelper = $jsonHelper;
@@ -138,7 +144,7 @@ abstract class SezzlePay extends Action
         $this->_checkoutSession = $checkoutSession;
         $this->_orderFactory = $orderFactory;
         $this->_orderHistoryFactory = $orderHistoryFactory;
-        $this->_sezzlepayModel = $sezzlepayModel;
+        $this->_sezzleModel = $sezzleModel;
         $this->_salesOrderConfig = $salesOrderConfig;
         $this->_invoiceService = $invoiceService;
         $this->_transactionFactory = $transactionFactory;
@@ -149,6 +155,7 @@ abstract class SezzlePay extends Action
         $this->_orderSender = $orderSender;
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->sezzleApiIdentity = $sezzleApiIdentity;
+        $this->tokenize = $tokenize;
         parent::__construct($context);
     }
 

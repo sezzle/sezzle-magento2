@@ -2,7 +2,7 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
@@ -10,11 +10,11 @@
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="sezzlepay" xsi:type="object">Sezzle\Sezzlepay\Model\SezzleConfigProvider</item>
+                <item name="sezzle" xsi:type="object">Sezzle\Payment\Model\SezzleConfigProvider</item>
             </argument>
         </arguments>
     </type>
-	<preference for="Sezzle\Sezzlepay\Model\Api\ConfigInterface" type="Sezzle\Sezzlepay\Model\Api\Config"/>
-	<preference for="Sezzle\Sezzlepay\Model\Api\ProcessorInterface" type="Sezzle\Sezzlepay\Model\Api\Processor"/>
-	<preference for="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface" type="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiIdentity"/>
+	<preference for="Sezzle\Payment\Model\Api\ConfigInterface" type="Sezzle\Payment\Model\Api\Config"/>
+	<preference for="Sezzle\Payment\Model\Api\ProcessorInterface" type="Sezzle\Payment\Model\Api\Processor"/>
+	<preference for="Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface" type="Sezzle\Payment\Model\Config\Container\SezzleApiIdentity"/>
 </config>

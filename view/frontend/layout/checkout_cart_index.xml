@@ -2,14 +2,14 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="head.additional">
-            <block class="Sezzle\Sezzlepay\Block\Widget" name="sezzle.widget.cart.view" template="cart.phtml"/>
+            <block class="Sezzle\Payment\Block\Widget" name="sezzle.widget.cart.view" template="cart.phtml"/>
         </referenceBlock>
     </body>
 </page>

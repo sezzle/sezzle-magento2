@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Api\Data;
+namespace Sezzle\Payment\Api\Data;
 
 /**
  * Interface OrderInterface
- * @package Sezzle\Sezzlepay\Api\Data
+ * @package Sezzle\Payment\Api\Data
  */
 interface OrderInterface
 {
@@ -62,34 +62,34 @@ interface OrderInterface
     public function setDescription($description);
 
     /**
-     * @return \Sezzle\Sezzlepay\Api\Data\AmountInterface|null
+     * @return \Sezzle\Payment\Api\Data\AmountInterface|null
      */
     public function getOrderAmount();
 
     /**
-     * @param \Sezzle\Sezzlepay\Api\Data\AmountInterface $orderAmount
+     * @param \Sezzle\Payment\Api\Data\AmountInterface $orderAmount
      * @return $this
      */
     public function setOrderAmount(AmountInterface $orderAmount = null);
 
     /**
-     * @return \Sezzle\Sezzlepay\Api\Data\CustomerInterface|null
+     * @return \Sezzle\Payment\Api\Data\CustomerInterface|null
      */
     public function getCustomer();
 
     /**
-     * @param \Sezzle\Sezzlepay\Api\Data\CustomerInterface $customer
+     * @param \Sezzle\Payment\Api\Data\CustomerInterface $customer
      * @return $this
      */
     public function setCustomer(CustomerInterface $customer = null);
 
     /**
-     * @return \Sezzle\Sezzlepay\Api\Data\AuthorizationInterface|null
+     * @return \Sezzle\Payment\Api\Data\AuthorizationInterface|null
      */
     public function getAuthorization();
 
     /**
-     * @param \Sezzle\Sezzlepay\Api\Data\AuthorizationInterface $authorization
+     * @param \Sezzle\Payment\Api\Data\AuthorizationInterface $authorization
      * @return $this
      */
     public function setAuthorization(AuthorizationInterface $authorization = null);

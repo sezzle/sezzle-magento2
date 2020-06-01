@@ -2,23 +2,23 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <sezzlepay>
+            <sezzle>
 		<active>0</active>
-                <model>Sezzle\Sezzlepay\Model\SezzlePay</model>
+                <model>Sezzle\Payment\Model\sezzle</model>
                 <order_status>processing</order_status>
                 <merchant_country>US</merchant_country>
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>0</log_tracker>
                 <payment_action>authorize_capture</payment_action>
                 <title>Sezzle</title>
-	    </sezzlepay>
+	    </sezzle>
         </payment>
     </default>
 </config>

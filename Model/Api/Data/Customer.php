@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Model\Api\Data;
+namespace Sezzle\Payment\Model\Api\Data;
 
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Sezzlepay\Api\Data\AddressInterface;
-use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
+use Sezzle\Payment\Api\Data\AddressInterface;
+use Sezzle\Payment\Api\Data\CustomerInterface;
 
 class Customer extends AbstractExtensibleObject implements CustomerInterface
 {

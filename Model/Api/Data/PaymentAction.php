@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Model\Api\Data;
+namespace Sezzle\Payment\Model\Api\Data;
 
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Sezzlepay\Api\Data\AmountInterface;
-use Sezzle\Sezzlepay\Api\Data\PaymentActionInterface;
+use Sezzle\Payment\Api\Data\AmountInterface;
+use Sezzle\Payment\Api\Data\PaymentActionInterface;
 
 class PaymentAction extends AbstractExtensibleObject implements PaymentActionInterface
 {

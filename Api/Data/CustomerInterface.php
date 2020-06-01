@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Api\Data;
+namespace Sezzle\Payment\Api\Data;
 
 
 /**
  * Interface CustomerInterface
- * @package Sezzle\Sezzlepay\Api\Data
+ * @package Sezzle\Payment\Api\Data
  */
 interface CustomerInterface
 {
@@ -74,23 +74,23 @@ interface CustomerInterface
     public function setDob($dob);
 
     /**
-     * @return \Sezzle\Sezzlepay\Api\Data\AddressInterface|null
+     * @return \Sezzle\Payment\Api\Data\AddressInterface|null
      */
     public function getBillingAddress();
 
     /**
-     * @param \Sezzle\Sezzlepay\Api\Data\AddressInterface $billingAddress
+     * @param \Sezzle\Payment\Api\Data\AddressInterface $billingAddress
      * @return $this
      */
     public function setBillingAddress(AddressInterface $billingAddress = null);
 
     /**
-     * @return \Sezzle\Sezzlepay\Api\Data\AddressInterface|null
+     * @return \Sezzle\Payment\Api\Data\AddressInterface|null
      */
     public function getShippingAddress();
 
     /**
-     * @param \Sezzle\Sezzlepay\Api\Data\AddressInterface $shippingAddress
+     * @param \Sezzle\Payment\Api\Data\AddressInterface $shippingAddress
      * @return $this
      */
     public function setShippingAddress(AddressInterface $shippingAddress = null);

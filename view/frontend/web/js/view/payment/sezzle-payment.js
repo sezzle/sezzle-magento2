@@ -1,6 +1,6 @@
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 define(
@@ -15,8 +15,8 @@ define(
         'use strict';
         rendererList.push(
             {
-                type: 'sezzlepay',
-                component: 'Sezzle_Sezzlepay/js/view/payment/method-renderer/sezzlepay'
+                type: 'sezzle',
+                component: 'Sezzle_Payment/js/view/payment/method-renderer/sezzle'
             }
         );
 

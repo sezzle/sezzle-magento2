@@ -1,6 +1,6 @@
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 define(
@@ -23,10 +23,10 @@ define(
         'use strict';
         return Component.extend({
             defaults: {
-                template: 'Sezzle_Sezzlepay/payment/sezzlepay'
+                template: 'Sezzle_Payment/payment/sezzle'
             },
 
-            getSezzlepayImgSrc: function () {
+            getSezzleImgSrc: function () {
                 return 'https://d3svog4tlx445w.cloudfront.net/branding/sezzle-logos/png/sezzle-logo-sm-100w.png';
             },
 
@@ -71,10 +71,10 @@ define(
                 return 'Payment Schedule';
             },
 
-            redirectToSezzlepayController: function (data) {
+            redirectToSezzleController: function (data) {
 
                 // Make a post request to redirect
-                var url = mageUrl.build("sezzlepay/standard/redirect");
+                var url = mageUrl.build("sezzle/payment/redirect");
 
                 $.ajax({
                     url: url,
@@ -102,17 +102,17 @@ define(
                     var email = quote.guestEmail;
                     data += '&email=' + email;
                 }
-                this.redirectToSezzlepayController(data);
+                this.redirectToSezzleController(data);
             },
 
-            continueToSezzlepay: function () {
+            continueToSezzle: function () {
                 if (this.validate() && additionalValidators.validate()) {
                     this.handleRedirectAction();
                 }
             },
 
             placeOrder: function(data, event) {
-                this.continueToSezzlepay();
+                this.continueToSezzle();
             }
         });
     }

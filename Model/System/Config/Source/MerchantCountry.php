@@ -1,5 +1,5 @@
 <?php
-namespace Sezzle\Sezzlepay\Model\System\Config\Source;
+namespace Sezzle\Payment\Model\System\Config\Source;
 
 /**
  * Source model for merchant countries supported by Sezzle
@@ -7,7 +7,7 @@ namespace Sezzle\Sezzlepay\Model\System\Config\Source;
 class MerchantCountry implements \Magento\Framework\Option\ArrayInterface
 {
     /**
-     * @var \Sezzle\Sezzlepay\Model\System\Config
+     * @var \Sezzle\Payment\Model\System\Config
      */
     private $config;
 
@@ -17,11 +17,11 @@ class MerchantCountry implements \Magento\Framework\Option\ArrayInterface
     private $countryCollectionFactory;
 
     /**
-     * @param \Sezzle\Sezzlepay\Model\System\Config $config
+     * @param \Sezzle\Payment\Model\System\Config $config
      * @param \Magento\Directory\Model\ResourceModel\Country\CollectionFactory $countryCollectionFactory
      */
     public function __construct(
-        \Sezzle\Sezzlepay\Model\System\Config $config,
+        \Sezzle\Payment\Model\System\Config $config,
         \Magento\Directory\Model\ResourceModel\Country\CollectionFactory $countryCollectionFactory
     ) {
         $this->config = $config;

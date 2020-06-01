@@ -1,10 +1,10 @@
 <?php
 
-namespace Sezzle\Sezzlepay\Model\System;
+namespace Sezzle\Payment\Model\System;
 
 /**
  * Class Config
- * @package Sezzle\Sezzlepay\Model\System
+ * @package Sezzle\Payment\Model\System
  */
 class Config
 {
@@ -124,7 +124,7 @@ class Config
      */
     public function getCountry()
     {
-        $co = $this->getConfig('payment/sezzlepay/merchant_country');
+        $co = $this->getConfig('payment/sezzle/merchant_country');
         return $co ? $co : 'US';
     }
 

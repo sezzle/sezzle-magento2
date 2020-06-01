@@ -1,17 +1,17 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model\Config\Container;
+namespace Sezzle\Payment\Model\Config\Container;
 
 use Magento\Store\Model\Store;
 
 /**
  * Interface IdentityInterface
- * @package Sezzle\Sezzlepay\Model\Config\Container
+ * @package Sezzle\Payment\Model\Config\Container
  */
 interface SezzleApiConfigInterface extends IdentityInterface
 {
@@ -101,4 +101,11 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return string
      */
     public function getCancelUrl();
+
+    /**
+     * Get tokenize url
+     * @param $customerID
+     * @return string
+     */
+    public function getTokenizeURL($customerID);
 }

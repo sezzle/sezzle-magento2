@@ -1,17 +1,17 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model;
+namespace Sezzle\Payment\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 
 /**
  * Class SezzleConfigProvider
- * @package Sezzle\Sezzlepay\Model
+ * @package Sezzle\Payment\Model
  */
 class SezzleConfigProvider implements ConfigProviderInterface
 {
@@ -23,8 +23,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
     {
         return [
             'payment' => [
-                'sezzlepay' => [
-                    'methodCode' => "sezzlepay"
+                'sezzle' => [
+                    'methodCode' => "sezzle"
                 ]
             ]
         ];

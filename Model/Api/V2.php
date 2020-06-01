@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Sezzle\Sezzlepay\Model\Api;
+namespace Sezzle\Payment\Model\Api;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
@@ -9,28 +9,28 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\StoreManagerInterface;
-use Sezzle\Sezzlepay\Api\Data\AmountInterface;
-use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\AuthInterface;
-use Sezzle\Sezzlepay\Api\Data\AuthInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
-use Sezzle\Sezzlepay\Api\Data\AuthorizationInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\OrderInterface;
-use Sezzle\Sezzlepay\Api\Data\OrderInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\SessionInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\SessionOrderInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionOrderInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterfaceFactory;
-use Sezzle\Sezzlepay\Api\V2Interface;
-use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
-use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
-use Sezzle\Sezzlepay\Model\SezzlePay;
+use Sezzle\Payment\Api\Data\AmountInterface;
+use Sezzle\Payment\Api\Data\AmountInterfaceFactory;
+use Sezzle\Payment\Api\Data\AuthInterface;
+use Sezzle\Payment\Api\Data\AuthInterfaceFactory;
+use Sezzle\Payment\Api\Data\AuthorizationInterface;
+use Sezzle\Payment\Api\Data\AuthorizationInterfaceFactory;
+use Sezzle\Payment\Api\Data\OrderInterface;
+use Sezzle\Payment\Api\Data\OrderInterfaceFactory;
+use Sezzle\Payment\Api\Data\SessionInterface;
+use Sezzle\Payment\Api\Data\SessionInterfaceFactory;
+use Sezzle\Payment\Api\Data\SessionOrderInterface;
+use Sezzle\Payment\Api\Data\SessionOrderInterfaceFactory;
+use Sezzle\Payment\Api\Data\SessionTokenizeInterface;
+use Sezzle\Payment\Api\Data\SessionTokenizeInterfaceFactory;
+use Sezzle\Payment\Api\V2Interface;
+use Sezzle\Payment\Helper\Data as SezzleHelper;
+use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\Sezzle;
 
 /**
  * Class V2
- * @package Sezzle\Sezzlepay\Model\Api
+ * @package Sezzle\Payment\Model\Api
  */
 class V2 implements V2Interface
 {
@@ -355,7 +355,7 @@ class V2 implements V2Interface
     {
         $quote = $this->checkoutSession->getQuote();
         $reference = uniqid() . "-" . $quote->getReservedOrderId();
-        $doCapture = $this->sezzleApiConfig->getPaymentAction() == SezzlePay::ACTION_AUTHORIZE_CAPTURE;
+        $doCapture = $this->sezzleApiConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE;
         $authorizeEndpoint = sprintf(self::SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT, $customerUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
         $auth = $this->authenticate();

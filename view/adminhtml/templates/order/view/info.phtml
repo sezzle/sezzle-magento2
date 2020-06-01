@@ -1,7 +1,7 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
@@ -24,8 +24,8 @@ $orderStoreDate = $block->formatDate(
     $block->getTimezoneForStore($order->getStore())
 );
 
-$sezzleCaptureExpiryTimestamp = $order->getPayment()->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::SEZZLE_CAPTURE_EXPIRY);
-$sezzleCaptureExpiry = $sezzleCaptureExpiryTimestamp ? 
+$sezzleCaptureExpiryTimestamp = $order->getPayment()->getAdditionalInformation(\Sezzle\Payment\Model\sezzle::SEZZLE_CAPTURE_EXPIRY);
+$sezzleCaptureExpiry = $sezzleCaptureExpiryTimestamp ?
                         $block->formatDate(
                             $sezzleCaptureExpiryTimestamp,
                             \IntlDateFormatter::MEDIUM,
@@ -33,7 +33,7 @@ $sezzleCaptureExpiry = $sezzleCaptureExpiryTimestamp ?
                             $block->getTimezoneForStore($order->getStore())
                         )
                     : null;
-$captureInfo = ($order->getGrandTotal() == $order->getTotalDue()) 
+$captureInfo = ($order->getGrandTotal() == $order->getTotalDue())
                 ? $block->escapeHtml(__('(Please capture before this)'))
                 : $block->escapeHtml(__('(Captured)'));
 $paymentMethodCode = $order->getPayment()->getMethodInstance()->getCode();
@@ -121,8 +121,8 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                         <td><?= $block->escapeHtml($order->getBaseToOrderRate()) ?></td>
                     </tr>
                 <?php endif; ?>
-                <?php if ($sezzleCaptureExpiry 
-                    && $paymentMethodCode == \Sezzle\Sezzlepay\Model\SezzlePay::PAYMENT_CODE) : ?>
+                <?php if ($sezzleCaptureExpiry
+                    && $paymentMethodCode == \Sezzle\Payment\Model\sezzle::PAYMENT_CODE) : ?>
                     <tr>
                         <th><?= $block->escapeHtml(__('Sezzle Capture Expiry')) ?></th>
                         <td>

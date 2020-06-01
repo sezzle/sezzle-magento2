@@ -1,13 +1,13 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Sezzlepay
+ * @package     Sezzle_Payment
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
 declare(strict_types=1);
 
-namespace Sezzle\Sezzlepay\Model\Config\Source\Payment;
+namespace Sezzle\Payment\Model\Config\Source\Payment;
 
 use Magento\Framework\Option\ArrayInterface;
 
@@ -23,11 +23,11 @@ class PaymentAction implements ArrayInterface
     {
         return [
             [
-                'value' => \Sezzle\Sezzlepay\Model\SezzlePay::ACTION_AUTHORIZE,
+                'value' => \Sezzle\Payment\Model\Sezzle::ACTION_AUTHORIZE,
                 'label' => __('Authorize Only'),
             ],
             [
-                'value' => \Sezzle\Sezzlepay\Model\SezzlePay::ACTION_AUTHORIZE_CAPTURE,
+                'value' => \Sezzle\Payment\Model\Sezzle::ACTION_AUTHORIZE_CAPTURE,
                 'label' => __('Authorize and Capture')
             ]
         ];
