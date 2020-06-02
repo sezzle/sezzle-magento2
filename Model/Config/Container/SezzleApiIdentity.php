@@ -203,13 +203,26 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     /**
      * @inheritdoc
      */
-    public function getTokenizeURL($customerID)
+    public function getTokenizeSaveURL($customerID)
     {
         return $this->urlBuilder->getUrl(
-            "sezzle/payment/tokenize/",
+            "sezzle/tokenize/save",
             [
                 '_secure' => true,
                 'customer_id' => $customerID
+            ]
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTokenizePaymentCompleteURL()
+    {
+        return $this->urlBuilder->getUrl(
+            "sezzle/tokenize/paymentComplete",
+            [
+                '_secure' => true
             ]
         );
     }

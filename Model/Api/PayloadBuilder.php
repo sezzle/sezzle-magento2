@@ -56,7 +56,7 @@ class PayloadBuilder
         $completeHref = $this->sezzleApiConfig->getCompleteUrl($quote->getReservedOrderId(), $reference);
         if ($this->sezzleApiConfig->isTokenizationAllowed() &&
             !$this->sezzleApiConfig->isCheckoutAllowed()) {
-            $completeHref = $this->sezzleApiConfig->getTokenizeURL($quote->getCustomer()->getId());
+            $completeHref = $this->sezzleApiConfig->getTokenizeSaveURL($quote->getCustomer()->getId());
         }
         $completeURL['complete_url'] = [
             "href" => $completeHref

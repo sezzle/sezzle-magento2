@@ -23,6 +23,8 @@ use Sezzle\Payment\Api\Data\SessionOrderInterface;
 use Sezzle\Payment\Api\Data\SessionOrderInterfaceFactory;
 use Sezzle\Payment\Api\Data\SessionTokenizeInterface;
 use Sezzle\Payment\Api\Data\SessionTokenizeInterfaceFactory;
+use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
+use Sezzle\Payment\Api\Data\TokenizeCustomerInterfaceFactory;
 use Sezzle\Payment\Api\V2Interface;
 use Sezzle\Payment\Helper\Data as SezzleHelper;
 use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
@@ -36,7 +38,8 @@ class V2 implements V2Interface
 {
     const SEZZLE_AUTH_ENDPOINT = "/v2/authentication";
     const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%s";
-    const SEZZLE_CAPTURE_ENDPOINT = "/v2/order/%s/capture";
+    const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/capture";
+    const SEZZLE_CAPTURE_BY_AUTH_UUID_ENDPOINT = "/v2/authorization/%s/capture";
     const SEZZLE_REFUND_ENDPOINT = "/v2/order/%s/refund";
     const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
     const SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT = "/v2/customer/%s/authorize";
@@ -106,6 +109,10 @@ class V2 implements V2Interface
      * @var AmountInterfaceFactory
      */
     private $amountInterfaceFactory;
+    /**
+     * @var TokenizeCustomerInterfaceFactory
+     */
+    private $tokenizeCustomerInterfaceFactory;
 
     /**
      * V2 constructor.
@@ -125,6 +132,7 @@ class V2 implements V2Interface
      * @param SezzleApiConfigInterface $sezzleApiConfig
      * @param SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
      * @param AmountInterfaceFactory $amountInterfaceFactory
+     * @param TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -142,7 +150,8 @@ class V2 implements V2Interface
         SessionInterfaceFactory $sessionInterfaceFactory,
         SezzleApiConfigInterface $sezzleApiConfig,
         SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
-        AmountInterfaceFactory $amountInterfaceFactory
+        AmountInterfaceFactory $amountInterfaceFactory,
+        TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -160,6 +169,7 @@ class V2 implements V2Interface
         $this->sezzleApiConfig = $sezzleApiConfig;
         $this->sessionOrderInterfaceFactory = $sessionOrderInterfaceFactory;
         $this->amountInterfaceFactory = $amountInterfaceFactory;
+        $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
     }
 
 
@@ -250,7 +260,39 @@ class V2 implements V2Interface
      */
     public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture)
     {
-        $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_ENDPOINT, $orderUUID);
+        $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
+        $auth = $this->authenticate();
+        $payload = [
+            "capture_amount" => [
+                "amount_in_cents" => $amount,
+                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            ],
+            "partial_capture" => $isPartialCapture
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['uuid']);
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Gateway capture error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function captureByAuthUUID($authUUID, $amount, $isPartialCapture)
+    {
+        $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_AUTH_UUID_ENDPOINT, $authUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
         $auth = $this->authenticate();
         $payload = [
@@ -351,11 +393,10 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function authorizePayment($customerUUID, $amount)
+    public function authorizePayment($customerUUID, $amount, $doCapture)
     {
         $quote = $this->checkoutSession->getQuote();
         $reference = uniqid() . "-" . $quote->getReservedOrderId();
-        $doCapture = $this->sezzleApiConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE;
         $authorizeEndpoint = sprintf(self::SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT, $customerUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
         $auth = $this->authenticate();
@@ -407,13 +448,15 @@ class V2 implements V2Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             /** @var SessionTokenizeInterface $sessionTokenizeModel */
-            $sessionTokenizeModel = $this->sessionTokenizeInterfaceFactory->create();
-            $this->dataObjectHelper->populateWithArray(
-                $sessionTokenizeModel,
-                $body,
-                SessionTokenizeInterface::class
-            );
-            return $sessionTokenizeModel->getCustomer()->getUuid();
+            $tokenizeCustomerModel = $this->tokenizeCustomerInterfaceFactory->create();
+            if (isset($body['customer'])) {
+                $this->dataObjectHelper->populateWithArray(
+                    $tokenizeCustomerModel,
+                    $body['customer'],
+                    TokenizeCustomerInterface::class
+                );
+            }
+            return $tokenizeCustomerModel->getUuid();
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

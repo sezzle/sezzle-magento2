@@ -1,17 +1,17 @@
 <?php
 
 
-namespace Sezzle\Payment\Controller\Payment;
+namespace Sezzle\Payment\Controller\Tokenize;
 
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Sezzle\Payment\Controller\AbstractController\Sezzle;
 
 /**
- * Class Tokenize
+ * Class Save
  * @package Sezzle\Payment\Controller\Payment
  */
-class Tokenize extends Sezzle
+class Save extends Sezzle
 {
     /**
      * @return ResponseInterface|ResultInterface|void

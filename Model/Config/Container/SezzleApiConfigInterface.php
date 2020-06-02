@@ -103,9 +103,15 @@ interface SezzleApiConfigInterface extends IdentityInterface
     public function getCancelUrl();
 
     /**
-     * Get tokenize url
+     * Get tokenize save url
      * @param $customerID
      * @return string
      */
-    public function getTokenizeURL($customerID);
+    public function getTokenizeSaveURL($customerID);
+
+    /**
+     * Get tokenize payment complete url
+     * @return string
+     */
+    public function getTokenizePaymentCompleteURL();
 }

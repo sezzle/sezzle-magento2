@@ -40,6 +40,17 @@ interface V2Interface
     public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture);
 
     /**
+     * Capture payment by Auth UUID
+     *
+     * @param string $authUUID
+     * @param int $amount
+     * @param bool $isPartialCapture
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function captureByAuthUUID($authUUID, $amount, $isPartialCapture);
+
+    /**
      * Refund payment by Order uuid
      *
      * @param $orderUUID
@@ -64,10 +75,10 @@ interface V2Interface
      *
      * @param string $customerUUID
      * @param int $amount
+     * @param bool $doCapture
      * @return AuthorizationInterface
-     * @throws LocalizedException
      */
-    public function authorizePayment($customerUUID, $amount);
+    public function authorizePayment($customerUUID, $amount, $doCapture);
 
     /**
      * Get Customer UUID by Session token

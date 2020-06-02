@@ -30,6 +30,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     const PAYMENT_CODE = 'sezzle';
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'sezzle_reference_id';
     const ADDITIONAL_INFORMATION_KEY_ORDER_UUID = 'sezzle_order_uuid';
+    const ADDITIONAL_INFORMATION_KEY_AUTH_UUID = 'sezzle_auth_uuid';
+    const ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN = 'sezzle_token';
     const SEZZLE_CAPTURE_EXPIRY = 'sezzle_capture_expiry';
     const SEZZLE_AUTH_EXPIRY = 'sezzle_auth_expiry';
 
@@ -220,24 +222,27 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID, $referenceID);
         $session = $this->v2->createSession($referenceID);
         $redirectURL = '';
-        if ($customer = $quote->getCustomer()) {
-            $sezzleToken = $customer->getCustomAttribute('sezzle_token');
-        }
-        if ($session->getOrder()) {
-            $redirectURL = $session->getOrder()->getCheckoutUrl();
-            if ($session->getOrder()->getUuid()) {
-                $payment->setAdditionalInformation(
-                    self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID,
-                    $session->getOrder()->getUuid()
-                );
+        if ($quote->getCustomer()
+            && ($sezzleToken = $quote->getCustomer()->getCustomAttribute('sezzle_token'))) {
+            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN, $sezzleToken->getValue());
+            $redirectURL = $this->sezzleApiIdentity->getTokenizePaymentCompleteURL();
+        } else {
+            if ($session->getOrder()) {
+                $redirectURL = $session->getOrder()->getCheckoutUrl();
+                if ($session->getOrder()->getUuid()) {
+                    $payment->setAdditionalInformation(
+                        self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID,
+                        $session->getOrder()->getUuid()
+                    );
+                }
+            } elseif ($session->getTokenize()) {
+                $redirectURL = $session->getTokenize()->getApprovalUrl();
             }
-        } elseif ($session->getTokenize()) {
-            $redirectURL = $session->getTokenize()->getApprovalUrl();
-        }
-        if ($session->getTokenize()) {
-            $this->customerSession->setCustomerSezzleToken($session->getTokenize()->getToken());
-            $this->customerSession->setCustomerSezzleTokenExpiration($session->getTokenize()->getExpiration());
-            $this->customerSession->setCustomerSezzleTokenStatus('Approved');
+            if ($session->getTokenize()) {
+                $this->customerSession->setCustomerSezzleToken($session->getTokenize()->getToken());
+                $this->customerSession->setCustomerSezzleTokenExpiration($session->getTokenize()->getExpiration());
+                $this->customerSession->setCustomerSezzleTokenStatus('Approved');
+            }
         }
         $this->sezzleHelper->logSezzleActions("Redirect URL : $redirectURL");
         if (!$redirectURL) {
@@ -273,28 +278,37 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     {
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
+        //$sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
         $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
-        $this->sezzleHelper->logSezzleActions("Magento Order Total : $amountInCents");
-        $sezzleOrder = $this->v2->getOrder($sezzleOrderUUID);
-        if ($sezzleOrderUUID != $sezzleOrder->getUuid()) {
-            $this->sezzleHelper->logSezzleActions("Unable to validate order");
-            throw new LocalizedException(__('Unable to validate order.'));
-        }
-        $sezzleOrderTotal = $sezzleOrder->getOrderAmount()->getAmountInCents();
-        $this->sezzleHelper->logSezzleActions("Sezzle Order Total : $sezzleOrderTotal");
+//        $this->sezzleHelper->logSezzleActions("Magento Order Total : $amountInCents");
+//        if ($sezzleOrderUUID) {
+//            $sezzleOrder = $this->v2->getOrder($sezzleOrderUUID);
+//            if ($sezzleOrderUUID != $sezzleOrder->getUuid()) {
+//                $this->sezzleHelper->logSezzleActions("Unable to validate order");
+//                throw new LocalizedException(__('Unable to validate order.'));
+//            }
+//        }
+//        $sezzleOrderTotal = $sezzleOrder->getOrderAmount()->getAmountInCents();
+//        $this->sezzleHelper->logSezzleActions("Sezzle Order Total : $sezzleOrderTotal");
 
-        if ($sezzleOrderTotal != null
-            && !$this->isOrderAmountMatched($amountInCents, $sezzleOrderTotal)) {
-            $this->sezzleHelper->logSezzleActions("Sezzle gateway has rejected request due to invalid order total");
-            throw new LocalizedException(__('Sezzle gateway has rejected request due to invalid order total.'));
-        } else {
-            $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
-            $payment->setTransactionId($reference)->setIsTransactionClosed(false);
-            $this->sezzleHelper->logSezzleActions("Authorization successful");
-            $this->sezzleHelper->logSezzleActions("Authorization end");
+//        if ($sezzleOrderTotal != null
+//            && !$this->isOrderAmountMatched($amountInCents, $sezzleOrderTotal)) {
+//            $this->sezzleHelper->logSezzleActions("Sezzle gateway has rejected request due to invalid order total");
+//            throw new LocalizedException(__('Sezzle gateway has rejected request due to invalid order total.'));
+//        } else {
+        if ($sezzleToken = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN)) {
+            $customerUUID = $this->v2->getCustomerUUID($sezzleToken);
+            $response = $this->v2->authorizePayment($customerUUID, $amountInCents, false);
+            if ($authUUID = $response->getUuid()) {
+                $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_UUID, $authUUID);
+            }
         }
+        $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
+        $payment->setTransactionId($reference)->setIsTransactionClosed(false);
+        $this->sezzleHelper->logSezzleActions("Authorization successful");
+        $this->sezzleHelper->logSezzleActions("Authorization end");
+        //}
     }
 
     /**
@@ -348,12 +362,18 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
 //            $this->sezzleHelper->logSezzleActions("Unable to capture amount. Time expired.");
 //            throw new LocalizedException(__('Unable to capture amount.'));
 //        }
-
         $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
-        $response = $this->v2->captureByOrderUUID($sezzleOrderUUID, $amountInCents, false);
-        if (!$response) {
-            $this->sezzleHelper->logSezzleActions("Unable to capture amount.");
-            throw new LocalizedException(__('Unable to capture amount.'));
+        if ($sezzleToken = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN)) {
+            $this->sezzleHelper->logSezzleActions($sezzleToken);
+            $customerUUID = $this->v2->getCustomerUUID($sezzleToken);
+            $authUUID = $this->v2->authorizePayment(
+                $customerUUID,
+                $amountInCents,
+                true
+            );
+        //$this->v2->captureByOrderUUID($authUUID, $amountInCents, false);
+        } else {
+            $this->v2->captureByOrderUUID($sezzleOrderUUID, $amountInCents, false);
         }
         $payment->setTransactionId($reference)->setIsTransactionClosed(true);
         $this->sezzleHelper->logSezzleActions("Authorized on Sezzle");
