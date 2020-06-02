@@ -7,7 +7,6 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
-use Sezzle\Payment\Api\Data\SessionTokenizeInterface;
 use Sezzle\Payment\Helper\Data;
 use Magento\Customer\Model\Session as CustomerSession;
 

@@ -219,6 +219,10 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $payment = $quote->getPayment();
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID, $referenceID);
         $session = $this->v2->createSession($referenceID);
+        $redirectURL = '';
+        if ($customer = $quote->getCustomer()) {
+            $sezzleToken = $customer->getCustomAttribute('sezzle_token');
+        }
         if ($session->getOrder()) {
             $redirectURL = $session->getOrder()->getCheckoutUrl();
             if ($session->getOrder()->getUuid()) {
@@ -228,10 +232,12 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
                 );
             }
         } elseif ($session->getTokenize()) {
+            $redirectURL = $session->getTokenize()->getApprovalUrl();
+        }
+        if ($session->getTokenize()) {
             $this->customerSession->setCustomerSezzleToken($session->getTokenize()->getToken());
             $this->customerSession->setCustomerSezzleTokenExpiration($session->getTokenize()->getExpiration());
             $this->customerSession->setCustomerSezzleTokenStatus('Approved');
-            $redirectURL = $session->getTokenize()->getApprovalUrl();
         }
         $this->sezzleHelper->logSezzleActions("Redirect URL : $redirectURL");
         if (!$redirectURL) {

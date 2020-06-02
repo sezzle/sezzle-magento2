@@ -24,7 +24,7 @@ class Tokenize extends Sezzle
             $this->tokenize->saveTokenizeRecord($customerID);
             $this->messageManager->addSuccessMessage("Sezzle has successfully tokenized your account.");
         } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions("Tokenize2 Exception: " . $e->getMessage());
+            $this->sezzleHelper->logSezzleActions("Tokenize Exception: " . $e->getMessage());
             $this->messageManager->addErrorMessage(
                 "Unable to tokenize your account."
             );
