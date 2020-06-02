@@ -40,7 +40,8 @@ class V2 implements V2Interface
     const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%s";
     const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/capture";
     const SEZZLE_CAPTURE_BY_AUTH_UUID_ENDPOINT = "/v2/authorization/%s/capture";
-    const SEZZLE_REFUND_ENDPOINT = "/v2/order/%s/refund";
+    const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/refund";
+    const SEZZLE_REFUND_BY_AUTH_UUID_ENDPOINT = "/v2/authorization/%s/refund";
     const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
     const SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT = "/v2/customer/%s/authorize";
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
@@ -326,7 +327,36 @@ class V2 implements V2Interface
      */
     public function refundByOrderUUID($orderUUID, $amount)
     {
-        $refundEndpoint = sprintf(self::SEZZLE_REFUND_ENDPOINT, $orderUUID);
+        $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT, $orderUUID);
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
+        $auth = $this->authenticate();
+        $payload = [
+            "amount_in_cents" => $amount,
+            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['uuid']);
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Gateway refund error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function refundByAuthUUID($authUUID, $amount)
+    {
+        $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_AUTH_UUID_ENDPOINT, $authUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
         $auth = $this->authenticate();
         $payload = [

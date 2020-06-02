@@ -11,6 +11,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote;
@@ -409,6 +410,31 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             $this->v2->releasePaymentByAuthUUID($authUUID, $amountInCents);
         } else {
             throw new LocalizedException(__('Failed to void the payment.'));
+        }
+        return $this;
+    }
+
+    /**
+     * @param InfoInterface $payment
+     * @param float $amount
+     * @return $this|Sezzle
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function refund(InfoInterface $payment, $amount)
+    {
+        if (!$this->canRefund()) {
+            throw new LocalizedException(__('The refund action is not available.'));
+        } elseif ($amount <= 0) {
+            throw new LocalizedException(__('Invalid amount for refund.'));
+        }
+        $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
+        if ($sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
+            $this->v2->refundByOrderUUID($sezzleOrderUUID, $amountInCents);
+        } elseif ($sezzleAuthUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_UUID)) {
+            $this->v2->refundByAuthUUID($sezzleAuthUUID, $amountInCents);
+        } else {
+            throw new LocalizedException(__('Failed to refund the payment.'));
         }
         return $this;
     }

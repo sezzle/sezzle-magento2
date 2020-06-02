@@ -62,6 +62,17 @@ interface V2Interface
     public function refundByOrderUUID($orderUUID, $amount);
 
     /**
+     * Refund payment by Auth uuid
+     *
+     * @param $authUUID
+     * @param $amount
+     * @return bool
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function refundByAuthUUID($authUUID, $amount);
+
+    /**
      * Get Order by Order UUID
      *
      * @param string $orderUUID
