@@ -8,6 +8,7 @@
 namespace Sezzle\Payment\Model;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
@@ -131,6 +132,10 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @var \Magento\Quote\Model\QuoteRepository
      */
     private $quoteRepository;
+    /**
+     * @var CustomerSession
+     */
+    private $customerSession;
 
     /**
      * Sezzle constructor.
@@ -153,6 +158,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
      * @param \Magento\Quote\Model\QuoteRepository $quoteRepository
      * @param V2Interface $v2
+     * @param CustomerSession $customerSession
      */
     public function __construct(
         Context $context,
@@ -173,7 +179,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
         \Magento\Quote\Model\QuoteRepository $quoteRepository,
-        V2Interface $v2
+        V2Interface $v2,
+        CustomerSession $customerSession
     ) {
         $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->sezzleHelper = $sezzleHelper;
@@ -187,6 +194,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $this->checkoutSession = $checkoutSession;
         $this->quoteRepository = $quoteRepository;
         $this->v2 = $v2;
+        $this->customerSession = $customerSession;
         parent::__construct(
             $context,
             $registry,
@@ -220,6 +228,9 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
                 );
             }
         } elseif ($session->getTokenize()) {
+            $this->customerSession->setCustomerSezzleToken($session->getTokenize()->getToken());
+            $this->customerSession->setCustomerSezzleTokenExpiration($session->getTokenize()->getExpiration());
+            $this->customerSession->setCustomerSezzleTokenStatus('Approved');
             $redirectURL = $session->getTokenize()->getApprovalUrl();
         }
         $this->sezzleHelper->logSezzleActions("Redirect URL : $redirectURL");
