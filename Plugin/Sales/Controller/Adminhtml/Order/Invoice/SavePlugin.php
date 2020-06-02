@@ -22,7 +22,7 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
-use Sezzle\Payment\Model\sezzle;
+use Sezzle\Payment\Model\Sezzle;
 
 class SavePlugin
 {
@@ -185,134 +185,135 @@ class SavePlugin
         \Magento\Sales\Controller\Adminhtml\Order\Invoice\Save $subject,
         \Closure $proceed
     ) {
-        $orderId = $subject->getRequest()->getParam('order_id');
-        $order = $this->orderRepository->get($orderId);
-        $this->order = !$this->order ? $order : $this->order;
-        if ($order->getPayment()->getMethodInstance()->getCode() == sezzle::PAYMENT_CODE) {
-            /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
-            $resultRedirect = $this->resultRedirectFactory->create();
-
-            $formKeyIsValid = $this->formKeyValidator->validate($subject->getRequest());
-            $isPost = $subject->getRequest()->isPost();
-            if (!$formKeyIsValid || !$isPost) {
-                $this->messageManager
-                    ->addErrorMessage(__("The invoice can't be saved at this time. Please try again later."));
-                return $resultRedirect->setPath('sales/order/index');
-            }
-
-            $data = $subject->getRequest()->getPost('invoice');
-
-            if (!empty($data['comment_text'])) {
-                $this->backendSession->setCommentText($data['comment_text']);
-            }
-
-            try {
-                $invoiceData = $subject->getRequest()->getParam('invoice', []);
-                $invoiceItems = isset($invoiceData['items']) ? $invoiceData['items'] : [];
-                if (!$order->getId()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(__('The order no longer exists.'));
-                }
-
-                if (!$order->canInvoice()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __('The order does not allow an invoice to be created.')
-                    );
-                }
-
-                $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
-
-                if (!$invoice) {
-                    throw new LocalizedException(__("The invoice can't be saved at this time. Please try again later."));
-                }
-
-                if (!$invoice->getTotalQty()) {
-                    throw new \Magento\Framework\Exception\LocalizedException(
-                        __("The invoice can't be created without products. Add products and try again.")
-                    );
-                }
-                $this->registry->register('current_invoice', $invoice);
-                if (!empty($data['capture_case'])) {
-                    if ($this->order->getId() && $data['capture_case'] == self::CAPTURE_ONLINE) {
-                        $this->handleCaptureAction($invoice);
-                    }
-                }
-
-                if (!empty($data['comment_text'])) {
-                    $invoice->addComment(
-                        $data['comment_text'],
-                        isset($data['comment_customer_notify']),
-                        isset($data['is_visible_on_front'])
-                    );
-
-                    $invoice->setCustomerNote($data['comment_text']);
-                    $invoice->setCustomerNoteNotify(isset($data['comment_customer_notify']));
-                }
-
-                $invoice->register();
-
-                $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
-                $invoice->getOrder()->setIsInProcess(true);
-
-                $transactionSave = $this->transaction
-                ->addObject(
-                    $invoice
-                )->addObject(
-                    $invoice->getOrder()
-                );
-                $shipment = false;
-                if (!empty($data['do_shipment']) || (int)$invoice->getOrder()->getForcedShipmentWithInvoice()) {
-                    $tracking = $subject->getRequest()->getPost('tracking');
-                    $shipment = $this->_prepareShipment($invoice, $data, $tracking);
-                    if ($shipment) {
-                        $transactionSave->addObject($shipment);
-                    }
-                }
-                $transactionSave->save();
-
-                // send invoice/shipment emails
-                try {
-                    if (!empty($data['send_email'])) {
-                        $this->invoiceSender->send($invoice);
-                    }
-                } catch (\Exception $e) {
-                    $this->logger->critical($e);
-                    $this->messageManager->addErrorMessage(__('We can\'t send the invoice email right now.'));
-                }
-                if ($shipment) {
-                    try {
-                        if (!empty($data['send_email'])) {
-                            $this->shipmentSender->send($shipment);
-                        }
-                    } catch (\Exception $e) {
-                        $this->logger->critical($e);
-                        $this->messageManager->addErrorMessage(__('We can\'t send the shipment right now.'));
-                    }
-                }
-                if (!empty($data['do_shipment'])) {
-                    $this->messageManager->addSuccessMessage(__('You created the invoice and shipment.'));
-                } else {
-                    $this->messageManager->addSuccessMessage(__('The invoice has been created.'));
-                }
-                $this->backendSession->getCommentText(true);
-                return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
-            } catch (LocalizedException $e) {
-                $this->messageManager->addComplexErrorMessage(
-                    'addCaptureErrorMessage',
-                    [
-                        'original_msg' => self::CAPTURE_ERROR_MSG == $e->getMessage() ? false : $e->getMessage(),
-                        'support_url' => self::MERCHANT_SUPPORT_URL
-                    ]
-                );
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage(
-                    __("The invoice can't be saved at this time. Please try again later.")
-                );
-                $this->logger->critical($e->getMessage());
-            }
-            return $resultRedirect->setPath('sales/*/new', ['order_id' => $orderId]);
-        } else {
-            return $proceed();
-        }
+        return $proceed();
+//        $orderId = $subject->getRequest()->getParam('order_id');
+//        $order = $this->orderRepository->get($orderId);
+//        $this->order = !$this->order ? $order : $this->order;
+//        if ($order->getPayment()->getMethodInstance()->getCode() == Sezzle::PAYMENT_CODE) {
+//            /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
+//            $resultRedirect = $this->resultRedirectFactory->create();
+//
+//            $formKeyIsValid = $this->formKeyValidator->validate($subject->getRequest());
+//            $isPost = $subject->getRequest()->isPost();
+//            if (!$formKeyIsValid || !$isPost) {
+//                $this->messageManager
+//                    ->addErrorMessage(__("The invoice can't be saved at this time. Please try again later."));
+//                return $resultRedirect->setPath('sales/order/index');
+//            }
+//
+//            $data = $subject->getRequest()->getPost('invoice');
+//
+//            if (!empty($data['comment_text'])) {
+//                $this->backendSession->setCommentText($data['comment_text']);
+//            }
+//
+//            try {
+//                $invoiceData = $subject->getRequest()->getParam('invoice', []);
+//                $invoiceItems = isset($invoiceData['items']) ? $invoiceData['items'] : [];
+//                if (!$order->getId()) {
+//                    throw new \Magento\Framework\Exception\LocalizedException(__('The order no longer exists.'));
+//                }
+//
+//                if (!$order->canInvoice()) {
+//                    throw new \Magento\Framework\Exception\LocalizedException(
+//                        __('The order does not allow an invoice to be created.')
+//                    );
+//                }
+//
+//                $invoice = $this->invoiceService->prepareInvoice($order, $invoiceItems);
+//
+//                if (!$invoice) {
+//                    throw new LocalizedException(__("The invoice can't be saved at this time. Please try again later."));
+//                }
+//
+//                if (!$invoice->getTotalQty()) {
+//                    throw new \Magento\Framework\Exception\LocalizedException(
+//                        __("The invoice can't be created without products. Add products and try again.")
+//                    );
+//                }
+//                $this->registry->register('current_invoice', $invoice);
+//                if (!empty($data['capture_case'])) {
+//                    if ($this->order->getId() && $data['capture_case'] == self::CAPTURE_ONLINE) {
+//                        $this->handleCaptureAction($invoice);
+//                    }
+//                }
+//
+//                if (!empty($data['comment_text'])) {
+//                    $invoice->addComment(
+//                        $data['comment_text'],
+//                        isset($data['comment_customer_notify']),
+//                        isset($data['is_visible_on_front'])
+//                    );
+//
+//                    $invoice->setCustomerNote($data['comment_text']);
+//                    $invoice->setCustomerNoteNotify(isset($data['comment_customer_notify']));
+//                }
+//
+//                $invoice->register();
+//
+//                $invoice->getOrder()->setCustomerNoteNotify(!empty($data['send_email']));
+//                $invoice->getOrder()->setIsInProcess(true);
+//
+//                $transactionSave = $this->transaction
+//                ->addObject(
+//                    $invoice
+//                )->addObject(
+//                    $invoice->getOrder()
+//                );
+//                $shipment = false;
+//                if (!empty($data['do_shipment']) || (int)$invoice->getOrder()->getForcedShipmentWithInvoice()) {
+//                    $tracking = $subject->getRequest()->getPost('tracking');
+//                    $shipment = $this->_prepareShipment($invoice, $data, $tracking);
+//                    if ($shipment) {
+//                        $transactionSave->addObject($shipment);
+//                    }
+//                }
+//                $transactionSave->save();
+//
+//                // send invoice/shipment emails
+//                try {
+//                    if (!empty($data['send_email'])) {
+//                        $this->invoiceSender->send($invoice);
+//                    }
+//                } catch (\Exception $e) {
+//                    $this->logger->critical($e);
+//                    $this->messageManager->addErrorMessage(__('We can\'t send the invoice email right now.'));
+//                }
+//                if ($shipment) {
+//                    try {
+//                        if (!empty($data['send_email'])) {
+//                            $this->shipmentSender->send($shipment);
+//                        }
+//                    } catch (\Exception $e) {
+//                        $this->logger->critical($e);
+//                        $this->messageManager->addErrorMessage(__('We can\'t send the shipment right now.'));
+//                    }
+//                }
+//                if (!empty($data['do_shipment'])) {
+//                    $this->messageManager->addSuccessMessage(__('You created the invoice and shipment.'));
+//                } else {
+//                    $this->messageManager->addSuccessMessage(__('The invoice has been created.'));
+//                }
+//                $this->backendSession->getCommentText(true);
+//                return $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
+//            } catch (LocalizedException $e) {
+//                $this->messageManager->addComplexErrorMessage(
+//                    'addCaptureErrorMessage',
+//                    [
+//                        'original_msg' => self::CAPTURE_ERROR_MSG == $e->getMessage() ? false : $e->getMessage(),
+//                        'support_url' => self::MERCHANT_SUPPORT_URL
+//                    ]
+//                );
+//            } catch (\Exception $e) {
+//                $this->messageManager->addErrorMessage(
+//                    __("The invoice can't be saved at this time. Please try again later.")
+//                );
+//                $this->logger->critical($e->getMessage());
+//            }
+//            return $resultRedirect->setPath('sales/*/new', ['order_id' => $orderId]);
+//        } else {
+//            return $proceed();
+//        }
     }
 
     /**

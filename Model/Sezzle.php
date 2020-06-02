@@ -387,7 +387,11 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_UUID, $authResponse->getUuid());
         //$this->v2->captureByOrderUUID($authUUID, $amountInCents, false);
         } else {
-            $this->v2->captureByOrderUUID($sezzleOrderUUID, $amountInCents, false);
+            $orderTotalInCents = (int)(round(
+                $payment->getOrder()->getBaseGrandTotal() * 100,
+                PayloadBuilder::PRECISION
+            ));
+            $this->v2->captureByOrderUUID($sezzleOrderUUID, $amountInCents, $amountInCents < $orderTotalInCents);
         }
         $payment->setTransactionId($reference)->setIsTransactionClosed(true);
         $this->sezzleHelper->logSezzleActions("Authorized on Sezzle");
