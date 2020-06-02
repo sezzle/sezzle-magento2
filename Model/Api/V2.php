@@ -44,6 +44,8 @@ class V2 implements V2Interface
     const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
     const SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT = "/v2/customer/%s/authorize";
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
+    const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/release";
+    const SEZZLE_RELEASE_BY_AUTH_UUID_ENDPOINT = "/v2/authorization/%s/release";
 
     /**
      * @var SezzleApiConfigInterface
@@ -461,6 +463,64 @@ class V2 implements V2Interface
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get customer uuid error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function releasePaymentByOrderUUID($orderUUID, $amount)
+    {
+        $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $releaseEndpoint;
+        $auth = $this->authenticate();
+        $payload = [
+            "amount_in_cents" => $amount,
+            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['uuid']);
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Gateway release payment error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function releasePaymentByAuthUUID($authUUID, $amount)
+    {
+        $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_AUTH_UUID_ENDPOINT, $authUUID);
+        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $releaseEndpoint;
+        $auth = $this->authenticate();
+        $payload = [
+            "amount_in_cents" => $amount,
+            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['uuid']);
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Gateway release payment error: %1', $e->getMessage())
             );
         }
     }

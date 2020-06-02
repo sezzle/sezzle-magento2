@@ -19,7 +19,6 @@ use Sezzle\Payment\Model\Sezzle;
  */
 class SetSezzleAuthExpiryObserver implements ObserverInterface
 {
-    const PAYMENT_CODE = 'sezzle';
 
     /**
      * @var Sezzle

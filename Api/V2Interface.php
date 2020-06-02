@@ -88,4 +88,24 @@ interface V2Interface
      * @throws LocalizedException
      */
     public function getCustomerUUID($token);
+
+    /**
+     * Release payment by Order UUID
+     *
+     * @param string $orderUUID
+     * @param int $amount
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function releasePaymentByOrderUUID($orderUUID, $amount);
+
+    /**
+     * Release payment by Auth UUID
+     *
+     * @param string $authUUID
+     * @param int $amount
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function releasePaymentByAuthUUID($authUUID, $amount);
 }

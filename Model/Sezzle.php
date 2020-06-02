@@ -270,15 +270,22 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @param \Magento\Framework\DataObject|InfoInterface $payment
      * @param float $amount
-     * @return void
+     * @return Sezzle
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @throws LocalizedException
      */
     public function authorize(InfoInterface $payment, $amount)
     {
+        if (!$this->canAuthorize()) {
+            throw new LocalizedException(__('The authorize action is not available.'));
+        } elseif ($amount <= 0) {
+            throw new LocalizedException(__('Invalid amount for authorize.'));
+        }
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        //$sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
+        $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
+        $this->sezzleHelper->logSezzleActions(287);
+        $this->sezzleHelper->logSezzleActions($sezzleOrderUUID);
         $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
 //        $this->sezzleHelper->logSezzleActions("Magento Order Total : $amountInCents");
@@ -308,6 +315,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setTransactionId($reference)->setIsTransactionClosed(false);
         $this->sezzleHelper->logSezzleActions("Authorization successful");
         $this->sezzleHelper->logSezzleActions("Authorization end");
+        return $this;
         //}
     }
 
@@ -316,13 +324,15 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @param InfoInterface $payment
      * @param float $amount
-     * @return void
+     * @return Sezzle
      * @throws LocalizedException
      */
     public function capture(InfoInterface $payment, $amount)
     {
         $this->sezzleHelper->logSezzleActions("****Capture at Magento start****");
-        if ($amount <= 0) {
+        if (!$this->canCapture()) {
+            throw new LocalizedException(__('The capture action is not available.'));
+        } elseif ($amount <= 0) {
             throw new LocalizedException(__('Invalid amount for capture.'));
         }
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
@@ -366,11 +376,12 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         if ($sezzleToken = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN)) {
             $this->sezzleHelper->logSezzleActions($sezzleToken);
             $customerUUID = $this->v2->getCustomerUUID($sezzleToken);
-            $authUUID = $this->v2->authorizePayment(
+            $authResponse = $this->v2->authorizePayment(
                 $customerUUID,
                 $amountInCents,
                 true
             );
+            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_UUID, $authResponse->getUuid());
         //$this->v2->captureByOrderUUID($authUUID, $amountInCents, false);
         } else {
             $this->v2->captureByOrderUUID($sezzleOrderUUID, $amountInCents, false);
@@ -378,6 +389,28 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setTransactionId($reference)->setIsTransactionClosed(true);
         $this->sezzleHelper->logSezzleActions("Authorized on Sezzle");
         $this->sezzleHelper->logSezzleActions("****Capture at Magento end****");
+        return $this;
+    }
+
+    /**
+     * @param InfoInterface $payment
+     * @return $this|Sezzle
+     * @throws LocalizedException
+     */
+    public function void(InfoInterface $payment)
+    {
+        if (!$this->canVoid()) {
+            throw new LocalizedException(__('The void action is not available.'));
+        }
+        $amountInCents = (int)(round($payment->getOrder()->getBaseGrandTotal() * 100, PayloadBuilder::PRECISION));
+        if ($orderUUID = $payment->getAdditionalInformation('sezzle_order_uuid')) {
+            $this->v2->releasePaymentByOrderUUID($orderUUID, $amountInCents);
+        } elseif ($authUUID = $payment->getAdditionalInformation('sezzle_auth_uuid')) {
+            $this->v2->releasePaymentByAuthUUID($authUUID, $amountInCents);
+        } else {
+            throw new LocalizedException(__('Failed to void the payment.'));
+        }
+        return $this;
     }
 
     /**
@@ -419,7 +452,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function setSezzleAuthExpiry($order)
     {
-        $sezzleOrderUUID = $order->getPayment()->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
+        $sezzleOrderUUID = $order->getPayment()->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
         $sezzleOrder = $this->v2->getOrder($sezzleOrderUUID);
         if ($authExpiration = $sezzleOrder->getAuthorization()->getExpiration()) {
             $order->getPayment()->setAdditionalInformation(self::SEZZLE_AUTH_EXPIRY, $authExpiration)->save();
