@@ -60,6 +60,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @var bool
      */
     protected $_canCapture = true;
+
+    protected $_canCapturePartial = true;
     /**
      * @var bool
      */
@@ -312,7 +314,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
                 $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_UUID, $authUUID);
             }
         }
-        $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
+        $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
         $payment->setTransactionId($reference)->setIsTransactionClosed(false);
         $this->sezzleHelper->logSezzleActions("Authorization successful");
         $this->sezzleHelper->logSezzleActions("Authorization end");
@@ -363,7 +365,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
 //        $this->sezzleHelper->logSezzleActions("Capture Expiration Timestamp : $captureExpirationTimestamp");
 //        $this->sezzleHelper->logSezzleActions("Current Timestamp : $currentTimestamp");
 //        if ($captureExpirationTimestamp >= $currentTimestamp) {
-//            $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
+//            $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
 //            $this->sezzleCapture($reference);
 //            $this->v2->captureByOrderUUID($orderUUID, $grandTotalInCents, false);
 //            $payment->setTransactionId($reference)->setIsTransactionClosed(false);
@@ -373,7 +375,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
 //            $this->sezzleHelper->logSezzleActions("Unable to capture amount. Time expired.");
 //            throw new LocalizedException(__('Unable to capture amount.'));
 //        }
-        $payment->setAdditionalInformation('payment_type', $this->getConfigData('payment_action'));
+        $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
         if ($sezzleToken = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN)) {
             $this->sezzleHelper->logSezzleActions($sezzleToken);
             $customerUUID = $this->v2->getCustomerUUID($sezzleToken);
@@ -505,7 +507,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $message = __('The authorized amount is %1.', $formattedPrice);
         $this->sezzleHelper->logSezzleActions($message);
         $txnType = Transaction::TYPE_AUTH;
-        $paymentAction = $this->getConfigData('payment_action');
+        $paymentAction = $this->getConfigPaymentAction();
         if ($paymentAction == self::ACTION_AUTHORIZE_CAPTURE) {
             $txnType = Transaction::TYPE_CAPTURE;
         }
