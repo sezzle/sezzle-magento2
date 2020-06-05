@@ -39,7 +39,7 @@ class Authorization extends AbstractExtensibleObject implements AuthorizationInt
     /**
      * @inheritDoc
      */
-    public function setAuthorizationAmount(AmountInterface $authorizationAmount)
+    public function setAuthorizationAmount(AmountInterface $authorizationAmount = null)
     {
         $this->setData(self::AUTHORIZATION_AMOUNT, $authorizationAmount);
     }

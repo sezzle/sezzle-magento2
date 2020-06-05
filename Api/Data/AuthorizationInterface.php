@@ -30,15 +30,15 @@ interface AuthorizationInterface
     public function setUuid($uuid);
 
     /**
-     * @return AmountInterface|null
+     * @return \Sezzle\Payment\Api\Data\AmountInterface|null
      */
     public function getAuthorizationAmount();
 
     /**
-     * @param AmountInterface $authorizationAmount
+     * @param \Sezzle\Payment\Api\Data\AmountInterface $authorizationAmount
      * @return $this
      */
-    public function setAuthorizationAmount(AmountInterface $authorizationAmount);
+    public function setAuthorizationAmount(AmountInterface $authorizationAmount = null);
 
     /**
      * @return string|null

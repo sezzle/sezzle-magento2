@@ -47,7 +47,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var bool
      */
-    protected $_isInitializeNeeded = false;
+    protected $_isInitializeNeeded = true;
     /**
      * @var bool
      */
@@ -61,6 +61,9 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $_canCapture = true;
 
+    /**
+     * @var bool
+     */
     protected $_canCapturePartial = true;
     /**
      * @var bool
@@ -254,6 +257,43 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         }
         $this->quoteRepository->save($quote);
         return $redirectURL;
+    }
+
+    /**
+     * @param string $paymentAction
+     * @param object $stateObject
+     * @return Sezzle|void
+     * @throws LocalizedException
+     */
+    public function initialize($paymentAction, $stateObject)
+    {
+        switch ($paymentAction) {
+            case self::ACTION_AUTHORIZE:
+                $payment = $this->getInfoInstance();
+                $order = $payment->getOrder();
+                $order->setCanSendNewEmailFlag(false);
+                $payment->authorize(true, $order->getBaseTotalDue()); // base amount will be set inside
+                $payment->setAmountAuthorized($order->getTotalDue());
+                $orderStatus = $payment->getMethodInstance()->getConfigData('order_status');
+                $order->setState(Order::STATE_NEW, 'new', '', false);
+                $stateObject->setState(Order::STATE_NEW);
+                $stateObject->setStatus($orderStatus);
+                $stateObject->setIsNotified(false);
+                break;
+            case self::ACTION_AUTHORIZE_CAPTURE:
+                $payment = $this->getInfoInstance();
+                $order = $payment->getOrder();
+                $order->setCanSendNewEmailFlag(false);
+                $payment->capture(null);
+                $payment->setAmountPaid($order->getTotalDue());
+                $orderStatus = $payment->getMethodInstance()->getConfigData('order_status');
+                $order->setState(Order::STATE_PROCESSING, 'processing', '', false);
+                $stateObject->setState(Order::STATE_PROCESSING);
+                $stateObject->setStatus($orderStatus);
+                break;
+            default:
+                break;
+        }
     }
 
     /**

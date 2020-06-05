@@ -10,7 +10,9 @@
 
 <section class="admin__page-section">
     <div class="admin__page-section-title">
-        <?php $_itemsGridLabel = $block->getForcedShipmentCreate() ? 'Items to Invoice and Ship' : 'Items to Invoice'; ?>
+        <?php use Sezzle\Payment\Model\Sezzle;
+
+        $_itemsGridLabel = $block->getForcedShipmentCreate() ? 'Items to Invoice and Ship' : 'Items to Invoice'; ?>
         <span class="title"><?= /* @escapeNotVerified */ __('%1', $_itemsGridLabel) ?></span>
     </div>
     <div class="admin__page-section-content grid">
@@ -40,10 +42,10 @@
                 <?php $_items = $block->getInvoice()->getAllItems() ?>
                 <?php $_i = 0; foreach ($_items as $_item): ?>
                 <?php if ($_item->getOrderItem()->getParentItem()) {
-                    continue;
-                } else {
-                    $_i++;
-                } ?>
+    continue;
+} else {
+    $_i++;
+} ?>
                     <tbody class="<?= /* @escapeNotVerified */ $_i%2 ? 'even' : 'odd' ?>">
                         <?= $block->getItemHtml($_item) ?>
                         <?= $block->getItemExtraInfoHtml($_item->getOrderItem()) ?>
@@ -102,7 +104,7 @@
                       <label for="invoice_do_capture" class="admin__field-label"><?= /* @escapeNotVerified */ __('Amount') ?></label>
                       <select class="admin__control-select" name="invoice[capture_case]">
                           <option value="online"><?= /* @escapeNotVerified */ __('Capture Online') ?></option>
-                          <?php if ($block->getOrder()->getPayment()->getMethodInstance()->getCode() != \Sezzle\Payment\Model\sezzle::PAYMENT_CODE) : ?>
+                          <?php if ($block->getOrder()->getPayment()->getMethodInstance()->getCode() != Sezzle::PAYMENT_CODE) : ?>
                           <option value="offline"><?= /* @escapeNotVerified */ __('Capture Offline') ?></option>
                           <?php endif; ?>
                           <option value="not_capture"><?= /* @escapeNotVerified */ __('Not Capture') ?></option>

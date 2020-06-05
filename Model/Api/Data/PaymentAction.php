@@ -38,7 +38,7 @@ class PaymentAction extends AbstractExtensibleObject implements PaymentActionInt
     /**
      * @inheritDoc
      */
-    public function setAmount(AmountInterface $amount)
+    public function setAmount(AmountInterface $amount = null)
     {
         $this->setData(self::AMOUNT, $amount);
     }

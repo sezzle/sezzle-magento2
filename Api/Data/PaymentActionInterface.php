@@ -25,14 +25,14 @@ interface PaymentActionInterface
     public function setUuid($uuid);
 
     /**
-     * @return AmountInterface|null
+     * @return \Sezzle\Payment\Api\Data\AmountInterface|null
      */
     public function getAmount();
 
     /**
-     * @param AmountInterface $amount
+     * @param \Sezzle\Payment\Api\Data\AmountInterface $amount
      * @return $this
      */
-    public function setAmount(AmountInterface $amount);
+    public function setAmount(AmountInterface $amount = null);
 
 }

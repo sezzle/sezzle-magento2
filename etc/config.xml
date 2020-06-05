@@ -10,15 +10,17 @@
     <default>
         <payment>
             <sezzle>
-		<active>0</active>
-                <model>Sezzle\Payment\Model\sezzle</model>
-                <order_status>processing</order_status>
+		        <active>0</active>
+                <model>Sezzle\Payment\Model\Sezzle</model>
+                <order_status>pending</order_status>
                 <merchant_country>US</merchant_country>
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>0</log_tracker>
                 <payment_action>authorize_capture</payment_action>
+                <checkout>1</checkout>
+                <tokenize>0</tokenize>
                 <title>Sezzle</title>
-	    </sezzle>
+	        </sezzle>
         </payment>
     </default>
 </config>

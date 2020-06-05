@@ -398,6 +398,11 @@ class V2 implements V2Interface
             $body = $this->jsonHelper->jsonDecode($response);
             /** @var OrderInterface $orderModel */
             $orderModel = $this->orderInterfaceFactory->create();
+            $this->dataObjectHelper->populateWithArray(
+                $orderModel,
+                $body,
+                OrderInterface::class
+            );
             if (isset($body['order_amount'])) {
                 /** @var AmountInterface $amountModel */
                 $amountModel = $this->amountInterfaceFactory->create();
@@ -408,11 +413,17 @@ class V2 implements V2Interface
                 );
                 $orderModel->setOrderAmount($amountModel);
             }
-            $this->dataObjectHelper->populateWithArray(
-                $orderModel,
-                $body,
-                OrderInterface::class
-            );
+            if (isset($body['authorization'])) {
+                $this->sezzleHelper->logSezzleActions($body);
+                /** @var AuthorizationInterface $authorizationModel */
+                $authorizationModel = $this->authorizationInterfaceFactory->create();
+                $this->dataObjectHelper->populateWithArray(
+                    $authorizationModel,
+                    $body['authorization'],
+                    AuthorizationInterface::class
+                );
+                $orderModel->setAuthorization($authorizationModel);
+            }
             return $orderModel;
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());

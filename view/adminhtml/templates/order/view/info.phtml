@@ -9,6 +9,9 @@
 ?>
 
 <?php
+
+use Sezzle\Payment\Model\Sezzle;
+
 $order = $block->getOrder();
 
 $orderAdminDate = $block->formatDate(
@@ -24,18 +27,15 @@ $orderStoreDate = $block->formatDate(
     $block->getTimezoneForStore($order->getStore())
 );
 
-$sezzleCaptureExpiryTimestamp = $order->getPayment()->getAdditionalInformation(\Sezzle\Payment\Model\sezzle::SEZZLE_CAPTURE_EXPIRY);
-$sezzleCaptureExpiry = $sezzleCaptureExpiryTimestamp ?
+$sezzleAuthExpiryTimestamp = $order->getPayment()->getAdditionalInformation(Sezzle::SEZZLE_AUTH_EXPIRY);
+$sezzleAuthExpiry = $sezzleAuthExpiryTimestamp ?
                         $block->formatDate(
-                            $sezzleCaptureExpiryTimestamp,
+                            $sezzleAuthExpiryTimestamp,
                             \IntlDateFormatter::MEDIUM,
                             true,
                             $block->getTimezoneForStore($order->getStore())
                         )
                     : null;
-$captureInfo = ($order->getGrandTotal() == $order->getTotalDue())
-                ? $block->escapeHtml(__('(Please capture before this)'))
-                : $block->escapeHtml(__('(Captured)'));
 $paymentMethodCode = $order->getPayment()->getMethodInstance()->getCode();
 
 $customerUrl = $block->getCustomerViewUrl();
@@ -121,15 +121,14 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                         <td><?= $block->escapeHtml($order->getBaseToOrderRate()) ?></td>
                     </tr>
                 <?php endif; ?>
-                <?php if ($sezzleCaptureExpiry
-                    && $paymentMethodCode == \Sezzle\Payment\Model\sezzle::PAYMENT_CODE) : ?>
+                <?php if ($sezzleAuthExpiry
+                    && $paymentMethodCode == Sezzle::PAYMENT_CODE) : ?>
                     <tr>
-                        <th><?= $block->escapeHtml(__('Sezzle Capture Expiry')) ?></th>
+                        <th><?= $block->escapeHtml(__('Sezzle Auth Expiry')) ?></th>
                         <td>
                             <strong>
-                                <?= $block->escapeHtml($sezzleCaptureExpiry); ?> <br>
+                                <?= $block->escapeHtml($sezzleAuthExpiry); ?> <br>
                             </strong>
-                            <?= $block->escapeHtml($captureInfo); ?>
                         </td>
                     </tr>
             <?php endif; ?>
