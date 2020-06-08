@@ -40,17 +40,6 @@ interface V2Interface
     public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture);
 
     /**
-     * Capture payment by Auth UUID
-     *
-     * @param string $authUUID
-     * @param int $amount
-     * @param bool $isPartialCapture
-     * @return bool
-     * @throws LocalizedException
-     */
-    public function captureByAuthUUID($authUUID, $amount, $isPartialCapture);
-
-    /**
      * Refund payment by Order uuid
      *
      * @param $orderUUID
@@ -60,17 +49,6 @@ interface V2Interface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function refundByOrderUUID($orderUUID, $amount);
-
-    /**
-     * Refund payment by Auth uuid
-     *
-     * @param $authUUID
-     * @param $amount
-     * @return bool
-     * @throws LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    public function refundByAuthUUID($authUUID, $amount);
 
     /**
      * Get Order by Order UUID
@@ -86,10 +64,9 @@ interface V2Interface
      *
      * @param string $customerUUID
      * @param int $amount
-     * @param bool $doCapture
      * @return AuthorizationInterface
      */
-    public function authorizePayment($customerUUID, $amount, $doCapture);
+    public function createOrderByCustomerUUID($customerUUID, $amount);
 
     /**
      * Get Customer UUID by Session token
@@ -109,14 +86,4 @@ interface V2Interface
      * @throws LocalizedException
      */
     public function releasePaymentByOrderUUID($orderUUID, $amount);
-
-    /**
-     * Release payment by Auth UUID
-     *
-     * @param string $authUUID
-     * @param int $amount
-     * @return bool
-     * @throws LocalizedException
-     */
-    public function releasePaymentByAuthUUID($authUUID, $amount);
 }

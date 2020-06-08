@@ -24,7 +24,6 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_WIDGET_PDP = 'payment/sezzle/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzle/widget_cart';
     const XML_PATH_TOKENIZE = 'payment/sezzle/tokenize';
-    const XML_PATH_CHECKOUT = 'payment/sezzle/checkout';
 
     private $liveCheckoutUrl = "https://gateway.sezzle.com";
     private $sandboxCheckoutUrl = "https://staging.gateway.sezzle.com";
@@ -172,17 +171,6 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     /**
      * @inheritdoc
      */
-    public function isCheckoutAllowed()
-    {
-        return $this->getConfigValue(
-            self::XML_PATH_CHECKOUT,
-            $this->getStore()->getStoreId()
-        ) ? true : false;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getCompleteUrl($orderId, $reference)
     {
         return $this->urlBuilder
@@ -198,20 +186,6 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     public function getCancelUrl()
     {
         return $this->urlBuilder->getUrl("sezzle/payment/cancel/", ['_secure' => true]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getTokenizeSaveURL($customerID)
-    {
-        return $this->urlBuilder->getUrl(
-            "sezzle/tokenize/save",
-            [
-                '_secure' => true,
-                'customer_id' => $customerID
-            ]
-        );
     }
 
     /**

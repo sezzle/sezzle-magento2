@@ -37,16 +37,13 @@ use Sezzle\Payment\Model\Sezzle;
 class V2 implements V2Interface
 {
     const SEZZLE_AUTH_ENDPOINT = "/v2/authentication";
+    const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
     const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%s";
     const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/capture";
-    const SEZZLE_CAPTURE_BY_AUTH_UUID_ENDPOINT = "/v2/authorization/%s/capture";
     const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/refund";
-    const SEZZLE_REFUND_BY_AUTH_UUID_ENDPOINT = "/v2/authorization/%s/refund";
-    const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
-    const SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT = "/v2/customer/%s/authorize";
-    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
     const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/release";
-    const SEZZLE_RELEASE_BY_AUTH_UUID_ENDPOINT = "/v2/authorization/%s/release";
+    const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/v2/customer/%s/order";
+    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
 
     /**
      * @var SezzleApiConfigInterface
@@ -293,70 +290,9 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function captureByAuthUUID($authUUID, $amount, $isPartialCapture)
-    {
-        $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_AUTH_UUID_ENDPOINT, $authUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
-        $auth = $this->authenticate();
-        $payload = [
-            "capture_amount" => [
-                "amount_in_cents" => $amount,
-                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
-            ],
-            "partial_capture" => $isPartialCapture
-        ];
-        try {
-            $response = $this->apiProcessor->call(
-                $url,
-                $auth->getToken(),
-                $payload,
-                ZendClient::POST
-            );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
-        } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('Gateway capture error: %1', $e->getMessage())
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function refundByOrderUUID($orderUUID, $amount)
     {
         $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
-        $auth = $this->authenticate();
-        $payload = [
-            "amount_in_cents" => $amount,
-            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
-        ];
-        try {
-            $response = $this->apiProcessor->call(
-                $url,
-                $auth->getToken(),
-                $payload,
-                ZendClient::POST
-            );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
-        } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('Gateway refund error: %1', $e->getMessage())
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function refundByAuthUUID($authUUID, $amount)
-    {
-        $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_AUTH_UUID_ENDPOINT, $authUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
         $auth = $this->authenticate();
         $payload = [
@@ -436,20 +372,20 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function authorizePayment($customerUUID, $amount, $doCapture)
+    public function createOrderByCustomerUUID($customerUUID, $amount)
     {
         $quote = $this->checkoutSession->getQuote();
         $reference = uniqid() . "-" . $quote->getReservedOrderId();
-        $authorizeEndpoint = sprintf(self::SEZZLE_AUTHORIZE_PAYMENT_ENDPOINT, $customerUUID);
+        $authorizeEndpoint = sprintf(self::SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT, $customerUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
         $auth = $this->authenticate();
         $payload = [
+            "intent" => 'AUTH',
             "reference_id" => $reference,
             "payment_amount" => [
                 "amount_in_cents" => $amount,
                 "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
-            ],
-            "capture" => $doCapture
+            ]
         ];
         try {
             $response = $this->apiProcessor->call(
@@ -514,35 +450,6 @@ class V2 implements V2Interface
     public function releasePaymentByOrderUUID($orderUUID, $amount)
     {
         $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $releaseEndpoint;
-        $auth = $this->authenticate();
-        $payload = [
-            "amount_in_cents" => $amount,
-            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
-        ];
-        try {
-            $response = $this->apiProcessor->call(
-                $url,
-                $auth->getToken(),
-                $payload,
-                ZendClient::POST
-            );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
-        } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('Gateway release payment error: %1', $e->getMessage())
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function releasePaymentByAuthUUID($authUUID, $amount)
-    {
-        $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_AUTH_UUID_ENDPOINT, $authUUID);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $releaseEndpoint;
         $auth = $this->authenticate();
         $payload = [

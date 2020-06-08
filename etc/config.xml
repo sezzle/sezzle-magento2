@@ -17,8 +17,7 @@
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>0</log_tracker>
                 <payment_action>authorize_capture</payment_action>
-                <checkout>1</checkout>
-                <tokenize>0</tokenize>
+                <tokenize>1</tokenize>
                 <title>Sezzle</title>
 	        </sezzle>
         </payment>

@@ -83,12 +83,6 @@ interface SezzleApiConfigInterface extends IdentityInterface
     public function isTokenizationAllowed();
 
     /**
-     * Get create checkout status
-     * @return bool
-     */
-    public function isCheckoutAllowed();
-
-    /**
      * Get complete url
      * @param string $orderId
      * @param string $reference
@@ -101,13 +95,6 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return string
      */
     public function getCancelUrl();
-
-    /**
-     * Get tokenize save url
-     * @param $customerID
-     * @return string
-     */
-    public function getTokenizeSaveURL($customerID);
 
     /**
      * Get tokenize payment complete url

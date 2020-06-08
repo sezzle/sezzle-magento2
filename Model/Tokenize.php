@@ -62,7 +62,10 @@ class Tokenize
         $customer = $this->customerRepository->getById($customerID);
         $customer->setCustomAttribute('sezzle_tokenize_status', $this->customerSession->getCustomerSezzleTokenStatus());
         $customer->setCustomAttribute('sezzle_token', $this->customerSession->getCustomerSezzleToken());
-        $customer->setCustomAttribute('sezzle_token_expiration', $this->customerSession->getCustomerSezzleTokenExpiration());
+        $customer->setCustomAttribute(
+            'sezzle_token_expiration',
+            $this->customerSession->getCustomerSezzleTokenExpiration()
+        );
         $this->customerRepository->save($customer);
         $this->customerSession->unsCustomerSezzleTokenStatus();
         $this->customerSession->unsCustomerSezzleToken();

@@ -53,20 +53,13 @@ class PayloadBuilder
     public function buildSezzleCheckoutPayload($quote, $reference)
     {
         $orderPayload = [];
-        $completeHref = $this->sezzleApiConfig->getCompleteUrl($quote->getReservedOrderId(), $reference);
-        if ($this->sezzleApiConfig->isTokenizationAllowed() &&
-            !$this->sezzleApiConfig->isCheckoutAllowed()) {
-            $completeHref = $this->sezzleApiConfig->getTokenizeSaveURL($quote->getCustomer()->getId());
-        }
         $completeURL['complete_url'] = [
-            "href" => $completeHref
+            "href" => $this->sezzleApiConfig->getCompleteUrl($quote->getReservedOrderId(), $reference)
         ];
         $cancelURL['cancel_url'] = [
             "href" => $this->sezzleApiConfig->getCancelUrl()
         ];
-        if ($this->sezzleApiConfig->isCheckoutAllowed()) {
-            $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
-        }
+        $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
         return array_merge(
             $completeURL,
