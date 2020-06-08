@@ -16,6 +16,9 @@ use Magento\Customer\Model\Session as CustomerSession;
  */
 class Tokenize
 {
+    const ATTR_SEZZLE_TOKEN = "sezzle_token";
+    const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
+    const ATTR_SEZZLE_TOKEN_EXPIRATION = "sezzle_token_expiration";
     /**
      * @var CustomerRepositoryInterface
      */
@@ -60,10 +63,10 @@ class Tokenize
             throw new NotFoundException(__('Tokenize record not found.'));
         }
         $customer = $this->customerRepository->getById($customerID);
-        $customer->setCustomAttribute('sezzle_tokenize_status', $this->customerSession->getCustomerSezzleTokenStatus());
-        $customer->setCustomAttribute('sezzle_token', $this->customerSession->getCustomerSezzleToken());
+        $customer->setCustomAttribute(self::ATTR_SEZZLE_TOKEN_STATUS, $this->customerSession->getCustomerSezzleTokenStatus());
+        $customer->setCustomAttribute(self::ATTR_SEZZLE_TOKEN, $this->customerSession->getCustomerSezzleToken());
         $customer->setCustomAttribute(
-            'sezzle_token_expiration',
+            self::ATTR_SEZZLE_TOKEN_EXPIRATION,
             $this->customerSession->getCustomerSezzleTokenExpiration()
         );
         $this->customerRepository->save($customer);

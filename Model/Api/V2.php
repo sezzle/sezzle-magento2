@@ -228,6 +228,7 @@ class V2 implements V2Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
+            $this->sezzleHelper->logSezzleActions($body);
             if (isset($body['order'])) {
                 $sessionOrderModel = $this->sessionOrderInterfaceFactory->create();
                 $this->dataObjectHelper->populateWithArray(
