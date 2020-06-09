@@ -197,7 +197,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             if ($session->getTokenize()) {
                 $this->customerSession->setCustomerSezzleToken($session->getTokenize()->getToken());
                 $this->customerSession->setCustomerSezzleTokenExpiration($session->getTokenize()->getExpiration());
-                $this->customerSession->setCustomerSezzleTokenStatus('Approved');
+                $this->customerSession->setCustomerSezzleTokenStatus(true);
             }
         }
         $this->sezzleHelper->logSezzleActions("Redirect URL : $redirectURL");

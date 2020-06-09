@@ -136,7 +136,7 @@ class Sezzle extends Template implements TabInterface
     {
         if ($this->getCustomer()
             && $tokenStatusAttr = $this->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_TOKEN_STATUS)) {
-            return $tokenStatusAttr->getValue();
+            return $tokenStatusAttr->getValue() ? Tokenize::STATUS_TOKEN_APPROVED : Tokenize::STATUS_TOKEN_NOT_APPROVED;
         }
         return  null;
     }

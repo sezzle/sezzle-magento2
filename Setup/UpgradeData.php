@@ -46,22 +46,33 @@ class UpgradeData implements UpgradeDataInterface
     {
         if (version_compare($context->getVersion(), '2.0.0', '<')) {
             $attributesToAdd = [
-                'sezzle_tokenize_status' => 'Sezzle Tokenize Status',
-                'sezzle_token' => 'Sezzle Token',
-                'sezzle_token_expiration' => 'Sezzle Token Expiration'
+                'sezzle_tokenize_status' => [
+                        'input' => 'boolean',
+                        'label' => 'Sezzle Tokenize Status',
+                    ],
+                'sezzle_token' => [
+                        'input' => 'text',
+                        'label' => 'Sezzle Token'
+                    ],
+                'sezzle_token_expiration' =>
+                    [
+                        'input' => 'text',
+                        'label' => 'Sezzle Token Expiration'
+                    ]
             ];
-            foreach ($attributesToAdd as $attributeCode => $attributeLabel) {
-                $this->addCustomerAttribute($setup, $attributeCode, $attributeLabel);
+            foreach ($attributesToAdd as $attributeCode => $attribute) {
+                $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
             }
         }
     }
 
     /**
      * @param ModuleDataSetupInterface $setup
-     * @param $attributeCode
-     * @param $attributeLabel
+     * @param string $attributeCode
+     * @param string $input
+     * @param string $attributeLabel
      */
-    private function addCustomerAttribute(ModuleDataSetupInterface $setup, $attributeCode, $attributeLabel)
+    private function addCustomerAttribute(ModuleDataSetupInterface $setup, $attributeCode, $input, $attributeLabel)
     {
         /** @var CustomerSetup $customerSetup */
         $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
@@ -74,9 +85,9 @@ class UpgradeData implements UpgradeDataInterface
         $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
 
         $customerSetup->addAttribute(Customer::ENTITY, $attributeCode, [
-            'type' => 'varchar',
+            'type' => $input == 'boolean' ? 'int' : 'varchar',
             'label' => $attributeLabel,
-            'input' => 'text',
+            'input' => $input,
             'required' => false,
             'visible' => false,
             'user_defined' => false,

@@ -19,6 +19,9 @@ class Tokenize
     const ATTR_SEZZLE_TOKEN = "sezzle_token";
     const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
     const ATTR_SEZZLE_TOKEN_EXPIRATION = "sezzle_token_expiration";
+
+    const STATUS_TOKEN_APPROVED = 'Approved';
+    const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
     /**
      * @var CustomerRepositoryInterface
      */
@@ -63,7 +66,10 @@ class Tokenize
             throw new NotFoundException(__('Tokenize record not found.'));
         }
         $customer = $this->customerRepository->getById($customerID);
-        $customer->setCustomAttribute(self::ATTR_SEZZLE_TOKEN_STATUS, $this->customerSession->getCustomerSezzleTokenStatus());
+        $customer->setCustomAttribute(
+            self::ATTR_SEZZLE_TOKEN_STATUS,
+            $this->customerSession->getCustomerSezzleTokenStatus()
+        );
         $customer->setCustomAttribute(self::ATTR_SEZZLE_TOKEN, $this->customerSession->getCustomerSezzleToken());
         $customer->setCustomAttribute(
             self::ATTR_SEZZLE_TOKEN_EXPIRATION,
