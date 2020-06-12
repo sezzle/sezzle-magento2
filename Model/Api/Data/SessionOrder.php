@@ -41,4 +41,20 @@ class SessionOrder extends AbstractExtensibleObject implements SessionOrderInter
     {
         $this->setData(self::CHECKOUT_URL, $checkoutURL);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLinks()
+    {
+        return $this->_get(self::LINKS);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setLinks(array $links = null)
+    {
+        $this->setData(self::LINKS, $links);
+    }
 }

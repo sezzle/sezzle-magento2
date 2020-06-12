@@ -16,6 +16,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
+use Magento\Payment\Model\Info;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Model\Quote;
@@ -26,6 +27,7 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Sezzle\Payment\Api\V2Interface;
 use Sezzle\Payment\Helper\Data;
 use Sezzle\Payment\Model\Api\PayloadBuilder;
+use Magento\Checkout\Model\Session as CheckoutSession;
 
 /**
  * Class Sezzle
@@ -116,6 +118,19 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @var Config\Container\SezzleApiConfigInterface
      */
     private $sezzleApiConfig;
+    /**
+     * @var array
+     */
+    private $sezzleInformation = [];
+
+    /**
+     * @var Quote
+     */
+    public $quote;
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
 
     /**
      * Sezzle constructor.
@@ -132,6 +147,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @param QuoteRepository $quoteRepository
      * @param V2Interface $v2
      * @param CustomerSession $customerSession
+     * @param CheckoutSession $checkoutSession
      */
     public function __construct(
         Context $context,
@@ -146,7 +162,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         Logger $mageLogger,
         QuoteRepository $quoteRepository,
         V2Interface $v2,
-        CustomerSession $customerSession
+        CustomerSession $customerSession,
+        CheckoutSession $checkoutSession
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleApiConfig = $sezzleApiConfig;
@@ -154,6 +171,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $this->quoteRepository = $quoteRepository;
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
+        $this->checkoutSession = $checkoutSession;
         parent::__construct(
             $context,
             $registry,
@@ -162,6 +180,97 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             $paymentData,
             $scopeConfig,
             $mageLogger
+        );
+    }
+
+    /**
+     * Initialize _sezzleInformation with $this->_data['additional_information'] if empty
+     *
+     * @return void
+     */
+    private function initSezzleInformation()
+    {
+        $sezzleInfo = $this->_getData('sezzle_information');
+        if (empty($this->sezzleInformation) && $sezzleInfo) {
+            $this->sezzleInformation = $sezzleInfo;
+        }
+    }
+
+    /**
+     * Sezzle information setter
+     * Updates data inside the 'sezzle_information' array
+     * or all 'sezzle_information' if key is data array
+     *
+     * @param string|array $key
+     * @param mixed $value
+     * @return Quote
+     * @throws LocalizedException
+     */
+    public function setSezzleInformation($key, $value = null)
+    {
+        /** @var Quote $quote */
+        $quote = $this->checkoutSession->getQuote();
+        if (is_object($value)) {
+            throw new LocalizedException(__('The order disallows storing objects.'));
+        }
+        $this->initSezzleInformation();
+        if (is_array($key) && $value === null) {
+            $this->sezzleInformation = $key;
+        } else {
+            $this->sezzleInformation[$key] = $value;
+        }
+        $this->sezzleHelper->logSezzleActions($this->sezzleInformation);
+        return $quote->setData('sezzle_information', $this->sezzleInformation);
+    }
+
+    /**
+     * Getter for entire sezzle_information value or one of its element by key
+     *
+     * @param string $key
+     * @return array|null|mixed
+     */
+    public function getSezzleInformation($key = null)
+    {
+        $this->initSezzleInformation();
+        if (null === $key) {
+            return $this->sezzleInformation;
+        }
+        return isset($this->sezzleInformation[$key]) ? $this->sezzleInformation[$key] : null;
+    }
+
+    /**
+     * Unsetter for entire additional_information value or one of its element by key
+     *
+     * @param string $key
+     * @return Quote|Sezzle
+     */
+    public function unsSezzleInformation($key = null)
+    {
+        /** @var Quote $quote */
+        $quote = $this->checkoutSession->getQuote();
+        if ($key && isset($this->sezzleInformation[$key])) {
+            unset($this->sezzleInformation[$key]);
+            return $this->quote->setData('sezzle_information', $this->sezzleInformation);
+        } elseif (null === $key) {
+            $this->sezzleInformation = [];
+            return $quote->unsetData('sezzle_information');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check whether there is sezzle information by specified key
+     *
+     * @param mixed|null $key
+     * @return bool
+     */
+    public function hasSezzleInformation($key = null)
+    {
+        $this->initSezzleInformation();
+        return null === $key ? !empty($this->sezzleInformation) : array_key_exists(
+            $key,
+            $this->sezzleInformation
         );
     }
 
@@ -192,6 +301,11 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
                         self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID,
                         $session->getOrder()->getUuid()
                     );
+                }
+                if (is_array($session->getOrder()->getLinks())) {
+                    foreach ($session->getOrder()->getLinks() as $link) {
+                        $this->setSezzleInformation($link->getRel(), $link->getHref());
+                    }
                 }
             }
             if ($session->getTokenize()) {

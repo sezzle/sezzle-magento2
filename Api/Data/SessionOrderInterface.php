@@ -11,6 +11,7 @@ interface SessionOrderInterface
 {
     const UUID = "uuid";
     const CHECKOUT_URL = "checkout_url";
+    const LINKS = "links";
 
     /**
      * @return string|null
@@ -33,4 +34,15 @@ interface SessionOrderInterface
      * @return $this
      */
     public function setCheckoutUrl($checkoutURL);
+
+    /**
+     * @return \Sezzle\Payment\Api\Data\LinkInterface[]|null
+     */
+    public function getLinks();
+
+    /**
+     * @param \Sezzle\Payment\Api\Data\LinkInterface[] $links
+     * @return $this
+     */
+    public function setLinks(array $links = null);
 }

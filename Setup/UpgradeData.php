@@ -8,6 +8,10 @@ use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
+use Magento\Quote\Setup\QuoteSetup;
+use Magento\Quote\Setup\QuoteSetupFactory;
+use Magento\Sales\Setup\SalesSetup;
+use Magento\Sales\Setup\SalesSetupFactory;
 
 /**
  * @codeCoverageIgnore
@@ -24,17 +28,31 @@ class UpgradeData implements UpgradeDataInterface
      * @var AttributeSetFactory
      */
     private $attributeSetFactory;
+    /**
+     * @var SalesSetupFactory
+     */
+    private $salesSetupFactory;
+    /**
+     * @var QuoteSetupFactory
+     */
+    private $quoteSetupFactory;
 
     /**
      * @param CustomerSetupFactory $customerSetupFactory
      * @param AttributeSetFactory $attributeSetFactory
+     * @param SalesSetupFactory $salesSetupFactory
+     * @param QuoteSetupFactory $quoteSetupFactory
      */
     public function __construct(
         CustomerSetupFactory $customerSetupFactory,
-        AttributeSetFactory $attributeSetFactory
+        AttributeSetFactory $attributeSetFactory,
+        SalesSetupFactory $salesSetupFactory,
+        QuoteSetupFactory $quoteSetupFactory
     ) {
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
+        $this->salesSetupFactory = $salesSetupFactory;
+        $this->quoteSetupFactory = $quoteSetupFactory;
     }
 
 
@@ -45,7 +63,7 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         if (version_compare($context->getVersion(), '2.0.0', '<')) {
-            $attributesToAdd = [
+            $customerAttributesToAdd = [
                 'sezzle_tokenize_status' => [
                         'input' => 'boolean',
                         'label' => 'Sezzle Tokenize Status',
@@ -60,8 +78,37 @@ class UpgradeData implements UpgradeDataInterface
                         'label' => 'Sezzle Token Expiration'
                     ]
             ];
-            foreach ($attributesToAdd as $attributeCode => $attribute) {
+
+            $quoteAttributesToAdd = [
+                'sezzle_information' => [
+                    'input' => 'text',
+                    'label' => 'Sezzle Information',
+                ]
+            ];
+            foreach ($customerAttributesToAdd as $attributeCode => $attribute) {
                 $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
+            }
+
+            /** @var SalesSetup $salesInstaller */
+            $salesInstaller = $this->salesSetupFactory
+                ->create(
+                    [
+                        'resourceName' => 'sales_setup',
+                        'setup' => $setup
+                    ]
+                );
+            /** @var QuoteSetup $quoteInstaller */
+            $quoteInstaller = $this->quoteSetupFactory
+                ->create(
+                    [
+                        'resourceName' => 'quote_setup',
+                        'setup' => $setup
+                    ]
+                );
+
+            foreach ($quoteAttributesToAdd as $attributeCode => $attribute) {
+                $this->addQuoteAttribute($quoteInstaller, $attributeCode, $attribute['input']);
+                $this->addOrderAttribute($salesInstaller, $attributeCode, $attribute['input']);
             }
         }
     }
@@ -102,5 +149,25 @@ class UpgradeData implements UpgradeDataInterface
                 ]);
 
         $attribute->save();
+    }
+
+    /**
+     * @param QuoteSetup $quoteInstaller
+     * @param string $attributeCode
+     * @param string $input
+     */
+    private function addQuoteAttribute(QuoteSetup $quoteInstaller, $attributeCode, $input)
+    {
+        $quoteInstaller->addAttribute('quote', $attributeCode, ['type' => $input]);
+    }
+
+    /**
+     * @param SalesSetup $salesInstaller
+     * @param string $attributeCode
+     * @param string $input
+     */
+    public function addOrderAttribute(SalesSetup $salesInstaller, $attributeCode, $input)
+    {
+        $salesInstaller->addAttribute('order', $attributeCode, ['type' => $input]);
     }
 }

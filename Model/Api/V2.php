@@ -15,6 +15,8 @@ use Sezzle\Payment\Api\Data\AuthInterface;
 use Sezzle\Payment\Api\Data\AuthInterfaceFactory;
 use Sezzle\Payment\Api\Data\AuthorizationInterface;
 use Sezzle\Payment\Api\Data\AuthorizationInterfaceFactory;
+use Sezzle\Payment\Api\Data\LinkInterface;
+use Sezzle\Payment\Api\Data\LinkInterfaceFactory;
 use Sezzle\Payment\Api\Data\OrderInterface;
 use Sezzle\Payment\Api\Data\OrderInterfaceFactory;
 use Sezzle\Payment\Api\Data\SessionInterface;
@@ -113,6 +115,10 @@ class V2 implements V2Interface
      * @var TokenizeCustomerInterfaceFactory
      */
     private $tokenizeCustomerInterfaceFactory;
+    /**
+     * @var LinkInterfaceFactory
+     */
+    private $linkInterfaceFactory;
 
     /**
      * V2 constructor.
@@ -133,6 +139,7 @@ class V2 implements V2Interface
      * @param SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
      * @param AmountInterfaceFactory $amountInterfaceFactory
      * @param TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
+     * @param LinkInterfaceFactory $linkInterfaceFactory
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -151,7 +158,8 @@ class V2 implements V2Interface
         SezzleApiConfigInterface $sezzleApiConfig,
         SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
         AmountInterfaceFactory $amountInterfaceFactory,
-        TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
+        TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
+        LinkInterfaceFactory $linkInterfaceFactory
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -170,6 +178,7 @@ class V2 implements V2Interface
         $this->sessionOrderInterfaceFactory = $sessionOrderInterfaceFactory;
         $this->amountInterfaceFactory = $amountInterfaceFactory;
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
+        $this->linkInterfaceFactory = $linkInterfaceFactory;
     }
 
 
@@ -229,7 +238,7 @@ class V2 implements V2Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             $this->sezzleHelper->logSezzleActions($body);
-            if (isset($body['order'])) {
+            if (isset($body['order']) && ($orderObj = $body['order'])) {
                 $sessionOrderModel = $this->sessionOrderInterfaceFactory->create();
                 $this->dataObjectHelper->populateWithArray(
                     $sessionOrderModel,
@@ -237,6 +246,19 @@ class V2 implements V2Interface
                     SessionOrderInterface::class
                 );
                 $sessionModel->setOrder($sessionOrderModel);
+                $linksArray = [];
+                if (isset($orderObj['links']) && is_array($orderObj['links'])) {
+                    foreach ($orderObj['links'] as $link) {
+                        $linksModel = $this->linkInterfaceFactory->create();
+                        $this->dataObjectHelper->populateWithArray(
+                            $linksModel,
+                            $link,
+                            LinkInterface::class
+                        );
+                        $linksArray[] = $linksModel;
+                    }
+                    $sessionModel->getOrder()->setLinks($linksArray);
+                }
             }
             if (isset($body['tokenize'])) {
                 $sessionTokenizeModel = $this->sessionTokenizeInterfaceFactory->create();
@@ -383,7 +405,7 @@ class V2 implements V2Interface
         $payload = [
             "intent" => 'AUTH',
             "reference_id" => $reference,
-            "payment_amount" => [
+            "order_amount" => [
                 "amount_in_cents" => $amount,
                 "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
             ]

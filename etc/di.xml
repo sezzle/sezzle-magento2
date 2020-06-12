@@ -20,7 +20,9 @@
     <preference for="Sezzle\Payment\Api\Data\SessionInterface" type="Sezzle\Payment\Model\Api\Data\Session"/>
     <preference for="Sezzle\Payment\Api\Data\SessionOrderInterface" type="Sezzle\Payment\Model\Api\Data\SessionOrder"/>
     <preference for="Sezzle\Payment\Api\Data\SessionTokenizeInterface" type="Sezzle\Payment\Model\Api\Data\SessionTokenize"/>
+    <preference for="Sezzle\Payment\Api\Data\LinkInterface" type="Sezzle\Payment\Model\Api\Data\Link"/>
     <preference for="Sezzle\Payment\Api\Data\TokenizeCustomerInterface" type="Sezzle\Payment\Model\Api\Data\TokenizeCustomer"/>
     <preference for="Sezzle\Payment\Api\V2Interface" type="Sezzle\Payment\Model\Api\V2"/>
+    <preference for="Magento\Quote\Model\ResourceModel\Quote" type="Sezzle\Payment\Model\ResourceModel\Quote"/>
 
 </config>
