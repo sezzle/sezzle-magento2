@@ -89,7 +89,7 @@ class Sezzle extends Template implements TabInterface
     public function getToken()
     {
         if ($this->getCustomer()
-            && $tokenAttr = $this->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_TOKEN)) {
+            && $tokenAttr = $this->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
             return $tokenAttr->getValue();
         }
         return  null;
@@ -117,7 +117,7 @@ class Sezzle extends Template implements TabInterface
     {
         if ($this->getCustomer()
             && $tokenExpirationAttr = $this->getCustomer()
-                ->getCustomAttribute(Tokenize::ATTR_SEZZLE_TOKEN_EXPIRATION)) {
+                ->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION)) {
             return $this->formatDate(
                 $this->getFriendlyTokenExpiration($tokenExpirationAttr->getValue()),
                 \IntlDateFormatter::MEDIUM,

@@ -7,6 +7,7 @@
 
 namespace Sezzle\Payment\Model;
 
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -16,6 +17,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Payment\Model\Info;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
@@ -104,7 +106,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var V2Interface
      */
-    private $v2;
+    protected $v2;
     /**
      * @var QuoteRepository
      */
@@ -112,7 +114,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var CustomerSession
      */
-    private $customerSession;
+    protected $customerSession;
     /**
      * @var Config\Container\SezzleApiConfigInterface
      */
@@ -134,6 +136,14 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @var Tokenize
      */
     private $tokenizeModel;
+    /**
+     * @var DateTime
+     */
+    protected $dateTime;
+    /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $customerRepository;
 
     /**
      * Sezzle constructor.
@@ -149,7 +159,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @param Logger $mageLogger
      * @param QuoteRepository $quoteRepository
      * @param V2Interface $v2
-     * @param Tokenize $tokenizeModel
+     * @param DateTime $dateTime
+     * @param CustomerRepositoryInterface $customerRepository
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      */
@@ -166,7 +177,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         Logger $mageLogger,
         QuoteRepository $quoteRepository,
         V2Interface $v2,
-        Tokenize $tokenizeModel,
+        DateTime $dateTime,
+        CustomerRepositoryInterface $customerRepository,
         CustomerSession $customerSession,
         CheckoutSession $checkoutSession
     ) {
@@ -177,7 +189,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
-        $this->tokenizeModel = $tokenizeModel;
+        $this->dateTime = $dateTime;
+        $this->customerRepository = $customerRepository;
         parent::__construct(
             $context,
             $registry,
@@ -296,7 +309,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID, $referenceID);
         $session = $this->v2->createSession($referenceID);
         $redirectURL = '';
-        if ($quote->getCustomer() && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
+        if ($quote->getCustomer() && $this->isCustomerUUIDValid($quote)) {
             $this->setSezzleInformation(
                 Tokenize::ATTR_SEZZLE_CUSTOMER_UUID,
                 $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue()

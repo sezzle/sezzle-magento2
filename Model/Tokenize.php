@@ -3,24 +3,19 @@
 
 namespace Sezzle\Payment\Model;
 
-use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Exception\State\InputMismatchException;
-use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Quote\Model\Quote;
 use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
-use Sezzle\Payment\Api\V2Interface;
-use Sezzle\Payment\Helper\Data;
-use Magento\Customer\Model\Session as CustomerSession;
 
 /**
  * Class Tokenize
  * @package Sezzle\Payment\Model
  */
-class Tokenize
+class Tokenize extends Sezzle
 {
     const ATTR_SEZZLE_CUSTOMER_UUID = "sezzle_customer_uuid";
     const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
@@ -28,55 +23,6 @@ class Tokenize
 
     const STATUS_TOKEN_APPROVED = 'Approved';
     const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    private $customerRepository;
-    /**
-     * @var Data
-     */
-    private $sezzleHelper;
-    /**
-     * @var CustomerSession
-     */
-    private $customerSession;
-    /**
-     * @var Sezzle
-     */
-    private $sezzleModel;
-    /**
-     * @var V2Interface
-     */
-    private $v2;
-    /**
-     * @var DateTime
-     */
-    private $dateTime;
-
-    /**
-     * Tokenize constructor.
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param Data $sezzleHelper
-     * @param CustomerSession $customerSession
-     * @param Sezzle $sezzleModel
-     * @param DateTime $dateTime
-     * @param V2Interface $v2
-     */
-    public function __construct(
-        CustomerRepositoryInterface $customerRepository,
-        Data $sezzleHelper,
-        CustomerSession $customerSession,
-        Sezzle $sezzleModel,
-        DateTime $dateTime,
-        V2Interface $v2
-    ) {
-        $this->customerRepository = $customerRepository;
-        $this->sezzleHelper = $sezzleHelper;
-        $this->customerSession = $customerSession;
-        $this->sezzleModel = $sezzleModel;
-        $this->dateTime = $dateTime;
-        $this->v2 = $v2;
-    }
 
     /**
      * Saving tokenize record
@@ -118,11 +64,11 @@ class Tokenize
      */
     private function saveTokenizeRecordToQuote($tokenDetails)
     {
-        $this->sezzleModel->setSezzleInformation(
+        $this->setSezzleInformation(
             self::ATTR_SEZZLE_CUSTOMER_UUID,
             $tokenDetails->getUuid()
         );
-        $this->sezzleModel->setSezzleInformation(
+        $this->setSezzleInformation(
             self::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION,
             $tokenDetails->getExpiration()
         );
