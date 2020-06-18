@@ -436,7 +436,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getCustomerUUID($token)
+    public function getTokenDetails($token)
     {
         $sessionTokenEndpoint = sprintf(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token);
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $sessionTokenEndpoint;
@@ -458,7 +458,7 @@ class V2 implements V2Interface
                     TokenizeCustomerInterface::class
                 );
             }
-            return $tokenizeCustomerModel->getUuid();
+            return $tokenizeCustomerModel;
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

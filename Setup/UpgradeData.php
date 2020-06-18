@@ -68,14 +68,14 @@ class UpgradeData implements UpgradeDataInterface
                         'input' => 'boolean',
                         'label' => 'Sezzle Tokenize Status',
                     ],
-                'sezzle_token' => [
+                'sezzle_customer_uuid' => [
                         'input' => 'text',
-                        'label' => 'Sezzle Token'
+                        'label' => 'Sezzle Customer UUID'
                     ],
-                'sezzle_token_expiration' =>
+                'sezzle_customer_uuid_expiration' =>
                     [
                         'input' => 'text',
-                        'label' => 'Sezzle Token Expiration'
+                        'label' => 'Sezzle Customer UUID Expiration'
                     ]
             ];
 

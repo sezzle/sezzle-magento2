@@ -8,6 +8,7 @@ use Sezzle\Payment\Api\Data\AuthInterface;
 use Sezzle\Payment\Api\Data\AuthorizationInterface;
 use Sezzle\Payment\Api\Data\OrderInterface;
 use Sezzle\Payment\Api\Data\SessionInterface;
+use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
 
 interface V2Interface
 {
@@ -72,10 +73,10 @@ interface V2Interface
      * Get Customer UUID by Session token
      *
      * @param string $token
-     * @return string
+     * @return TokenizeCustomerInterface
      * @throws LocalizedException
      */
-    public function getCustomerUUID($token);
+    public function getTokenDetails($token);
 
     /**
      * Release payment by Order UUID

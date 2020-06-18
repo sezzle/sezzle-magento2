@@ -19,6 +19,7 @@ use Magento\Framework\Registry;
 use Magento\Payment\Model\Info;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteRepository;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -38,8 +39,6 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     const PAYMENT_CODE = 'sezzle';
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'sezzle_reference_id';
     const ADDITIONAL_INFORMATION_KEY_ORDER_UUID = 'sezzle_order_uuid';
-    const ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN = 'sezzle_token';
-    const SEZZLE_CAPTURE_EXPIRY = 'sezzle_capture_expiry';
     const SEZZLE_AUTH_EXPIRY = 'sezzle_auth_expiry';
 
     /**
@@ -131,6 +130,10 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @var CheckoutSession
      */
     private $checkoutSession;
+    /**
+     * @var Tokenize
+     */
+    private $tokenizeModel;
 
     /**
      * Sezzle constructor.
@@ -146,6 +149,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @param Logger $mageLogger
      * @param QuoteRepository $quoteRepository
      * @param V2Interface $v2
+     * @param Tokenize $tokenizeModel
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      */
@@ -162,6 +166,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         Logger $mageLogger,
         QuoteRepository $quoteRepository,
         V2Interface $v2,
+        Tokenize $tokenizeModel,
         CustomerSession $customerSession,
         CheckoutSession $checkoutSession
     ) {
@@ -172,6 +177,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
+        $this->tokenizeModel = $tokenizeModel;
         parent::__construct(
             $context,
             $registry,
@@ -280,6 +286,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @param Quote $quote
      * @return string
      * @throws LocalizedException
+     * @throws \Exception
      */
     public function getSezzleRedirectUrl($quote)
     {
@@ -289,9 +296,15 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID, $referenceID);
         $session = $this->v2->createSession($referenceID);
         $redirectURL = '';
-        if ($quote->getCustomer()
-            && ($sezzleToken = $quote->getCustomer()->getCustomAttribute('sezzle_token'))) {
-            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN, $sezzleToken->getValue());
+        if ($quote->getCustomer() && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
+            $this->setSezzleInformation(
+                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID,
+                $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue()
+            );
+            $this->setSezzleInformation(
+                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION,
+                $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION)->getValue()
+            );
             $redirectURL = $this->sezzleApiConfig->getTokenizePaymentCompleteURL();
         } else {
             if ($session->getOrder()) {
@@ -382,9 +395,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
 
         $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
-        if ($sezzleToken = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN)) {
-            $customerUUID = $this->v2->getCustomerUUID($sezzleToken);
-            $response = $this->v2->createOrderByCustomerUUID($customerUUID, $amountInCents);
+        if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
+            $response = $this->v2->createOrderByCustomerUUID($sezzleCustomerUUID, $amountInCents);
             if ($orderUUID = $response->getUuid()) {
                 $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $orderUUID);
             }
@@ -420,10 +432,9 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             $payment->getOrder()->getBaseGrandTotal() * 100,
             PayloadBuilder::PRECISION
         ));
-        if ($sezzleToken = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_SEZZLE_TOKEN)) {
-            $customerUUID = $this->v2->getCustomerUUID($sezzleToken);
+        if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
             $response = $this->v2->createOrderByCustomerUUID(
-                $customerUUID,
+                $sezzleCustomerUUID,
                 $amountInCents
             );
             $sezzleOrderUUID = $response->getUuid();
@@ -493,11 +504,11 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * Check whether payment method can be used
      *
-     * @param \Magento\Quote\Api\Data\CartInterface|null $quote
+     * @param CartInterface|null $quote
      * @return bool
      * @deprecated 100.2.0
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(CartInterface $quote = null)
     {
         if (!$this->isActive($quote ? $quote->getStoreId() : null)) {
             return false;

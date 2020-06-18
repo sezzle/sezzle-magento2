@@ -24,9 +24,7 @@ class Complete extends Sezzle
         try {
             $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
             $customerUUID = $this->getRequest()->getParam('customer-uuid');
-            if ($customerUUID) {
-                $this->tokenize->saveTokenizeRecord($this->_customerSession->getCustomerId());
-            }
+            $this->tokenize->saveTokenizeRecord($customerUUID);
             $quote = $this->_checkoutSession->getQuote();
             $payment = $quote->getPayment();
             $reference = $payment->getAdditionalInformation(
