@@ -48,7 +48,6 @@ class Complete extends Sezzle
                 $this->_checkoutSession->setLastOrderId($order->getId())
                     ->setLastRealOrderId($order->getIncrementId())
                     ->setLastOrderStatus($order->getStatus());
-                $this->_sezzleModel->createTransaction($order, $reference);
                 $this->sezzleHelper->logSezzleActions("Created transaction with reference $reference");
 
                 // send email

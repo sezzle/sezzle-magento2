@@ -7,6 +7,7 @@
 
 namespace Sezzle\Payment\Controller\Payment;
 
+use Magento\Sales\Model\Order;
 use Sezzle\Payment\Controller\AbstractController\Sezzle;
 
 /**
@@ -16,10 +17,11 @@ use Sezzle\Payment\Controller\AbstractController\Sezzle;
 class Cancel extends Sezzle
 {
     /**
-     * Cancel the order
+     * Restore the quote if any
      */
     public function execute()
     {
+        /** @var Order $order */
         $order = $this->getOrder();
         $order->registerCancellation("Returned from Sezzle Checkout without completing payment.");
         $this->sezzleHelper->logSezzleActions(

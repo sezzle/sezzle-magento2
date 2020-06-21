@@ -7,6 +7,7 @@
 
 namespace Sezzle\Payment\Controller\Payment;
 
+use Magento\Customer\Api\Data\GroupInterface;
 use Sezzle\Payment\Controller\AbstractController\Sezzle;
 
 /**
@@ -48,7 +49,7 @@ class Redirect extends Sezzle
             if (!empty($post['email'])) {
                 $quote->setCustomerEmail($post['email'])
                     ->setCustomerIsGuest(true)
-                    ->setCustomerGroupId(\Magento\Customer\Api\Data\GroupInterface::NOT_LOGGED_IN_ID);
+                    ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
             }
         }
         $payment = $quote->getPayment();

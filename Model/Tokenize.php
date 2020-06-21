@@ -23,7 +23,6 @@ class Tokenize
     const ATTR_SEZZLE_CUSTOMER_UUID = "sezzle_customer_uuid";
     const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
     const ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION = "sezzle_customer_uuid_expiration";
-    const ATTR_SEZZLE_CREATE_ORDER_LINK = "sezzle_create_order_link";
 
     const STATUS_TOKEN_APPROVED = 'Approved';
     const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
@@ -141,14 +140,14 @@ class Tokenize
             $tokenDetails->getExpiration()
         );
         $customer->setCustomAttribute(
-            self::ATTR_SEZZLE_CREATE_ORDER_LINK,
+            Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK,
             $tokenDetails->getExpiration()
         );
         if (is_array($tokenDetails->getLinks())) {
             foreach ($tokenDetails->getLinks() as $link) {
                 if ($link->getRel() == 'order') {
                     $customer->setCustomAttribute(
-                        self::ATTR_SEZZLE_CREATE_ORDER_LINK,
+                        Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK,
                         $link
                     );
                 }

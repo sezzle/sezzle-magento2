@@ -12,6 +12,8 @@ use Magento\Quote\Setup\QuoteSetup;
 use Magento\Quote\Setup\QuoteSetupFactory;
 use Magento\Sales\Setup\SalesSetup;
 use Magento\Sales\Setup\SalesSetupFactory;
+use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Payment\Model\Tokenize;
 
 /**
  * @codeCoverageIgnore
@@ -63,54 +65,25 @@ class UpgradeData implements UpgradeDataInterface
     {
         if (version_compare($context->getVersion(), '2.0.0', '<')) {
             $customerAttributesToAdd = [
-                'sezzle_tokenize_status' => [
+                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => [
                         'input' => 'boolean',
                         'label' => 'Sezzle Tokenize Status',
                 ],
-                'sezzle_customer_uuid' => [
+                Tokenize::ATTR_SEZZLE_TOKEN_STATUS => [
                         'input' => 'text',
                         'label' => 'Sezzle Customer UUID'
                 ],
-                'sezzle_customer_uuid_expiration' => [
+                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION => [
                         'input' => 'text',
                         'label' => 'Sezzle Customer UUID Expiration'
                 ],
-                'sezzle_create_order_link' => [
+                Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => [
                     'input' => 'text',
                     'label' => 'Sezzle Order Create Link By Customer UUID',
                 ]
             ];
-
-            $quoteAttributesToAdd = [
-                'sezzle_information' => [
-                    'input' => 'text',
-                    'label' => 'Sezzle Information',
-                ]
-            ];
             foreach ($customerAttributesToAdd as $attributeCode => $attribute) {
                 $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
-            }
-
-            /** @var SalesSetup $salesInstaller */
-            $salesInstaller = $this->salesSetupFactory
-                ->create(
-                    [
-                        'resourceName' => 'sales_setup',
-                        'setup' => $setup
-                    ]
-                );
-            /** @var QuoteSetup $quoteInstaller */
-            $quoteInstaller = $this->quoteSetupFactory
-                ->create(
-                    [
-                        'resourceName' => 'quote_setup',
-                        'setup' => $setup
-                    ]
-                );
-
-            foreach ($quoteAttributesToAdd as $attributeCode => $attribute) {
-                $this->addQuoteAttribute($quoteInstaller, $attributeCode, $attribute['input']);
-                $this->addOrderAttribute($salesInstaller, $attributeCode, $attribute['input']);
             }
         }
     }
@@ -151,25 +124,5 @@ class UpgradeData implements UpgradeDataInterface
                 ]);
 
         $attribute->save();
-    }
-
-    /**
-     * @param QuoteSetup $quoteInstaller
-     * @param string $attributeCode
-     * @param string $input
-     */
-    private function addQuoteAttribute(QuoteSetup $quoteInstaller, $attributeCode, $input)
-    {
-        $quoteInstaller->addAttribute('quote', $attributeCode, ['type' => $input]);
-    }
-
-    /**
-     * @param SalesSetup $salesInstaller
-     * @param string $attributeCode
-     * @param string $input
-     */
-    public function addOrderAttribute(SalesSetup $salesInstaller, $attributeCode, $input)
-    {
-        $salesInstaller->addAttribute('order', $attributeCode, ['type' => $input]);
     }
 }
