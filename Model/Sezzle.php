@@ -7,6 +7,7 @@
 
 namespace Sezzle\Payment\Model;
 
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -18,7 +19,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Magento\Payment\Model\Info;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
@@ -30,7 +30,6 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Sezzle\Payment\Api\V2Interface;
 use Sezzle\Payment\Helper\Data;
 use Sezzle\Payment\Model\Api\PayloadBuilder;
-use Magento\Checkout\Model\Session as CheckoutSession;
 
 /**
  * Class Sezzle
@@ -42,6 +41,11 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'sezzle_reference_id';
     const ADDITIONAL_INFORMATION_KEY_ORDER_UUID = 'sezzle_order_uuid';
     const SEZZLE_AUTH_EXPIRY = 'sezzle_auth_expiry';
+
+    const ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
+    const ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT = 'sezzle_capture_amount';
+    const ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT = 'sezzle_refund_amount';
+    const ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT = 'sezzle_order_amount';
 
     /**
      * @var string
@@ -96,7 +100,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     /**
      * @var Order\Payment\Transaction\BuilderInterface
      */
-    private $_transactionBuilder;
+    private $transactionBuilder;
 
     /**
      * @var Data
@@ -163,6 +167,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @param CustomerRepositoryInterface $customerRepository
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
+     * @param Tokenize $tokenizeModel
      */
     public function __construct(
         Context $context,
@@ -180,17 +185,19 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         DateTime $dateTime,
         CustomerRepositoryInterface $customerRepository,
         CustomerSession $customerSession,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        Tokenize $tokenizeModel
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleApiConfig = $sezzleApiConfig;
-        $this->_transactionBuilder = $transactionBuilder;
+        $this->transactionBuilder = $transactionBuilder;
         $this->quoteRepository = $quoteRepository;
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
         $this->dateTime = $dateTime;
         $this->customerRepository = $customerRepository;
+        $this->tokenizeModel = $tokenizeModel;
         parent::__construct(
             $context,
             $registry,
@@ -307,19 +314,31 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $this->sezzleHelper->logSezzleActions("Reference Id : $referenceID");
         $payment = $quote->getPayment();
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID, $referenceID);
-        $session = $this->v2->createSession($referenceID);
         $redirectURL = '';
-        if ($quote->getCustomer() && $this->isCustomerUUIDValid($quote)) {
-            $this->setSezzleInformation(
+        if ($quote->getCustomer() && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
+//            $this->setSezzleInformation(
+//                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID,
+//                $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue()
+//            );
+//            $this->setSezzleInformation(
+//                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION,
+//                $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION)->getValue()
+//            );
+            $payment->setAdditionalInformation(
                 Tokenize::ATTR_SEZZLE_CUSTOMER_UUID,
                 $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue()
             );
-            $this->setSezzleInformation(
+            $payment->setAdditionalInformation(
                 Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION,
                 $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION)->getValue()
             );
+            $payment->setAdditionalInformation(
+                Tokenize::ATTR_SEZZLE_CREATE_ORDER_LINK,
+                $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CREATE_ORDER_LINK)->getValue()
+            );
             $redirectURL = $this->sezzleApiConfig->getTokenizePaymentCompleteURL();
         } else {
+            $session = $this->v2->createSession($referenceID);
             if ($session->getOrder()) {
                 $redirectURL = $session->getOrder()->getCheckoutUrl();
                 if ($session->getOrder()->getUuid()) {
@@ -330,7 +349,12 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
                 }
                 if (is_array($session->getOrder()->getLinks())) {
                     foreach ($session->getOrder()->getLinks() as $link) {
-                        $this->setSezzleInformation($link->getRel(), $link->getHref());
+//                        $this->setSezzleInformation($link->getRel(), $link->getHref());
+                        $rel = $link->getRel();
+                        if ($link->getMethod() == 'GET' && $link->getRel() == 'self') {
+                            $rel = 'get_order';
+                        }
+                        $payment->setAdditionalInformation($rel, $link->getHref());
                     }
                 }
             }
@@ -338,6 +362,14 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
                 $this->customerSession->setCustomerSezzleToken($session->getTokenize()->getToken());
                 $this->customerSession->setCustomerSezzleTokenExpiration($session->getTokenize()->getExpiration());
                 $this->customerSession->setCustomerSezzleTokenStatus(true);
+            }
+            if (is_array($session->getTokenize()->getLinks())) {
+                foreach ($session->getTokenize()->getLinks() as $link) {
+//                        $this->setSezzleInformation($link->getRel(), $link->getHref());
+                    if ($link->getRel() == 'token') {
+                        $this->customerSession->setGetTokenDetailsLink($link->getHref());
+                    }
+                }
             }
         }
         $this->sezzleHelper->logSezzleActions("Redirect URL : $redirectURL");
@@ -400,8 +432,6 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             throw new LocalizedException(__('The authorize action is not available.'));
         } elseif ($amount <= 0) {
             throw new LocalizedException(__('Invalid amount for authorize.'));
-        } elseif (!$this->validateOrder($payment)) {
-            throw new LocalizedException(__('Unable to validate the order.'));
         }
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
@@ -409,11 +439,28 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
-            $response = $this->v2->createOrderByCustomerUUID($sezzleCustomerUUID, $amountInCents);
+            $url = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CREATE_ORDER_LINK);
+            $response = $this->v2->createOrderByCustomerUUID($url, $sezzleCustomerUUID, $amountInCents);
             if ($orderUUID = $response->getUuid()) {
                 $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $orderUUID);
             }
+            if (is_array($response->getLinks())) {
+                foreach ($response->getLinks() as $link) {
+//                    $this->setSezzleInformation($link->getRel(), $link->getHref());
+                    $rel = $link->getRel();
+                    if ($link->getMethod() == 'GET' && $link->getRel() == 'self') {
+                        $rel = 'get_order';
+                    }
+                    $payment->setAdditionalInformation($rel, $link->getHref());
+                }
+            }
         }
+        if (!$this->validateOrder($payment)) {
+            throw new LocalizedException(__('Unable to validate the order.'));
+        }
+        $authorizedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT);
+        $authorizedAmount += $amount;
+        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT, $authorizedAmount);
         $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
         $payment->setTransactionId($reference)->setIsTransactionClosed(false);
         $this->sezzleHelper->logSezzleActions("Authorization successful");
@@ -446,22 +493,39 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             PayloadBuilder::PRECISION
         ));
         if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
+            $url = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CREATE_ORDER_LINK);
             $response = $this->v2->createOrderByCustomerUUID(
+                $url,
                 $sezzleCustomerUUID,
                 $amountInCents
             );
             $sezzleOrderUUID = $response->getUuid();
+            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
+            if (is_array($response->getLinks())) {
+                foreach ($response->getLinks() as $link) {
+//                    $this->setSezzleInformation($link->getRel(), $link->getHref());
+                    $rel = $link->getRel();
+                    if ($link->getMethod() == 'GET' && $link->getRel() == 'self') {
+                        $rel = 'get_order';
+                    }
+                    $payment->setAdditionalInformation($rel, $link->getHref());
+                }
+            }
         }
         if (!$this->validateOrder($payment)) {
             throw new LocalizedException(__('Unable to validate the order.'));
         }
-        $this->v2->captureByOrderUUID($sezzleOrderUUID, $amountInCents, $amountInCents < $orderTotalInCents);
+        $url = $payment->getAdditionalInformation('capture');
+        $this->v2->captureByOrderUUID($url, $sezzleOrderUUID, $amountInCents, $amountInCents < $orderTotalInCents);
         if (!$payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
             $payment->setAdditionalInformation(
                 self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID,
                 $sezzleOrderUUID
             );
         }
+        $capturedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT);
+        $capturedAmount += $amount;
+        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT, $capturedAmount);
         $payment->setTransactionId($reference)->setIsTransactionClosed(true);
         $this->sezzleHelper->logSezzleActions("Authorized on Sezzle");
         $this->sezzleHelper->logSezzleActions("****Capture at Magento end****");
@@ -479,13 +543,17 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
             throw new LocalizedException(__('The void action is not available.'));
         } elseif (!$this->validateOrder($payment)) {
             throw new LocalizedException(__('Unable to validate the order.'));
-        }
-        $amountInCents = (int)(round($payment->getOrder()->getBaseGrandTotal() * 100, PayloadBuilder::PRECISION));
-        if ($orderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
-            $this->v2->releasePaymentByOrderUUID($orderUUID, $amountInCents);
-        } else {
+        } elseif (!$orderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
             throw new LocalizedException(__('Failed to void the payment.'));
         }
+        $amountInCents = (int)(round($payment->getOrder()->getBaseGrandTotal() * 100, PayloadBuilder::PRECISION));
+
+        $url = $payment->getAdditionalInformation('release');
+        $this->v2->releasePaymentByOrderUUID($url, $orderUUID, $amountInCents);
+        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT, $payment->getOrder()->getBaseGrandTotal());
+        $payment->getOrder()->setState(Order::STATE_CLOSED)
+                ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
+
         return $this;
     }
 
@@ -507,7 +575,11 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         }
         $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
         if ($sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
-            $this->v2->refundByOrderUUID($sezzleOrderUUID, $amountInCents);
+            $url = $payment->getAdditionalInformation('refund');
+            $this->v2->refundByOrderUUID($url, $sezzleOrderUUID, $amountInCents);
+            $refundedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT);
+            $refundedAmount += $amount;
+            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT, $refundedAmount);
         } else {
             throw new LocalizedException(__('Failed to refund the payment.'));
         }
@@ -554,7 +626,8 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     private function validateOrder($payment)
     {
         if ($sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
-            $sezzleOrder = $this->v2->getOrder($sezzleOrderUUID);
+            $url = $payment->getAdditionalInformation('get_order');
+            $sezzleOrder = $this->v2->getOrder($url, $sezzleOrderUUID);
             if ($sezzleOrderUUID != $sezzleOrder->getUuid()) {
                 return false;
             }
@@ -568,12 +641,12 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      *
      * @param OrderInterface $order
      * @return void
-     * @throws LocalizedException
      */
     public function setSezzleAuthExpiry($order)
     {
         $sezzleOrderUUID = $order->getPayment()->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
-        $sezzleOrder = $this->v2->getOrder((string)$sezzleOrderUUID);
+        $url = $order->getPayment()->getAdditionalInformation('get_order');
+        $sezzleOrder = $this->v2->getOrder((string)$url, (string)$sezzleOrderUUID);
         if ($authExpiration = $sezzleOrder->getAuthorization()->getExpiration()) {
             $order->getPayment()->setAdditionalInformation(self::SEZZLE_AUTH_EXPIRY, $authExpiration)->save();
         }
@@ -603,7 +676,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         if ($paymentAction == self::ACTION_AUTHORIZE_CAPTURE) {
             $txnType = Transaction::TYPE_CAPTURE;
         }
-        $transaction = $this->_transactionBuilder->setPayment($payment)
+        $transaction = $this->transactionBuilder->setPayment($payment)
             ->setOrder($order)
             ->setTransactionId($reference)
             ->setFailSafe(true)

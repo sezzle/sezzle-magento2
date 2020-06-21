@@ -11,6 +11,7 @@ namespace Sezzle\Payment\Api\Data;
 interface AuthorizationInterface
 {
     const UUID = "uuid";
+    const LINKS = "links";
     const AUTHORIZATION_AMOUNT = "authorization_amount";
     const APPROVED = "approved";
     const EXPIRATION = "expiration";
@@ -28,6 +29,17 @@ interface AuthorizationInterface
      * @return $this
      */
     public function setUuid($uuid);
+
+    /**
+     * @return \Sezzle\Payment\Api\Data\LinkInterface[]|null
+     */
+    public function getLinks();
+
+    /**
+     * @param \Sezzle\Payment\Api\Data\LinkInterface[] $links
+     * @return $this
+     */
+    public function setLinks(array $links = null);
 
     /**
      * @return \Sezzle\Payment\Api\Data\AmountInterface|null

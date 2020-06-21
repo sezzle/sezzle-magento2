@@ -12,6 +12,7 @@ interface TokenizeCustomerInterface
 {
     const UUID = "uuid";
     const EXPIRATION = "expiration";
+    const LINKS = "links";
 
     /**
      * @return string
@@ -34,5 +35,16 @@ interface TokenizeCustomerInterface
      * @return $this
      */
     public function setExpiration($expiration);
+
+    /**
+     * @return \Sezzle\Payment\Api\Data\LinkInterface[]|null
+     */
+    public function getLinks();
+
+    /**
+     * @param \Sezzle\Payment\Api\Data\LinkInterface[] $links
+     * @return $this
+     */
+    public function setLinks(array $links = null);
 
 }

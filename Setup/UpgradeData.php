@@ -1,8 +1,8 @@
 <?php
 namespace Sezzle\Payment\Setup;
 
-use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Setup\ModuleContextInterface;
@@ -55,7 +55,6 @@ class UpgradeData implements UpgradeDataInterface
         $this->quoteSetupFactory = $quoteSetupFactory;
     }
 
-
     /**
      * @param ModuleDataSetupInterface $setup
      * @param ModuleContextInterface $context
@@ -67,16 +66,19 @@ class UpgradeData implements UpgradeDataInterface
                 'sezzle_tokenize_status' => [
                         'input' => 'boolean',
                         'label' => 'Sezzle Tokenize Status',
-                    ],
+                ],
                 'sezzle_customer_uuid' => [
                         'input' => 'text',
                         'label' => 'Sezzle Customer UUID'
-                    ],
-                'sezzle_customer_uuid_expiration' =>
-                    [
+                ],
+                'sezzle_customer_uuid_expiration' => [
                         'input' => 'text',
                         'label' => 'Sezzle Customer UUID Expiration'
-                    ]
+                ],
+                'sezzle_create_order_link' => [
+                    'input' => 'text',
+                    'label' => 'Sezzle Order Create Link By Customer UUID',
+                ]
             ];
 
             $quoteAttributesToAdd = [

@@ -15,6 +15,7 @@ interface SessionTokenizeInterface
     const APPROVAL_URL = "approval_url";
     const EXPIRATION = "expiration";
     const CUSTOMER = "customer";
+    const LINKS = "links";
 
     /**
      * @return string|null
@@ -70,5 +71,16 @@ interface SessionTokenizeInterface
      * @return $this
      */
     public function setCustomer(TokenizeCustomerInterface $customer = null);
+
+    /**
+     * @return \Sezzle\Payment\Api\Data\LinkInterface[]|null
+     */
+    public function getLinks();
+
+    /**
+     * @param \Sezzle\Payment\Api\Data\LinkInterface[] $links
+     * @return $this
+     */
+    public function setLinks(array $links = null);
 
 }

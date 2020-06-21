@@ -41,4 +41,20 @@ class TokenizeCustomer extends AbstractExtensibleObject implements TokenizeCusto
     {
         $this->setData(self::EXPIRATION, $expiration);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLinks()
+    {
+        return $this->_get(self::LINKS);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setLinks(array $links = null)
+    {
+        $this->setData(self::LINKS, $links);
+    }
 }

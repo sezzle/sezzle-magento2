@@ -4,6 +4,7 @@
 namespace Sezzle\Payment\Api;
 
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Sezzle\Payment\Api\Data\AuthInterface;
 use Sezzle\Payment\Api\Data\AuthorizationInterface;
 use Sezzle\Payment\Api\Data\OrderInterface;
@@ -32,51 +33,51 @@ interface V2Interface
     /**
      * Capture payment by Order UUID
      *
+     * @param string $url
      * @param string $orderUUID
      * @param int $amount
      * @param bool $isPartialCapture
      * @return bool
-     * @throws LocalizedException
      */
-    public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture);
+    public function captureByOrderUUID($url, $orderUUID, $amount, $isPartialCapture);
 
     /**
      * Refund payment by Order uuid
      *
+     * @param string $url
      * @param $orderUUID
      * @param $amount
      * @return bool
-     * @throws LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function refundByOrderUUID($orderUUID, $amount);
+    public function refundByOrderUUID($url, $orderUUID, $amount);
 
     /**
      * Get Order by Order UUID
      *
+     * @param string $url
      * @param string $orderUUID
      * @return OrderInterface
-     * @throws LocalizedException
      */
-    public function getOrder($orderUUID);
+    public function getOrder($url, $orderUUID);
 
     /**
      * Authorize Payment by Customer UUID
      *
+     * @param string $url
      * @param string $customerUUID
      * @param int $amount
      * @return AuthorizationInterface
      */
-    public function createOrderByCustomerUUID($customerUUID, $amount);
+    public function createOrderByCustomerUUID($url, $customerUUID, $amount);
 
     /**
      * Get Customer UUID by Session token
      *
+     * @param string $url
      * @param string $token
      * @return TokenizeCustomerInterface
-     * @throws LocalizedException
      */
-    public function getTokenDetails($token);
+    public function getTokenDetails($url, $token);
 
     /**
      * Release payment by Order UUID
@@ -86,5 +87,5 @@ interface V2Interface
      * @return bool
      * @throws LocalizedException
      */
-    public function releasePaymentByOrderUUID($orderUUID, $amount);
+    public function releasePaymentByOrderUUID($url, $orderUUID, $amount);
 }

@@ -22,10 +22,11 @@ class Complete extends Sezzle
     {
         $redirect = 'checkout/cart';
         try {
-            $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
-            $customerUUID = $this->getRequest()->getParam('customer-uuid');
-            $this->tokenize->saveTokenizeRecord($customerUUID);
             $quote = $this->_checkoutSession->getQuote();
+            $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
+            if ($customerUUID = $this->getRequest()->getParam('customer-uuid')) {
+                $this->tokenize->saveTokenizeRecord($quote);
+            }
             $payment = $quote->getPayment();
             $reference = $payment->getAdditionalInformation(
                 \Sezzle\Payment\Model\Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID

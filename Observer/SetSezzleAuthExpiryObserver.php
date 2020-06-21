@@ -7,6 +7,7 @@
 
 namespace Sezzle\Payment\Observer;
 
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -55,16 +56,19 @@ class SetSezzleAuthExpiryObserver implements ObserverInterface
     /**
      * Set Sezzle Capture Expiry for Authorize Only payment action
      *
-     * @param \Magento\Framework\Event\Observer $observer
-     * @return void
+     * @param Observer $observer
+     * @return SetSezzleAuthExpiryObserver
      * @throws Exception
      */
-    public function execute(\Magento\Framework\Event\Observer $observer)
+    public function execute(Observer $observer)
     {
         try {
-            $this->sezzleHelper->logSezzleActions('****Sezzle capture time setting start****');
             /** @var OrderInterface $order */
             $order = $observer->getEvent()->getOrder();
+            if ($order->getPayment()->getMethod() != Sezzle::PAYMENT_CODE) {
+                return $this;
+            }
+            $this->sezzleHelper->logSezzleActions('****Sezzle capture time setting start****');
             $paymentAction = $order->getPayment()->getAdditionalInformation('payment_type');
             $this->sezzleHelper->logSezzleActions("Payment Type : $paymentAction");
             switch ($paymentAction) {

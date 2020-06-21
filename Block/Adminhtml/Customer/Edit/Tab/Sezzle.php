@@ -121,7 +121,8 @@ class Sezzle extends Template implements TabInterface
             return $this->formatDate(
                 $this->getFriendlyTokenExpiration($tokenExpirationAttr->getValue()),
                 \IntlDateFormatter::MEDIUM,
-                true
+                true,
+                new \DateTimeZone('UTC')
             );
         }
         return  null;

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Sezzle\Payment\Model\Api;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -8,6 +7,7 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Payment\Api\Data\AmountInterface;
 use Sezzle\Payment\Api\Data\AmountInterfaceFactory;
@@ -119,6 +119,10 @@ class V2 implements V2Interface
      * @var LinkInterfaceFactory
      */
     private $linkInterfaceFactory;
+    /**
+     * @var OrderPaymentInterface
+     */
+    private $paymentInfo;
 
     /**
      * V2 constructor.
@@ -140,6 +144,7 @@ class V2 implements V2Interface
      * @param AmountInterfaceFactory $amountInterfaceFactory
      * @param TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
      * @param LinkInterfaceFactory $linkInterfaceFactory
+     * @param OrderPaymentInterface $paymentInfo
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -159,7 +164,8 @@ class V2 implements V2Interface
         SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
         AmountInterfaceFactory $amountInterfaceFactory,
         TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
-        LinkInterfaceFactory $linkInterfaceFactory
+        LinkInterfaceFactory $linkInterfaceFactory,
+        OrderPaymentInterface $paymentInfo
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -179,8 +185,8 @@ class V2 implements V2Interface
         $this->amountInterfaceFactory = $amountInterfaceFactory;
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
         $this->linkInterfaceFactory = $linkInterfaceFactory;
+        $this->paymentInfo = $paymentInfo;
     }
-
 
     /**
      * @inheritDoc
@@ -260,14 +266,27 @@ class V2 implements V2Interface
                     $sessionModel->getOrder()->setLinks($linksArray);
                 }
             }
-            if (isset($body['tokenize'])) {
+            if (isset($body['tokenize']) && ($tokenizeObj = $body['tokenize'])) {
                 $sessionTokenizeModel = $this->sessionTokenizeInterfaceFactory->create();
                 $this->dataObjectHelper->populateWithArray(
                     $sessionTokenizeModel,
-                    $body['tokenize'],
+                    $tokenizeObj,
                     SessionTokenizeInterface::class
                 );
                 $sessionModel->setTokenize($sessionTokenizeModel);
+                $linksArray = [];
+                if (isset($tokenizeObj['links']) && is_array($tokenizeObj['links'])) {
+                    foreach ($tokenizeObj['links'] as $link) {
+                        $linksModel = $this->linkInterfaceFactory->create();
+                        $this->dataObjectHelper->populateWithArray(
+                            $linksModel,
+                            $link,
+                            LinkInterface::class
+                        );
+                        $linksArray[] = $linksModel;
+                    }
+                    $sessionModel->getTokenize()->setLinks($linksArray);
+                }
             }
             return $sessionModel;
         } catch (\Exception $e) {
@@ -281,10 +300,12 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function captureByOrderUUID($orderUUID, $amount, $isPartialCapture)
+    public function captureByOrderUUID($url, $orderUUID, $amount, $isPartialCapture)
     {
-        $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
+        if (!$url) {
+            $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
+            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
+        }
         $auth = $this->authenticate();
         $payload = [
             "capture_amount" => [
@@ -313,10 +334,12 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function refundByOrderUUID($orderUUID, $amount)
+    public function refundByOrderUUID($url, $orderUUID, $amount)
     {
-        $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
+        if (!$url) {
+            $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT, $orderUUID);
+            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
+        }
         $auth = $this->authenticate();
         $payload = [
             "amount_in_cents" => $amount,
@@ -342,10 +365,12 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getOrder($orderUUID)
+    public function getOrder($url, $orderUUID)
     {
-        $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $orderEndpoint;
+        if (!$url) {
+            $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderUUID);
+            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $orderEndpoint;
+        }
         $auth = $this->authenticate();
         try {
             $response = $this->apiProcessor->call(
@@ -395,12 +420,14 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function createOrderByCustomerUUID($customerUUID, $amount)
+    public function createOrderByCustomerUUID($url, $customerUUID, $amount)
     {
         $quote = $this->checkoutSession->getQuote();
-        $reference = uniqid() . "-" . $quote->getReservedOrderId();
-        $authorizeEndpoint = sprintf(self::SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT, $customerUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
+        $reference = $quote->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        if (!$url) {
+            $authorizeEndpoint = sprintf(self::SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT, $customerUUID);
+            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
+        }
         $auth = $this->authenticate();
         $payload = [
             "intent" => 'AUTH',
@@ -424,6 +451,19 @@ class V2 implements V2Interface
                 $body,
                 AuthorizationInterface::class
             );
+            $linksArray = [];
+            if (isset($body['links']) && is_array($body['links'])) {
+                foreach ($body['links'] as $link) {
+                    $linksModel = $this->linkInterfaceFactory->create();
+                    $this->dataObjectHelper->populateWithArray(
+                        $linksModel,
+                        $link,
+                        LinkInterface::class
+                    );
+                    $linksArray[] = $linksModel;
+                }
+                $authorizationModel->setLinks($linksArray);
+            }
             return $authorizationModel;
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
@@ -436,10 +476,12 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getTokenDetails($token)
+    public function getTokenDetails($url, $token)
     {
         $sessionTokenEndpoint = sprintf(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $sessionTokenEndpoint;
+        if (!$url) {
+            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $sessionTokenEndpoint;
+        }
         $auth = $this->authenticate();
         try {
             $response = $this->apiProcessor->call(
@@ -457,6 +499,19 @@ class V2 implements V2Interface
                     $body['customer'],
                     TokenizeCustomerInterface::class
                 );
+                $linksArray = [];
+                if (isset($body['customer']['links']) && is_array($body['customer']['links'])) {
+                    foreach ($body['customer']['links'] as $link) {
+                        $linksModel = $this->linkInterfaceFactory->create();
+                        $this->dataObjectHelper->populateWithArray(
+                            $linksModel,
+                            $link,
+                            LinkInterface::class
+                        );
+                        $linksArray[] = $linksModel;
+                    }
+                    $tokenizeCustomerModel->setLinks($linksArray);
+                }
             }
             return $tokenizeCustomerModel;
         } catch (\Exception $e) {
@@ -470,10 +525,12 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function releasePaymentByOrderUUID($orderUUID, $amount)
+    public function releasePaymentByOrderUUID($url, $orderUUID, $amount)
     {
-        $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $releaseEndpoint;
+        if (!$url) {
+            $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
+            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $releaseEndpoint;
+        }
         $auth = $this->authenticate();
         $payload = [
             "amount_in_cents" => $amount,
