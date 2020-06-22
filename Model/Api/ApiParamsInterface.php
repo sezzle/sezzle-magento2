@@ -7,8 +7,6 @@
 
 namespace Sezzle\Payment\Model\Api;
 
-use Magento\Framework\Http\ZendClient;
-
 
 /**
  * Interface ApiParamsInterface

@@ -7,7 +7,6 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-	<preference for="Sezzle\Payment\Model\Api\ConfigInterface" type="Sezzle\Payment\Model\Api\Config"/>
 	<preference for="Sezzle\Payment\Model\Api\ProcessorInterface" type="Sezzle\Payment\Model\Api\Processor"/>
 	<preference for="Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface" type="Sezzle\Payment\Model\System\Config\Container\SezzleApiIdentity"/>
     <preference for="Sezzle\Payment\Api\Data\AddressInterface" type="Sezzle\Payment\Model\Api\Data\Address"/>
@@ -23,6 +22,5 @@
     <preference for="Sezzle\Payment\Api\Data\LinkInterface" type="Sezzle\Payment\Model\Api\Data\Link"/>
     <preference for="Sezzle\Payment\Api\Data\TokenizeCustomerInterface" type="Sezzle\Payment\Model\Api\Data\TokenizeCustomer"/>
     <preference for="Sezzle\Payment\Api\V2Interface" type="Sezzle\Payment\Model\Api\V2"/>
-    <preference for="Magento\Quote\Model\ResourceModel\Quote" type="Sezzle\Payment\Model\ResourceModel\Quote"/>
 
 </config>

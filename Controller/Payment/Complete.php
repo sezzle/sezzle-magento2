@@ -27,7 +27,10 @@ class Complete extends Sezzle
             $quote = $this->checkoutSession->getQuote();
             $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
             if ($customerUUID = $this->getRequest()->getParam('customer-uuid')) {
+                $this->sezzleHelper->logSezzleActions("****Start Tokenize record save****");
+                $this->sezzleHelper->logSezzleActions("Customer UUID : $customerUUID");
                 $this->tokenize->saveTokenizeRecord($quote);
+                $this->sezzleHelper->logSezzleActions("****Start Tokenize record end****");
             }
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
@@ -41,9 +44,8 @@ class Complete extends Sezzle
             $quote->collectTotals();
             /** @var Order $order */
             $order = $this->quoteManagement->submit($quote);
-            $this->sezzleHelper->logSezzleActions("Order created");
-
             if ($order) {
+                $this->sezzleHelper->logSezzleActions("Order created");
                 $this->checkoutSession->setLastOrderId($order->getId())
                     ->setLastRealOrderId($order->getIncrementId())
                     ->setLastOrderStatus($order->getStatus());

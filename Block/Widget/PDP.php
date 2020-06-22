@@ -1,4 +1,9 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Payment
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 
 namespace Sezzle\Payment\Block\Widget;
 

@@ -8,7 +8,6 @@
 namespace Sezzle\Payment\Model\System\Config\Container;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Store\Model\Store;
 
 /**
  * Interface IdentityInterface
@@ -96,11 +95,9 @@ interface SezzleApiConfigInterface extends IdentityInterface
 
     /**
      * Get complete url
-     * @param string $orderId
-     * @param string $reference
      * @return string
      */
-    public function getCompleteUrl($orderId, $reference);
+    public function getCompleteUrl();
 
     /**
      * Get cancel url

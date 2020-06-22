@@ -1,4 +1,9 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Payment
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 namespace Sezzle\Payment\Block\Adminhtml\Order\View;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -12,14 +17,25 @@ use Sezzle\Payment\Model\Tokenize;
  */
 class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
 {
+
+    private function getValue($key)
+    {
+        try {
+            return $this->getOrder()->getPayment()->getAdditionalInformation($key);
+        } catch (LocalizedException $e) {
+            return null;
+        }
+    }
+
     /**
      * @return string|null
      */
     public function getSezzleAuthAmount()
     {
         try {
-            $authAmount = $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT);
-            return $this->getOrder()->getBaseCurrency()->formatTxt((float)$authAmount);
+            return $this->getOrder()
+                ->getBaseCurrency()
+                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
@@ -31,8 +47,9 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     public function getSezzleRefundAmount()
     {
         try {
-            $refundedAmount = $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT);
-            return $this->getOrder()->getBaseCurrency()->formatTxt((float)$refundedAmount);
+            return $this->getOrder()
+                ->getBaseCurrency()
+                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
@@ -44,8 +61,9 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     public function getSezzleCaptureAmount()
     {
         try {
-            $capturedAmount = $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT);
-            return $this->getOrder()->getBaseCurrency()->formatTxt((float)$capturedAmount);
+            return $this->getOrder()
+                ->getBaseCurrency()
+                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
@@ -57,8 +75,9 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     public function getSezzleReleaseAmount()
     {
         try {
-            $releasedAmount = $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT);
-            return $this->getOrder()->getBaseCurrency()->formatTxt((float)$releasedAmount);
+            return $this->getOrder()
+                ->getBaseCurrency()
+                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
@@ -69,11 +88,7 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      */
     public function getSezzleOrderReferenceID()
     {
-        try {
-            return $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        } catch (LocalizedException $e) {
-            return null;
-        }
+        return $this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
     }
 
     /**
@@ -81,11 +96,7 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      */
     public function getSezzleCustomerUUID()
     {
-        try {
-            return $this->getOrder()->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
-        } catch (LocalizedException $e) {
-            return null;
-        }
+        return $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
     }
 
     /**
@@ -94,7 +105,7 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     public function getSezzleAuthExpiry()
     {
         try {
-            $authExpiry = $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::SEZZLE_AUTH_EXPIRY);
+            $authExpiry = $this->getValue(Sezzle::SEZZLE_AUTH_EXPIRY);
             return $authExpiry ? $this->formatDate(
                 $authExpiry,
                 \IntlDateFormatter::MEDIUM,
@@ -111,13 +122,7 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      */
     public function getSezleCustomerUUIDExpiration()
     {
-        try {
-            return $this->getOrder()
-                ->getPayment()
-                ->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
-        } catch (LocalizedException $e) {
-            return null;
-        }
+        return $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
     }
 
     /**
@@ -137,12 +142,6 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      */
     public function getSezzleOrderUUID()
     {
-        try {
-            return $this->getOrder()
-                ->getPayment()
-                ->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
-        } catch (LocalizedException $e) {
-            return null;
-        }
+        return $this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
     }
 }

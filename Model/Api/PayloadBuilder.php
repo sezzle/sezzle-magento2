@@ -54,7 +54,7 @@ class PayloadBuilder
     {
         $orderPayload = [];
         $completeURL['complete_url'] = [
-            "href" => $this->sezzleApiConfig->getCompleteUrl($quote->getReservedOrderId(), $reference)
+            "href" => $this->sezzleApiConfig->getCompleteUrl()
         ];
         $cancelURL['cancel_url'] = [
             "href" => $this->sezzleApiConfig->getCancelUrl()

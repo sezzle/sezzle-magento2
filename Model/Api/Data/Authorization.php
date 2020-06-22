@@ -1,5 +1,9 @@
 <?php
-
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Payment
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 
 namespace Sezzle\Payment\Model\Api\Data;
 
@@ -7,7 +11,6 @@ namespace Sezzle\Payment\Model\Api\Data;
 use Magento\Framework\Api\AbstractExtensibleObject;
 use Sezzle\Payment\Api\Data\AmountInterface;
 use Sezzle\Payment\Api\Data\AuthorizationInterface;
-use Sezzle\Payment\Api\Data\PaymentActionInterface;
 
 class Authorization extends AbstractExtensibleObject implements AuthorizationInterface
 {

@@ -1,4 +1,9 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Payment
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 
 namespace Sezzle\Payment\Model\Api;
 
@@ -18,7 +23,6 @@ use Sezzle\Payment\Api\Data\LinkInterface;
 use Sezzle\Payment\Api\Data\LinkInterfaceFactory;
 use Sezzle\Payment\Api\Data\OrderInterface;
 use Sezzle\Payment\Api\Data\OrderInterfaceFactory;
-use Sezzle\Payment\Api\Data\SessionInterface;
 use Sezzle\Payment\Api\Data\SessionInterfaceFactory;
 use Sezzle\Payment\Api\Data\SessionOrderInterface;
 use Sezzle\Payment\Api\Data\SessionOrderInterfaceFactory;
@@ -28,8 +32,8 @@ use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
 use Sezzle\Payment\Api\Data\TokenizeCustomerInterfaceFactory;
 use Sezzle\Payment\Api\V2Interface;
 use Sezzle\Payment\Helper\Data as SezzleHelper;
-use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class V2
@@ -224,7 +228,6 @@ class V2 implements V2Interface
         $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_CREATE_SESSION_ENDPOINT;
         $quote = $this->checkoutSession->getQuote();
         $body = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
-        /** @var SessionInterface $sessionModel */
         $sessionModel = $this->sessionInterfaceFactory->create();
         try {
             $auth = $this->authenticate();
@@ -235,7 +238,6 @@ class V2 implements V2Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            $this->sezzleHelper->logSezzleActions($body);
             if (isset($body['order']) && ($orderObj = $body['order'])) {
                 $sessionOrderModel = $this->sessionOrderInterfaceFactory->create();
                 $this->dataObjectHelper->populateWithArray(
@@ -372,7 +374,6 @@ class V2 implements V2Interface
                 ZendClient::GET
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            /** @var OrderInterface $orderModel */
             $orderModel = $this->orderInterfaceFactory->create();
             $this->dataObjectHelper->populateWithArray(
                 $orderModel,
@@ -391,7 +392,6 @@ class V2 implements V2Interface
             }
             if (isset($body['authorization'])) {
                 $this->sezzleHelper->logSezzleActions($body);
-                /** @var AuthorizationInterface $authorizationModel */
                 $authorizationModel = $this->authorizationInterfaceFactory->create();
                 $this->dataObjectHelper->populateWithArray(
                     $authorizationModel,
@@ -460,7 +460,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway authorize payment error: %1', $e->getMessage())
+                __('Gateway create order error: %1', $e->getMessage())
             );
         }
     }
@@ -509,7 +509,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway get customer uuid error: %1', $e->getMessage())
+                __('Gateway get token error: %1', $e->getMessage())
             );
         }
     }

@@ -1,10 +1,13 @@
 <?php
-
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Payment
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 
 namespace Sezzle\Payment\Api;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Sezzle\Payment\Api\Data\AuthInterface;
 use Sezzle\Payment\Api\Data\AuthorizationInterface;
 use Sezzle\Payment\Api\Data\OrderInterface;
@@ -38,6 +41,7 @@ interface V2Interface
      * @param int $amount
      * @param bool $isPartialCapture
      * @return bool
+     * @throws LocalizedException
      */
     public function captureByOrderUUID($url, $orderUUID, $amount, $isPartialCapture);
 
@@ -45,9 +49,10 @@ interface V2Interface
      * Refund payment by Order uuid
      *
      * @param string $url
-     * @param $orderUUID
-     * @param $amount
+     * @param string $orderUUID
+     * @param int $amount
      * @return bool
+     * @throws LocalizedException
      */
     public function refundByOrderUUID($url, $orderUUID, $amount);
 
@@ -57,6 +62,7 @@ interface V2Interface
      * @param string $url
      * @param string $orderUUID
      * @return OrderInterface
+     * @throws LocalizedException
      */
     public function getOrder($url, $orderUUID);
 
@@ -67,6 +73,7 @@ interface V2Interface
      * @param string $customerUUID
      * @param int $amount
      * @return AuthorizationInterface
+     * @throws LocalizedException
      */
     public function createOrderByCustomerUUID($url, $customerUUID, $amount);
 
@@ -76,6 +83,7 @@ interface V2Interface
      * @param string $url
      * @param string $token
      * @return TokenizeCustomerInterface
+     * @throws LocalizedException
      */
     public function getTokenDetails($url, $token);
 
@@ -85,6 +93,7 @@ interface V2Interface
      * @param string $orderUUID
      * @param int $amount
      * @return bool
+     * @throws LocalizedException
      * @throws LocalizedException
      */
     public function releasePaymentByOrderUUID($url, $orderUUID, $amount);

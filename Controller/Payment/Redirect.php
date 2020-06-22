@@ -31,6 +31,7 @@ class Redirect extends Sezzle
         $this->sezzleHelper->logSezzleActions("****Starting Sezzle Checkout****");
         $quote = $this->checkoutSession->getQuote();
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
+        $this->sezzleHelper->logSezzleActions("Order ID from quote : " . $quote->getReservedOrderId());
         if ($this->customerSession->isLoggedIn()) {
             $customerId = $this->customerSession->getCustomer()->getId();
             $this->sezzleHelper->logSezzleActions("Customer Id : $customerId");

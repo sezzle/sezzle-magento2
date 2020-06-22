@@ -171,11 +171,11 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     /**
      * @inheritdoc
      */
-    public function getCompleteUrl($orderId, $reference)
+    public function getCompleteUrl()
     {
         return $this->urlBuilder
             ->getUrl(
-                "sezzle/payment/complete/id/$orderId/magento_sezzle_id/$reference",
+                "sezzle/payment/complete/",
                 ['_secure' => true]
             );
     }

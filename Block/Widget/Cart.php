@@ -1,14 +1,24 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Payment
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 
 namespace Sezzle\Payment\Block\Widget;
 
 use Magento\Catalog\Model\ResourceModel\Url;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\View\Element\Template\Context;
 use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Checkout\Model\Session as CheckoutSession;
 
+/**
+ * Class Cart
+ * @package Sezzle\Payment\Block\Widget
+ */
 class Cart extends \Magento\Checkout\Block\Cart
 {
 
@@ -16,7 +26,23 @@ class Cart extends \Magento\Checkout\Block\Cart
      * @var SezzleApiConfigInterface
      */
     private $sezzleApiConfig;
+    /**
+     * @var Data
+     */
+    private $pricingHelper;
 
+    /**
+     * Cart constructor.
+     * @param Context $context
+     * @param CustomerSession $customerSession
+     * @param CheckoutSession $checkoutSession
+     * @param Url $catalogUrlBuilder
+     * @param \Magento\Checkout\Helper\Cart $cartHelper
+     * @param \Magento\Framework\App\Http\Context $httpContext
+     * @param SezzleApiConfigInterface $sezzleApiConfig
+     * @param Data $pricingHelper
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         CustomerSession $customerSession,
@@ -25,9 +51,11 @@ class Cart extends \Magento\Checkout\Block\Cart
         \Magento\Checkout\Helper\Cart $cartHelper,
         \Magento\Framework\App\Http\Context $httpContext,
         SezzleApiConfigInterface $sezzleApiConfig,
+        Data $pricingHelper,
         array $data = []
     ) {
         $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->pricingHelper = $pricingHelper;
         parent::__construct(
             $context,
             $customerSession,
@@ -60,17 +88,16 @@ class Cart extends \Magento\Checkout\Block\Cart
      */
     public function getGrandTotal()
     {
-        try {
-            $totals = $this->getTotals();
-            $firstTotal = reset($totals);
-            if ($firstTotal) {
-                $total = $firstTotal->getAddress()->getBaseGrandTotal();
-                return $this->_storeManager->getStore()->getBaseCurrency()->format($total, [], true);
-            }
-            return '';
-        } catch (NoSuchEntityException $e) {
-            return '';
+        $totals = $this->getTotals();
+        $firstTotal = reset($totals);
+        if ($firstTotal) {
+            return $this->pricingHelper->currency(
+                $firstTotal->getAddress()->getBaseGrandTotal(),
+                true,
+                false
+            );
         }
+        return '';
     }
 
     /**
