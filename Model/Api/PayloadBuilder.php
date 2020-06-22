@@ -10,7 +10,7 @@ namespace Sezzle\Payment\Model\Api;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
-use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Payment\Model\Sezzle;
 
 /**

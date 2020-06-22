@@ -7,7 +7,6 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
-use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Payment\Api\Data\AmountInterface;
 use Sezzle\Payment\Api\Data\AmountInterfaceFactory;
@@ -29,7 +28,7 @@ use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
 use Sezzle\Payment\Api\Data\TokenizeCustomerInterfaceFactory;
 use Sezzle\Payment\Api\V2Interface;
 use Sezzle\Payment\Helper\Data as SezzleHelper;
-use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
 use Sezzle\Payment\Model\Sezzle;
 
 /**
@@ -119,10 +118,6 @@ class V2 implements V2Interface
      * @var LinkInterfaceFactory
      */
     private $linkInterfaceFactory;
-    /**
-     * @var OrderPaymentInterface
-     */
-    private $paymentInfo;
 
     /**
      * V2 constructor.
@@ -144,7 +139,6 @@ class V2 implements V2Interface
      * @param AmountInterfaceFactory $amountInterfaceFactory
      * @param TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
      * @param LinkInterfaceFactory $linkInterfaceFactory
-     * @param OrderPaymentInterface $paymentInfo
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -164,8 +158,7 @@ class V2 implements V2Interface
         SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
         AmountInterfaceFactory $amountInterfaceFactory,
         TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
-        LinkInterfaceFactory $linkInterfaceFactory,
-        OrderPaymentInterface $paymentInfo
+        LinkInterfaceFactory $linkInterfaceFactory
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -185,7 +178,6 @@ class V2 implements V2Interface
         $this->amountInterfaceFactory = $amountInterfaceFactory;
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
         $this->linkInterfaceFactory = $linkInterfaceFactory;
-        $this->paymentInfo = $paymentInfo;
     }
 
     /**

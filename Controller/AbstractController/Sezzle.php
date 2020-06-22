@@ -7,9 +7,18 @@
 
 namespace Sezzle\Payment\Controller\AbstractController;
 
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\Action\Action;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Json\Helper\Data;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
-use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
+use Magento\Sales\Model\OrderFactory;
 use Sezzle\Payment\Model\Tokenize;
 
 /**
@@ -19,153 +28,111 @@ use Sezzle\Payment\Model\Tokenize;
 abstract class Sezzle extends Action
 {
     /**
-     * @var \Magento\Customer\Model\Session
+     * @var CustomerSession
      */
-    protected $_customerSession;
+    protected $customerSession;
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var CheckoutSession
      */
-    protected $_checkoutSession;
+    protected $checkoutSession;
     /**
-     * @var \Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
-    protected $_orderFactory;
-    /**
-     * @var Order\Status\HistoryFactory
-     */
-    protected $_orderHistoryFactory;
+    protected $orderFactory;
     /**
      * @var \Sezzle\Payment\Model\Sezzle
      */
-    protected $_sezzleModel;
+    protected $sezzleModel;
     /**
-     * @var Order\Config
+     * @var OrderSender
      */
-    protected $_salesOrderConfig;
+    protected $orderSender;
     /**
-     * @var \Magento\Sales\Model\Service\InvoiceService
+     * @var Data
      */
-    protected $_invoiceService;
+    protected $jsonHelper;
     /**
-     * @var \Magento\Framework\DB\TransactionFactory
+     * @var QuoteManagement
      */
-    protected $_transactionFactory;
+    protected $quoteManagement;
     /**
-     * @var Order\Email\Sender\OrderSender
+     * @var JsonFactory
      */
-    protected $_orderSender;
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    protected $_logger;
-    /**
-     * @var \Magento\Framework\Json\Helper\Data
-     */
-    protected $_jsonHelper;
-    /**
-     * @var \Magento\Quote\Model\QuoteManagement
-     */
-    protected $_quoteManagement;
-    /**
-     * @var Order\Payment\Transaction\BuilderInterface
-     */
-    protected $_transactionBuilder;
-    /**
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $_resultJsonFactory;
+    protected $resultJsonFactory;
 
     /**
-     * @var \Magento\Customer\Api\CustomerRepositoryInterface
+     * @var CustomerRepositoryInterface
      */
-    protected $_customerRepository;
+    protected $customerRepository;
 
     /**
      * @var \Sezzle\Payment\Helper\Data
      */
     protected $sezzleHelper;
-
-    /**
-     * @var SezzleApiConfigInterface
-     */
-    protected $sezzleApiIdentity;
     /**
      * @var Tokenize
      */
-    public $tokenize;
+    protected $tokenize;
+    /**
+     * @var CartRepositoryInterface
+     */
+    protected $cartRepository;
 
     /**
      * Payment constructor.
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
-     * @param \Magento\Customer\Model\Session $customerSession
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory
-     * @param Order\Status\HistoryFactory $orderHistoryFactory
+     * @param Context $context
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param CustomerSession $customerSession
+     * @param CheckoutSession $checkoutSession
+     * @param OrderFactory $orderFactory
      * @param \Sezzle\Payment\Model\Sezzle $sezzleModel
      * @param \Sezzle\Payment\Helper\Data $sezzleHelper
-     * @param Order\Config $salesOrderConfig
-     * @param \Magento\Sales\Model\Service\InvoiceService $invoiceService
-     * @param \Psr\Log\LoggerInterface $logger
-     * @param \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
-     * @param \Magento\Framework\DB\TransactionFactory $transactionFactory
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper
-     * @param \Magento\Quote\Model\QuoteManagement $quoteManagement
-     * @param Order\Payment\Transaction\BuilderInterface $transactionBuilder
-     * @param Order\Email\Sender\OrderSender $orderSender
-     * @param SezzleApiConfigInterface $sezzleApiIdentity
+     * @param JsonFactory $resultJsonFactory
+     * @param Data $jsonHelper
+     * @param QuoteManagement $quoteManagement
+     * @param OrderSender $orderSender
      * @param Tokenize $tokenize
+     * @param CartRepositoryInterface $cartRepository
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Sales\Model\Order\Status\HistoryFactory $orderHistoryFactory,
+        Context $context,
+        CustomerRepositoryInterface $customerRepository,
+        CustomerSession $customerSession,
+        CheckoutSession $checkoutSession,
+        OrderFactory $orderFactory,
         \Sezzle\Payment\Model\Sezzle $sezzleModel,
         \Sezzle\Payment\Helper\Data $sezzleHelper,
-        \Magento\Sales\Model\Order\Config $salesOrderConfig,
-        \Magento\Sales\Model\Service\InvoiceService $invoiceService,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Magento\Framework\DB\TransactionFactory $transactionFactory,
-        \Magento\Framework\Json\Helper\Data $jsonHelper,
-        \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        SezzleApiConfigInterface $sezzleApiIdentity,
-        Tokenize $tokenize
+        JsonFactory $resultJsonFactory,
+        Data $jsonHelper,
+        QuoteManagement $quoteManagement,
+        OrderSender $orderSender,
+        Tokenize $tokenize,
+        CartRepositoryInterface $cartRepository
     ) {
-        $this->_customerSession = $customerSession;
+        $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_customerRepository = $customerRepository;
-        $this->_checkoutSession = $checkoutSession;
-        $this->_orderFactory = $orderFactory;
-        $this->_orderHistoryFactory = $orderHistoryFactory;
-        $this->_sezzleModel = $sezzleModel;
-        $this->_salesOrderConfig = $salesOrderConfig;
-        $this->_invoiceService = $invoiceService;
-        $this->_transactionFactory = $transactionFactory;
-        $this->_logger = $logger;
-        $this->_jsonHelper = $jsonHelper;
-        $this->_quoteManagement = $quoteManagement;
-        $this->_transactionBuilder = $transactionBuilder;
-        $this->_orderSender = $orderSender;
-        $this->_resultJsonFactory = $resultJsonFactory;
-        $this->sezzleApiIdentity = $sezzleApiIdentity;
+        $this->jsonHelper = $jsonHelper;
+        $this->customerRepository = $customerRepository;
+        $this->checkoutSession = $checkoutSession;
+        $this->orderFactory = $orderFactory;
+        $this->sezzleModel = $sezzleModel;
+        $this->quoteManagement = $quoteManagement;
+        $this->orderSender = $orderSender;
+        $this->resultJsonFactory = $resultJsonFactory;
         $this->tokenize = $tokenize;
+        $this->cartRepository = $cartRepository;
         parent::__construct($context);
     }
 
     /**
-     * @return mixed
+     * Get Order
+     *
+     * @return Order
      */
     protected function getOrder()
     {
-        return $this->_orderFactory->create()->loadByIncrementId(
-            $this->_checkoutSession->getLastRealOrderId()
+        return $this->orderFactory->create()->loadByIncrementId(
+            $this->checkoutSession->getLastRealOrderId()
         );
     }
 }

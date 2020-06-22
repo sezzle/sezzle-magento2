@@ -6,7 +6,8 @@
 var config = {
     map: {
         '*': {
-            widgetRenderer: 'Sezzle_Payment/js/widget-renderer',
+            sezzleWidgetCore: 'Sezzle_Payment/js/sezzle_widget/sezzle-widget-core',
+            widgetRenderer: 'Sezzle_Payment/js/sezzle_widget/widget-renderer'
         }
     }
 };

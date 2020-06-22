@@ -7,6 +7,7 @@
 
 namespace Sezzle\Payment\Observer;
 
+use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
@@ -86,5 +87,6 @@ class SetSezzleAuthExpiryObserver implements ObserverInterface
                 __('Unable to set capture time.')
             );
         }
+        return $this;
     }
 }

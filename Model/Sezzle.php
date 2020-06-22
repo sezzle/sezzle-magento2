@@ -104,11 +104,6 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
     protected $_canFetchTransactionInfo = true;
 
     /**
-     * @var Order\Payment\Transaction\BuilderInterface
-     */
-    private $transactionBuilder;
-
-    /**
      * @var Data
      */
     protected $sezzleHelper;
@@ -126,37 +121,19 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $customerSession;
     /**
-     * @var Config\Container\SezzleApiConfigInterface
+     * @var System\Config\Container\SezzleApiConfigInterface
      */
     private $sezzleApiConfig;
-
-    /**
-     * @var Quote
-     */
-    public $quote;
-    /**
-     * @var CheckoutSession
-     */
-    private $checkoutSession;
     /**
      * @var Tokenize
      */
     private $tokenizeModel;
-    /**
-     * @var DateTime
-     */
-    protected $dateTime;
-    /**
-     * @var CustomerRepositoryInterface
-     */
-    protected $customerRepository;
 
     /**
      * Sezzle constructor.
      * @param Context $context
-     * @param Config\Container\SezzleApiConfigInterface $sezzleApiConfig
+     * @param System\Config\Container\SezzleApiConfigInterface $sezzleApiConfig
      * @param Data $sezzleHelper
-     * @param Order\Payment\Transaction\BuilderInterface $transactionBuilder
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
      * @param AttributeValueFactory $customAttributeFactory
@@ -165,17 +142,13 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
      * @param Logger $mageLogger
      * @param QuoteRepository $quoteRepository
      * @param V2Interface $v2
-     * @param DateTime $dateTime
-     * @param CustomerRepositoryInterface $customerRepository
      * @param CustomerSession $customerSession
-     * @param CheckoutSession $checkoutSession
      * @param Tokenize $tokenizeModel
      */
     public function __construct(
         Context $context,
-        Config\Container\SezzleApiConfigInterface $sezzleApiConfig,
+        System\Config\Container\SezzleApiConfigInterface $sezzleApiConfig,
         Data $sezzleHelper,
-        Order\Payment\Transaction\BuilderInterface $transactionBuilder,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
         AttributeValueFactory $customAttributeFactory,
@@ -184,21 +157,14 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         Logger $mageLogger,
         QuoteRepository $quoteRepository,
         V2Interface $v2,
-        DateTime $dateTime,
-        CustomerRepositoryInterface $customerRepository,
         CustomerSession $customerSession,
-        CheckoutSession $checkoutSession,
         Tokenize $tokenizeModel
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleApiConfig = $sezzleApiConfig;
-        $this->transactionBuilder = $transactionBuilder;
         $this->quoteRepository = $quoteRepository;
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
-        $this->checkoutSession = $checkoutSession;
-        $this->dateTime = $dateTime;
-        $this->customerRepository = $customerRepository;
         $this->tokenizeModel = $tokenizeModel;
         parent::__construct(
             $context,
@@ -505,7 +471,7 @@ class Sezzle extends \Magento\Payment\Model\Method\AbstractMethod
         $checkResult = new DataObject();
         $checkResult->setData('is_available', true);
 
-        $merchantUUID = $this->sezzleApiConfig->getMerchantId();
+        $merchantUUID = $this->sezzleApiConfig->getMerchantUUID();
         $publicKey = $this->sezzleApiConfig->getPublicKey();
         $privateKey = $this->sezzleApiConfig->getPrivateKey();
         $minCheckoutAmount = $this->sezzleApiConfig->getMinCheckoutAmount();

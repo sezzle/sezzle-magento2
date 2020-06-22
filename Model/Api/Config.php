@@ -12,7 +12,7 @@ use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
 use Sezzle\Payment\Helper\Data as SezzleHelper;
-use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Class Config

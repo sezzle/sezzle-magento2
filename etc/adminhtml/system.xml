@@ -27,7 +27,7 @@
                     <!-- merchant country -->
                     <field id="merchant_country" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant Country</label>
-                        <source_model>Sezzle\Payment\Model\System\Config\Source\MerchantCountry</source_model>
+                        <source_model>Sezzle\Payment\Model\System\Config\Source\Payment\MerchantCountry</source_model>
                         <config_path>payment/sezzle/merchant_country</config_path>
                     </field>
                     <!-- title -->
@@ -48,15 +48,15 @@
                         <config_path>payment/sezzle/private_key</config_path>
                     </field>
                     <!-- merchant id -->
-                    <field id="merchant_id" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Merchant ID</label>
+                    <field id="merchant_uuid" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant UUID</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
-                        <config_path>payment/sezzle/merchant_id</config_path>
+                        <config_path>payment/sezzle/merchant_uuid</config_path>
                     </field>
                     <!--payment mode-->
                     <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Mode</label>
-                        <source_model>Sezzle\Payment\Model\Config\Source\Payment\Mode</source_model>
+                        <source_model>Sezzle\Payment\Model\System\Config\Source\Payment\Mode</source_model>
                         <config_path>payment/sezzle/payment_mode</config_path>
                     </field>
                     <!-- log tracker -->
@@ -76,7 +76,7 @@
                     <!-- payment action -->
                     <field id="payment_action" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
-                        <source_model>Sezzle\Payment\Model\Config\Source\Payment\PaymentAction</source_model>
+                        <source_model>Sezzle\Payment\Model\System\Config\Source\Payment\PaymentAction</source_model>
                         <config_path>payment/sezzle/payment_action</config_path>
                     </field>
                     <!-- widget pdp -->

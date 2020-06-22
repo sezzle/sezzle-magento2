@@ -5,11 +5,11 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Config\Container;
+namespace Sezzle\Payment\Model\System\Config\Container;
 
 /**
  * Class SezzleApiIdentity
- * @package Sezzle\Payment\Model\Config\Container
+ * @package Sezzle\Payment\Model\System\Config\Container
  */
 class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
 {
@@ -76,7 +76,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     /**
      * @inheritdoc
      */
-    public function getMerchantId()
+    public function getMerchantUUID()
     {
         return $this->getConfigValue(
             self::XML_PATH_MERCHANT_ID,

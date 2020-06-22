@@ -5,12 +5,17 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 ?>
-<?php if ($this->isWidgetScriptAllowedForPDP()) : ?>
+<?php
+use Sezzle\Payment\Block\Widget\PDP;
+/** @var $block PDP */
+?>
+<?php if ($block->isWidgetScriptAllowedForPDP()) : ?>
 <script type="text/x-magento-init">
     {
         "*": {
             "widgetRenderer": {
-                "merchant_id" : "<?php echo $this->getMerchantID() ?>"
+                "price" : "<?php echo $block->getItemPrice() ?>",
+                "alignment" : "<?php echo $block->getAlignment() ?>"
             }
         }
     }

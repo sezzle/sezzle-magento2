@@ -12,7 +12,7 @@ define(
         return Class.extend({
 
                 defaults: {
-                    $sezzleMerchantId: null,
+                    $sezzleMerchantUUID: null,
                     selector: 'sezzle_sezzle',
                     $container: null,
                     $form: null,
@@ -28,11 +28,11 @@ define(
                     self.$sezzleConfig = $('#sezzle_config');
                     self.$sezzlementHeader = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_payment-head');
-                    self.$sezzleMerchantId = $('#payment_' + self.getCountry() + '_' + self.selector
-                        + '_payment_merchant_id').val();
+                    self.$sezzleMerchantUUID = $('#payment_' + self.getCountry() + '_' + self.selector
+                        + '_payment_merchant_uuid').val();
                     self.$container = $('#sezzle_config');
 
-                    if (self.$sezzleMerchantId) {
+                    if (self.$sezzleMerchantUUID) {
                         self.hideSezzleConfig();
                     }
                     else {

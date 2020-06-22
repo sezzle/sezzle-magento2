@@ -1,6 +1,12 @@
 <?php
 
-namespace Sezzle\Payment\Model\System;
+namespace Sezzle\Payment\Model\System\Config;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Config
@@ -12,30 +18,30 @@ class Config
     /**
      * @var int
      */
-    private $_storeId;
+    private $storeId;
     /**
      * @var int
      */
-    private $_websiteId;
+    private $websiteId;
     /**
      * @var string
      */
-    private $_scope;
+    private $scope;
     /**
      * @var int
      */
-    private $_scopeId;
+    private $scopeId;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     private $scopeConfig;
     /**
-     * @var \Magento\Framework\App\Request\Http
+     * @var Http
      */
     private $request;
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     private $storeManager;
     /**
@@ -53,52 +59,52 @@ class Config
 
     /**
      * Config constructor.
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\App\Request\Http $request
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Http $request
+     * @param StoreManagerInterface $storeManager
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        ScopeConfigInterface $scopeConfig,
+        Http $request,
+        StoreManagerInterface $storeManager
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
         $this->storeManager = $storeManager;
 
         // Find store ID and scope
-        $this->_websiteId = $request->getParam('website', 0);
-        $this->_storeId = $request->getParam('store', 0);
-        $this->_scope = $request->getParam('scope');
+        $this->websiteId = $request->getParam('website', 0);
+        $this->storeId = $request->getParam('store', 0);
+        $this->scope = $request->getParam('scope');
 
         // Website scope
-        if ($this->_websiteId) {
-            $this->_scope = !$this->_scope ? 'websites' : $this->_scope;
+        if ($this->websiteId) {
+            $this->scope = !$this->scope ? 'websites' : $this->scope;
         } else {
-            $this->_websiteId = $storeManager->getWebsite()->getId();
+            $this->websiteId = $storeManager->getWebsite()->getId();
         }
 
         // Store scope
-        if ($this->_storeId) {
-            $this->_websiteId = $this->storeManager->getStore($this->_storeId)->getWebsite()->getId();
-            $this->_scope = !$this->_scope ? 'stores' : $this->_scope;
+        if ($this->storeId) {
+            $this->websiteId = $this->storeManager->getStore($this->storeId)->getWebsite()->getId();
+            $this->scope = !$this->scope ? 'stores' : $this->scope;
         } else {
-            $this->_storeId = $storeManager->getWebsite($this->_websiteId)->getDefaultStore()->getId();
+            $this->storeId = $storeManager->getWebsite($this->websiteId)->getDefaultStore()->getId();
         }
 
         // Set scope ID
-        switch ($this->_scope) {
+        switch ($this->scope) {
             case 'websites':
-                $this->_scopeId = $this->_websiteId;
+                $this->scopeId = $this->websiteId;
                 break;
             case 'stores':
-                $this->_scopeId = $this->_storeId;
+                $this->scopeId = $this->storeId;
                 break;
             default:
-                $this->_scope = 'default';
-                $this->_scopeId = 0;
+                $this->scope = 'default';
+                $this->scopeId = 0;
                 break;
         }
     }
@@ -116,7 +122,7 @@ class Config
      */
     public function getConfig($path)
     {
-        return $this->scopeConfig->getValue($path, $this->_scope, $this->_scopeId);
+        return $this->scopeConfig->getValue($path, $this->scope, $this->scopeId);
     }
 
     /**
@@ -141,6 +147,7 @@ class Config
 
     /**
      * Return array of supported merchant country codes.
+     * @return array
      */
     public function getSupportedMerchantCountryCodes()
     {

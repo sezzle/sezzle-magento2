@@ -7,6 +7,8 @@
 
 namespace Sezzle\Payment\Controller\Payment;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 use Sezzle\Payment\Controller\AbstractController\Sezzle;
 
 /**
@@ -22,45 +24,41 @@ class Complete extends Sezzle
     {
         $redirect = 'checkout/cart';
         try {
-            $quote = $this->_checkoutSession->getQuote();
+            $quote = $this->checkoutSession->getQuote();
             $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
             if ($customerUUID = $this->getRequest()->getParam('customer-uuid')) {
                 $this->tokenize->saveTokenizeRecord($quote);
             }
-            $payment = $quote->getPayment();
-            $reference = $payment->getAdditionalInformation(
-                \Sezzle\Payment\Model\Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID
-            );
             $orderId = $quote->getReservedOrderId();
             $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
 
-            $this->_checkoutSession
+            $this->checkoutSession
                 ->setLastQuoteId($quote->getId())
                 ->setLastSuccessQuoteId($quote->getId())
                 ->clearHelperData();
             $this->sezzleHelper->logSezzleActions("Set data on checkout session");
 
             $quote->collectTotals();
-            $order = $this->_quoteManagement->submit($quote);
+            /** @var Order $order */
+            $order = $this->quoteManagement->submit($quote);
             $this->sezzleHelper->logSezzleActions("Order created");
 
             if ($order) {
-                $this->_checkoutSession->setLastOrderId($order->getId())
+                $this->checkoutSession->setLastOrderId($order->getId())
                     ->setLastRealOrderId($order->getIncrementId())
                     ->setLastOrderStatus($order->getStatus());
-                $this->sezzleHelper->logSezzleActions("Created transaction with reference $reference");
-
                 // send email
                 try {
-                    $this->_orderSender->send($order);
+                    $this->orderSender->send($order);
                 } catch (\Exception $e) {
-                    $this->_helper->debug("Transaction Email Sending Error: " . json_encode($e));
+                    $this->sezzleHelper->logSezzleActions("Transaction Email Sending Error: ");
+                    $this->sezzleHelper->logSezzleActions($e->getMessage());
                 }
 
                 $this->messageManager->addSuccessMessage("Sezzle transaction has been completed successfully.");
                 $redirect = 'checkout/onepage/success';
             }
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $this->sezzleHelper->logSezzleActions("Transaction Exception: " . $e->getMessage());
             $this->messageManager->addErrorMessage(
                 $e->getMessage()

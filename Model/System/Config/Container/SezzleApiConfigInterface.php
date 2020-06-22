@@ -5,80 +5,92 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Config\Container;
+namespace Sezzle\Payment\Model\System\Config\Container;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\Store;
 
 /**
  * Interface IdentityInterface
- * @package Sezzle\Payment\Model\Config\Container
+ * @package Sezzle\Payment\Model\System\Config\Container
  */
 interface SezzleApiConfigInterface extends IdentityInterface
 {
 
     /**
      * Get public key
-     * @return mixed
+     * @return string|null
+     * @throws NoSuchEntityException
      */
     public function getPublicKey();
 
     /**
      * Get private key
-     * @return mixed
+     * @return string|null
+     * @throws NoSuchEntityException
      */
     public function getPrivateKey();
 
     /**
      * Get Payment mode
-     * @return mixed
+     * @return string|null
+     * @throws NoSuchEntityException
      */
     public function getPaymentMode();
 
     /**
-     * Get Merchant Id
-     * @return mixed
+     * Get Merchant UUID
+     * @return string|null
+     * @throws NoSuchEntityException
      */
-    public function getMerchantId();
+    public function getMerchantUUID();
 
     /**
      * Get Sezzle base url
-     * @return mixed
+     * @return string|null
+     * @throws NoSuchEntityException
      */
     public function getSezzleBaseUrl();
 
     /**
      * Get log tracker status
-     * @return mixed
+     * @return bool
+     * @throws NoSuchEntityException
      */
     public function isLogTrackerEnabled();
 
     /**
      * Get payment action
-     * @return mixed
+     * @return string|null
+     * @throws NoSuchEntityException
      */
     public function getPaymentAction();
 
     /**
      * Get min checkout amount
-     * @return mixed
+     * @return string|null
+     * @throws NoSuchEntityException
      */
     public function getMinCheckoutAmount();
 
     /**
      * Get widget script status for PDP
-     * @return mixed
+     * @return bool
+     * @throws NoSuchEntityException
      */
     public function isWidgetScriptAllowedForPDP();
 
     /**
      * Get widget script status for cart page
-     * @return mixed
+     * @return bool
+     * @throws NoSuchEntityException
      */
     public function isWidgetScriptAllowedForCartPage();
 
     /**
      * Get tokenization status
      * @return bool
+     * @throws NoSuchEntityException
      */
     public function isTokenizationAllowed();
 

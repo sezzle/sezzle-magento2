@@ -2,29 +2,34 @@
 
 namespace Sezzle\Payment\Block\Adminhtml\System\Config;
 
-class SezzleRegisterAdmin extends \Magento\Framework\View\Element\Template
+use Magento\Framework\Json\Helper\Data;
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\View\Element\Template\Context;
+use Sezzle\Payment\Model\System\Config\Config;
+
+class SezzleRegisterAdmin extends Template
 {
     /**
      * @var Config
      */
     private $config;
     /**
-     * @var \Magento\Framework\Json\Helper\Data
+     * @var Data
      */
     private $jsonHelper;
 
     /**
      * SezzleRegisterAdmin constructor.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context
-     * @param \Sezzle\Payment\Model\System\Config $config
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper
+     * @param Context $context
+     * @param Config $config
+     * @param Data $jsonHelper
      * @param array $data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Json\Helper\Data $jsonHelper,
-        \Sezzle\Payment\Model\System\Config $config,
+        Context $context,
+        Data $jsonHelper,
+        Config $config,
         array $data = []
     ) {
         parent::__construct($context, $data);

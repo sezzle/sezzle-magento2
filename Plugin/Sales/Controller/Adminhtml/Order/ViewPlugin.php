@@ -22,7 +22,7 @@ class ViewPlugin extends View
      *
      * @param View $subject
      * @param \Closure $proceed
-     * @return Page|Redirect
+     * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function aroundExecute(
         View $subject,

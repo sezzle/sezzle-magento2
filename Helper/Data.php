@@ -2,7 +2,7 @@
 
 namespace Sezzle\Payment\Helper;
 
-use Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
 
 /**
  * Sezzle Helper

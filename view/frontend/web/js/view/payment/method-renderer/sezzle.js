@@ -27,7 +27,7 @@ define(
             },
 
             getSezzleImgSrc: function () {
-                return 'https://d3svog4tlx445w.cloudfront.net/branding/sezzle-logos/png/sezzle-logo-sm-100w.png';
+                return 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
             },
 
             /**

@@ -16,5 +16,5 @@
     </type>
 	<preference for="Sezzle\Payment\Model\Api\ConfigInterface" type="Sezzle\Payment\Model\Api\Config"/>
 	<preference for="Sezzle\Payment\Model\Api\ProcessorInterface" type="Sezzle\Payment\Model\Api\Processor"/>
-	<preference for="Sezzle\Payment\Model\Config\Container\SezzleApiConfigInterface" type="Sezzle\Payment\Model\Config\Container\SezzleApiIdentity"/>
+	<preference for="Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface" type="Sezzle\Payment\Model\System\Config\Container\SezzleApiIdentity"/>
 </config>

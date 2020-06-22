@@ -5,16 +5,19 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Config\Container;
+namespace Sezzle\Payment\Model\System\Config\Container;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Container
- * @package Sezzle\Payment\Model\Config\Container
+ * @package Sezzle\Payment\Model\System\Config\Container
  */
 abstract class Container implements IdentityInterface
 {
@@ -67,8 +70,8 @@ abstract class Container implements IdentityInterface
     /**
      * Return store
      *
-     * @return Store
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return StoreInterface
+     * @throws NoSuchEntityException
      */
     public function getStore()
     {
@@ -93,12 +96,12 @@ abstract class Container implements IdentityInterface
     /**
      * Get config value
      *
-     * @param $path
-     * @param $storeId
-     * @param $scope
+     * @param string $path
+     * @param string $storeId
+     * @param null|int|string $scope
      * @return mixed
      */
-    protected function getConfigValue($path, $storeId, $scope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE)
+    protected function getConfigValue($path, $storeId, $scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->scopeConfig->getValue(
             $path,

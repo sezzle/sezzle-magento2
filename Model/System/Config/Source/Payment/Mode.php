@@ -5,13 +5,15 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Config\Source\Payment;
+namespace Sezzle\Payment\Model\System\Config\Source\Payment;
+
+use Magento\Framework\Option\ArrayInterface;
 
 /**
  * Class Mode
- * @package Sezzle\Payment\Model\Config\Source\Payment
+ * @package Sezzle\Payment\Model\System\Config\Source\Payment
  */
-class Mode implements \Magento\Framework\Option\ArrayInterface
+class Mode implements ArrayInterface
 {
 
     /**
