@@ -26,7 +26,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     const XML_PATH_TOKENIZE = 'payment/sezzle/tokenize';
 
     private $liveCheckoutUrl = "https://gateway.sezzle.com";
-    private $sandboxCheckoutUrl = "https://sandbox.gateway.sezzle.com";
+    private $sandboxCheckoutUrl = "https://staging.gateway.sezzle.com";
 
     /**
      * @inheritdoc

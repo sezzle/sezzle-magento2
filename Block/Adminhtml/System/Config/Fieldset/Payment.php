@@ -11,6 +11,7 @@ use Magento\Backend\Block\Context;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Config\Block\System\Config\Form\Fieldset;
 use Magento\Config\Model\Config;
+use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\View\Helper\Js;
 
 /**
@@ -44,7 +45,7 @@ class Payment extends Fieldset
     /**
      * Add custom css class
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      */
     protected function _getFrontendClass($element)
@@ -56,7 +57,7 @@ class Payment extends Fieldset
     /**
      * Check whether current payment method is enabled
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return bool
      */
     protected function _isPaymentEnabled($element)
@@ -80,7 +81,7 @@ class Payment extends Fieldset
     /**
      * Return header title part of html for payment solution
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -137,7 +138,7 @@ class Payment extends Fieldset
     /**
      * Return header comment part of html for payment solution
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -149,7 +150,7 @@ class Payment extends Fieldset
     /**
      * Get collapsed state on-load
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return false
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -159,7 +160,7 @@ class Payment extends Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

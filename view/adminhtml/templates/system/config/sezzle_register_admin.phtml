@@ -5,6 +5,13 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 ?>
+<?php
+use Sezzle\Payment\Block\Adminhtml\System\Config\SezzleRegisterAdmin;
+/** @var $block SezzleRegisterAdmin */
+?>
+<div style="background-color:#eee;padding:1em;border:1px solid #ddd;">
+Module Version : <?php echo $block->getSezzleModuleVersion(); ?>
+</div>
 <div id="sezzle_config">
     <br/>
     <div data-mage-init='{
