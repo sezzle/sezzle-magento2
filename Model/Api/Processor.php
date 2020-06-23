@@ -90,7 +90,6 @@ class Processor implements ProcessorInterface
                 'body' => $body
             ];
             $this->sezzleHelper->logSezzleActions($requestLog);
-            $this->sezzleHelper->logSezzleActions($this->jsonHelper->jsonEncode($body));
             $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
             $this->curl->addHeader("Content-Type", ApiParamsInterface::CONTENT_TYPE_JSON);
             switch ($method) {

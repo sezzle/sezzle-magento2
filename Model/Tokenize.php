@@ -28,6 +28,29 @@ class Tokenize
 
     const STATUS_TOKEN_APPROVED = 'Approved';
     const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
+
+    public $sezzleCutomerAttributes = [
+        Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => [
+            'input' => 'text',
+            'label' => 'Sezzle Tokenize Status',
+        ],
+        Tokenize::ATTR_SEZZLE_TOKEN_STATUS => [
+            'input' => 'boolean',
+            'label' => 'Sezzle Customer UUID'
+        ],
+        Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION => [
+            'input' => 'text',
+            'label' => 'Sezzle Customer UUID Expiration'
+        ],
+        Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => [
+            'input' => 'text',
+            'label' => 'Sezzle Order Create Link By Customer UUID',
+        ],
+        Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK => [
+            'input' => 'text',
+            'label' => 'Sezzle Get Customer Link By Customer UUID',
+        ]
+    ];
     /**
      * @var V2Interface
      */
@@ -130,6 +153,8 @@ class Tokenize
             self::ATTR_SEZZLE_CUSTOMER_UUID => $tokenDetails->getUuid(),
             self::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION => $tokenDetails->getExpiration()
         ];
+        $this->sezzleHelper->logSezzleActions("Tokenize records to be engaged with Quote");
+        $this->sezzleHelper->logSezzleActions($additionalInfo);
         $payment->setAdditionalInformation(
             array_merge(
                 $payment->getAdditionalInformation(),
@@ -166,16 +191,34 @@ class Tokenize
         ];
         if (is_array($tokenDetails->getLinks())) {
             foreach ($tokenDetails->getLinks() as $link) {
-                if ($link->getRel() == 'order') {
-                    $createOrderLinkAttribute = [
-                        $this->attributeFactory->create()
-                        ->setAttributeCode(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK)
-                        ->setValue($link->getHref())
-                    ];
-                    $tokenAttributes = array_merge($tokenAttributes, $createOrderLinkAttribute);
+                switch ($link->getRel()) {
+                    case 'order':
+                        if ($link->getMethod() == 'POST') {
+                            $createOrderLinkAttribute = [
+                                $this->attributeFactory->create()
+                                    ->setAttributeCode(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK)
+                                    ->setValue($link->getHref())
+                            ];
+                            $tokenAttributes = array_merge($tokenAttributes, $createOrderLinkAttribute);
+                        }
+                        break;
+                    case 'self':
+                        if ($link->getMethod() == 'GET') {
+                            $getCustomerLinkAttribute = [
+                                $this->attributeFactory->create()
+                                    ->setAttributeCode(Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK)
+                                    ->setValue($link->getHref())
+                            ];
+                            $tokenAttributes = array_merge($tokenAttributes, $getCustomerLinkAttribute);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
+        $this->sezzleHelper->logSezzleActions("Tokenize records to be engaged with Customer");
+        $this->sezzleHelper->logSezzleActions($tokenAttributes);
         $customer->setCustomAttributes($tokenAttributes);
         $this->customerRepository->save($customer);
     }
@@ -197,9 +240,13 @@ class Tokenize
             return false;
         }
 
+        $url = $quote->getCustomer()
+            ->getCustomAttribute(Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK)
+            ->getValue();
+        $customer = $this->v2->getCustomer($url, $sezzleCustomerUUID);
         $currentTimestamp = $this->dateTime->timestamp('now');
         $sezzleCustomerUUIDExpirationTimestamp =  $this->dateTime->timestamp($sezzleCustomerUUIDExpiration->getValue());
-        if ($currentTimestamp > $sezzleCustomerUUIDExpirationTimestamp) {
+        if (!$customer->getFirstName() || ($currentTimestamp > $sezzleCustomerUUIDExpirationTimestamp)) {
             $this->sezzleHelper->logSezzleActions("Customer UUID is not valid. Deleting record now.");
             $this->deleteCustomerTokenRecord($quote->getCustomerId());
             $this->sezzleHelper->logSezzleActions("Tokenize record deleted.");
@@ -210,6 +257,8 @@ class Tokenize
     }
 
     /**
+     * Delete Customer Token Record
+     *
      * @param int $customerID
      * @throws LocalizedException
      * @throws NoSuchEntityException
@@ -217,8 +266,9 @@ class Tokenize
     private function deleteCustomerTokenRecord($customerID)
     {
         $customer = $this->customerRepository->getById($customerID);
-        $customer->setCustomAttribute(self::ATTR_SEZZLE_CUSTOMER_UUID, null);
-        $customer->setCustomAttribute(self::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION, null);
+        foreach ($this->sezzleCutomerAttributes as $attributeCode => $value) {
+            $customer->setCustomAttribute($attributeCode, null);
+        }
         $this->customerRepository->save($customer);
     }
 }

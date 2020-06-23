@@ -49,6 +49,7 @@ class Sezzle extends AbstractMethod
     const ADDITIONAL_INFORMATION_KEY_REFUND_LINK = 'sezzle_refund_link';
     const ADDITIONAL_INFORMATION_KEY_RELEASE_LINK = 'sezzle_release_link';
     const ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK = 'sezzle_create_order_link';
+    const ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK = 'sezzle_get_customer_link';
     const ADDITIONAL_INFORMATION_KEY_GET_TOKEN_DETAILS_LINK = 'sezzle_token_link';
 
     /**
@@ -306,12 +307,15 @@ class Sezzle extends AbstractMethod
 
         $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
-        $orderUUID = "";
+        $sezzleOrderUUID = "";
         if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
             $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK);
             $response = $this->v2->createOrderByCustomerUUID($url, $sezzleCustomerUUID, $amountInCents);
-            if ($orderUUID = $response->getUuid()) {
-                $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $orderUUID);
+            if (!$response->getApproved()) {
+                throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
+            }
+            if ($sezzleOrderUUID = $response->getUuid()) {
+                $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
             }
             if (is_array($response->getLinks())) {
                 foreach ($response->getLinks() as $link) {
@@ -327,7 +331,7 @@ class Sezzle extends AbstractMethod
             throw new LocalizedException(__('Unable to validate the order.'));
         }
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $this->sezzleHelper->logSezzleActions("Order UUID : $orderUUID");
+        $this->sezzleHelper->logSezzleActions("Order UUID : $sezzleOrderUUID");
         $authorizedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT);
         $authorizedAmount += $amount;
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT, $authorizedAmount);
@@ -372,6 +376,9 @@ class Sezzle extends AbstractMethod
                     $sezzleCustomerUUID,
                     $amountInCents
                 );
+                if (!$response->getApproved()) {
+                    throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
+                }
                 $sezzleOrderUUID = $response->getUuid();
                 $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
                 if (is_array($response->getLinks())) {

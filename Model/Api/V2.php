@@ -19,6 +19,8 @@ use Sezzle\Payment\Api\Data\AuthInterface;
 use Sezzle\Payment\Api\Data\AuthInterfaceFactory;
 use Sezzle\Payment\Api\Data\AuthorizationInterface;
 use Sezzle\Payment\Api\Data\AuthorizationInterfaceFactory;
+use Sezzle\Payment\Api\Data\CustomerInterface;
+use Sezzle\Payment\Api\Data\CustomerInterfaceFactory;
 use Sezzle\Payment\Api\Data\LinkInterface;
 use Sezzle\Payment\Api\Data\LinkInterfaceFactory;
 use Sezzle\Payment\Api\Data\OrderInterface;
@@ -44,6 +46,7 @@ class V2 implements V2Interface
     const SEZZLE_AUTH_ENDPOINT = "/v2/authentication";
     const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
     const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%s";
+    const SEZZLE_GET_CUSTOMER_ENDPOINT = "/v2/customer/%s";
     const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/capture";
     const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/refund";
     const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/release";
@@ -122,6 +125,10 @@ class V2 implements V2Interface
      * @var LinkInterfaceFactory
      */
     private $linkInterfaceFactory;
+    /**
+     * @var CustomerInterfaceFactory
+     */
+    private $customerInterfaceFactory;
 
     /**
      * V2 constructor.
@@ -143,6 +150,7 @@ class V2 implements V2Interface
      * @param AmountInterfaceFactory $amountInterfaceFactory
      * @param TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
      * @param LinkInterfaceFactory $linkInterfaceFactory
+     * @param CustomerInterfaceFactory $customerInterfaceFactory
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -162,7 +170,8 @@ class V2 implements V2Interface
         SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
         AmountInterfaceFactory $amountInterfaceFactory,
         TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
-        LinkInterfaceFactory $linkInterfaceFactory
+        LinkInterfaceFactory $linkInterfaceFactory,
+        CustomerInterfaceFactory $customerInterfaceFactory
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -182,6 +191,7 @@ class V2 implements V2Interface
         $this->amountInterfaceFactory = $amountInterfaceFactory;
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
         $this->linkInterfaceFactory = $linkInterfaceFactory;
+        $this->customerInterfaceFactory = $customerInterfaceFactory;
     }
 
     /**
@@ -412,6 +422,39 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
+    public function getCustomer($url, $customerUUID)
+    {
+        if (!$url) {
+            $customerEndpoint = sprintf(self::SEZZLE_GET_CUSTOMER_ENDPOINT, $customerUUID);
+            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $customerEndpoint;
+        }
+        $auth = $this->authenticate();
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                null,
+                ZendClient::GET
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            $customerModel = $this->customerInterfaceFactory->create();
+            $this->dataObjectHelper->populateWithArray(
+                $customerModel,
+                $body,
+                CustomerInterface::class
+            );
+            return $customerModel;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Gateway customer error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function createOrderByCustomerUUID($url, $customerUUID, $amount)
     {
         $quote = $this->checkoutSession->getQuote();
@@ -456,6 +499,7 @@ class V2 implements V2Interface
                 }
                 $authorizationModel->setLinks($linksArray);
             }
+            $authorizationModel->setApproved(isset($body['authorization']['approved']));
             return $authorizationModel;
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());

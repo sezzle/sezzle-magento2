@@ -27,8 +27,8 @@ class OrderStatusChangeOnVoidObserver implements ObserverInterface
         if ($payment->getMethod() != Sezzle::PAYMENT_CODE) {
             return $this;
         }
-        $payment->getOrder()->setState(Order::STATE_CLOSED)
-            ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
+        $payment->getOrder()->setState(Order::STATE_CANCELED)
+            ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED));
 
         return $this;
     }

@@ -10,6 +10,7 @@ namespace Sezzle\Payment\Api;
 use Magento\Framework\Exception\LocalizedException;
 use Sezzle\Payment\Api\Data\AuthInterface;
 use Sezzle\Payment\Api\Data\AuthorizationInterface;
+use Sezzle\Payment\Api\Data\CustomerInterface;
 use Sezzle\Payment\Api\Data\OrderInterface;
 use Sezzle\Payment\Api\Data\SessionInterface;
 use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
@@ -65,6 +66,16 @@ interface V2Interface
      * @throws LocalizedException
      */
     public function getOrder($url, $orderUUID);
+
+    /**
+     * Get Customer by Customer UUID
+     *
+     * @param string $url
+     * @param string $customerUUID
+     * @return CustomerInterface
+     * @throws LocalizedException
+     */
+    public function getCustomer($url, $customerUUID);
 
     /**
      * Authorize Payment by Customer UUID

@@ -42,23 +42,24 @@ class UpgradeData implements UpgradeDataInterface
      * @var QuoteSetupFactory
      */
     private $quoteSetupFactory;
+    /**
+     * @var Tokenize
+     */
+    private $tokenizeModel;
 
     /**
      * @param CustomerSetupFactory $customerSetupFactory
      * @param AttributeSetFactory $attributeSetFactory
-     * @param SalesSetupFactory $salesSetupFactory
-     * @param QuoteSetupFactory $quoteSetupFactory
+     * @param Tokenize $tokenizeModel
      */
     public function __construct(
         CustomerSetupFactory $customerSetupFactory,
         AttributeSetFactory $attributeSetFactory,
-        SalesSetupFactory $salesSetupFactory,
-        QuoteSetupFactory $quoteSetupFactory
+        Tokenize $tokenizeModel
     ) {
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
-        $this->salesSetupFactory = $salesSetupFactory;
-        $this->quoteSetupFactory = $quoteSetupFactory;
+        $this->tokenizeModel = $tokenizeModel;
     }
 
     /**
@@ -68,26 +69,10 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         if (version_compare($context->getVersion(), '2.0.0', '<')) {
-            $customerAttributesToAdd = [
-                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => [
-                        'input' => 'boolean',
-                        'label' => 'Sezzle Tokenize Status',
-                ],
-                Tokenize::ATTR_SEZZLE_TOKEN_STATUS => [
-                        'input' => 'text',
-                        'label' => 'Sezzle Customer UUID'
-                ],
-                Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION => [
-                        'input' => 'text',
-                        'label' => 'Sezzle Customer UUID Expiration'
-                ],
-                Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => [
-                    'input' => 'text',
-                    'label' => 'Sezzle Order Create Link By Customer UUID',
-                ]
-            ];
-            foreach ($customerAttributesToAdd as $attributeCode => $attribute) {
-                $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
+            if (is_array($this->tokenizeModel->sezzleCutomerAttributes)) {
+                foreach ($this->tokenizeModel->sezzleCutomerAttributes as $attributeCode => $attribute) {
+                    $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
+                }
             }
         }
     }
