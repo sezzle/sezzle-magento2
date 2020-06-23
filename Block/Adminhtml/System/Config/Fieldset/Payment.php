@@ -123,7 +123,7 @@ class Payment extends Fieldset
         }
 
         $html .= '</div>';
-        $html .= '<div class="heading"><strong>' . $element->getLegend() . '</strong>';
+        $html .= '<div class="heading">' . $element->getLegend();
 
         if ($element->getComment()) {
             $html .= '<span class="heading-intro">' . $element->getComment() . '</span>';

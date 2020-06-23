@@ -10,7 +10,8 @@
     <system>
         <section id="payment">
             <group id="sezzle" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label><![CDATA[<div class="sezzle-payment-logo"></div><div class="sezzle-payment-byline">Buy Now, Pay Later.</div>]]></label>
+                <label><![CDATA[<div class="sezzle-payment-logo"></div><div class="sezzle-payment-byline">Sezzle is a public-benefit corporation on a mission to financially empower the next generation. Sezzle’s Buy Now, Pay Later product gives eCommerce shoppers more buying power by allowing them to split their payment in four, and pay over the course of six weeks. You get paid right away, in full, and Sezzle assumes all risk of fraud, chargeback and repayment.
+</div>]]></label>
                 <fieldset_css>complex sezzle-payment-section</fieldset_css>
                 <frontend_model>Sezzle\Payment\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
                 <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
