@@ -13,7 +13,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
  * Interface IdentityInterface
  * @package Sezzle\Payment\Model\System\Config\Container
  */
-interface SezzleApiConfigInterface extends IdentityInterface
+interface SezzleConfigInterface extends IdentityInterface
 {
 
     /**
@@ -77,14 +77,14 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isWidgetScriptAllowedForPDP();
+    public function isWidgetEnabledForPDP();
 
     /**
      * Get widget script status for cart page
      * @return bool
      * @throws NoSuchEntityException
      */
-    public function isWidgetScriptAllowedForCartPage();
+    public function isWidgetEnabledForCartPage();
 
     /**
      * Get tokenization status
@@ -92,6 +92,13 @@ interface SezzleApiConfigInterface extends IdentityInterface
      * @throws NoSuchEntityException
      */
     public function isTokenizationAllowed();
+
+    /**
+     * Get complete url
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function isLogsSendingToSezzleAllowed();
 
     /**
      * Get complete url

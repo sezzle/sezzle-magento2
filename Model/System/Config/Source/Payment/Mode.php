@@ -8,6 +8,7 @@
 namespace Sezzle\Payment\Model\System\Config\Source\Payment;
 
 use Magento\Framework\Option\ArrayInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleIdentity;
 
 /**
  * Class Mode
@@ -23,11 +24,11 @@ class Mode implements ArrayInterface
     {
         return [
             [
-                'value' => 'live',
+                'value' => SezzleIdentity::PROD_MODE,
                 'label' => 'Live',
             ],
             [
-                'value' => 'sandbox',
+                'value' => SezzleIdentity::SANDBOX_MODE,
                 'label' => 'Sandbox',
             ]
         ];

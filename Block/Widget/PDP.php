@@ -19,15 +19,15 @@ use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Framework\Url\EncoderInterface;
-use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
 
 class PDP extends View
 {
 
     /**
-     * @var SezzleApiConfigInterface
+     * @var SezzleConfigInterface
      */
-    private $sezzleApiConfig;
+    private $sezzleConfig;
     /**
      * @var Data
      */
@@ -44,11 +44,11 @@ class PDP extends View
         Session $customerSession,
         ProductRepositoryInterface $productRepository,
         PriceCurrencyInterface $priceCurrency,
-        SezzleApiConfigInterface $sezzleApiConfig,
+        SezzleConfigInterface $sezzleConfig,
         Data $pricingHelper,
         array $data = []
     ) {
-        $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->sezzleConfig = $sezzleConfig;
         $this->pricingHelper = $pricingHelper;
         parent::__construct(
             $context,
@@ -70,11 +70,11 @@ class PDP extends View
      *
      * @return string
      */
-    public function isWidgetScriptAllowedForPDP()
+    public function isWidgetEnabledForPDP()
     {
         try {
-            return $this->sezzleApiConfig->isWidgetScriptAllowedForPDP()
-                && $this->sezzleApiConfig->isEnabled()
+            return $this->sezzleConfig->isWidgetEnabledForPDP()
+                && $this->sezzleConfig->isEnabled()
                 && $this->getItemPrice() != '';
         } catch (NoSuchEntityException $e) {
             return false;

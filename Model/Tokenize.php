@@ -11,6 +11,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Exception\State\InputMismatchException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote;
 use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
 use Sezzle\Payment\Api\V2Interface;
@@ -29,7 +30,7 @@ class Tokenize
     const STATUS_TOKEN_APPROVED = 'Approved';
     const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
 
-    public $sezzleCutomerAttributes = [
+    public $sezzleCustomerAttributes = [
         Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => [
             'input' => 'text',
             'label' => 'Sezzle Tokenize Status',
@@ -138,6 +139,35 @@ class Tokenize
         $this->customerSession->unsCustomerSezzleToken();
         $this->customerSession->unsCustomerSezzleTokenExpiration();
         $this->customerSession->unsGetTokenDetailsLink();
+    }
+
+    /**
+     * Create Order for tokenized checkout
+     *
+     * @param InfoInterface $payment
+     * @param int $amount
+     * @throws LocalizedException
+     */
+    public function createOrder($payment, $amount)
+    {
+        $url = $payment->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK);
+        $sezzleCustomerUUID = $payment->getAdditionalInformation(self::ATTR_SEZZLE_CUSTOMER_UUID);
+        $response = $this->v2->createOrderByCustomerUUID($url, $sezzleCustomerUUID, $amount);
+        if (!$response->getApproved()) {
+            throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
+        }
+        if ($sezzleOrderUUID = $response->getUuid()) {
+            $payment->setAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
+        }
+        if (is_array($response->getLinks())) {
+            foreach ($response->getLinks() as $link) {
+                $rel = "sezzle_" . $link->getRel() . "_link";
+                if ($link->getMethod() == 'GET' && strpos($rel, "self") !== false) {
+                    $rel = Sezzle::ADDITIONAL_INFORMATION_KEY_GET_ORDER_LINK;
+                }
+                $payment->setAdditionalInformation($rel, $link->getHref());
+            }
+        }
     }
 
     /**
@@ -266,7 +296,7 @@ class Tokenize
     private function deleteCustomerTokenRecord($customerID)
     {
         $customer = $this->customerRepository->getById($customerID);
-        foreach ($this->sezzleCutomerAttributes as $attributeCode => $value) {
+        foreach ($this->sezzleCustomerAttributes as $attributeCode => $value) {
             $customer->setCustomAttribute($attributeCode, null);
         }
         $this->customerRepository->save($customer);

@@ -10,7 +10,8 @@ namespace Sezzle\Payment\Model\Api;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
-use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Helper\Data;
+use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
 use Sezzle\Payment\Model\Sezzle;
 
 /**
@@ -19,28 +20,34 @@ use Sezzle\Payment\Model\Sezzle;
  */
 class PayloadBuilder
 {
-    const PRECISION = 2;
 
     /**
-     * @var SezzleApiConfigInterface
+     * @var SezzleConfigInterface
      */
-    private $sezzleApiConfig;
+    private $sezzleConfig;
     /**
      * @var StoreManagerInterface
      */
     private $storeManager;
+    /**
+     * @var Data
+     */
+    private $sezzleHelper;
 
     /**
      * PayloadBuilder constructor.
      * @param StoreManagerInterface $storeManager
-     * @param SezzleApiConfigInterface $sezzleApiConfig
+     * @param SezzleConfigInterface $sezzleConfig
+     * @param Data $sezzleHelper
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        SezzleApiConfigInterface $sezzleApiConfig
+        SezzleConfigInterface $sezzleConfig,
+        Data $sezzleHelper
     ) {
         $this->storeManager = $storeManager;
-        $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->sezzleConfig = $sezzleConfig;
+        $this->sezzleHelper = $sezzleHelper;
     }
 
     /**
@@ -54,10 +61,10 @@ class PayloadBuilder
     {
         $orderPayload = [];
         $completeURL['complete_url'] = [
-            "href" => $this->sezzleApiConfig->getCompleteUrl()
+            "href" => $this->sezzleConfig->getCompleteUrl()
         ];
         $cancelURL['cancel_url'] = [
-            "href" => $this->sezzleApiConfig->getCancelUrl()
+            "href" => $this->sezzleConfig->getCancelUrl()
         ];
         $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
@@ -79,7 +86,7 @@ class PayloadBuilder
      */
     private function buildOrderPayload($quote, $reference)
     {
-        $intent = $this->sezzleApiConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE
+        $intent = $this->sezzleConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE
             ? "CAPTURE"
             : "AUTH";
         return [
@@ -101,39 +108,27 @@ class PayloadBuilder
      *
      * @param float $amount
      * @return array
+     * @throws NoSuchEntityException
      */
     private function getPriceObject($amount)
     {
-        try {
-            return [
-                "amount_in_cents" => $this->convertAmtToCents($amount),
-                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
-            ];
-        } catch (NoSuchEntityException $e) {
-        }
-    }
-
-    /**
-     * Convert amount into cents
-     *
-     * @param float $amount
-     * @return int
-     */
-    private function convertAmtToCents($amount)
-    {
-        return (int)(round($amount * 100, self::PRECISION));
+        return [
+            "amount_in_cents" => $this->sezzleHelper->getAmountInCents($amount),
+            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+        ];
     }
 
     /**
      * Build Customer Payload
      * @param Quote $quote
      * @return array
+     * @throws NoSuchEntityException
      */
     private function buildCustomerPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
         return [
-            "tokenize" => $this->sezzleApiConfig->isTokenizationAllowed(),
+            "tokenize" => $this->sezzleConfig->isTokenizationAllowed(),
             "email" => $quote->getCustomerEmail(),
             "first_name" => $quote->getCustomerFirstname()
                 ? $quote->getCustomerFirstname()
@@ -155,7 +150,6 @@ class PayloadBuilder
      */
     private function buildBillingPayload($quote)
     {
-        /** @var Quote\Address $billingAddress */
         $billingAddress = $quote->getBillingAddress();
         return [
             "name" => $billingAddress->getName(),
@@ -176,7 +170,6 @@ class PayloadBuilder
      */
     private function buildShippingPayload($quote)
     {
-        /** @var Quote\Address $shippingAddress */
         $shippingAddress = $quote->getShippingAddress();
         return [
             "name" => $shippingAddress->getName(),
@@ -209,7 +202,7 @@ class PayloadBuilder
                 "sku" => $productSku,
                 "quantity" => $productQuantity,
                 "price" => [
-                    "amount_in_cents" => (int)(round($item->getPriceInclTax() * 100, self::PRECISION)),
+                    "amount_in_cents" => $this->sezzleHelper->getAmountInCents($item->getPriceInclTax()),
                     "currency" => $currencyCode
                 ]
             ];

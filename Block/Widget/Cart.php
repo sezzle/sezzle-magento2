@@ -11,7 +11,7 @@ use Magento\Catalog\Model\ResourceModel\Url;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\View\Element\Template\Context;
-use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Checkout\Model\Session as CheckoutSession;
 
@@ -23,9 +23,9 @@ class Cart extends \Magento\Checkout\Block\Cart
 {
 
     /**
-     * @var SezzleApiConfigInterface
+     * @var SezzleConfigInterface
      */
-    private $sezzleApiConfig;
+    private $sezzleConfig;
     /**
      * @var Data
      */
@@ -39,7 +39,7 @@ class Cart extends \Magento\Checkout\Block\Cart
      * @param Url $catalogUrlBuilder
      * @param \Magento\Checkout\Helper\Cart $cartHelper
      * @param \Magento\Framework\App\Http\Context $httpContext
-     * @param SezzleApiConfigInterface $sezzleApiConfig
+     * @param SezzleConfigInterface $sezzleConfig
      * @param Data $pricingHelper
      * @param array $data
      */
@@ -50,11 +50,11 @@ class Cart extends \Magento\Checkout\Block\Cart
         Url $catalogUrlBuilder,
         \Magento\Checkout\Helper\Cart $cartHelper,
         \Magento\Framework\App\Http\Context $httpContext,
-        SezzleApiConfigInterface $sezzleApiConfig,
+        SezzleConfigInterface $sezzleConfig,
         Data $pricingHelper,
         array $data = []
     ) {
-        $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->sezzleConfig = $sezzleConfig;
         $this->pricingHelper = $pricingHelper;
         parent::__construct(
             $context,
@@ -72,11 +72,11 @@ class Cart extends \Magento\Checkout\Block\Cart
      *
      * @return string
      */
-    public function isWidgetScriptAllowedForCartPage()
+    public function isWidgetEnabledForCartPage()
     {
         try {
-            return $this->sezzleApiConfig->isWidgetScriptAllowedForCartPage()
-                && $this->sezzleApiConfig->isEnabled()
+            return $this->sezzleConfig->isWidgetEnabledForCartPage()
+                && $this->sezzleConfig->isEnabled()
                 && $this->getGrandTotal() != '';
         } catch (NoSuchEntityException $e) {
             return false;

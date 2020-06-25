@@ -35,7 +35,7 @@ use Sezzle\Payment\Api\Data\TokenizeCustomerInterfaceFactory;
 use Sezzle\Payment\Api\V2Interface;
 use Sezzle\Payment\Helper\Data as SezzleHelper;
 use Sezzle\Payment\Model\Sezzle;
-use Sezzle\Payment\Model\System\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
  * Class V2
@@ -54,9 +54,9 @@ class V2 implements V2Interface
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
 
     /**
-     * @var SezzleApiConfigInterface
+     * @var SezzleConfigInterface
      */
-    private $sezzleApiIdentity;
+    private $sezzleConfig;
     /**
      * @var ProcessorInterface
      */
@@ -106,10 +106,6 @@ class V2 implements V2Interface
      */
     private $sessionInterfaceFactory;
     /**
-     * @var SezzleApiConfigInterface
-     */
-    private $sezzleApiConfig;
-    /**
      * @var SessionOrderInterfaceFactory
      */
     private $sessionOrderInterfaceFactory;
@@ -135,7 +131,6 @@ class V2 implements V2Interface
      * @param AuthInterfaceFactory $authFactory
      * @param DataObjectHelper $dataObjectHelper
      * @param ProcessorInterface $apiProcessor
-     * @param SezzleApiConfigInterface $sezzleApiIdentity
      * @param SezzleHelper $sezzleHelper
      * @param JsonHelper $jsonHelper
      * @param StoreManagerInterface $storeManager
@@ -145,7 +140,7 @@ class V2 implements V2Interface
      * @param CheckoutSession $checkoutSession
      * @param PayloadBuilder $apiPayloadBuilder
      * @param SessionInterfaceFactory $sessionInterfaceFactory
-     * @param SezzleApiConfigInterface $sezzleApiConfig
+     * @param SezzleConfigInterface $sezzleConfig
      * @param SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
      * @param AmountInterfaceFactory $amountInterfaceFactory
      * @param TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
@@ -156,7 +151,6 @@ class V2 implements V2Interface
         AuthInterfaceFactory $authFactory,
         DataObjectHelper $dataObjectHelper,
         ProcessorInterface $apiProcessor,
-        SezzleApiConfigInterface $sezzleApiIdentity,
         SezzleHelper $sezzleHelper,
         JsonHelper $jsonHelper,
         StoreManagerInterface $storeManager,
@@ -166,7 +160,7 @@ class V2 implements V2Interface
         CheckoutSession $checkoutSession,
         PayloadBuilder $apiPayloadBuilder,
         SessionInterfaceFactory $sessionInterfaceFactory,
-        SezzleApiConfigInterface $sezzleApiConfig,
+        SezzleConfigInterface $sezzleConfig,
         SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
         AmountInterfaceFactory $amountInterfaceFactory,
         TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
@@ -176,7 +170,7 @@ class V2 implements V2Interface
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->apiProcessor = $apiProcessor;
-        $this->sezzleApiIdentity = $sezzleApiIdentity;
+        $this->sezzleConfig = $sezzleConfig;
         $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;
@@ -186,7 +180,7 @@ class V2 implements V2Interface
         $this->checkoutSession = $checkoutSession;
         $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->sessionInterfaceFactory = $sessionInterfaceFactory;
-        $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->sezzleConfig = $sezzleConfig;
         $this->sessionOrderInterfaceFactory = $sessionOrderInterfaceFactory;
         $this->amountInterfaceFactory = $amountInterfaceFactory;
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
@@ -199,9 +193,9 @@ class V2 implements V2Interface
      */
     public function authenticate()
     {
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_AUTH_ENDPOINT;
-        $publicKey = $this->sezzleApiIdentity->getPublicKey();
-        $privateKey = $this->sezzleApiIdentity->getPrivateKey();
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_AUTH_ENDPOINT;
+        $publicKey = $this->sezzleConfig->getPublicKey();
+        $privateKey = $this->sezzleConfig->getPrivateKey();
         try {
             $authModel = $this->authFactory->create();
             $body = [
@@ -235,7 +229,7 @@ class V2 implements V2Interface
      */
     public function createSession($reference)
     {
-        $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . self::SEZZLE_CREATE_SESSION_ENDPOINT;
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_CREATE_SESSION_ENDPOINT;
         $quote = $this->checkoutSession->getQuote();
         $body = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
         $sessionModel = $this->sessionInterfaceFactory->create();
@@ -308,7 +302,7 @@ class V2 implements V2Interface
     {
         if (!$url) {
             $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $captureEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $captureEndpoint;
         }
         $auth = $this->authenticate();
         $payload = [
@@ -342,7 +336,7 @@ class V2 implements V2Interface
     {
         if (!$url) {
             $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $refundEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $refundEndpoint;
         }
         $auth = $this->authenticate();
         $payload = [
@@ -373,7 +367,7 @@ class V2 implements V2Interface
     {
         if (!$url) {
             $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderUUID);
-            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $orderEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $orderEndpoint;
         }
         $auth = $this->authenticate();
         try {
@@ -426,7 +420,7 @@ class V2 implements V2Interface
     {
         if (!$url) {
             $customerEndpoint = sprintf(self::SEZZLE_GET_CUSTOMER_ENDPOINT, $customerUUID);
-            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $customerEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $customerEndpoint;
         }
         $auth = $this->authenticate();
         try {
@@ -461,7 +455,7 @@ class V2 implements V2Interface
         $reference = $quote->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         if (!$url) {
             $authorizeEndpoint = sprintf(self::SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT, $customerUUID);
-            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $authorizeEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $authorizeEndpoint;
         }
         $auth = $this->authenticate();
         $payload = [
@@ -516,7 +510,7 @@ class V2 implements V2Interface
     {
         $sessionTokenEndpoint = sprintf(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token);
         if (!$url) {
-            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $sessionTokenEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $sessionTokenEndpoint;
         }
         $auth = $this->authenticate();
         try {
@@ -565,7 +559,7 @@ class V2 implements V2Interface
     {
         if (!$url) {
             $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-            $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . $releaseEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $releaseEndpoint;
         }
         $auth = $this->authenticate();
         $payload = [

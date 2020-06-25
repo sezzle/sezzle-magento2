@@ -7,13 +7,12 @@
 
 namespace Sezzle\Payment\Block\Adminhtml\System\Config\Form;
 
+
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Sezzle\Payment\Block\Adminhtml\System\Config\SezzleRegisterAdmin;
 
-class SezzleRegisterConfig extends Field
+class SezzleWidgetInfo extends Field
 {
-
     /**
      * Render element value
      *
@@ -23,10 +22,12 @@ class SezzleRegisterConfig extends Field
      */
     public function render(AbstractElement $element)
     {
-        return $this->_layout
-            ->createBlock(SezzleRegisterAdmin::class)
-            ->setTemplate('Sezzle_Payment::system/config/sezzle_register_admin.phtml')
-            ->setCacheable(false)
-            ->toHtml();
+        $output = '<div class="deprecated-message">';
+        $output .= '<div class="comment">';
+        $output .= __("Make sure to put <code>&ltdiv id='sezzle-widget'/&gt</code> after the price element in the PDP and Cart theme files
+                        once you have enabled the below options.");
+        $output .= "</div></div>";
+        return $output;
     }
+
 }

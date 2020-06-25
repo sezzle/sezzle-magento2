@@ -120,9 +120,9 @@ class Sezzle extends AbstractMethod
      */
     protected $customerSession;
     /**
-     * @var System\Config\Container\SezzleApiConfigInterface
+     * @var System\Config\Container\SezzleConfigInterface
      */
-    private $sezzleApiConfig;
+    private $sezzleConfig;
     /**
      * @var Tokenize
      */
@@ -131,7 +131,7 @@ class Sezzle extends AbstractMethod
     /**
      * Sezzle constructor.
      * @param Context $context
-     * @param System\Config\Container\SezzleApiConfigInterface $sezzleApiConfig
+     * @param System\Config\Container\SezzleConfigInterface $sezzleConfig
      * @param Data $sezzleHelper
      * @param Registry $registry
      * @param ExtensionAttributesFactory $extensionFactory
@@ -146,7 +146,7 @@ class Sezzle extends AbstractMethod
      */
     public function __construct(
         Context $context,
-        System\Config\Container\SezzleApiConfigInterface $sezzleApiConfig,
+        System\Config\Container\SezzleConfigInterface $sezzleConfig,
         Data $sezzleHelper,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -160,7 +160,7 @@ class Sezzle extends AbstractMethod
         Tokenize $tokenizeModel
     ) {
         $this->sezzleHelper = $sezzleHelper;
-        $this->sezzleApiConfig = $sezzleApiConfig;
+        $this->sezzleConfig = $sezzleConfig;
         $this->quoteRepository = $quoteRepository;
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
@@ -200,7 +200,7 @@ class Sezzle extends AbstractMethod
                 self::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => $quote->getCustomer()->getCustomAttribute(self::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK)->getValue(),
             ];
             $additionalInformation = array_merge($additionalInformation, $tokenizeInformation);
-            $redirectURL = $this->sezzleApiConfig->getTokenizePaymentCompleteURL();
+            $redirectURL = $this->sezzleConfig->getTokenizePaymentCompleteURL();
         } else {
             $this->sezzleHelper->logSezzleActions("Typical Checkout");
             $session = $this->v2->createSession($referenceID);
@@ -305,27 +305,11 @@ class Sezzle extends AbstractMethod
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
 
-        $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
+        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $sezzleOrderUUID = "";
         if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
-            $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK);
-            $response = $this->v2->createOrderByCustomerUUID($url, $sezzleCustomerUUID, $amountInCents);
-            if (!$response->getApproved()) {
-                throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
-            }
-            if ($sezzleOrderUUID = $response->getUuid()) {
-                $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
-            }
-            if (is_array($response->getLinks())) {
-                foreach ($response->getLinks() as $link) {
-                    $rel = "sezzle_" . $link->getRel() . "_link";
-                    if ($link->getMethod() == 'GET' && strpos($rel, "self") !== false) {
-                        $rel = self::ADDITIONAL_INFORMATION_KEY_GET_ORDER_LINK;
-                    }
-                    $payment->setAdditionalInformation($rel, $link->getHref());
-                }
-            }
+            $this->tokenizeModel->createOrder($payment, $amountInCents);
         }
         if (!$this->validateOrder($payment)) {
             throw new LocalizedException(__('Unable to validate the order.'));
@@ -361,35 +345,13 @@ class Sezzle extends AbstractMethod
         }
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
-        $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
+        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
         $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
-        $orderTotalInCents = (int)(round(
-            $payment->getOrder()->getBaseGrandTotal() * 100,
-            PayloadBuilder::PRECISION
-        ));
+        $orderTotalInCents = $this->sezzleHelper->getAmountInCents($payment->getOrder()->getBaseGrandTotal());
         if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
             $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
             if (!$sezzleOrderUUID) {
-                $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK);
-                $response = $this->v2->createOrderByCustomerUUID(
-                    $url,
-                    $sezzleCustomerUUID,
-                    $amountInCents
-                );
-                if (!$response->getApproved()) {
-                    throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
-                }
-                $sezzleOrderUUID = $response->getUuid();
-                $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
-                if (is_array($response->getLinks())) {
-                    foreach ($response->getLinks() as $link) {
-                        $rel = $link->getRel();
-                        if ($link->getMethod() == 'GET' && $link->getRel() == 'self') {
-                            $rel = self::ADDITIONAL_INFORMATION_KEY_GET_ORDER_LINK;
-                        }
-                        $payment->setAdditionalInformation($rel, $link->getHref());
-                    }
-                }
+                $this->tokenizeModel->createOrder($payment, $amountInCents);
             }
         }
         if (!$this->validateOrder($payment)) {
@@ -433,7 +395,7 @@ class Sezzle extends AbstractMethod
             throw new LocalizedException(__('Failed to void the payment.'));
         }
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $amountInCents = (int)(round($payment->getOrder()->getBaseGrandTotal() * 100, PayloadBuilder::PRECISION));
+        $amountInCents = $this->sezzleHelper->getAmountInCents($payment->getOrder()->getBaseGrandTotal());
 
         $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_LINK);
         $this->v2->releasePaymentByOrderUUID($url, $orderUUID, $amountInCents);
@@ -463,7 +425,7 @@ class Sezzle extends AbstractMethod
             throw new LocalizedException(__('Unable to validate the order.'));
         }
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $amountInCents = (int)(round($amount * 100, PayloadBuilder::PRECISION));
+        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
         if ($sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
             $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_LINK);
             $this->v2->refundByOrderUUID($url, $sezzleOrderUUID, $amountInCents);
@@ -496,10 +458,10 @@ class Sezzle extends AbstractMethod
         $checkResult = new DataObject();
         $checkResult->setData('is_available', true);
 
-        $merchantUUID = $this->sezzleApiConfig->getMerchantUUID();
-        $publicKey = $this->sezzleApiConfig->getPublicKey();
-        $privateKey = $this->sezzleApiConfig->getPrivateKey();
-        $minCheckoutAmount = $this->sezzleApiConfig->getMinCheckoutAmount();
+        $merchantUUID = $this->sezzleConfig->getMerchantUUID();
+        $publicKey = $this->sezzleConfig->getPublicKey();
+        $privateKey = $this->sezzleConfig->getPrivateKey();
+        $minCheckoutAmount = $this->sezzleConfig->getMinCheckoutAmount();
 
         if (($this->getCode() == self::PAYMENT_CODE)
             && ((!$merchantUUID || !$publicKey || !$privateKey)

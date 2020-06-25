@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="sezzle_logs_daily_send" instance="Sezzle\Sezzlepay\Model\Cron\SezzleLog" method="execute">
+            <schedule>0 0/5 * * *</schedule>
+        </job>
+    </group>
+</config>

@@ -8,25 +8,30 @@
 namespace Sezzle\Payment\Model\System\Config\Container;
 
 /**
- * Class SezzleApiIdentity
+ * Class SezzleIdentity
  * @package Sezzle\Payment\Model\System\Config\Container
  */
-class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
+class SezzleIdentity extends Container implements SezzleConfigInterface
 {
+    const PROD_MODE = 'live';
+    const SANDBOX_MODE = 'sandbox';
+
     const XML_PATH_PUBLIC_KEY = 'payment/sezzle/public_key';
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzle/active';
     const XML_PATH_PAYMENT_MODE = 'payment/sezzle/payment_mode';
     const XML_PATH_PRIVATE_KEY = 'payment/sezzle/private_key';
     const XML_PATH_MERCHANT_ID = 'payment/sezzle/merchant_id';
-    const XML_PATH_LOG_TRACKER = 'payment/sezzle/log_tracker';
     const XML_PATH_PAYMENT_ACTION = 'payment/sezzle/payment_action';
     const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzle/min_checkout_amount';
     const XML_PATH_WIDGET_PDP = 'payment/sezzle/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzle/widget_cart';
     const XML_PATH_TOKENIZE = 'payment/sezzle/tokenize';
 
-    private $liveCheckoutUrl = "https://gateway.sezzle.com";
-    private $sandboxCheckoutUrl = "https://staging.gateway.sezzle.com";
+    const XML_PATH_LOG_TRACKER = 'payment/sezzle/log_tracker';
+    const XML_PATH_CRON_LOGS = 'payment/sezzle/send_logs_via_cron';
+
+    private $liveGatewayUrl = "https://gateway.sezzle.com";
+    private $sandboxGatewayUrl = "https://sandbox.gateway.sezzle.com";
 
     /**
      * @inheritdoc
@@ -91,11 +96,11 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         $paymentMode = $this->getPaymentMode();
         switch ($paymentMode) {
-            case 'live':
-                return $this->liveCheckoutUrl;
+            case self::PROD_MODE:
+                return $this->liveGatewayUrl;
                 break;
-            case 'sandbox':
-                return $this->sandboxCheckoutUrl;
+            case self::SANDBOX_MODE:
+                return $this->sandboxGatewayUrl;
                 break;
             default:
                 break;
@@ -138,7 +143,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     /**
      * @inheritdoc
      */
-    public function isWidgetScriptAllowedForPDP()
+    public function isWidgetEnabledForPDP()
     {
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_PDP,
@@ -149,7 +154,7 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     /**
      * @inheritdoc
      */
-    public function isWidgetScriptAllowedForCartPage()
+    public function isWidgetEnabledForCartPage()
     {
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_CART,
@@ -164,6 +169,17 @@ class SezzleApiIdentity extends Container implements SezzleApiConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_TOKENIZE,
+            $this->getStore()->getStoreId()
+        ) ? true : false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isLogsSendingToSezzleAllowed()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_CRON_LOGS,
             $this->getStore()->getStoreId()
         ) ? true : false;
     }
