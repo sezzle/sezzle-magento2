@@ -222,6 +222,7 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                 </div>
             </div>
 
+            <?php if ($block->isTokenizedDataAvailable()) : ?>
             <div class="admin__page-section-item order-account-information sezzle">
                 <?php /* Sezzle Account Information */ ?>
                 <div class="admin__page-section-item-title">
@@ -244,6 +245,7 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                     </table>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </section>
 <?php endif; ?>

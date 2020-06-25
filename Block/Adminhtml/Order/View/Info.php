@@ -18,6 +18,12 @@ use Sezzle\Payment\Model\Tokenize;
 class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
 {
 
+    /**
+     * Get value from payment additional info
+     *
+     * @param string $key
+     * @return string[]|null
+     */
     private function getValue($key)
     {
         try {
@@ -97,6 +103,14 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     public function getSezzleCustomerUUID()
     {
         return $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTokenizedDataAvailable()
+    {
+        return $this->getSezzleCustomerUUID() && $this->getSezleCustomerUUIDExpiration();
     }
 
     /**

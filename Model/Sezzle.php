@@ -224,15 +224,16 @@ class Sezzle extends AbstractMethod
                     $additionalInformation = array_merge($additionalInformation, $links);
                 }
             }
-            if ($session->getTokenize()) {
-                $this->customerSession->setCustomerSezzleToken($session->getTokenize()->getToken());
-                $this->customerSession->setCustomerSezzleTokenExpiration($session->getTokenize()->getExpiration());
+            if ($tokenizeObject = $session->getTokenize()) {
+                $this->customerSession->setCustomerSezzleToken($tokenizeObject->getToken());
+                $this->customerSession->setCustomerSezzleTokenExpiration($tokenizeObject->getExpiration());
                 $this->customerSession->setCustomerSezzleTokenStatus(true);
-            }
-            if (is_array($session->getTokenize()->getLinks())) {
-                foreach ($session->getTokenize()->getLinks() as $link) {
-                    if ($link->getRel() == self::ADDITIONAL_INFORMATION_KEY_GET_TOKEN_DETAILS_LINK) {
-                        $this->customerSession->setGetTokenDetailsLink($link->getHref());
+
+                if (is_array($tokenizeObject->getLinks())) {
+                    foreach ($tokenizeObject->getLinks() as $link) {
+                        if ($link->getRel() == self::ADDITIONAL_INFORMATION_KEY_GET_TOKEN_DETAILS_LINK) {
+                            $this->customerSession->setGetTokenDetailsLink($link->getHref());
+                        }
                     }
                 }
             }
