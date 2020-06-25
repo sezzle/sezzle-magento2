@@ -75,7 +75,7 @@
                     </field>
                     <!-- tokenize -->
                     <field id="tokenize" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Allow Customer tokenization?</label>
+                        <label>Enable Customer Tokenization?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>Makes you enable Customer tokenization</comment>
                         <config_path>payment/sezzle/tokenize</config_path>

@@ -26,6 +26,38 @@ define(
                 template: 'Sezzle_Sezzlepay/payment/sezzle'
             },
 
+            /**
+             * Check is customer uuid is available
+             * @returns bool
+             */
+            hasCustomerUUID: function () {
+                var customerCustomAttributes = customer.customerData.custom_attributes;
+                console.log(customerCustomAttributes);
+                return !(customerCustomAttributes === undefined
+                    || customerCustomAttributes.sezzle_customer_uuid === undefined
+                    || !customerCustomAttributes.sezzle_customer_uuid.value);
+            },
+
+            /**
+             * Get Place Order button name
+             * @returns string
+             */
+            getSubmitButtonName: function () {
+                return this.hasCustomerUUID() ? "Place Order" : "Continue to Sezzle";
+            },
+
+            /**
+             * Get loader message
+             * @returns string
+             */
+            getLoaderMsg: function () {
+                return this.hasCustomerUUID() ? "Placing your order..." : "Redirecting you to Sezzle Checkout...";
+            },
+
+            /**
+             * Get Sezzle Image src
+             * @returns string
+             */
             getSezzleImgSrc: function () {
                 return 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
             },
@@ -64,13 +96,8 @@ define(
             },
 
             /**
-             * Get Checkout Message based on the currency
-             * @returns {*}
+             * Handle ajax action of the redirection
              */
-            getPaymentText: function () {
-                return 'Payment Schedule';
-            },
-
             redirectToSezzleController: function (data) {
 
                 // Make a post request to redirect
@@ -96,6 +123,9 @@ define(
                 });
             },
 
+            /**
+             * Handle redirection
+             */
             handleRedirectAction: function () {
                 var data = $("#co-shipping-form").serialize();
                 if (!customer.isLoggedIn()) {
@@ -105,14 +135,17 @@ define(
                 this.redirectToSezzleController(data);
             },
 
+            /**
+             * Place Order click event
+             */
             continueToSezzle: function () {
                 if (this.validate() && additionalValidators.validate()) {
+                    var loaderMsg = this.getLoaderMsg(),
+                        msgPart1 = "<div><style>.page-loader{display:-ms-flexbox;display:flex;-ms-flex-direction:column;flex-direction:column;-ms-flex-pack:center;justify-content:center;position:fixed;top:0;left:0;z-index:10000000;width:100vw;height:100vh;background-color:#fff}.page-loader .loader-image{width:auto;height:120px;background-image:url(https://media.sezzle.com/branding/2.0/styleGuide/loader.svg);background-repeat:no-repeat;background-position:50%;background-size:80px auto}.page-loader .loader-text{font-size:18px;font-weight:normal;text-align:center;color:#252525}</style><div class='page-loader'><div class='loader-image'></div><div class='loader-text'>",
+                        msgPart2 = "</div></div></div>";
+                    $("body").append(msgPart1.concat(loaderMsg, msgPart2));
                     this.handleRedirectAction();
                 }
-            },
-
-            placeOrder: function(data, event) {
-                this.continueToSezzle();
             }
         });
     }

@@ -45,7 +45,7 @@ use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 class V1 implements V1Interface
 {
     const SEZZLE_AUTH_ENDPOINT = "/v1/authentication";
-    const SEZZLE_LOGGER_ENDPOINT = "/v2/logs/%s";
+    const SEZZLE_LOGGER_ENDPOINT = "/v1/logs/%s";
     const LOG_POST_SUCCESS_MESSAGE = "File uploaded successfully";
 
     /**

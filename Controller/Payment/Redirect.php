@@ -12,6 +12,7 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Class Redirect
@@ -63,6 +64,9 @@ class Redirect extends Sezzle
         $this->cartRepository->save($quote);
         $this->checkoutSession->replaceQuote($quote);
         $checkoutUrl = $this->sezzleModel->getSezzleRedirectUrl($quote);
+        if ($quote->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
+            $this->_forward('complete', null, null, ['tokenize_checkout' => true]);
+        }
         $this->sezzleHelper->logSezzleActions("Checkout Url : $checkoutUrl");
         $json = $this->jsonHelper->jsonEncode(["redirectURL" => $checkoutUrl]);
         $jsonResult = $this->resultJsonFactory->create();

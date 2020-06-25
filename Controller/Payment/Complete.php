@@ -71,6 +71,13 @@ class Complete extends Sezzle
                 $e->getMessage()
             );
         }
-        $this->_redirect($redirect);
+        if ($this->getRequest()->getParam('tokenize_checkout')) {
+            $url = $this->_url->getUrl($redirect);
+            $json = $this->jsonHelper->jsonEncode(["redirectURL" => $url]);
+            $jsonResult = $this->resultJsonFactory->create();
+            $jsonResult->setData($json);
+            return $jsonResult;
+        }
+        return $this->_redirect($redirect);
     }
 }
