@@ -1,16 +1,16 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Api\Data;
+namespace Sezzle\Sezzlepay\Model\Api\Data;
 
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Payment\Api\Data\SessionTokenizeInterface;
-use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
+use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
+use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
 
 class SessionTokenize extends AbstractExtensibleObject implements SessionTokenizeInterface
 {

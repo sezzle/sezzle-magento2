@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model;
+namespace Sezzle\Sezzlepay\Model;
 
 use Exception;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -24,13 +24,13 @@ use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteRepository;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
-use Sezzle\Payment\Api\V2Interface;
-use Sezzle\Payment\Helper\Data;
-use Sezzle\Payment\Model\Api\PayloadBuilder;
+use Sezzle\Sezzlepay\Api\V2Interface;
+use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\Api\PayloadBuilder;
 
 /**
  * Class Sezzle
- * @package Sezzle\Payment\Model
+ * @package Sezzle\Sezzlepay\Model
  */
 class Sezzle extends AbstractMethod
 {

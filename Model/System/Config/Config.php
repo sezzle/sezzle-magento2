@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\System\Config;
+namespace Sezzle\Sezzlepay\Model\System\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Request\Http;
@@ -15,7 +15,7 @@ use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Config
- * @package Sezzle\Payment\Model\System
+ * @package Sezzle\Sezzlepay\Model\System
  */
 class Config
 {

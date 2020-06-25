@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Controller\AbstractController;
+namespace Sezzle\Sezzlepay\Controller\AbstractController;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -19,11 +19,11 @@ use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
-use Sezzle\Payment\Model\Tokenize;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Class Sezzle
- * @package Sezzle\Payment\Controller\AbstractController
+ * @package Sezzle\Sezzlepay\Controller\AbstractController
  */
 abstract class Sezzle extends Action
 {
@@ -40,7 +40,7 @@ abstract class Sezzle extends Action
      */
     protected $orderFactory;
     /**
-     * @var \Sezzle\Payment\Model\Sezzle
+     * @var \Sezzle\Sezzlepay\Model\Sezzle
      */
     protected $sezzleModel;
     /**
@@ -66,7 +66,7 @@ abstract class Sezzle extends Action
     protected $customerRepository;
 
     /**
-     * @var \Sezzle\Payment\Helper\Data
+     * @var \Sezzle\Sezzlepay\Helper\Data
      */
     protected $sezzleHelper;
     /**
@@ -85,8 +85,8 @@ abstract class Sezzle extends Action
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      * @param OrderFactory $orderFactory
-     * @param \Sezzle\Payment\Model\Sezzle $sezzleModel
-     * @param \Sezzle\Payment\Helper\Data $sezzleHelper
+     * @param \Sezzle\Sezzlepay\Model\Sezzle $sezzleModel
+     * @param \Sezzle\Sezzlepay\Helper\Data $sezzleHelper
      * @param JsonFactory $resultJsonFactory
      * @param Data $jsonHelper
      * @param QuoteManagement $quoteManagement
@@ -100,8 +100,8 @@ abstract class Sezzle extends Action
         CustomerSession $customerSession,
         CheckoutSession $checkoutSession,
         OrderFactory $orderFactory,
-        \Sezzle\Payment\Model\Sezzle $sezzleModel,
-        \Sezzle\Payment\Helper\Data $sezzleHelper,
+        \Sezzle\Sezzlepay\Model\Sezzle $sezzleModel,
+        \Sezzle\Sezzlepay\Helper\Data $sezzleHelper,
         JsonFactory $resultJsonFactory,
         Data $jsonHelper,
         QuoteManagement $quoteManagement,

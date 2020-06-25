@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Block\Widget;
+namespace Sezzle\Sezzlepay\Block\Widget;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Block\Product\Context;
@@ -19,7 +19,7 @@ use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Framework\Url\EncoderInterface;
-use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 class PDP extends View
 {

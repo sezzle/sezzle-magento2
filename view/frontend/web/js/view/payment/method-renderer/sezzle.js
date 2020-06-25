@@ -1,6 +1,6 @@
 /**
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 define(
@@ -23,7 +23,7 @@ define(
         'use strict';
         return Component.extend({
             defaults: {
-                template: 'Sezzle_Payment/payment/sezzle'
+                template: 'Sezzle_Sezzlepay/payment/sezzle'
             },
 
             getSezzleImgSrc: function () {

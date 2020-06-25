@@ -1,6 +1,6 @@
 /**
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
@@ -33,9 +33,9 @@ define(
 
                     self.$sezzleConfig = $('#sezzle_config');
                     self.$sezzlementHeader = $('#payment_' + self.getCountry() + '_' + self.selector
-                        + '_payment-head');
+                        + '_sezzlepay-head');
                     self.$sezzleMerchantUUID = $('#payment_' + self.getCountry() + '_' + self.selector
-                        + '_payment_merchant_uuid').val();
+                        + '_sezzlepay_merchant_uuid').val();
                     self.$container = $('#sezzle_config');
 
                     if (self.$sezzleMerchantUUID) {

@@ -1,13 +1,13 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Block\Order;
+namespace Sezzle\Sezzlepay\Block\Order;
 
-use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
  * Class Info
@@ -17,7 +17,7 @@ class Info extends \Magento\Sales\Block\Order\Info
     /**
      * @var string
      */
-    protected $_template = 'Sezzle_Payment::order/sezzle_order_reference.phtml';
+    protected $_template = 'Sezzle_Sezzlepay::order/sezzle_order_reference.phtml';
 
     public function getSezzleOrderReferenceID()
     {

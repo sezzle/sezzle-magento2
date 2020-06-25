@@ -1,18 +1,18 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\System\Config\Source\Payment;
+namespace Sezzle\Sezzlepay\Model\System\Config\Source\Payment;
 
 use Magento\Framework\Option\ArrayInterface;
-use Sezzle\Payment\Model\System\Config\Container\SezzleIdentity;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 
 /**
  * Class Mode
- * @package Sezzle\Payment\Model\System\Config\Source\Payment
+ * @package Sezzle\Sezzlepay\Model\System\Config\Source\Payment
  */
 class Mode implements ArrayInterface
 {

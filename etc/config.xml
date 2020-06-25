@@ -2,7 +2,7 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
@@ -11,7 +11,7 @@
         <payment>
             <sezzle>
 		        <active>0</active>
-                <model>Sezzle\Payment\Model\Sezzle</model>
+                <model>Sezzle\Sezzlepay\Model\Sezzle</model>
                 <order_status>pending</order_status>
                 <merchant_country>US</merchant_country>
                 <payment_mode>sandbox</payment_mode>

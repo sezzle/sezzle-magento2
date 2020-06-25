@@ -2,7 +2,7 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
@@ -10,12 +10,12 @@
     <body>
         <referenceBlock name="order_info">
             <action method="setTemplate">
-                <argument name="template" xsi:type="string">Sezzle_Payment::order/view/info.phtml</argument>
+                <argument name="template" xsi:type="string">Sezzle_Sezzlepay::order/view/info.phtml</argument>
             </action>
         </referenceBlock>
         <referenceBlock name="order_items">
             <action method="setTemplate">
-                <argument name="template" xsi:type="string">Sezzle_Payment::order/invoice/create/items.phtml</argument>
+                <argument name="template" xsi:type="string">Sezzle_Sezzlepay::order/invoice/create/items.phtml</argument>
             </action>
         </referenceBlock>
     </body>

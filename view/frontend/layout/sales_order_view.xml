@@ -2,13 +2,13 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <referenceContainer name="page.main.title">
-        <block class="Sezzle\Payment\Block\Order\Info" name="sezzle_order_reference_id" before="order.date" template="Sezzle_Payment::order/sezzle_order_reference.phtml"/>
+        <block class="Sezzle\Sezzlepay\Block\Order\Info" name="sezzle_order_reference_id" before="order.date" template="Sezzle_Sezzlepay::order/sezzle_order_reference.phtml"/>
     </referenceContainer>
 </page>

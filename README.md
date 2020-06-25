@@ -26,7 +26,7 @@ There are two ways of installing and upgrading the extension.
 * Copy `Sezzle` directory from unzipped folder to `[Magento]/app/code/`.
 * Open the terminal.
 * Run the following command to enable `Sezzle`:
-```php bin/magento module:enable Sezzle_Payment```
+```php bin/magento module:enable Sezzle_Sezzlepay```
 * Run the `Magento` setup upgrade:
 ```php bin/magento setup:upgrade```
 * Run the `Magento` Dependencies Injection Compile:
@@ -54,7 +54,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Copy `Sezzle` directory from unzipped folder to `[Magento]/app/code/`. Make sure you are overwriting the files.
 * Open the terminal.
 * Run the following command to enable `Sezzle`:
-```php bin/magento module:enable Sezzle_Payment```
+```php bin/magento module:enable Sezzle_Sezzlepay```
 * Run the `Magento` setup upgrade:
 ```php bin/magento setup:upgrade```
 * Run the `Magento` Dependencies Injection Compile:

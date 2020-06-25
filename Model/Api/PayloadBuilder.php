@@ -1,22 +1,22 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Api;
+namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
-use Sezzle\Payment\Helper\Data;
-use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
-use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
  * Class PayloadBuilder
- * @package Sezzle\Payment\Model\Api
+ * @package Sezzle\Sezzlepay\Model\Api
  */
 class PayloadBuilder
 {

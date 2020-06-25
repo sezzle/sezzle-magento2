@@ -5,14 +5,14 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Cron;
+namespace Sezzle\Sezzlepay\Model\Cron;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Driver\File;
-use Sezzle\Payment\Api\V1Interface;
-use Sezzle\Payment\Helper\Data;
-use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
-use Sezzle\Payment\Model\System\Config\Container\SezzleIdentity;
+use Sezzle\Sezzlepay\Api\V1Interface;
+use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 
 /**
  * Class SezzleLog

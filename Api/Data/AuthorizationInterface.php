@@ -1,16 +1,16 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Api\Data;
+namespace Sezzle\Sezzlepay\Api\Data;
 
 
 /**
  * Interface AuthorizationInterface
- * @package Sezzle\Payment\Api\Data
+ * @package Sezzle\Sezzlepay\Api\Data
  */
 interface AuthorizationInterface
 {
@@ -35,23 +35,23 @@ interface AuthorizationInterface
     public function setUuid($uuid);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\LinkInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\LinkInterface[]|null
      */
     public function getLinks();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\LinkInterface[] $links
+     * @param \Sezzle\Sezzlepay\Api\Data\LinkInterface[] $links
      * @return $this
      */
     public function setLinks(array $links = null);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\AmountInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\AmountInterface|null
      */
     public function getAuthorizationAmount();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\AmountInterface $authorizationAmount
+     * @param \Sezzle\Sezzlepay\Api\Data\AmountInterface $authorizationAmount
      * @return $this
      */
     public function setAuthorizationAmount(AmountInterface $authorizationAmount = null);
@@ -79,34 +79,34 @@ interface AuthorizationInterface
     public function setExpiration($expiration);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\PaymentActionInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[]|null
      */
     public function getReleases();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\PaymentActionInterface[] $releases
+     * @param \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[] $releases
      * @return $this
      */
     public function setReleases(array $releases = null);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\PaymentActionInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[]|null
      */
     public function getCaptures();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\PaymentActionInterface[] $captures
+     * @param \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[] $captures
      * @return $this
      */
     public function setCaptures(array $captures = null);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\PaymentActionInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[]|null
      */
     public function getRefunds();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\PaymentActionInterface[] $refunds
+     * @param \Sezzle\Sezzlepay\Api\Data\PaymentActionInterface[] $refunds
      * @return $this
      */
     public function setRefunds(array $refunds = null);

@@ -1,11 +1,11 @@
 <?php
 /**
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Block\Adminhtml\System\Config\Form;
+namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form;
 
 
 use Magento\Config\Block\System\Config\Form\Field;

@@ -1,22 +1,22 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Api;
+namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
-use Sezzle\Payment\Helper\Data as SezzleHelper;
+use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 
 /**
  * Class Processor
- * @package Sezzle\Payment\Model\Api
+ * @package Sezzle\Sezzlepay\Model\Api
  */
 class Processor implements ProcessorInterface
 {

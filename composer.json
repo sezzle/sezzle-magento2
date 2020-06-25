@@ -1,5 +1,5 @@
 {
-    "name": "sezzle/payment",
+    "name": "sezzle/sezzlepay",
     "description": "Sezzle extension for Magento 2",
     "type": "magento2-module",
     "homepage": "https://github.com/sezzle/sezzle-magento-2/",
@@ -11,7 +11,7 @@
     "autoload": {
       "files": [ "registration.php" ],
       "psr-4": {
-        "Sezzle\\Payment\\": ""
+        "Sezzle\\Sezzlepay\\": ""
       }
     }
   }

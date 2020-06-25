@@ -2,12 +2,12 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-      <module name="Sezzle_Payment" setup_version="2.0.0">
+      <module name="Sezzle_Sezzlepay" setup_version="2.0.0">
             <sequence>
                   <module name="Magento_Sales" />
                   <module name="Magento_Payment" />

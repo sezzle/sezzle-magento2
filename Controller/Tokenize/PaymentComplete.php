@@ -1,13 +1,13 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Controller\Tokenize;
+namespace Sezzle\Sezzlepay\Controller\Tokenize;
 
-use Sezzle\Payment\Controller\Payment\Complete;
+use Sezzle\Sezzlepay\Controller\Payment\Complete;
 
 class PaymentComplete extends Complete
 {

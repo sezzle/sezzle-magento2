@@ -1,18 +1,18 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Helper;
+namespace Sezzle\Sezzlepay\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
-use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Zend\Log\Logger;
 use Zend\Log\Writer\Stream;
 
@@ -23,7 +23,7 @@ class Data extends AbstractHelper
 {
     const PRECISION = 2;
     const SEZZLE_LOG_FILE_PATH = '/var/log/sezzle.log';
-    const SEZZLE_COMPOSER_FILE_PATH = '/app/code/Sezzle/Payment/composer.json';
+    const SEZZLE_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
 
     /**
      * @var SezzleConfigInterface

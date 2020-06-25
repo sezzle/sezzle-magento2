@@ -1,11 +1,11 @@
 <?php
 /**
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Block\Adminhtml\System\Config\Form;
+namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form;
 
 use Magento\Backend\Block\Template\Context;
 use Magento\Backend\Model\UrlInterface;
@@ -13,7 +13,7 @@ use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Phrase;
-use Sezzle\Payment\Helper\Data;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * Displays links to available custom logs

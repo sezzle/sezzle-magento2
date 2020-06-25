@@ -1,15 +1,15 @@
 <?php
 /**
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Block\Adminhtml\System\Config\Form;
+namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form;
 
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Sezzle\Payment\Block\Adminhtml\System\Config\SezzleRegisterAdmin;
+use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\SezzleRegisterAdmin;
 
 class SezzleRegisterConfig extends Field
 {
@@ -25,7 +25,7 @@ class SezzleRegisterConfig extends Field
     {
         return $this->_layout
             ->createBlock(SezzleRegisterAdmin::class)
-            ->setTemplate('Sezzle_Payment::system/config/sezzle_register_admin.phtml')
+            ->setTemplate('Sezzle_Sezzlepay::system/config/sezzle_register_admin.phtml')
             ->setCacheable(false)
             ->toHtml();
     }

@@ -2,14 +2,14 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="order_tab_info">
-        <block class="Sezzle\Payment\Block\Adminhtml\Order\View\Info" name="order_info" template="Sezzle_Payment::order/view/info.phtml">
+        <block class="Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info" name="order_info" template="Sezzle_Sezzlepay::order/view/info.phtml">
             <container name="extra_customer_info"/>
         </block>
         </referenceBlock>

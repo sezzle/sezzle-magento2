@@ -1,23 +1,23 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Block\Widget;
+namespace Sezzle\Sezzlepay\Block\Widget;
 
 use Magento\Catalog\Model\ResourceModel\Url;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\View\Element\Template\Context;
-use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Checkout\Model\Session as CheckoutSession;
 
 /**
  * Class Cart
- * @package Sezzle\Payment\Block\Widget
+ * @package Sezzle\Sezzlepay\Block\Widget
  */
 class Cart extends \Magento\Checkout\Block\Cart
 {

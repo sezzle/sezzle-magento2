@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Block\Adminhtml\Customer\Edit\Tab;
+namespace Sezzle\Sezzlepay\Block\Adminhtml\Customer\Edit\Tab;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
@@ -17,11 +17,11 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
 use Magento\Framework\Registry;
 use Magento\Ui\Component\Layout\Tabs\TabInterface;
-use Sezzle\Payment\Model\Tokenize;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Class Sezzle
- * @package Sezzle\Payment\Block\Adminhtml\Customer\Edit\Tab
+ * @package Sezzle\Sezzlepay\Block\Adminhtml\Customer\Edit\Tab
  */
 class Sezzle extends Template implements TabInterface
 {

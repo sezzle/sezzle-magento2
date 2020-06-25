@@ -1,15 +1,15 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Api\Data;
+namespace Sezzle\Sezzlepay\Api\Data;
 
 /**
  * Interface LinkInterface
- * @package Sezzle\Payment\Api\Data
+ * @package Sezzle\Sezzlepay\Api\Data
  */
 interface LinkInterface
 {

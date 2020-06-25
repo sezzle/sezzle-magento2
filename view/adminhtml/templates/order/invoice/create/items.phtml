@@ -1,7 +1,7 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
@@ -10,7 +10,7 @@
 
 <section class="admin__page-section">
     <div class="admin__page-section-title">
-        <?php use Sezzle\Payment\Model\Sezzle;
+        <?php use Sezzle\Sezzlepay\Model\Sezzle;
 
         $_itemsGridLabel = $block->getForcedShipmentCreate() ? 'Items to Invoice and Ship' : 'Items to Invoice'; ?>
         <span class="title"><?= /* @escapeNotVerified */ __('%1', $_itemsGridLabel) ?></span>

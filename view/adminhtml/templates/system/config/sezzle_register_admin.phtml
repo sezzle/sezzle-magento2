@@ -1,12 +1,12 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 ?>
 <?php
-use Sezzle\Payment\Block\Adminhtml\System\Config\SezzleRegisterAdmin;
+use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\SezzleRegisterAdmin;
 /** @var $block SezzleRegisterAdmin */
 ?>
 <div style="background-color:#eee;padding:1em;border:1px solid #ddd;">
@@ -15,7 +15,7 @@ Module Version : <?php echo $block->getSezzleModuleVersion(); ?>
 <div id="sezzle_config">
     <br/>
     <div data-mage-init='{
-        "Sezzle_Payment/js/config": <?php echo /* @noEscape */
+        "Sezzle_Sezzlepay/js/config": <?php echo /* @noEscape */
     $block->getJsonConfig() ?> }'
          id="sezzle_config">
 

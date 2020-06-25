@@ -1,17 +1,17 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Observer;
+namespace Sezzle\Sezzlepay\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 class OrderStatusChangeOnVoidObserver implements ObserverInterface
 {

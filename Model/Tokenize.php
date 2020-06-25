@@ -1,6 +1,6 @@
 <?php
 
-namespace Sezzle\Payment\Model;
+namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -13,13 +13,13 @@ use Magento\Framework\Exception\State\InputMismatchException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Payment\Model\InfoInterface;
 use Magento\Quote\Model\Quote;
-use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
-use Sezzle\Payment\Api\V2Interface;
-use Sezzle\Payment\Helper\Data;
+use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
+use Sezzle\Sezzlepay\Api\V2Interface;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * Class Tokenize
- * @package Sezzle\Payment\Model
+ * @package Sezzle\Sezzlepay\Model
  */
 class Tokenize
 {

@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Plugin\Sales\Controller\Adminhtml\Order;
+namespace Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\Model\View\Result\Page;
@@ -22,8 +22,8 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Controller\Adminhtml\Order\View;
 use Magento\Sales\Model\Order;
 use Psr\Log\LoggerInterface;
-use Sezzle\Payment\Helper\Data;
-use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 class ViewPlugin extends View
 {

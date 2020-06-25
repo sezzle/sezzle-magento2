@@ -2,7 +2,7 @@
 <!--
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
@@ -13,11 +13,11 @@
                 <label><![CDATA[<div class="sezzle-payment-logo"></div><div class="sezzle-payment-byline">Sezzle is a public-benefit corporation on a mission to financially empower the next generation. Sezzle’s Buy Now, Pay Later product gives eCommerce shoppers more buying power by allowing them to split their payment in four, and pay over the course of six weeks. You get paid right away, in full, and Sezzle assumes all risk of fraud, chargeback and repayment.
 </div>]]></label>
                 <fieldset_css>complex sezzle-payment-section</fieldset_css>
-                <frontend_model>Sezzle\Payment\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+                <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
                 <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <frontend_model>Sezzle\Payment\Block\Adminhtml\System\Config\Form\SezzleRegisterConfig</frontend_model>
+                    <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\SezzleRegisterConfig</frontend_model>
                 </field>
-                <group id="sezzle_payment" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="sezzle_sezzlepay" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Payment Settings]]></label>
                     <!-- active -->
                     <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -28,7 +28,7 @@
                     <!-- merchant country -->
                     <field id="merchant_country" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant Country</label>
-                        <source_model>Sezzle\Payment\Model\System\Config\Source\Payment\MerchantCountry</source_model>
+                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\MerchantCountry</source_model>
                         <config_path>payment/sezzle/merchant_country</config_path>
                     </field>
                     <!-- title -->
@@ -57,7 +57,7 @@
                     <!--payment mode-->
                     <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Mode</label>
-                        <source_model>Sezzle\Payment\Model\System\Config\Source\Payment\Mode</source_model>
+                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\Mode</source_model>
                         <config_path>payment/sezzle/payment_mode</config_path>
                     </field>
                     <!-- min checkout amount -->
@@ -70,7 +70,7 @@
                     <!-- payment action -->
                     <field id="payment_action" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
-                        <source_model>Sezzle\Payment\Model\System\Config\Source\Payment\PaymentAction</source_model>
+                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\PaymentAction</source_model>
                         <config_path>payment/sezzle/payment_action</config_path>
                     </field>
                     <!-- tokenize -->
@@ -84,7 +84,7 @@
                 <group id="sezzle_widget" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Widget Settings]]></label>
                     <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <frontend_model>Sezzle\Payment\Block\Adminhtml\System\Config\Form\SezzleWidgetInfo</frontend_model>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\SezzleWidgetInfo</frontend_model>
                     </field>
                     <!-- widget pdp -->
                     <field id="widget_pdp" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -126,7 +126,7 @@
                         <depends>
                             <field id="log_tracker">1</field>
                         </depends>
-                        <frontend_model>Sezzle\Payment\Block\Adminhtml\System\Config\Form\DeveloperLogs</frontend_model>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\DeveloperLogs</frontend_model>
                     </field>
                 </group>
             </group>

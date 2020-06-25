@@ -1,11 +1,11 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Api;
+namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
@@ -14,33 +14,33 @@ use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Store\Model\StoreManagerInterface;
-use Sezzle\Payment\Api\Data\AmountInterface;
-use Sezzle\Payment\Api\Data\AmountInterfaceFactory;
-use Sezzle\Payment\Api\Data\AuthInterface;
-use Sezzle\Payment\Api\Data\AuthInterfaceFactory;
-use Sezzle\Payment\Api\Data\AuthorizationInterface;
-use Sezzle\Payment\Api\Data\AuthorizationInterfaceFactory;
-use Sezzle\Payment\Api\Data\CustomerInterface;
-use Sezzle\Payment\Api\Data\CustomerInterfaceFactory;
-use Sezzle\Payment\Api\Data\LinkInterface;
-use Sezzle\Payment\Api\Data\LinkInterfaceFactory;
-use Sezzle\Payment\Api\Data\OrderInterface;
-use Sezzle\Payment\Api\Data\OrderInterfaceFactory;
-use Sezzle\Payment\Api\Data\SessionInterfaceFactory;
-use Sezzle\Payment\Api\Data\SessionOrderInterface;
-use Sezzle\Payment\Api\Data\SessionOrderInterfaceFactory;
-use Sezzle\Payment\Api\Data\SessionTokenizeInterface;
-use Sezzle\Payment\Api\Data\SessionTokenizeInterfaceFactory;
-use Sezzle\Payment\Api\Data\TokenizeCustomerInterface;
-use Sezzle\Payment\Api\Data\TokenizeCustomerInterfaceFactory;
-use Sezzle\Payment\Api\V1Interface;
-use Sezzle\Payment\Helper\Data as SezzleHelper;
-use Sezzle\Payment\Model\Sezzle;
-use Sezzle\Payment\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Api\Data\AmountInterface;
+use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\AuthInterface;
+use Sezzle\Sezzlepay\Api\Data\AuthInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
+use Sezzle\Sezzlepay\Api\Data\AuthorizationInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
+use Sezzle\Sezzlepay\Api\Data\CustomerInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\LinkInterface;
+use Sezzle\Sezzlepay\Api\Data\LinkInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\OrderInterface;
+use Sezzle\Sezzlepay\Api\Data\OrderInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\SessionInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\SessionOrderInterface;
+use Sezzle\Sezzlepay\Api\Data\SessionOrderInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
+use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterfaceFactory;
+use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
+use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterfaceFactory;
+use Sezzle\Sezzlepay\Api\V1Interface;
+use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
+use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
  * Class V1
- * @package Sezzle\Payment\Model\Api
+ * @package Sezzle\Sezzlepay\Model\Api
  */
 class V1 implements V1Interface
 {

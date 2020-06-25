@@ -1,23 +1,23 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Observer;
+namespace Sezzle\Sezzlepay\Observer;
 
 use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Sezzle\Payment\Helper\Data;
-use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
  * Class SetSezzleCaptureExpiryObserver
- * @package Sezzle\Payment\Observer
+ * @package Sezzle\Sezzlepay\Observer
  */
 class SetSezzleAuthExpiryObserver implements ObserverInterface
 {

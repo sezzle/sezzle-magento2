@@ -1,15 +1,15 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
 
-namespace Sezzle\Payment\Model\System\Config\Source\Payment;
+namespace Sezzle\Sezzlepay\Model\System\Config\Source\Payment;
 
 use Magento\Framework\Option\ArrayInterface;
-use Sezzle\Payment\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
  * Sezzle Payment Action Dropdown source

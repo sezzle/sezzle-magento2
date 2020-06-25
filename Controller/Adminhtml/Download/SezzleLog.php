@@ -1,11 +1,11 @@
 <?php
 /**
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Controller\Adminhtml\Download;
+namespace Sezzle\Sezzlepay\Controller\Adminhtml\Download;
 
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Controller\Adminhtml\System;
@@ -13,7 +13,7 @@ use Magento\Framework\App\Response\Http\FileFactory;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\NotFoundException;
-use Sezzle\Payment\Helper\Data;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * Class SezzleLog

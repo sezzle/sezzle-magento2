@@ -1,17 +1,17 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model;
+namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 
 /**
  * Class SezzleConfigProvider
- * @package Sezzle\Payment\Model
+ * @package Sezzle\Sezzlepay\Model
  */
 class SezzleConfigProvider implements ConfigProviderInterface
 {

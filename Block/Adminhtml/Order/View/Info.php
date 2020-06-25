@@ -1,14 +1,14 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
-namespace Sezzle\Payment\Block\Adminhtml\Order\View;
+namespace Sezzle\Sezzlepay\Block\Adminhtml\Order\View;
 
 use Magento\Framework\Exception\LocalizedException;
-use Sezzle\Payment\Model\Sezzle;
-use Sezzle\Payment\Model\Tokenize;
+use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * @api

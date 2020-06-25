@@ -1,16 +1,16 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Api\Data;
+namespace Sezzle\Sezzlepay\Api\Data;
 
 
 /**
  * Interface SessionTokenizeInterface
- * @package Sezzle\Payment\Api\Data
+ * @package Sezzle\Sezzlepay\Api\Data
  */
 interface SessionTokenizeInterface
 {
@@ -66,23 +66,23 @@ interface SessionTokenizeInterface
     public function setExpiration($expiration);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\TokenizeCustomerInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface|null
      */
     public function getCustomer();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\TokenizeCustomerInterface $customer
+     * @param \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface $customer
      * @return $this
      */
     public function setCustomer(TokenizeCustomerInterface $customer = null);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\LinkInterface[]|null
+     * @return \Sezzle\Sezzlepay\Api\Data\LinkInterface[]|null
      */
     public function getLinks();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\LinkInterface[] $links
+     * @param \Sezzle\Sezzlepay\Api\Data\LinkInterface[] $links
      * @return $this
      */
     public function setLinks(array $links = null);

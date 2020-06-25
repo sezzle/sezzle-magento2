@@ -1,15 +1,15 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\System\Config\Container;
+namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
 /**
  * Class SezzleIdentity
- * @package Sezzle\Payment\Model\System\Config\Container
+ * @package Sezzle\Sezzlepay\Model\System\Config\Container
  */
 class SezzleIdentity extends Container implements SezzleConfigInterface
 {

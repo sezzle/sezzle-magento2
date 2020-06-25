@@ -1,15 +1,15 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Api\Data;
+namespace Sezzle\Sezzlepay\Api\Data;
 
 /**
  * Interface SessionInterface
- * @package Sezzle\Payment\Api\Data
+ * @package Sezzle\Sezzlepay\Api\Data
  */
 interface SessionInterface
 {
@@ -29,23 +29,23 @@ interface SessionInterface
     public function setUuid($uuid);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\SessionOrderInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\SessionOrderInterface|null
      */
     public function getOrder();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\SessionOrderInterface $sessionOrder
+     * @param \Sezzle\Sezzlepay\Api\Data\SessionOrderInterface $sessionOrder
      * @return $this
      */
     public function setOrder(SessionOrderInterface $sessionOrder = null);
 
     /**
-     * @return \Sezzle\Payment\Api\Data\SessionTokenizeInterface|null
+     * @return \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface|null
      */
     public function getTokenize();
 
     /**
-     * @param \Sezzle\Payment\Api\Data\SessionTokenizeInterface $sessionTokenize
+     * @param \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface $sessionTokenize
      * @return mixed
      */
     public function setTokenize(SessionTokenizeInterface $sessionTokenize = null);

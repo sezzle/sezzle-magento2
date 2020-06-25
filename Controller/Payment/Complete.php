@@ -1,19 +1,19 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Controller\Payment;
+namespace Sezzle\Sezzlepay\Controller\Payment;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
-use Sezzle\Payment\Controller\AbstractController\Sezzle;
+use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
 
 /**
  * Class Complete
- * @package Sezzle\Payment\Controller\Payment
+ * @package Sezzle\Sezzlepay\Controller\Payment
  */
 class Complete extends Sezzle
 {

@@ -1,18 +1,18 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\Api\Data;
+namespace Sezzle\Sezzlepay\Model\Api\Data;
 
 use Magento\Framework\Api\AbstractExtensibleObject;
-use Sezzle\Payment\Api\Data\AuthInterface;
+use Sezzle\Sezzlepay\Api\Data\AuthInterface;
 
 /**
  * Class Auth
- * @package Sezzle\Payment\Model\Api\Data
+ * @package Sezzle\Sezzlepay\Model\Api\Data
  */
 class Auth extends AbstractExtensibleObject implements AuthInterface
 {

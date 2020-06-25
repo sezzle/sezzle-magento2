@@ -1,15 +1,15 @@
 <?php
 /*
  * @category    Sezzle
- * @package     Sezzle_Payment
+ * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Payment\Model\System\Config\Source\Payment;
+namespace Sezzle\Sezzlepay\Model\System\Config\Source\Payment;
 
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Framework\Option\ArrayInterface;
-use Sezzle\Payment\Model\System\Config\Config;
+use Sezzle\Sezzlepay\Model\System\Config\Config;
 
 /**
  * Source model for merchant countries supported by Sezzle
