@@ -118,11 +118,21 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * @return string[]|null
+     * @return string|null
      */
     public function getSezleCustomerUUIDExpiration()
     {
-        return $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
+        try {
+            $customerUUIExpirationTimestamp = $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
+            return $customerUUIExpirationTimestamp ? $this->formatDate(
+                $customerUUIExpirationTimestamp,
+                \IntlDateFormatter::MEDIUM,
+                true,
+                $this->getTimezoneForStore($this->getOrder()->getStore())
+            ) : null;
+        } catch (LocalizedException $e) {
+            return null;
+        }
     }
 
     /**
