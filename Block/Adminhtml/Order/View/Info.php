@@ -34,6 +34,18 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Get Sezzle Order Type
+     *
+     * @return string[]|null
+     */
+    public function getSezzleOrderType()
+    {
+        return $this->getValue(Sezzle::SEZZLE_ORDER_TYPE);
+    }
+
+    /**
+     * Get Sezzle Auth Amount
+     *
      * @return string|null
      */
     public function getSezzleAuthAmount()
@@ -48,6 +60,8 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Get Sezzle Refund Amount
+     *
      * @return string|null
      */
     public function getSezzleRefundAmount()
@@ -62,6 +76,8 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Get Sezzle Capture Amount
+     *
      * @return string|null
      */
     public function getSezzleCaptureAmount()
@@ -76,6 +92,8 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Get Sezzle Release Amount
+     *
      * @return string|null
      */
     public function getSezzleReleaseAmount()
@@ -90,6 +108,8 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Get Sezzle Order Reference ID
+     *
      * @return string[]|null
      */
     public function getSezzleOrderReferenceID()
@@ -98,6 +118,8 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Get Sezzle Customer UUID
+     *
      * @return string[]|null
      */
     public function getSezzleCustomerUUID()
@@ -106,6 +128,8 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Check if tokenize data are available
+     *
      * @return bool
      */
     public function isTokenizedDataAvailable()
@@ -114,6 +138,8 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Get Sezzle Auth Expiry
+     *
      * @return string|null
      */
     public function getSezzleAuthExpiry()
@@ -129,6 +155,40 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
         } catch (LocalizedException $e) {
             return null;
         }
+    }
+
+    /**
+     * Get Sezzle Capture Expiry
+     *
+     * @return string|null
+     */
+    public function getSezzleCaptureExpiry()
+    {
+        try {
+            $captureExpiry = $this->getValue(Sezzle::SEZZLE_CAPTURE_EXPIRY);
+            return $captureExpiry ? $this->formatDate(
+                $captureExpiry,
+                \IntlDateFormatter::MEDIUM,
+                true,
+                $this->getTimezoneForStore($this->getOrder()->getStore())
+            ) : null;
+        } catch (LocalizedException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get Capture Info
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getCaptureInfo()
+    {
+        return ($this->getOrder()->getGrandTotal() == $this->getOrder()->getTotalDue())
+            ? '(Please capture before this)'
+            : '(Captured)';
+
     }
 
     /**

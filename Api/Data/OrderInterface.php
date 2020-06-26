@@ -21,6 +21,9 @@ interface OrderInterface
     const CUSTOMER = "customer";
     const AUTHORIZATION = "authorization";
 
+    const AMOUNT_IN_CENTS = "amount_in_cents";
+    const CAPTURE_EXPIRATION = "capture_expiration";
+
     /**
      * @return string|null
      */
@@ -97,4 +100,26 @@ interface OrderInterface
      * @return $this
      */
     public function setAuthorization(AuthorizationInterface $authorization = null);
+
+    /**
+     * @return string|null
+     */
+    public function getAmountInCents();
+
+    /**
+     * @param string $amountInCents
+     * @return $this
+     */
+    public function setAmountInCents($amountInCents);
+
+    /**
+     * @return string|null
+     */
+    public function getCaptureExpiration();
+
+    /**
+     * @param string $captureExpiration
+     * @return $this
+     */
+    public function setCaptureExpiration($captureExpiration);
 }

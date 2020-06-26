@@ -128,4 +128,36 @@ class Order extends AbstractExtensibleObject implements OrderInterface
     {
         $this->setData(self::AUTHORIZATION, $authorization);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAmountInCents()
+    {
+        return $this->_get(self::AMOUNT_IN_CENTS);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAmountInCents($amountInCents)
+    {
+        $this->setData(self::AMOUNT_IN_CENTS, $amountInCents);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCaptureExpiration()
+    {
+        return $this->_get(self::CAPTURE_EXPIRATION);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setCaptureExpiration($captureExpiration)
+    {
+        $this->setData(self::CAPTURE_EXPIRATION, $captureExpiration);
+    }
 }

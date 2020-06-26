@@ -18,14 +18,6 @@ use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
 interface V2Interface
 {
     /**
-     * Authenticate user
-     *
-     * @return AuthInterface
-     * @throws LocalizedException
-     */
-    public function authenticate();
-
-    /**
      * Create Sezzle Checkout Session
      *
      * @param string $reference
@@ -44,7 +36,7 @@ interface V2Interface
      * @return bool
      * @throws LocalizedException
      */
-    public function captureByOrderUUID($url, $orderUUID, $amount, $isPartialCapture);
+    public function capture($url, $orderUUID, $amount, $isPartialCapture);
 
     /**
      * Refund payment by Order uuid
@@ -55,7 +47,7 @@ interface V2Interface
      * @return bool
      * @throws LocalizedException
      */
-    public function refundByOrderUUID($url, $orderUUID, $amount);
+    public function refund($url, $orderUUID, $amount);
 
     /**
      * Get Order by Order UUID
@@ -107,5 +99,5 @@ interface V2Interface
      * @throws LocalizedException
      * @throws LocalizedException
      */
-    public function releasePaymentByOrderUUID($url, $orderUUID, $amount);
+    public function release($url, $orderUUID, $amount);
 }

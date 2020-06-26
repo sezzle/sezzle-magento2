@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Model\Api;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Store\Model\StoreManagerInterface;
@@ -189,9 +190,13 @@ class V2 implements V2Interface
     }
 
     /**
-     * @inheritDoc
+     * Authenticate user
+     *
+     * @return AuthInterface
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function authenticate()
+    private function authenticate()
     {
         $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_AUTH_ENDPOINT;
         $publicKey = $this->sezzleConfig->getPublicKey();
@@ -219,7 +224,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway authentication error: %1', $e->getMessage())
+                __('V2 Gateway authentication error: %1', $e->getMessage())
             );
         }
     }
@@ -290,7 +295,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway checkout error: %1', $e->getMessage())
+                __('V2 Gateway checkout error: %1', $e->getMessage())
             );
         }
     }
@@ -298,7 +303,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function captureByOrderUUID($url, $orderUUID, $amount, $isPartialCapture)
+    public function capture($url, $orderUUID, $amount, $isPartialCapture)
     {
         if (!$url) {
             $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
@@ -324,7 +329,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway capture error: %1', $e->getMessage())
+                __('V2 Gateway capture error: %1', $e->getMessage())
             );
         }
     }
@@ -332,7 +337,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function refundByOrderUUID($url, $orderUUID, $amount)
+    public function refund($url, $orderUUID, $amount)
     {
         if (!$url) {
             $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT, $orderUUID);
@@ -355,7 +360,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway refund error: %1', $e->getMessage())
+                __('V2 Gateway refund error: %1', $e->getMessage())
             );
         }
     }
@@ -408,7 +413,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway order error: %1', $e->getMessage())
+                __('V2 Gateway order error: %1', $e->getMessage())
             );
         }
     }
@@ -441,7 +446,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway customer error: %1', $e->getMessage())
+                __('V2 Gateway customer error: %1', $e->getMessage())
             );
         }
     }
@@ -498,7 +503,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway create order error: %1', $e->getMessage())
+                __('V2 Gateway create order error: %1', $e->getMessage())
             );
         }
     }
@@ -547,7 +552,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway get token error: %1', $e->getMessage())
+                __('V2 Gateway get token error: %1', $e->getMessage())
             );
         }
     }
@@ -555,7 +560,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function releasePaymentByOrderUUID($url, $orderUUID, $amount)
+    public function release($url, $orderUUID, $amount)
     {
         if (!$url) {
             $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
@@ -578,7 +583,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway release payment error: %1', $e->getMessage())
+                __('V2 Gateway release payment error: %1', $e->getMessage())
             );
         }
     }

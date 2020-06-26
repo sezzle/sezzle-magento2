@@ -105,7 +105,7 @@
                     <label><![CDATA[Developer Settings]]></label>
                     <!-- log tracker -->
                     <field id="log_tracker" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable log tracker?</label>
+                        <label>Enable Log Tracker?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>If yes, all Sezzle actions will be logged</comment>
                         <config_path>payment/sezzle/log_tracker</config_path>

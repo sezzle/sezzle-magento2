@@ -7,32 +7,17 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
-use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Store\Model\StoreManagerInterface;
-use Sezzle\Sezzlepay\Api\Data\AmountInterface;
-use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\AuthInterface;
 use Sezzle\Sezzlepay\Api\Data\AuthInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
-use Sezzle\Sezzlepay\Api\Data\AuthorizationInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
-use Sezzle\Sezzlepay\Api\Data\CustomerInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\LinkInterface;
-use Sezzle\Sezzlepay\Api\Data\LinkInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\OrderInterface;
 use Sezzle\Sezzlepay\Api\Data\OrderInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\SessionInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\SessionOrderInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionOrderInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface;
-use Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterfaceFactory;
-use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
-use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterfaceFactory;
 use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 use Sezzle\Sezzlepay\Model\Sezzle;
@@ -46,6 +31,9 @@ class V1 implements V1Interface
 {
     const SEZZLE_AUTH_ENDPOINT = "/v1/authentication";
     const SEZZLE_LOGGER_ENDPOINT = "/v1/logs/%s";
+    const SEZZLE_CAPTURE_ENDPOINT = "/v1/checkouts/%s/complete";
+    const SEZZLE_REFUND_ENDPOINT = "/v1/orders/%s/refund";
+    const SEZZLE_GET_ORDER_ENDPOINT = "/v1/orders/%s";
     const LOG_POST_SUCCESS_MESSAGE = "File uploaded successfully";
 
     /**
@@ -76,9 +64,17 @@ class V1 implements V1Interface
      * @var DateTime
      */
     private $dateTime;
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
+    /**
+     * @var OrderInterfaceFactory
+     */
+    private $orderInterfaceFactory;
 
     /**
-     * V2 constructor.
+     * V1 constructor.
      * @param AuthInterfaceFactory $authFactory
      * @param DataObjectHelper $dataObjectHelper
      * @param ProcessorInterface $apiProcessor
@@ -86,6 +82,8 @@ class V1 implements V1Interface
      * @param SezzleHelper $sezzleHelper
      * @param JsonHelper $jsonHelper
      * @param DateTime $dateTime
+     * @param StoreManagerInterface $storeManager
+     * @param OrderInterfaceFactory $orderInterfaceFactory
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -94,7 +92,9 @@ class V1 implements V1Interface
         SezzleConfigInterface $sezzleConfig,
         SezzleHelper $sezzleHelper,
         JsonHelper $jsonHelper,
-        DateTime $dateTime
+        DateTime $dateTime,
+        StoreManagerInterface $storeManager,
+        OrderInterfaceFactory $orderInterfaceFactory
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -103,12 +103,18 @@ class V1 implements V1Interface
         $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
         $this->dateTime = $dateTime;
+        $this->storeManager = $storeManager;
+        $this->orderInterfaceFactory = $orderInterfaceFactory;
     }
 
     /**
-     * @inheritDoc
+     * Authenticate user
+     *
+     * @return AuthInterface
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function authenticate()
+    private function authenticate()
     {
         $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_AUTH_ENDPOINT;
         $publicKey = $this->sezzleConfig->getPublicKey();
@@ -136,7 +142,7 @@ class V1 implements V1Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway authentication error: %1', $e->getMessage())
+                __('V1 Gateway authentication error: %1', $e->getMessage())
             );
         }
     }
@@ -167,7 +173,94 @@ class V1 implements V1Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway log error: %1', $e->getMessage())
+                __('V1 Gateway log error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function capture($orderReferenceID)
+    {
+        $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_ENDPOINT, $orderReferenceID);
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . $captureEndpoint;
+        try {
+            $auth = $this->authenticate();
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                null,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['captured_at']) && $body['captured_at'];
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('V1 Gateway capture error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function refund($orderReferenceID, $amount)
+    {
+        $refundEndpoint = sprintf(self::SEZZLE_REFUND_ENDPOINT, $orderReferenceID);
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . $refundEndpoint;
+        $payload = [
+            "amount" => [
+                "amount_in_cents" => $amount,
+                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            ]
+        ];
+        try {
+            $auth = $this->authenticate();
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return $this;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('V1 Gateway refund error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getOrder($orderReferenceID)
+    {
+        $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderReferenceID);
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . $orderEndpoint;
+        try {
+            $auth = $this->authenticate();
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                null,
+                ZendClient::GET
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            $orderModel = $this->orderInterfaceFactory->create();
+            $this->dataObjectHelper->populateWithArray(
+                $orderModel,
+                $body,
+                OrderInterface::class
+            );
+            return $orderModel;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('V1 Gateway get order error: %1', $e->getMessage())
             );
         }
     }

@@ -31,6 +31,10 @@ class ViewPlugin extends View
      * @var Data
      */
     private $sezzleHelper;
+    /**
+     * @var Sezzle
+     */
+    private $sezzleModel;
 
     public function __construct(
         Action\Context $context,
@@ -44,9 +48,11 @@ class ViewPlugin extends View
         OrderManagementInterface $orderManagement,
         OrderRepositoryInterface $orderRepository,
         LoggerInterface $logger,
-        Data $sezzleHelper
+        Data $sezzleHelper,
+        Sezzle $sezzleModel
     ) {
         $this->sezzleHelper = $sezzleHelper;
+        $this->sezzleModel = $sezzleModel;
         parent::__construct(
             $context,
             $coreRegistry,
@@ -77,14 +83,7 @@ class ViewPlugin extends View
         $resultRedirect = $this->resultRedirectFactory->create();
         if ($order) {
             try {
-                $currentTimestamp = (new \DateTime('now', new \DateTimeZone('UTC')))->getTimestamp();
-                $authExpiry = $order->getPayment()->getAdditionalInformation(Sezzle::SEZZLE_AUTH_EXPIRY);
-                $authExpiryTimestamp =  (new \DateTime($authExpiry, new \DateTimeZone('UTC')))->getTimestamp();
-                $this->sezzleHelper->logSezzleActions("Authorization valid.");
-                if ($authExpiryTimestamp < $currentTimestamp) {
-                    $this->sezzleHelper->logSezzleActions("Authorization expired. Invoice operation is not permitted any more.");
-                    $order->setActionFlag(Order::ACTION_FLAG_INVOICE, false);
-                }
+                $order->setActionFlag(Order::ACTION_FLAG_INVOICE, $this->sezzleModel->canInvoice($order));
                 $resultPage = $this->_initAction();
                 $resultPage->getConfig()->getTitle()->prepend(__('Orders'));
             } catch (\Exception $e) {

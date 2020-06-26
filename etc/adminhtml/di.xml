@@ -10,6 +10,9 @@
 	<type name="Magento\Sales\Controller\Adminhtml\Order\View">
         <plugin name="check_auth_expiry" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\ViewPlugin" sortOrder="10"/>
     </type>
+    <type name="Magento\Sales\Model\Order">
+        <plugin name="manipulate_void_action" type="Sezzle\Sezzlepay\Plugin\Sales\Model\OrderPlugin" sortOrder="10"/>
+    </type>
     <type name="Magento\Framework\View\Element\Message\MessageConfigurationsPool">
         <arguments>
             <argument name="configurationsMap" xsi:type="array">
