@@ -2,7 +2,7 @@ version: "3.6"
 services:
   web:
       build: .
-#      image: sezzle/magento2:1.0
+      container_name: sezzle_magento2
       ports:
       - "8085:80"
       links:
@@ -13,12 +13,14 @@ services:
         - docker.env
   db:
       image: mysql:5.6.23
+      container_name: sezzle_magento2_db
       volumes:
           - db-data:/var/lib/mysql/data
       env_file:
           - docker.env
   phpmyadmin:
       image: phpmyadmin/phpmyadmin
+      container_name: sezzle_magento2_phpmyadmin
       ports:
           - "8580:80"
       links:
