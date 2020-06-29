@@ -52,7 +52,7 @@
                     <field id="merchant_uuid" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant UUID</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
-                        <config_path>payment/sezzlepay/merchant_uuid</config_path>
+                        <config_path>payment/sezzlepay/merchant_id</config_path>
                     </field>
                     <!--payment mode-->
                     <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">

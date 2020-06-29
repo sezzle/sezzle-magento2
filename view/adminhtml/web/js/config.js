@@ -19,7 +19,7 @@ define(
 
                 defaults: {
                     $sezzleMerchantUUID: null,
-                    selector: 'sezzle_sezzle',
+                    selector: 'sezzlepay_sezzle',
                     $container: null,
                     $form: null,
                 },
@@ -33,9 +33,9 @@ define(
 
                     self.$sezzleConfig = $('#sezzle_config');
                     self.$sezzlementHeader = $('#payment_' + self.getCountry() + '_' + self.selector
-                        + '_sezzlepay-head');
+                        + '_payment-head');
                     self.$sezzleMerchantUUID = $('#payment_' + self.getCountry() + '_' + self.selector
-                        + '_sezzlepay_merchant_uuid').val();
+                        + '_payment_merchant_uuid').val();
                     self.$container = $('#sezzle_config');
 
                     if (self.$sezzleMerchantUUID) {

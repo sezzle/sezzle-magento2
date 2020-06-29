@@ -22,7 +22,7 @@ use Zend\Log\Writer\Stream;
 class Data extends AbstractHelper
 {
     const PRECISION = 2;
-    const SEZZLE_LOG_FILE_PATH = '/var/log/sezzle.log';
+    const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
     const SEZZLE_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
 
     /**

@@ -150,37 +150,6 @@ class V1 implements V1Interface
     /**
      * @inheritDoc
      */
-    public function sendLogsToSezzle($merchantUUID, $log)
-    {
-        $logEndpoint = sprintf(self::SEZZLE_LOGGER_ENDPOINT, $merchantUUID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . $logEndpoint;
-        $currentTime = $this->dateTime->date();
-        $body = [
-            'start_time' => $currentTime,
-            'end_time' => $currentTime,
-            'log' => $log
-        ];
-        try {
-            $auth = $this->authenticate();
-            $response = $this->apiProcessor->call(
-                $url,
-                $auth->getToken(),
-                $body,
-                ZendClient::POST
-            );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['message']) && $body['message'] = self::LOG_POST_SUCCESS_MESSAGE;
-        } catch (\Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('V1 Gateway log error: %1', $e->getMessage())
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function capture($orderReferenceID)
     {
         $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_ENDPOINT, $orderReferenceID);
@@ -225,7 +194,7 @@ class V1 implements V1Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return $this;
+            return isset($body['refund_id']) && $body['refund_id'];
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
@@ -261,6 +230,37 @@ class V1 implements V1Interface
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('V1 Gateway get order error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function sendLogsToSezzle($merchantUUID, $log)
+    {
+        $logEndpoint = sprintf(self::SEZZLE_LOGGER_ENDPOINT, $merchantUUID);
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . $logEndpoint;
+        $currentTime = $this->dateTime->date();
+        $body = [
+            'start_time' => $currentTime,
+            'end_time' => $currentTime,
+            'log' => $log
+        ];
+        try {
+            $auth = $this->authenticate();
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $body,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['message']) && $body['message'] = self::LOG_POST_SUCCESS_MESSAGE;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('V1 Gateway log error: %1', $e->getMessage())
             );
         }
     }

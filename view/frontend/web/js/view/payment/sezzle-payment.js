@@ -15,7 +15,7 @@ define(
         'use strict';
         rendererList.push(
             {
-                type: 'sezzle',
+                type: 'sezzlepay',
                 component: 'Sezzle_Sezzlepay/js/view/payment/method-renderer/sezzle'
             }
         );

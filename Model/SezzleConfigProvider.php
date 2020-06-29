@@ -23,8 +23,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
     {
         return [
             'payment' => [
-                'sezzle' => [
-                    'methodCode' => "sezzle"
+                Sezzle::PAYMENT_CODE => [
+                    'methodCode' => Sezzle::PAYMENT_CODE
                 ]
             ]
         ];
