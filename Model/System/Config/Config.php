@@ -135,7 +135,7 @@ class Config
      */
     public function getCountry()
     {
-        $co = $this->getConfig('payment/sezzle/merchant_country');
+        $co = $this->getConfig('payment/sezzlepay/merchant_country');
         return $co ? $co : 'US';
     }
 

@@ -37,13 +37,15 @@ use Sezzle\Sezzlepay\Helper\Data;
  */
 class Sezzle extends AbstractMethod
 {
-    const PAYMENT_CODE = 'sezzle';
+    const PAYMENT_CODE = 'sezzlepay';
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'sezzle_reference_id';
     const ADDITIONAL_INFORMATION_KEY_ORDER_UUID = 'sezzle_order_uuid';
     const SEZZLE_AUTH_EXPIRY = 'sezzle_auth_expiry';
     const SEZZLE_CAPTURE_EXPIRY = 'sezzle_capture_expiry';
     const SEZZLE_ORDER_TYPE = 'sezzle_order_type';
     const API_V2 = 'v2';
+
+    const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1 = 'sezzle_order_id';
 
     const ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
     const ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT = 'sezzle_capture_amount';
@@ -385,6 +387,7 @@ class Sezzle extends AbstractMethod
             $this->handleV2Capture($payment, $amount);
         } else {
             $this->handleV1Capture($payment, $amount);
+            $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1);
         }
 
         $payment->setTransactionId($reference)->setIsTransactionClosed(true);
@@ -451,7 +454,7 @@ class Sezzle extends AbstractMethod
             $refundedAmount += $amount;
             $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT, $refundedAmount);
         } else {
-            $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+            $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1);
             if (!$orderReferenceID) {
                 throw new LocalizedException(__('Failed to refund the payment. Order Reference ID is missing.'));
             }
@@ -514,7 +517,7 @@ class Sezzle extends AbstractMethod
                 return false;
             }
         } else {
-            $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+            $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1);
             if (!$orderReferenceID) {
                 return false;
             }
@@ -580,7 +583,7 @@ class Sezzle extends AbstractMethod
      */
     private function handleV1Capture($payment, $amount)
     {
-        $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1);
         $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
         if (!$orderReferenceID) {
             throw new LocalizedException(__("Unable to capture. Order Reference ID is missing."));

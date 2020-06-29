@@ -9,7 +9,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
-            <sezzle>
+            <sezzlepay>
 		        <active>0</active>
                 <model>Sezzle\Sezzlepay\Model\Sezzle</model>
                 <order_status>pending</order_status>
@@ -20,7 +20,7 @@
                 <tokenize>1</tokenize>
                 <send_logs_via_cron>1</send_logs_via_cron>
                 <title>Sezzle</title>
-	        </sezzle>
+	        </sezzlepay>
         </payment>
     </default>
 </config>

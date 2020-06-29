@@ -9,7 +9,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="sezzle" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="sezzlepay" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label><![CDATA[<div class="sezzle-payment-logo"></div><div class="sezzle-payment-byline">Sezzle is a public-benefit corporation on a mission to financially empower the next generation. Sezzle’s Buy Now, Pay Later product gives eCommerce shoppers more buying power by allowing them to split their payment in four, and pay over the course of six weeks. You get paid right away, in full, and Sezzle assumes all risk of fraud, chargeback and repayment.
 </div>]]></label>
                 <fieldset_css>complex sezzle-payment-section</fieldset_css>
@@ -17,68 +17,68 @@
                 <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\SezzleRegisterConfig</frontend_model>
                 </field>
-                <group id="sezzle_sezzlepay" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="sezzle_payment" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Payment Settings]]></label>
                     <!-- active -->
                     <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/sezzle/active</config_path>
+                        <config_path>payment/sezzlepay/active</config_path>
                     </field>
                     <!-- merchant country -->
                     <field id="merchant_country" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant Country</label>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\MerchantCountry</source_model>
-                        <config_path>payment/sezzle/merchant_country</config_path>
+                        <config_path>payment/sezzlepay/merchant_country</config_path>
                     </field>
                     <!-- title -->
                     <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
-                        <config_path>payment/sezzle/title</config_path>
+                        <config_path>payment/sezzlepay/title</config_path>
                     </field>
                     <!-- public key -->
                     <field id="public_key" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Public Key</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
-                        <config_path>payment/sezzle/public_key</config_path>
+                        <config_path>payment/sezzlepay/public_key</config_path>
                     </field>
                     <!-- private key -->
                     <field id="private_key" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Private Key</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
-                        <config_path>payment/sezzle/private_key</config_path>
+                        <config_path>payment/sezzlepay/private_key</config_path>
                     </field>
                     <!-- merchant id -->
                     <field id="merchant_uuid" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant UUID</label>
                         <comment>Look for this in your Sezzle Dashboard</comment>
-                        <config_path>payment/sezzle/merchant_uuid</config_path>
+                        <config_path>payment/sezzlepay/merchant_uuid</config_path>
                     </field>
                     <!--payment mode-->
                     <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Mode</label>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\Mode</source_model>
-                        <config_path>payment/sezzle/payment_mode</config_path>
+                        <config_path>payment/sezzlepay/payment_mode</config_path>
                     </field>
                     <!-- min checkout amount -->
                     <field id="min_checkout_amount" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Min Checkout Amount</label>
                         <validate>validate-not-negative-number</validate>
                         <comment>Hide Gateway based on this amount</comment>
-                        <config_path>payment/sezzle/min_checkout_amount</config_path>
+                        <config_path>payment/sezzlepay/min_checkout_amount</config_path>
                     </field>
                     <!-- payment action -->
                     <field id="payment_action" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\PaymentAction</source_model>
-                        <config_path>payment/sezzle/payment_action</config_path>
+                        <config_path>payment/sezzlepay/payment_action</config_path>
                     </field>
                     <!-- tokenize -->
                     <field id="tokenize" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Customer Tokenization?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>Makes you enable Customer tokenization</comment>
-                        <config_path>payment/sezzle/tokenize</config_path>
+                        <config_path>payment/sezzlepay/tokenize</config_path>
                     </field>
                 </group>
                 <group id="sezzle_widget" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -91,14 +91,14 @@
                         <label>Enable Widget in PDP?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>Makes you enable Sezzle Widget in PDP</comment>
-                        <config_path>payment/sezzle/widget_pdp</config_path>
+                        <config_path>payment/sezzlepay/widget_pdp</config_path>
                     </field>
                     <!-- widget cart -->
                     <field id="widget_cart" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Widget in Cart Page?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>Makes you enable Sezzle Widget in Cart Page</comment>
-                        <config_path>payment/sezzle/widget_cart</config_path>
+                        <config_path>payment/sezzlepay/widget_cart</config_path>
                     </field>
                 </group>
                 <group id="sezzle_developer" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -108,7 +108,7 @@
                         <label>Enable Log Tracker?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>If yes, all Sezzle actions will be logged</comment>
-                        <config_path>payment/sezzle/log_tracker</config_path>
+                        <config_path>payment/sezzlepay/log_tracker</config_path>
                     </field>
                     <!-- send logs via cron -->
                     <field id="send_logs_via_cron" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -118,7 +118,7 @@
                         </depends>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>If yes, sezzle.log will be sent at every 5th hour to Sezzle. Make sure cron is enabled.</comment>
-                        <config_path>payment/sezzle/send_logs_via_cron</config_path>
+                        <config_path>payment/sezzlepay/send_logs_via_cron</config_path>
                     </field>
                     <!-- log download-->
                     <field id="log_download" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">

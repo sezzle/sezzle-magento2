@@ -16,19 +16,19 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const PROD_MODE = 'live';
     const SANDBOX_MODE = 'sandbox';
 
-    const XML_PATH_PUBLIC_KEY = 'payment/sezzle/public_key';
-    const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzle/active';
-    const XML_PATH_PAYMENT_MODE = 'payment/sezzle/payment_mode';
-    const XML_PATH_PRIVATE_KEY = 'payment/sezzle/private_key';
-    const XML_PATH_MERCHANT_ID = 'payment/sezzle/merchant_id';
-    const XML_PATH_PAYMENT_ACTION = 'payment/sezzle/payment_action';
-    const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzle/min_checkout_amount';
-    const XML_PATH_WIDGET_PDP = 'payment/sezzle/widget_pdp';
-    const XML_PATH_WIDGET_CART = 'payment/sezzle/widget_cart';
-    const XML_PATH_TOKENIZE = 'payment/sezzle/tokenize';
+    const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
+    const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
+    const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
+    const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
+    const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
+    const XML_PATH_PAYMENT_ACTION = 'payment/sezzlepay/payment_action';
+    const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
+    const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
+    const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
+    const XML_PATH_TOKENIZE = 'payment/sezzlepay/tokenize';
 
-    const XML_PATH_LOG_TRACKER = 'payment/sezzle/log_tracker';
-    const XML_PATH_CRON_LOGS = 'payment/sezzle/send_logs_via_cron';
+    const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
+    const XML_PATH_CRON_LOGS = 'payment/sezzlepay/send_logs_via_cron';
 
     private $liveGatewayUrl = "https://gateway.sezzle.com";
     private $sandboxGatewayUrl = "https://sandbox.gateway.sezzle.com";
