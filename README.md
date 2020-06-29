@@ -67,17 +67,32 @@ You can now directly navigate from the Configuration Page to get signed up for `
 
 ## Configure Sezzle
 
-* Make sure you have the `Merchant ID` and the `API Keys` from the [`Sezzle Merchant Dashboard`](https://dashboard.sezzle.com/merchant/). Sign Up if you have not signed up to get the necessities.
+### Payment Configuration
+
+* Make sure you have the `Merchant UUID` and the `API Keys` from the [`Sezzle Merchant Dashboard`](https://dashboard.sezzle.com/merchant/). Sign Up if you have not signed up to get the necessities.
 * Navigate to `Stores > Configuration > Sales > Payment Methods > Sezzle > Payment Settings` in your `Magento` admin.
 * Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
-* Set the `Merchant ID`, `Public Key` and `Private Key`.
+* Set the `Merchant UUID`, `Public Key` and `Private Key`.
 * Set `Payment Action` as `Authorize only` for doing payment authorization only and `Authorize and Capture` for doing instant capture.
 * Set the Merchant Country as per the origin.
-* Enable the log tracker to trace the `Sezzle` checkout process.
+* Set `Min Checkout Amount` to restrict Sezzle payment method below that amount.
 * Set `Payment from Applicable Countries` to `Specific Countries`.
 * Set `Payment from Specific Countries` to `United States` or `Canada` as Sezzle is currently available for US and Canada only.
-* Set `Add Widget Script in PDP` to `Yes` for adding widget script in the Product Display Page which will help in enabling `Sezzle Widget` Modal in PDP.
-* Set `Add Widget Script in Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Sezzle Widget` Modal in Cart Page.
+* Set `Enable Customer Tokenization` to `Yes` for allowing Sezzle to tokenize the customer account if they approve it. If customer wish to tokenize their account, next time, they don't have to redirect to Sezzle Checkout for completing the purchase, rather it will happen in your website.
+* Save the configuration and clear the cache.
+
+### Widget Configuration
+
+* Make sure to put `<div id='sezzle-widget'/>` after the price element in the PDP and Cart theme files once you have enabled the below options.
+* Set `Enable Widget in PDP` to `Yes` for adding widget script in the Product Display Page which will help in enabling `Sezzle Widget` Modal in PDP.
+* Set `Enable Widget in Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Sezzle Widget` Modal in Cart Page.
+* Save the configuration and clear the cache.
+
+### Developer Configuration
+
+* Enable the log tracker to trace the `Sezzle` checkout process.
+* Set `Send Logs to Sezzle` to `Yes` if you want the logs to be sent to Sezzle in a periodic basic. For this cron needs to be enabled.
+* You can also download the latest logs by clicking on `Sezzle Log` if any.
 * Save the configuration and clear the cache.
 
 ### Your store is now ready to accept payments through Sezzle.
@@ -86,7 +101,10 @@ You can now directly navigate from the Configuration Page to get signed up for `
 
 * If you have correctly set up `Sezzle`, you will see `Sezzle` as a payment method in the checkout page.
 * Select `Sezzle` and move forward.
-* Once you click `Place Order`, you will be redirected to `Sezzle Checkout` to complete the checkout and eventually in `Magento` too.
+* Once you click `Continue to Sezzle` or `Place Order`, you will be redirected to `Sezzle Checkout` to complete the checkout.
+* In the final page of Sezzle Checkout, check the `Approve {Website Name} to process payments from your Sezzle account for future transactions. You may revoke this authorization at any time in your Sezzle Dashboard` to tokenize your account. And, then click on `Complete Order` to complete your purchase.
+* If your account is already tokenized, order will be placed without redirection otherwise you will be redirected to Sezzle Checkout for completing the purchase.
+* On successful order placement, you will be redirected to the order confirmation page.
 
 ## Capture Payment
 
@@ -99,35 +117,49 @@ You can now directly navigate from the Configuration Page to get signed up for `
 ## Refund Payment
 
 * Go to `Sales > Orders` in the `Magento` admin.
-* Select the order you want to refund.
+* Select the order for which you want to refund the payment.
 * Click on `Credit Memo` and verify your input in the `Create Credit Memo` page.
 * Save it and the refunded will be initiated in `Sezzle`.
 * In `Sezzle Merchant Dashboard`, `Order Status` as `Refunded` means payment has been fully refunded and `Order Status` as `Partially Refunded` means payment has been partially refunded.
+
+## Release Payment
+
+* Go to `Sales > Orders` in the `Magento` admin.
+* Select the order for which you want to release the payment.
+* Click on `Void` and confirm your action.
+* In `Sezzle Merchant Dashboard`, `Order Status` as `Deleted due to checkout not being captured before expiration` means payment has been fully released.
+* Only Full Release is supported from Magento.
 
 ## Order Verification in Magento Admin
 
 * Login to `Magento` admin and navigate to `Sales > Orders`.
 * Proceed into the corresponding order.
-* If `Total Paid` is equals to `Grand Total`, payment is successfully captured by `Sezzle`.
-* If `Total Paid` is not equals to `Grand Total`, payment is authorized but yet not captured.
+* If Order Status is `Processing` and `Total Paid` is equals to `Grand Total`, payment is successfully captured by `Sezzle`.
+* If Order Status is `Pending` and `Total Paid` is not equals to `Grand Total`, payment is authorized but yet not captured.
+* If Order Status is `Closed`, payment is refunded.
+* If Order Status is `Canceled`, payment is released.
 
 ## Order Verification in Sezzle Merchant Dashboard
 
 * Login to `Sezzle Merchant Dashboard` and navigate to `Orders`.
 * Proceed into the corresponding order.
 * Status as `Approved` means payment is successfully captured by `Sezzle`.
-* Status as `Authorized`, uncaptured means payment is authorized but yet not captured.
+* Status as `Authorized, uncaptured` means payment is authorized but yet not captured.
+* Status as `Refunded` means payment is refunded.
+* Status as `Deleted due to checkout not being captured before expiration` means either payment was not captured in time or the payment is released.
 
 ## How Sandbox works?
 
 * In the `Sezzle` configuration page of your `Magento` admin, enter the `Sandbox` `API Keys` from your [`Sezzle Merchant Sandbox Dashboard`](https://sandbox.dashboard.sezzle.com/merchant/) and set the `Payment Mode` to `Sandbox`, then save the configuration. Make sure you are doing this on your `dev/staging` website.
 * On your website, add an item to the cart, then proceed to `Checkout` and select `Sezzle` as the payment method.
 * Click `Continue` then `Place Order` and you should be redirected to the `Sezzle Checkout` page. If prompted, sign in and continue.
-* Enter the payment details using test data, then click `Complete Order`.
-* After the payment is completed on `Sezzle`, you should be redirected back to your website and see a successful payment page.
+* Enter the payment details using test data, then move to final page.
+* Check the `Approve {Website Name} to process payments from your Sezzle account for future transactions. You may revoke this authorization at any time in your Sezzle Dashboard` to tokenize your account.
+* If your account is already tokenized, order will be placed without redirection otherwise you will be redirected to Sezzle Checkout for completing the purchase.
+* After the payment is completed at `Sezzle`, you should be redirected back to your website and see a successful payment page.
 * `Sandbox` testing is complete. You can login to your `Sezzle Merchant Sandbox Dashboard` to see the test order you just placed.
 
 ## Troubleshooting/Debugging
 * There is logging enabled by `Sezzle` for tracing the `Sezzle` actions.
 * In case merchant is facing issues which is unknown to `Merchant Success` and `Support` team, they can ask for this logs and forward to the `Platform Integrations` team.
-* Name of the log should be like `sezzle.log`.Its always recommended to send the `system.log` and `exception.log` for better tracing of issues.
+* Name of the log should be like `sezzle.log`.It is always recommended to send the `system.log` and `exception.log` for better tracing of issues.
