@@ -11,5 +11,3 @@ RUN chsh -s /bin/bash www-data
 
 COPY ./process /usr/local/bin/process
 RUN chmod +x /usr/local/bin/process
-
-VOLUME $INSTALL_DIR
