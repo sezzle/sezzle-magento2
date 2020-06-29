@@ -298,7 +298,6 @@ class Sezzle extends AbstractMethod
                 $order = $payment->getOrder();
                 $order->setCanSendNewEmailFlag(false);
                 $payment->capture(null);
-                $payment->setAmountPaid($order->getTotalDue());
                 $orderStatus = $order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING);
                 $order->setCustomerNote("Payment captured by Sezzle.");
                 $stateObject->setState(Order::STATE_PROCESSING);
