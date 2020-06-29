@@ -163,3 +163,61 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * There is logging enabled by `Sezzle` for tracing the `Sezzle` actions.
 * In case merchant is facing issues which is unknown to `Merchant Success` and `Support` team, they can ask for this logs and forward to the `Platform Integrations` team.
 * Name of the log should be like `sezzle.log`.It is always recommended to send the `system.log` and `exception.log` for better tracing of issues.
+
+## Docker Environment Set Up
+
+### Start
+
+* Clone the repo.
+* Execute `docker-compose up -d --build` to start the Magento server.
+* Server will be up at `localhost:8085`. If you want to change that, edit the `docker-compose.yml`.
+
+### Install Magento
+
+```bash
+docker exec -it sezzle_magento2 process install
+```
+
+Sezzle will be installed alongside.
+
+### Sample Data Deploy
+
+```bash
+docker exec -it sezzle_magento2 process install-sampledata
+```
+
+### Database Upgrade
+
+```bash
+docker exec -it sezzle_magento2 process upgrade
+```
+
+### Compile
+
+```bash
+docker exec -it sezzle_magento2 process compile
+```
+
+### Deploy Static Files
+
+```bash
+docker exec -it sezzle_magento2 process deploy
+```
+
+### Set Developer Mode
+
+```bash
+docker exec -it sezzle_magento2 process developer
+```
+
+### Cache Clear
+
+```bash
+docker exec -it sezzle_magento2 process clear
+```
+
+### Cleanup Environment
+
+```bash
+docker-compose down --rmi local -v --remove-orphans
+```
