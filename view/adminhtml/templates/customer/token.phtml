@@ -1,0 +1,42 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<?php
+/**
+ * @var $block Sezzle
+ */
+
+use Sezzle\Sezzlepay\Block\Adminhtml\Customer\Edit\Tab\Sezzle;
+
+?>
+
+<div class="fieldset-wrapper customer-information">
+    <div class="fieldset-wrapper-title">
+        <span class="title"><?php /* @escapeNotVerified */
+            echo __('Sezzle Token Information') ?></span>
+    </div>
+    <table class="admin__table-secondary">
+        <tbody>
+        <?php echo $block->getChildHtml(); ?>
+        <tr>
+            <th><?php /* @escapeNotVerified */
+                echo __('Status:') ?></th>
+            <td><?php echo $block->getTokenStatus(); ?></td>
+        </tr>
+        <tr>
+            <th><?php /* @escapeNotVerified */
+                echo __('Token:') ?></th>
+            <td><?php echo $block->getToken(); ?></td>
+        </tr>
+        <tr>
+            <th><?php /* @escapeNotVerified */
+                echo __('Token Expiration:') ?></th>
+            <td><?php echo $block->getTokenExpiration(); ?></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

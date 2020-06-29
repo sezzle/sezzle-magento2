@@ -14,7 +14,4 @@
             </argument>
         </arguments>
     </type>
-	<preference for="Sezzle\Sezzlepay\Model\Api\ConfigInterface" type="Sezzle\Sezzlepay\Model\Api\Config"/>
-	<preference for="Sezzle\Sezzlepay\Model\Api\ProcessorInterface" type="Sezzle\Sezzlepay\Model\Api\Processor"/>
-	<preference for="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface" type="Sezzle\Sezzlepay\Model\Config\Container\SezzleApiIdentity"/>
 </config>

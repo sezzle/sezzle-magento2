@@ -10,15 +10,17 @@
     <default>
         <payment>
             <sezzlepay>
-		<active>0</active>
-                <model>Sezzle\Sezzlepay\Model\SezzlePay</model>
-                <order_status>processing</order_status>
+		        <active>0</active>
+                <model>Sezzle\Sezzlepay\Model\Sezzle</model>
+                <order_status>pending</order_status>
                 <merchant_country>US</merchant_country>
                 <payment_mode>sandbox</payment_mode>
-                <log_tracker>0</log_tracker>
+                <log_tracker>1</log_tracker>
                 <payment_action>authorize_capture</payment_action>
+                <tokenize>1</tokenize>
+                <send_logs_via_cron>1</send_logs_via_cron>
                 <title>Sezzle</title>
-	    </sezzlepay>
+	        </sezzlepay>
         </payment>
     </default>
 </config>

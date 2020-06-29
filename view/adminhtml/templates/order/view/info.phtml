@@ -9,6 +9,10 @@
 ?>
 
 <?php
+/** @var \Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info $block */
+
+use Sezzle\Sezzlepay\Model\Sezzle;
+
 $order = $block->getOrder();
 
 $orderAdminDate = $block->formatDate(
@@ -23,20 +27,6 @@ $orderStoreDate = $block->formatDate(
     true,
     $block->getTimezoneForStore($order->getStore())
 );
-
-$sezzleCaptureExpiryTimestamp = $order->getPayment()->getAdditionalInformation(\Sezzle\Sezzlepay\Model\SezzlePay::SEZZLE_CAPTURE_EXPIRY);
-$sezzleCaptureExpiry = $sezzleCaptureExpiryTimestamp ? 
-                        $block->formatDate(
-                            $sezzleCaptureExpiryTimestamp,
-                            \IntlDateFormatter::MEDIUM,
-                            true,
-                            $block->getTimezoneForStore($order->getStore())
-                        )
-                    : null;
-$captureInfo = ($order->getGrandTotal() == $order->getTotalDue()) 
-                ? $block->escapeHtml(__('(Please capture before this)'))
-                : $block->escapeHtml(__('(Captured)'));
-$paymentMethodCode = $order->getPayment()->getMethodInstance()->getCode();
 
 $customerUrl = $block->getCustomerViewUrl();
 $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'];
@@ -121,19 +111,20 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                         <td><?= $block->escapeHtml($order->getBaseToOrderRate()) ?></td>
                     </tr>
                 <?php endif; ?>
-                <?php if ($sezzleCaptureExpiry 
-                    && $paymentMethodCode == \Sezzle\Sezzlepay\Model\SezzlePay::PAYMENT_CODE) : ?>
+                <?php if ($block->getSezzleOrderType() != Sezzle::API_V2
+                    && $block->getSezzleCaptureExpiry()
+                    && $order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE) : ?>
                     <tr>
                         <th><?= $block->escapeHtml(__('Sezzle Capture Expiry')) ?></th>
                         <td>
                             <strong>
-                                <?= $block->escapeHtml($sezzleCaptureExpiry); ?> <br>
+                                <?= $block->escapeHtml($block->getSezzleCaptureExpiry()); ?> <br>
                             </strong>
-                            <?= $block->escapeHtml($captureInfo); ?>
+                            <?= $block->escapeHtml($block->getCaptureInfo()); ?>
                         </td>
                     </tr>
-            <?php endif; ?>
-            </table>
+                <?php endif; ?>
+                </table>
             </div>
         </div>
 
@@ -183,8 +174,98 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                 </table>
             </div>
         </div>
+
+
     </div>
 </section>
+
+<?php if (($order->getPayment()->getMethod() == $block->getSezzlePaymentMethodCode())
+        && $block->getSezzleOrderType() == Sezzle::API_V2) : ?>
+    <section class="admin__page-section order-view-account-information sezzle">
+        <div class="admin__page-section-title">
+            <span class="title"><?= $block->escapeHtml(__('Sezzle Information')) ?></span>
+        </div>
+        <div class="admin__page-section-content">
+            <div class="admin__page-section-item order-information sezzle">
+                <?php /* Sezzle Order Information */ ?>
+                <div class="admin__page-section-item-title">
+                    <span class="title">
+                        <?= $block->escapeHtml(__('Order Reference # %1', $block->getSezzleOrderReferenceID())) ?>
+                    </span>
+                </div>
+                <div class="admin__page-section-item-content">
+                    <table class="admin__table-secondary order-information-table">
+                        <?php if ($sezzleOrderUUID = $block->getSezzleOrderUUID()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Order UUID')) ?></th>
+                                <td><?= $block->escapeHtml($sezzleOrderUUID); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($sezzleAuthAmount = $block->getSezzleAuthAmount()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Auth Amount')) ?></th>
+                                <td><?= $block->escapeHtml($sezzleAuthAmount); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($sezzleCapturedAmount = $block->getSezzleCaptureAmount()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Captured Amount')) ?></th>
+                                <td><?= $block->escapeHtml($sezzleCapturedAmount); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($sezzleRefundedAmount = $block->getSezzleRefundAmount()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Refunded Amount')) ?></th>
+                                <td><?= $block->escapeHtml($sezzleRefundedAmount); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($sezzleReleasedAmount = $block->getSezzleReleaseAmount()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Released Amount')) ?></th>
+                                <td><?= $block->escapeHtml($sezzleReleasedAmount); ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($sezzleAuthExpiry = $block->getSezzleAuthExpiry()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Auth Expiry')) ?></th>
+                                <td>
+                                    <strong>
+                                        <?= $block->escapeHtml($sezzleAuthExpiry); ?> <br>
+                                    </strong>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+            </div>
+
+            <?php if ($block->isTokenizedDataAvailable()) : ?>
+            <div class="admin__page-section-item order-account-information sezzle">
+                <?php /* Sezzle Account Information */ ?>
+                <div class="admin__page-section-item-title">
+                    <span class="title"><?= $block->escapeHtml(__('Customer Information')) ?></span>
+                </div>
+                <div class="admin__page-section-item-content">
+                    <table class="admin__table-secondary order-account-information-table">
+                        <?php if ($sezzleCustomerUUID = $block->getSezzleCustomerUUID()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Customer UUID')) ?></th>
+                                <td><?= $block->escapeHtml($sezzleCustomerUUID) ?></td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php if ($sezzleCustomerUUIDExpiration = $block->getSezleCustomerUUIDExpiration()) : ?>
+                            <tr>
+                                <th><?= $block->escapeHtml(__('Customer UUID Expiration')) ?></th>
+                                <td><?= $block->escapeHtml($sezzleCustomerUUIDExpiration) ?></td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
 <section class="admin__page-section order-addresses">
     <div class="admin__page-section-title">

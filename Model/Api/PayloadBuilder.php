@@ -7,7 +7,12 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
+use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
  * Class PayloadBuilder
@@ -15,102 +20,139 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PayloadBuilder
 {
-    const PRECISION = 2;
 
     /**
-     * @var ConfigInterface
+     * @var SezzleConfigInterface
      */
-    private $sezzleApiConfig;
+    private $sezzleConfig;
     /**
      * @var StoreManagerInterface
      */
     private $storeManager;
+    /**
+     * @var Data
+     */
+    private $sezzleHelper;
 
     /**
      * PayloadBuilder constructor.
-     * @param ConfigInterface $sezzleApiConfig
      * @param StoreManagerInterface $storeManager
+     * @param SezzleConfigInterface $sezzleConfig
+     * @param Data $sezzleHelper
      */
     public function __construct(
-        ConfigInterface $sezzleApiConfig,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        SezzleConfigInterface $sezzleConfig,
+        Data $sezzleHelper
     ) {
-        $this->sezzleApiConfig = $sezzleApiConfig;
         $this->storeManager = $storeManager;
+        $this->sezzleConfig = $sezzleConfig;
+        $this->sezzleHelper = $sezzleHelper;
     }
 
     /**
      * Build Sezzle Checkout Payload
-     * @param $quote
-     * @param $reference
+     * @param Quote $quote
+     * @param string $reference
      * @return array
+     * @throws NoSuchEntityException
      */
     public function buildSezzleCheckoutPayload($quote, $reference)
     {
-        $checkoutPayload = $this->buildCheckoutPayload($quote, $reference);
-        $customerPayload = $this->buildCustomerPayload($quote);
-        $billingPayload = $this->buildBillingPayload($quote);
-        $shippingPayload = $this->buildShippingPayload($quote);
-        $itemPayload = $this->buildItemPayload($quote);
-        $payload = array_merge(
-            $checkoutPayload,
-            $customerPayload,
-            $billingPayload,
-            $shippingPayload,
-            $itemPayload
+        $orderPayload = [];
+        $completeURL['complete_url'] = [
+            "href" => $this->sezzleConfig->getCompleteUrl()
+        ];
+        $cancelURL['cancel_url'] = [
+            "href" => $this->sezzleConfig->getCancelUrl()
+        ];
+        $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
+        $customerPayload['customer'] = $this->buildCustomerPayload($quote);
+        return array_merge(
+            $completeURL,
+            $cancelURL,
+            $orderPayload,
+            $customerPayload
         );
-        $payload["merchant_completes"] = true;
-        return $payload;
     }
 
     /**
-     * Build Checkout Payload from Magento Checkout
-     * @param $quote
-     * @param $reference
-     * @return mixed
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * Build Order Payload from Sezzle Checkout Session
+     *
+     * @param Quote $quote
+     * @param string $reference
+     * @return array
+     * @throws NoSuchEntityException
      */
-    private function buildCheckoutPayload($quote, $reference)
+    private function buildOrderPayload($quote, $reference)
     {
-        $orderId = $quote->getReservedOrderId();
-        $completeUrl = $this->sezzleApiConfig->getCompleteUrl($orderId, $reference);
-        $cancelUrl = $this->sezzleApiConfig->getCancelUrl();
-        $checkoutPayload["amount_in_cents"] = (int)(round($quote->getGrandTotal() * 100, self::PRECISION));
-        $checkoutPayload["currency_code"] = $this->storeManager->getStore()->getCurrentCurrencyCode();
-        $checkoutPayload["order_description"] = $reference;
-        $checkoutPayload["order_reference_id"] = $reference;
-        $checkoutPayload["display_order_reference_id"] = $orderId;
-        $checkoutPayload["checkout_cancel_url"] = $cancelUrl;
-        $checkoutPayload["checkout_complete_url"] = $completeUrl;
-        return $checkoutPayload;
+        $intent = $this->sezzleConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE
+            ? "CAPTURE"
+            : "AUTH";
+        return [
+            "intent" => $intent,
+            "reference_id" => $reference,
+            "description" => $this->storeManager->getStore()->getName(),
+            "requires_shipping_info" => false,
+            "items" => $this->buildItemPayload($quote),
+            "discounts" => [$this->getPriceObject($quote->getShippingAddress()->getBaseDiscountAmount())],
+            "shipping_amount" => $this->getPriceObject($quote->getShippingAddress()
+                ->getBaseShippingAmount()),
+            "tax_amount" => $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount()),
+            "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal()),
+        ];
+    }
+
+    /**
+     * Get Price Object
+     *
+     * @param float $amount
+     * @return array
+     * @throws NoSuchEntityException
+     */
+    private function getPriceObject($amount)
+    {
+        return [
+            "amount_in_cents" => $this->sezzleHelper->getAmountInCents($amount),
+            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+        ];
     }
 
     /**
      * Build Customer Payload
-     * @param $quote
-     * @return mixed
+     * @param Quote $quote
+     * @return array
+     * @throws NoSuchEntityException
      */
     private function buildCustomerPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
-        $customerPayload["customer_details"] = [
-            "first_name" => $quote->getCustomerFirstname() ? $quote->getCustomerFirstname() : $billingAddress->getFirstname(),
-            "last_name" => $quote->getCustomerLastname() ? $quote->getCustomerLastname() : $billingAddress->getLastname(),
+        return [
+            "tokenize" => $this->sezzleConfig->isTokenizationAllowed(),
             "email" => $quote->getCustomerEmail(),
-            "phone" => $billingAddress->getTelephone()
+            "first_name" => $quote->getCustomerFirstname()
+                ? $quote->getCustomerFirstname()
+                : $billingAddress->getFirstname(),
+            "last_name" => $quote->getCustomerLastname()
+                ? $quote->getCustomerLastname()
+                : $billingAddress->getLastname(),
+            "phone" => $billingAddress->getTelephone(),
+            "dob" => $quote->getCustomer()->getDob(),
+            "billing_address" => $this->buildBillingPayload($quote),
+            "shipping_address" => $this->buildShippingPayload($quote),
         ];
-        return $customerPayload;
     }
 
     /**
      * Build Billing Address Payload
-     * @param $quote
-     * @return mixed
+     * @param Quote $quote
+     * @return array
      */
     private function buildBillingPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
-        $billingPayload["billing_address"] = [
+        return [
+            "name" => $billingAddress->getName(),
             "street" => $billingAddress->getStreetLine(1),
             "street2" => $billingAddress->getStreetLine(2),
             "city" => $billingAddress->getCity(),
@@ -119,18 +161,18 @@ class PayloadBuilder
             "country_code" => $billingAddress->getCountryId(),
             "phone" => $billingAddress->getTelephone()
         ];
-        return $billingPayload;
     }
 
     /**
      * Build Shipping Address Payload
-     * @param $quote
-     * @return mixed
+     * @param Quote $quote
+     * @return array
      */
     private function buildShippingPayload($quote)
     {
         $shippingAddress = $quote->getShippingAddress();
-        $shippingPayload["shipping_address"] = [
+        return [
+            "name" => $shippingAddress->getName(),
             "street" => $shippingAddress->getStreetLine(1),
             "street2" => $shippingAddress->getStreetLine(2),
             "city" => $shippingAddress->getCity(),
@@ -139,19 +181,18 @@ class PayloadBuilder
             "country_code" => $shippingAddress->getCountryId(),
             "phone" => $shippingAddress->getTelephone()
         ];
-        return $shippingPayload;
     }
 
     /**
      * Build Cart Item Payload
-     * @param $quote
-     * @return mixed
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param Quote $quote
+     * @return array
+     * @throws NoSuchEntityException
      */
     private function buildItemPayload($quote)
     {
         $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
-        $itemPayload["items"] = [];
+        $itemPayload = [];
         foreach ($quote->getAllVisibleItems() as $item) {
             $productName = $item->getName();
             $productSku = $item->getSku();
@@ -161,11 +202,11 @@ class PayloadBuilder
                 "sku" => $productSku,
                 "quantity" => $productQuantity,
                 "price" => [
-                    "amount_in_cents" => (int)(round($item->getPriceInclTax() * 100, self::PRECISION)),
+                    "amount_in_cents" => $this->sezzleHelper->getAmountInCents($item->getPriceInclTax()),
                     "currency" => $currencyCode
                 ]
             ];
-            array_push($itemPayload["items"], $itemData);
+            array_push($itemPayload, $itemData);
         }
         return $itemPayload;
     }

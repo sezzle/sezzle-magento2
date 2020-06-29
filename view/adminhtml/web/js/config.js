@@ -1,3 +1,9 @@
+/**
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+
 define(
     [
         'jquery',
@@ -12,8 +18,8 @@ define(
         return Class.extend({
 
                 defaults: {
-                    $sezzleMerchantId: null,
-                    selector: 'sezzlepay_sezzlepay',
+                    $sezzleMerchantUUID: null,
+                    selector: 'sezzlepay_sezzle',
                     $container: null,
                     $form: null,
                 },
@@ -26,13 +32,13 @@ define(
                     var self = this;
 
                     self.$sezzleConfig = $('#sezzle_config');
-                    self.$sezzlePaymentHeader = $('#payment_' + self.getCountry() + '_' + self.selector
+                    self.$sezzlementHeader = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_payment-head');
-                    self.$sezzleMerchantId = $('#payment_' + self.getCountry() + '_' + self.selector
-                        + '_payment_merchant_id').val();
+                    self.$sezzleMerchantUUID = $('#payment_' + self.getCountry() + '_' + self.selector
+                        + '_payment_merchant_uuid').val();
                     self.$container = $('#sezzle_config');
 
-                    if (self.$sezzleMerchantId) {
+                    if (self.$sezzleMerchantUUID) {
                         self.hideSezzleConfig();
                     }
                     else {
@@ -83,8 +89,8 @@ define(
                  */
                 showSezzleConfig: function () {
                     this.$sezzleConfig.show();
-                    if (this.$sezzlePaymentHeader.hasClass('open')) {
-                        this.$sezzlePaymentHeader.click();
+                    if (this.$sezzlementHeader.hasClass('open')) {
+                        this.$sezzlementHeader.click();
                     }
                 },
 
@@ -93,8 +99,8 @@ define(
                  */
                 hideSezzleConfig: function () {
                     this.$sezzleConfig.hide();
-                    if (!this.$sezzlePaymentHeader.hasClass('open')) {
-                        this.$sezzlePaymentHeader.click();
+                    if (!this.$sezzlementHeader.hasClass('open')) {
+                        this.$sezzlementHeader.click();
                     }
                 },
 

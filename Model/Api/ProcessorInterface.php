@@ -15,15 +15,13 @@ use Magento\Framework\Http\ZendClient;
  */
 interface ProcessorInterface
 {
-    const BAD_REQUEST = 400;
-
     /**
      * Call to Sezzle Gateway
      *
-     * @param $url
-     * @param $authToken
-     * @param bool $body
-     * @param $method
+     * @param string $url
+     * @param string $authToken
+     * @param bool|array $body
+     * @param string $method
      * @return mixed
      */
     public function call(

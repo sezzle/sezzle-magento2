@@ -1,38 +1,51 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+
 namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Fieldset;
+
+use Magento\Backend\Block\Context;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Config\Block\System\Config\Form\Fieldset;
+use Magento\Config\Model\Config;
+use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\View\Helper\Js;
 
 /**
  * Fieldset renderer for Sezzle solution
  */
-class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
+class Payment extends Fieldset
 {
     /**
-     * @var \Magento\Config\Model\Config
+     * @var Config
      */
-    protected $_backendConfig;
+    protected $backendConfig;
 
     /**
-     * @param \Magento\Backend\Block\Context $context
-     * @param \Magento\Backend\Model\Auth\Session $authSession
-     * @param \Magento\Framework\View\Helper\Js $jsHelper
-     * @param \Magento\Config\Model\Config $backendConfig
+     * @param Context $context
+     * @param Session $authSession
+     * @param Js $jsHelper
+     * @param Config $backendConfig
      * @param array $data
      */
     public function __construct(
-        \Magento\Backend\Block\Context $context,
-        \Magento\Backend\Model\Auth\Session $authSession,
-        \Magento\Framework\View\Helper\Js $jsHelper,
-        \Magento\Config\Model\Config $backendConfig,
+        Context $context,
+        Session $authSession,
+        Js $jsHelper,
+        Config $backendConfig,
         array $data = []
     ) {
-        $this->_backendConfig = $backendConfig;
+        $this->backendConfig = $backendConfig;
         parent::__construct($context, $authSession, $jsHelper, $data);
     }
 
     /**
      * Add custom css class
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      */
     protected function _getFrontendClass($element)
@@ -44,7 +57,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Check whether current payment method is enabled
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return bool
      */
     protected function _isPaymentEnabled($element)
@@ -59,7 +72,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
         $isPaymentEnabled = false;
         foreach ($activityPaths as $activityPath) {
             $isPaymentEnabled = $isPaymentEnabled
-                || (bool)(string)$this->_backendConfig->getConfigDataValue($activityPath);
+                || (bool)(string)$this->backendConfig->getConfigDataValue($activityPath);
         }
 
         return $isPaymentEnabled;
@@ -68,7 +81,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Return header title part of html for payment solution
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
@@ -111,7 +124,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
         }
 
         $html .= '</div>';
-        $html .= '<div class="heading"><strong>' . $element->getLegend() . '</strong>';
+        $html .= '<div class="heading">' . $element->getLegend();
 
         if ($element->getComment()) {
             $html .= '<span class="heading-intro">' . $element->getComment() . '</span>';
@@ -125,7 +138,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Return header comment part of html for payment solution
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -137,7 +150,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     /**
      * Get collapsed state on-load
      *
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return false
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -147,7 +160,7 @@ class Payment extends \Magento\Config\Block\System\Config\Form\Fieldset
     }
 
     /**
-     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @param AbstractElement $element
      * @return string
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
