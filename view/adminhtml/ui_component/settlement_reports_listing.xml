@@ -109,9 +109,9 @@
                 <label translate="true">Status</label>
             </settings>
         </column>
-        <actionsColumn name="actions" class="Magento\Customer\Ui\Component\Listing\Column\Actions">
+        <actionsColumn name="actions" class="Sezzle\Sezzlepay\Ui\Component\Listing\Column\Actions">
             <settings>
-                <indexField>entity_id</indexField>
+                <indexField>uuid</indexField>
             </settings>
         </actionsColumn>
     </columns>

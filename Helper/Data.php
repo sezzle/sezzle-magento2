@@ -76,6 +76,30 @@ class Data extends AbstractHelper
     }
 
     /**
+     * Export CSV string to array
+     *
+     * @param string $content
+     * @param mixed $entityId
+     * @return array
+     */
+    public function csvToArray($content)
+    {
+        $data = ['header' => [], 'data' => []];
+
+        $lines = str_getcsv($content, "\n");
+        foreach ($lines as $index => $line) {
+            if ($index == 0) {
+                $data['header'] = str_getcsv($line);
+            } else {
+                $row = array_combine($data['header'], str_getcsv($line));
+                $data['data'][] = $row;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Get Sezzle Module Version
      *
      * @throws FileSystemException

@@ -3,9 +3,9 @@
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Framework\Api\DataObjectHelper;
-use Magento\Framework\Exception\AlreadyExistsException;
-use Magento\Framework\Exception\CouldNotSaveException;
-use Sezzle\Sezzlepay\Api\Data;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\App\Response\Http\FileFactory;
+use Magento\Framework\Filesystem;
 use Sezzle\Sezzlepay\Api\Data\SettlementReportsInterface;
 use Sezzle\Sezzlepay\Api\SettlementReportsRepositoryInterface;
 use Sezzle\Sezzlepay\Api\V2Interface;
@@ -32,19 +32,30 @@ class SettlementReportsManagement implements \Sezzle\Sezzlepay\Api\SettlementRep
      * @var V2Interface
      */
     private $v2;
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+    /**
+     * @var FileFactory
+     */
+    private $fileFactory;
 
     public function __construct(
         SettlementReportsFactory $settlementReportsFactory,
         DataObjectHelper $dataObjectHelper,
+        Filesystem $filesystem,
+        FileFactory $fileFactory,
         SettlementReportsRepositoryInterface $settlementReportsRepository,
         V2Interface $v2
     ) {
         $this->settlementReportsFactory = $settlementReportsFactory;
+        $this->filesystem = $filesystem;
+        $this->fileFactory = $fileFactory;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->settlementReportsRepository = $settlementReportsRepository;
         $this->v2 = $v2;
     }
-
 
     /**
      * @inheritDoc
@@ -83,5 +94,30 @@ class SettlementReportsManagement implements \Sezzle\Sezzlepay\Api\SettlementRep
             }
             $this->settlementReportsRepository->saveMultiple($reportsArray);
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function downloadSettlementReportDetails($payoutUUID)
+    {
+        $details = $this->v2->getSettlementDetails($payoutUUID);
+
+        $details = "total_order_amount,total_refund_amount,total_fee_amount,total_returned_fee_amount,total_chargeback_amount,total_chargeback_reversal_amount,total_correction_amount,total_referral_revenue_transfer_amount,total_bank_account_withdrawals,total_bank_account_withdrawal_reversals,forex_fees,net_settlement_amount,payment_uuid,settlement_currency,payout_date,payout_status
+10.00,0.00,-0.60,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.18,9.22,51ce75eb-7156-48a5-9cb2-c31774a76570,,2018-02-08 01:07:27 +0000 UTC,Pending
+type,order_capture_date,order_created_at,event_date,order_uuid,customer_order_id,external_reference_id,amount,posting_currency,type_code,chargeback_code
+ORDER,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,b9obg-irk6g-0000a-8is70,3,100000074,10.00,USD,001,
+FEE,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,0001-01-01T00:00:00Z,b9obg-irk6g-0000a-8is70,3,100000074,-0.60,USD,003,";
+
+        $dir = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+        $fileName = sprintf('%s.csv', $payoutUUID);
+
+        $response = $this->fileFactory->create(
+            $fileName,
+            $details
+        );
+
+        $dir->delete($fileName);
+        return $response;
     }
 }
