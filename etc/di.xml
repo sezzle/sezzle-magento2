@@ -21,6 +21,17 @@
     <preference for="Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface" type="Sezzle\Sezzlepay\Model\Api\Data\SessionTokenize"/>
     <preference for="Sezzle\Sezzlepay\Api\Data\LinkInterface" type="Sezzle\Sezzlepay\Model\Api\Data\Link"/>
     <preference for="Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface" type="Sezzle\Sezzlepay\Model\Api\Data\TokenizeCustomer"/>
+    <preference for="Sezzle\Sezzlepay\Api\Data\SettlementReportsInterface" type="Sezzle\Sezzlepay\Model\SettlementReports"/>
     <preference for="Sezzle\Sezzlepay\Api\V1Interface" type="Sezzle\Sezzlepay\Model\Api\V1"/>
     <preference for="Sezzle\Sezzlepay\Api\V2Interface" type="Sezzle\Sezzlepay\Model\Api\V2"/>
+    <preference for="Sezzle\Sezzlepay\Api\SettlementReportsRepositoryInterface" type="Sezzle\Sezzlepay\Model\SettlementReportsRepository"/>
+    <preference for="Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface" type="Sezzle\Sezzlepay\Model\SettlementReportsManagement"/>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="settlement_reports_listing_data_source" xsi:type="string">Sezzle\Sezzlepay\Model\ResourceModel\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

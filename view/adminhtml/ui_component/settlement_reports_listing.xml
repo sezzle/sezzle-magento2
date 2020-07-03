@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">settlement_reports_listing.settlement_reports_listing_data_source</item>
+        </item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="add">
+                <url path="*/*/syncandsave"/>
+                <class>primary</class>
+                <label translate="true">Sync</label>
+            </button>
+        </buttons>
+        <spinner>settlement_reports_columns</spinner>
+        <deps>
+            <dep>settlement_reports_listing.settlement_reports_listing_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="settlement_reports_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>Sezzle_Sezzlepay::settlement_reports</aclResource>
+        <dataProvider class="Sezzle\Sezzlepay\Ui\Component\DataProvider" name="settlement_reports_listing_data_source">
+            <settings>
+                <requestFieldName>id</requestFieldName>
+                <primaryFieldName>entity_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <exportButton name="export_button"/>
+        <filterSearch name="fulltext"/>
+        <filters name="listing_filters"/>
+        <paging name="listing_paging"/>
+    </listingToolbar>
+    <columns name="settlement_reports_columns">
+        <settings>
+            <childDefaults>
+                <param name="fieldAction" xsi:type="array">
+                    <item name="provider" xsi:type="string">settlement_reports_listing.settlement_reports_listing.settlement_reports_columns.actions</item>
+                    <item name="target" xsi:type="string">applyAction</item>
+                    <item name="params" xsi:type="array">
+                        <item name="0" xsi:type="string">view</item>
+                        <item name="1" xsi:type="string">${ $.$data.rowIndex }</item>
+                    </item>
+                </param>
+            </childDefaults>
+        </settings>
+        <selectionsColumn name="ids" sortOrder="10">
+            <settings>
+                <indexField>entity_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="entity_id" sortOrder="20">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">ID</label>
+                <sorting>asc</sorting>
+            </settings>
+        </column>
+        <column name="uuid" sortOrder="30">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Payout UUID</label>
+            </settings>
+        </column>
+        <column name="payout_currency" sortOrder="40">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Payout Currency</label>
+            </settings>
+        </column>
+        <column name="payout_date" class="Magento\Ui\Component\Listing\Columns\Date" component="Magento_Ui/js/grid/columns/date" sortOrder="50">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Payout Date</label>
+            </settings>
+        </column>
+        <column name="net_settlement_amount" sortOrder="60">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Net Settlement Amount</label>
+            </settings>
+        </column>
+        <column name="forex_fees" sortOrder="70">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Forex Fees</label>
+            </settings>
+        </column>
+        <column name="status" sortOrder="80">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Status</label>
+            </settings>
+        </column>
+        <actionsColumn name="actions" class="Magento\Customer\Ui\Component\Listing\Column\Actions">
+            <settings>
+                <indexField>entity_id</indexField>
+            </settings>
+        </actionsColumn>
+    </columns>
+</listing>

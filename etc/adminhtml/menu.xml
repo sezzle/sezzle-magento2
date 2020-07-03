@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Sezzle_Sezzlepay::sezzle" title="Sezzle" translate="title" module="Sezzle_Sezzlepay" sortOrder="30" resource="Sezzle_Sezzlepay::sezzle"/>
+        <add id="Sezzle_Sezzlepay::sezzle_settlement_reports" title="Settlement Reports" translate="title" module="Sezzle_Sezzlepay" sortOrder="10" parent="Sezzle_Sezzlepay::sezzle" action="sezzle/settlementReports/" resource="Sezzle_Sezzlepay::settlement_reports"/>
+    </menu>
+</config>

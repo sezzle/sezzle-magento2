@@ -54,6 +54,9 @@ class V2 implements V2Interface
     const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/v2/customer/%s/order";
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
 
+    const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/v2/settlements/summaries";
+    const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/v2/settlements/details/%s";
+
     /**
      * @var SezzleConfigInterface
      */
@@ -584,6 +587,55 @@ class V2 implements V2Interface
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('V2 Gateway release payment error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSettlementSummaries()
+    {
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
+        $auth = $this->authenticate();
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                null,
+                ZendClient::GET
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return $body;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('V2 Gateway get settlement summaries error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSettlementDetails($payoutUUID)
+    {
+        $settlementDetailsEndpoint = sprintf(self::SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT, $payoutUUID);
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . $settlementDetailsEndpoint;
+        $auth = $this->authenticate();
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                null,
+                ZendClient::GET
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return $body;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('V2 Gateway get settlement details error: %1', $e->getMessage())
             );
         }
     }

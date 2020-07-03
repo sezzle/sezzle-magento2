@@ -8,7 +8,7 @@
 namespace Sezzle\Sezzlepay\Api;
 
 use Magento\Framework\Exception\LocalizedException;
-use Sezzle\Sezzlepay\Api\Data\AuthInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
 use Sezzle\Sezzlepay\Api\Data\OrderInterface;
@@ -93,11 +93,29 @@ interface V2Interface
     /**
      * Release payment by Order UUID
      *
+     * @param string $url
      * @param string $orderUUID
      * @param int $amount
      * @return bool
-     * @throws LocalizedException
-     * @throws LocalizedException
      */
     public function release($url, $orderUUID, $amount);
+
+    /**
+     * Get Settlement Report Summaries
+     *
+     * @return mixed
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getSettlementSummaries();
+
+    /**
+     * Get Settlement Report Details for a payout UUID
+     *
+     * @param string $payoutUUID
+     * @return mixed
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getSettlementDetails($payoutUUID);
 }
