@@ -85,18 +85,31 @@ class Data extends AbstractHelper
     public function csvToArray($content)
     {
         $data = ['header' => [], 'data' => []];
+        $summary = [];
+        $result = [];
 
         $lines = str_getcsv($content, "\n");
         foreach ($lines as $index => $line) {
-            if ($index == 0) {
+            if ($index == 0 || $index == 2) {
+                if ($index == 2) {
+                    $summary = $data;
+                    unset($data);
+                }
                 $data['header'] = str_getcsv($line);
             } else {
                 $row = array_combine($data['header'], str_getcsv($line));
                 $data['data'][] = $row;
             }
         }
+        array_push($result, $summary, $data);
+        return $result;
+    }
 
-        return $data;
+    public function snakeCaseToTitleCase($name)
+    {
+        $name = str_replace("_", " ", $name);
+        $name = ucwords($name);
+        return $name;
     }
 
     /**

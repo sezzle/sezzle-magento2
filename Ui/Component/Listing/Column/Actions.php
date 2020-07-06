@@ -66,7 +66,7 @@ class Actions extends Column
                             'sezzle/settlementreports/download',
                             ['payout_uuid' => $item['uuid']]
                         ),
-                        'label' => __('Download Details')
+                        'label' => __('Download')
                     ]
                 ];
             }

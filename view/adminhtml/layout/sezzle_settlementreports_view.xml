@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="admin.scope.col.wrap" htmlClass="admin__old" />
+        <referenceContainer name="content">
+            <block class="Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View" name="payout_details"/>
+        </referenceContainer>
+
+        <referenceContainer name="left">
+            <block class="Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tabs" name="payout_details_tabs">
+                <block class="Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab\Summary" name="payout_summary_tab"/>
+                <block class="Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab\LineItems" name="payout_line_items_tab">
+                    <arguments>
+                        <argument name="columns" xsi:type="array">
+                            <item name="type" xsi:type="string" translate="true">Type</item>
+                            <item name="order-capture-date" xsi:type="string" translate="true">Order Capture Date</item>
+                            <item name="order-created-at" xsi:type="string" translate="true">Order Created At</item>
+                            <item name="event-date" xsi:type="string" translate="true">Event Date</item>
+                            <item name="order-uuid" xsi:type="string" translate="true">Order UUID</item>
+                            <item name="customer-order-id" xsi:type="string" translate="true">Customer Order ID</item>
+                            <item name="external-reference-id" xsi:type="string" translate="true">External Reference ID</item>
+                            <item name="amount" xsi:type="string" translate="true">Amount</item>
+                            <item name="posting-currency" xsi:type="string" translate="true">Posting Currency</item>
+                            <item name="type-code" xsi:type="string" translate="true">Type Code</item>
+                            <item name="chargeback-code" xsi:type="string" translate="true">Chargeback Code</item>
+                        </argument>
+                    </arguments>
+                    <block class="Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\LineItems\Renderer\DefaultRenderer" as="default" name="default_payout_line_items_renderer" template="Sezzle_Sezzlepay::settlement_reports/payout_details/view/line_items/renderer/default.phtml">
+                        <arguments>
+                            <argument name="columns" xsi:type="array">
+                                <item name="type" xsi:type="string" translate="false">col-type</item>
+                                <item name="order_capture_date" xsi:type="string" translate="false">col-order-capture-date</item>
+                                <item name="order_created_at" xsi:type="string" translate="false">col-order-capture-date</item>
+                                <item name="event_date" xsi:type="string" translate="false">col-event-date</item>
+                                <item name="order_uuid" xsi:type="string" translate="false">col-order-uuid</item>
+                                <item name="customer_order_id" xsi:type="string" translate="false">col-customer-order-id</item>
+                                <item name="external_reference_id" xsi:type="string" translate="false">col-external-reference-id</item>
+                                <item name="amount" xsi:type="string" translate="false">col-amount</item>
+                                <item name="posting_currency" xsi:type="string" translate="false">col-posting-currency</item>
+                                <item name="type_code" xsi:type="string" translate="false">col-type-code</item>
+                                <item name="chargeback_code" xsi:type="string" translate="false">col-chargeback-code</item>
+                            </argument>
+                        </arguments>
+                    </block>
+                </block>
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">payout_summary</argument>
+                    <argument name="block" xsi:type="string">payout_summary_tab</argument>
+                </action>
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">payout_line_items</argument>
+                    <argument name="block" xsi:type="string">payout_line_items_tab</argument>
+                </action>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

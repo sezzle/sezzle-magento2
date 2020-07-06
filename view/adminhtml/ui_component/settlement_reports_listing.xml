@@ -94,7 +94,7 @@
         <column name="net_settlement_amount" sortOrder="60">
             <settings>
                 <filter>text</filter>
-                <label translate="true">Net Settlement Amount</label>
+                <label translate="true">Net Settlement Amount(Cents)</label>
             </settings>
         </column>
         <column name="forex_fees" sortOrder="70">

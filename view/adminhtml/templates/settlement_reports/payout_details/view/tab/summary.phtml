@@ -1,0 +1,29 @@
+
+<?php
+
+/** @var $block \Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab\Summary */
+
+$data = $block->getColumnData();
+
+?>
+
+<section class="admin__page-section order-view-account-information">
+    <div class="admin__page-section-title">
+        <span class="title"><?= $block->escapeHtml(__('Order & Account Information')) ?></span>
+    </div>
+    <div class="admin__page-section-content">
+        <div class="admin__page-section-item order-information">
+            <?php /* Order Information */ ?>
+            <div class="admin__page-section-item-content">
+                <table class="admin__table-secondary order-information-table">
+                    <?php foreach ($block->getColumnNames() as $columnName) : ?>
+                    <tr>
+                        <th><?= $block->escapeHtml(__($block->getColumnName($columnName))) ?></th>
+                        <td><?= $block->escapeHtml($data[$columnName]) ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

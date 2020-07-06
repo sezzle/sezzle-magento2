@@ -80,6 +80,31 @@
                         <comment>Makes you enable Customer tokenization</comment>
                         <config_path>payment/sezzlepay/tokenize</config_path>
                     </field>
+                    <!-- tokenize -->
+                    <field id="settlement_reports" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Settlement Reports?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Makes you enable Customer tokenization</comment>
+                        <config_path>payment/sezzlepay/settlement_reports</config_path>
+                    </field>
+                    <field id="settlement_reports_start_date" translate="label" type="date" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Start Date</label>
+                        <comment>Makes you enable Customer tokenization</comment>
+                        <config_path>payment/sezzlepay/settlement_reports_start_date</config_path>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\Date</frontend_model>
+                        <depends>
+                            <field id="settlement_reports">1</field>
+                        </depends>
+                    </field>
+                    <field id="settlement_reports_end_date" translate="label" type="date" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>End Date</label>
+                        <comment>Makes you enable Customer tokenization</comment>
+                        <config_path>payment/sezzlepay/settlement_reports_end_date</config_path>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\Date</frontend_model>
+                        <depends>
+                            <field id="settlement_reports">1</field>
+                        </depends>
+                    </field>
                 </group>
                 <group id="sezzle_widget" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Widget Settings]]></label>

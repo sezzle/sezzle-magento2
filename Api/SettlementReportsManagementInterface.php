@@ -30,5 +30,6 @@ interface SettlementReportsManagementInterface
      * @throws NoSuchEntityException
      */
     public function downloadSettlementReportDetails($payoutUUID);
+    public function getPayoutDetails($payoutUUID);
 
 }

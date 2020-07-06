@@ -37,7 +37,7 @@ class Download extends Action
     {
         $payoutUUID = $this->getRequest()->getParam('payout_uuid');
         if (!$payoutUUID) {
-            throw new NoSuchEntityException(__("Payout UUID is missing."));
+            $this->messageManager->addErrorMessage("Payout UUID is missing");
         }
         return $this->settlementReportsManagement->downloadSettlementReportDetails($payoutUUID);
     }
