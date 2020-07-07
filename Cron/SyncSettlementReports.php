@@ -6,38 +6,64 @@
  */
 namespace Sezzle\Sezzlepay\Cron;
 
+use Exception;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\NotFoundException;
+use Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface;
+use Sezzle\Sezzlepay\Helper\Data;
+
+/**
+ * Class SyncSettlementReports
+ * @package Sezzle\Sezzlepay\Cron
+ */
 class SyncSettlementReports
 {
     /**
-     * @var \Magento\Paypal\Model\Report\SettlementFactory
+     * @var SettlementReportsManagementInterface
      */
-    protected $_settlementFactory;
+    private $settlementReportsManagement;
+    /**
+     * @var Data
+     */
+    private $sezzleHelper;
 
     /**
      * Constructor
      *
-     * @param \Magento\Paypal\Model\Report\SettlementFactory $settlementFactory
+     * @param Data $sezzleHelper
+     * @param SettlementReportsManagementInterface $settlementReportsManagement
      */
     public function __construct(
-        \Magento\Paypal\Model\Report\SettlementFactory $settlementFactory
+        Data $sezzleHelper,
+        SettlementReportsManagementInterface $settlementReportsManagement
     ) {
-        $this->_settlementFactory = $settlementFactory;
+        $this->sezzleHelper = $sezzleHelper;
+        $this->settlementReportsManagement = $settlementReportsManagement;
     }
 
     /**
-     * Goes to reports.paypal.com and fetches Settlement reports.
+     * Settlement Reports Sync
      *
-     * @return void
-     * @throws \Exception
+     * @throws NoSuchEntityException
      */
     public function execute()
     {
-        /** @var \Magento\Paypal\Model\Report\Settlement $reports */
-        $reports = $this->_settlementFactory->create();
-        /* @var $reports \Magento\Paypal\Model\Report\Settlement */
-        $credentials = $reports->getSftpCredentials(true);
-        foreach ($credentials as $config) {
-            $reports->fetchAndSave(\Magento\Paypal\Model\Report\Settlement::createConnection($config));
+        try {
+            $this->sezzleHelper->logSezzleActions("****Reports syncing started****");
+            $this->settlementReportsManagement->syncAndSave();
+            $this->sezzleHelper->logSezzleActions("****Reports syncing ended****");
+        } catch (InputException $e) {
+            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+        } catch (NoSuchEntityException $e) {
+            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+        } catch (NotFoundException $e) {
+            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+        } catch (LocalizedException $e) {
+            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+        } catch (Exception $e) {
+            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
         }
     }
 }

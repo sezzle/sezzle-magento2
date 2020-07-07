@@ -80,34 +80,35 @@
                         <comment>Makes you enable Customer tokenization</comment>
                         <config_path>payment/sezzlepay/tokenize</config_path>
                     </field>
-                    <!-- tokenize -->
                 </group>
                 <group id="sezzle_settlement_reports" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="2">
                     <label>Settlement Report Settings</label>
+                    <!-- settlement reports -->
                     <field id="settlement_reports" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Settlement Reports</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <comment>Makes you enable Customer tokenization</comment>
+                        <comment>Makes you enable Settlement Reports Dashboard</comment>
                         <config_path>payment/sezzlepay/settlement_reports</config_path>
                     </field>
+                    <!-- settlement reports start date -->
                     <field id="settlement_reports_start_date" translate="label" type="date" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Start Date</label>
-                        <comment>Makes you enable Customer tokenization</comment>
                         <config_path>payment/sezzlepay/settlement_reports_start_date</config_path>
                         <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\Date</frontend_model>
                         <depends>
                             <field id="settlement_reports">1</field>
                         </depends>
                     </field>
+                    <!-- settlement reports end date -->
                     <field id="settlement_reports_end_date" translate="label" type="date" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>End Date</label>
-                        <comment>Makes you enable Customer tokenization</comment>
                         <config_path>payment/sezzlepay/settlement_reports_end_date</config_path>
                         <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\Date</frontend_model>
                         <depends>
                             <field id="settlement_reports">1</field>
                         </depends>
                     </field>
+                    <!-- settlement reports auto sync -->
                     <field id="settlement_reports_auto_sync" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Automatic Syncing</label>
                         <config_path>payment/sezzlepay/settlement_reports_auto_sync</config_path>
@@ -116,15 +117,16 @@
                             <field id="settlement_reports">1</field>
                         </depends>
                     </field>
+                    <!-- settlement reports schedule -->
                     <field id="settlement_reports_schedule" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Schedule</label>
-                        <comment>Sezzle retains reports for 45 days.</comment>
                         <config_path>payment/sezzlepay/settlement_reports_schedule</config_path>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\SettlementReports\SyncingSchedule</source_model>
                         <depends>
                             <field id="settlement_reports_auto_sync">1</field>
                         </depends>
                     </field>
+                    <!-- settlement reports time -->
                     <field id="settlement_reports_time" translate="label" type="time" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Time of Day</label>
                         <backend_model>Sezzle\Sezzlepay\Model\System\Config\Backend\Cron</backend_model>
