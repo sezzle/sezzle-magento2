@@ -1,4 +1,9 @@
 <?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 
 namespace Sezzle\Sezzlepay\Controller\Adminhtml\SettlementReports;
 
@@ -6,6 +11,10 @@ use Magento\Backend\App\Action;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
+/**
+ * Class Index
+ * @package Sezzle\Sezzlepay\Controller\Adminhtml\SettlementReports
+ */
 class Index extends Action
 {
     /**
@@ -13,6 +22,11 @@ class Index extends Action
      */
     private $resultPageFactory;
 
+    /**
+     * Index constructor.
+     * @param Action\Context $context
+     * @param PageFactory $resultPageFactory
+     */
     public function __construct(
         Action\Context $context,
         PageFactory $resultPageFactory
@@ -22,7 +36,7 @@ class Index extends Action
     }
 
     /**
-     * Customers list action
+     * Settlement Reports Grid
      *
      * @return Page
      */
@@ -34,13 +48,12 @@ class Index extends Action
          * Set active menu item
          */
         $resultPage->setActiveMenu('Sezzle_Sezzlepay::sezzle_settlement_reports');
-        $resultPage->getConfig()->getTitle()->prepend(__('Settlement Reports'));
+        $resultPage->getConfig()->getTitle()->prepend(__('Sezzle Settlement Reports'));
 
         /**
          * Add breadcrumb item
          */
-        $resultPage->addBreadcrumb(__('Sezzle'), __('Settlement Reports'));
-        $resultPage->addBreadcrumb(__('Manage Settlement Reports'), __('Manage Settlement Reports'));
+        $resultPage->addBreadcrumb(__('Sezzle'), __('Sezzle Settlement Reports'));
 
         return $resultPage;
     }

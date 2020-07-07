@@ -1,17 +1,25 @@
 <?php
-
-
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 namespace Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails;
 
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
+use Magento\Framework\Registry;
 use Sezzle\Sezzlepay\Helper\Data;
 
+/**
+ * Class PayoutDetails
+ * @package Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails
+ */
 class PayoutDetails extends Template
 {
 
     /**
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     private $coreRegistry;
     /**
@@ -19,10 +27,17 @@ class PayoutDetails extends Template
      */
     protected $sezzleHelper;
 
+    /**
+     * PayoutDetails constructor.
+     * @param Context $context
+     * @param Data $sezzleHelper
+     * @param Registry $registry
+     * @param array $data
+     */
     public function __construct(
         Context $context,
         Data $sezzleHelper,
-        \Magento\Framework\Registry $registry,
+        Registry $registry,
         array $data = []
     ) {
         $this->sezzleHelper = $sezzleHelper;
@@ -30,6 +45,11 @@ class PayoutDetails extends Template
         parent::__construct($context, $data);
     }
 
+    /**
+     * Get Payout Details
+     *
+     * @return mixed|null
+     */
     public function getPayoutDetails()
     {
         return $this->coreRegistry->registry('payout_details');

@@ -1,56 +1,45 @@
 <?php
-
+/**
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 namespace Sezzle\Sezzlepay\Model;
 
-use Magento\Framework\Exception\AlreadyExistsException;
-use Sezzle\Sezzlepay\Api\Data\SettlementReportsInterface;
+use Sezzle\Sezzlepay\Api\SettlementReportsRepositoryInterface;
 
-class SettlementReportsRepository implements \Sezzle\Sezzlepay\Api\SettlementReportsRepositoryInterface
+/**
+ * Class SettlementReportsRepository
+ * @package Sezzle\Sezzlepay\Model
+ */
+class SettlementReportsRepository implements SettlementReportsRepositoryInterface
 {
-    /**
-     * @var SettlementReportsFactory
-     */
-    private $settlementReportsFactory;
-    /**
-     * @var ResourceModel\SettlementReports
-     */
-    private $settlementReportsResourceModel;
     /**
      * @var ResourceModel\SettlementReports\CollectionFactory
      */
     private $settlementReportsCollectionFactory;
 
+    /**
+     * SettlementReportsRepository constructor.
+     * @param ResourceModel\SettlementReports\CollectionFactory $settlementReportsCollectionFactory
+     */
     public function __construct(
-        SettlementReportsFactory $settlementReportsFactory,
-        ResourceModel\SettlementReports $settlementReportsResourceModel,
         ResourceModel\SettlementReports\CollectionFactory $settlementReportsCollectionFactory
     ) {
-        $this->settlementReportsFactory = $settlementReportsFactory;
-        $this->settlementReportsResourceModel = $settlementReportsResourceModel;
         $this->settlementReportsCollectionFactory = $settlementReportsCollectionFactory;
     }
 
-    /**
-     * @param SettlementReportsInterface|SettlementReports $settlementReports
-     */
-    public function save(SettlementReportsInterface $settlementReports)
-    {
-        try {
-            $this->settlementReportsResourceModel->save($settlementReports);
-        } catch (AlreadyExistsException $e) {
-        } catch (\Exception $e) {
-        }
-    }
 
     /**
-     * @param SettlementReportsInterface[] $settlementReports
-     * @throws \Exception
+     * @inheritDoc
      */
     public function saveMultiple(array $settlementReports = null)
     {
         $collection = $this->settlementReportsCollectionFactory->create();
+        $syncedPayoutUUIDs = $collection->getColumnValues('uuid');
+
         foreach ($settlementReports as $settlementReport) {
-            if (!$collection->addFieldToFilter('uuid', $settlementReport->getUuid())->getSize()) {
+            if (!in_array($settlementReport->getUuid(), $syncedPayoutUUIDs)) {
                 $collection->addItem($settlementReport)->save();
             }
         }

@@ -79,7 +79,6 @@ class Data extends AbstractHelper
      * Export CSV string to array
      *
      * @param string $content
-     * @param mixed $entityId
      * @return array
      */
     public function csvToArray($content)
@@ -105,6 +104,11 @@ class Data extends AbstractHelper
         return $result;
     }
 
+    /**
+     * Convert string from snake case to title case
+     * @param string $name
+     * @return string
+     */
     public function snakeCaseToTitleCase($name)
     {
         $name = str_replace("_", " ", $name);

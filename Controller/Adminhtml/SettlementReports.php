@@ -8,16 +8,17 @@
 namespace Sezzle\Sezzlepay\Controller\Adminhtml;
 
 use Magento\Backend\App\Action;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 
 /**
- * Class Sezzle
- * @package Sezzle\Sezzlepay\Controller\AbstractController
+ * Class SettlementReports
+ * @package Sezzle\Sezzlepay\Controller\Adminhtml
  */
-abstract class Sezzle extends Action
+abstract class SettlementReports extends Action
 {
     /**
      * @var SettlementReportsManagementInterface
@@ -51,19 +52,27 @@ abstract class Sezzle extends Action
     }
 
     /**
-     * Get Order
+     * Get Payout Details
      *
      * @return bool
+     * @throws LocalizedException
      */
     protected function initPayoutDetails()
     {
-        $payoutUUID = $this->getRequest()->getParam('payout_uuid');
-        $csvData = $this->settlementReportsManagement->getPayoutDetails($payoutUUID);
-        if (!$csvData) {
-            return false;
+        try {
+            if (!$payoutUUID = $this->getRequest()->getParam('payout_uuid')) {
+                return false;
+            }
+            $data = $this->settlementReportsManagement->getPayoutDetails($payoutUUID);
+            if (!$data) {
+                return false;
+            }
+            $this->coreRegistry->register('payout_details', $data);
+            return true;
+        } catch (NoSuchEntityException $e) {
+            throw new LocalizedException(__("Unable to get payout details."));
+        } catch (LocalizedException $e) {
+            throw new LocalizedException(__("Unable to get payout details."));
         }
-        $readableData = $this->sezzleHelper->csvToArray($csvData);
-        $this->coreRegistry->register('payout_details', $readableData);
-        return true;
     }
 }

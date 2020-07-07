@@ -1,15 +1,14 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 namespace Sezzle\Sezzlepay\Model\ResourceModel\SettlementReports;
 
 /**
- * Customers collection
- *
- * @author      Magento Core Team <core@magentocommerce.com>
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * Class Collection
+ * @package Sezzle\Sezzlepay\Model\ResourceModel\SettlementReports
  */
 class Collection extends \Magento\Framework\Model\ResourceModel\Db\VersionControl\Collection
 {

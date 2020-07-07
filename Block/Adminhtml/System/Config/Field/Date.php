@@ -7,35 +7,20 @@
 
 namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field;
 
-use Magento\Framework\Registry;
-use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
+use Magento\Framework\Data\Form\Element\AbstractElement;
 
 /**
  * Fieldset renderer for Sezzle solution
  */
 class Date extends Field
 {
-    /**
-     * @var  Registry
-     */
-    protected $_coreRegistry;
 
     /**
-     * @param Context  $context
-     * @param Registry $coreRegistry
-     * @param array    $data
+     * @param AbstractElement $element
+     * @return string
      */
-    public function __construct(
-        Context $context,
-        Registry $coreRegistry,
-        array $data = []
-    ) {
-        $this->_coreRegistry = $coreRegistry;
-        parent::__construct($context, $data);
-    }
-
-    public function render(\Magento\Framework\Data\Form\Element\AbstractElement $element)
+    public function render(AbstractElement $element)
     {
         //get configuration element
         $element->setDateFormat(\Magento\Framework\Stdlib\DateTime::DATE_INTERNAL_FORMAT);

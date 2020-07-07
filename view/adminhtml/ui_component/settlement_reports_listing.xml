@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-/**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
@@ -16,7 +17,7 @@
             <button name="add">
                 <url path="*/*/syncandsave"/>
                 <class>primary</class>
-                <label translate="true">Sync</label>
+                <label translate="true">Sync Reports</label>
             </button>
         </buttons>
         <spinner>settlement_reports_columns</spinner>
@@ -60,11 +61,6 @@
                 </param>
             </childDefaults>
         </settings>
-        <selectionsColumn name="ids" sortOrder="10">
-            <settings>
-                <indexField>entity_id</indexField>
-            </settings>
-        </selectionsColumn>
         <column name="entity_id" sortOrder="20">
             <settings>
                 <filter>textRange</filter>

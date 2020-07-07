@@ -1,18 +1,23 @@
-
 <?php
+/**
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 
-/** @var $block \Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab\Summary */
+use Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab\Summary;
 
+/** @var $block Summary */
 $data = $block->getColumnData();
 
 ?>
 
 <section class="admin__page-section order-view-account-information">
     <div class="admin__page-section-title">
-        <span class="title"><?= $block->escapeHtml(__('Order & Account Information')) ?></span>
+        <span class="title"><?= $block->escapeHtml(__('Payout Summary')) ?></span>
     </div>
     <div class="admin__page-section-content">
-        <div class="admin__page-section-item order-information">
+        <div style="width: 70%" class="admin__page-section-item order-information">
             <?php /* Order Information */ ?>
             <div class="admin__page-section-item-content">
                 <table class="admin__table-secondary order-information-table">

@@ -627,14 +627,12 @@ class V2 implements V2Interface
         $url = $this->sezzleConfig->getSezzleBaseUrl() . $settlementDetailsEndpoint;
         $auth = $this->authenticate();
         try {
-            $response = $this->apiProcessor->call(
+            return $this->apiProcessor->call(
                 $url,
                 $auth->getToken(),
                 null,
                 ZendClient::GET
             );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return $body;
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

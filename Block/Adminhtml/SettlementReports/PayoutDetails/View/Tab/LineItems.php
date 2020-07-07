@@ -1,20 +1,21 @@
 <?php
-/**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 namespace Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab;
 
+use Magento\Backend\Block\Widget\Tab\TabInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\PayoutDetails;
 
 /**
- * Order history tab
- *
- * @api
- * @since 100.0.2
+ * Class LineItems
+ * @package Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab
  */
 class LineItems extends PayoutDetails implements
-    \Magento\Backend\Block\Widget\Tab\TabInterface
+    TabInterface
 {
     /**
      * Template
@@ -23,28 +24,52 @@ class LineItems extends PayoutDetails implements
      */
     protected $_template = 'Sezzle_Sezzlepay::settlement_reports/payout_details/view/tab/line_items.phtml';
 
+    /**
+     * Get Column data
+     * @return array|mixed
+     */
     public function getColumns()
     {
-        $columns = array_key_exists('columns', $this->_data) ? $this->_data['columns'] : [];
-        return $columns;
+        return array_key_exists('columns', $this->_data) ? $this->_data['columns'] : [];
     }
 
 
+    /**
+     * Get Payout line item details
+     *
+     * @return mixed
+     */
     public function getLineItemDetails()
     {
         return $this->getPayoutDetails()[1];
     }
 
+    /**
+     * Get Column names of line items
+     *
+     * @return mixed
+     */
     public function getColumnNames()
     {
         return $this->getLineItemDetails()['header'];
     }
 
+    /**
+     * Get Column values of line items
+     *
+     * @return mixed
+     */
     public function getColumnData()
     {
         return $this->getLineItemDetails()['data'];
     }
 
+    /**
+     * Get item renderer
+     *
+     * @return bool|\Magento\Framework\View\Element\AbstractBlock|\Magento\Framework\View\Element\BlockInterface
+     * @throws LocalizedException
+     */
     public function getItemRenderer()
     {
         $renderer = $this->getChildBlock('default');
@@ -56,6 +81,13 @@ class LineItems extends PayoutDetails implements
         return $renderer;
     }
 
+    /**
+     * Get line item HTML
+     *
+     * @param array $item
+     * @return mixed
+     * @throws LocalizedException
+     */
     public function getLineItemHtml($item)
     {
         return $this->getItemRenderer()->setLineItem($item)->toHtml();

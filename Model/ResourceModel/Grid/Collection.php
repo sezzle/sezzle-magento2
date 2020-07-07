@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 namespace Sezzle\Sezzlepay\Model\ResourceModel\Grid;
 
 use Magento\Customer\Ui\Component\DataProvider\Document;
@@ -11,6 +15,10 @@ use Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult;
 use Psr\Log\LoggerInterface as Logger;
 use Sezzle\Sezzlepay\Model\ResourceModel\SettlementReports;
 
+/**
+ * Class Collection
+ * @package Sezzle\Sezzlepay\Model\ResourceModel\Grid
+ */
 class Collection extends SearchResult
 {
     /**

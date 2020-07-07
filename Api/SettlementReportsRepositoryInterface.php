@@ -1,16 +1,20 @@
 <?php
-
-
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 namespace Sezzle\Sezzlepay\Api;
 
+use Exception;
 
 interface SettlementReportsRepositoryInterface
 {
-    public function save(\Sezzle\Sezzlepay\Api\Data\SettlementReportsInterface $settlementReports);
 
     /**
-     * @param Data\SettlementReportsInterface[] $settlementReports
-     * @return mixed
+     * @param array|null $settlementReports
+     * @return mixed|void
+     * @throws Exception
      */
     public function saveMultiple(array $settlementReports = null);
 

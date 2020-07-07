@@ -1,22 +1,29 @@
 <?php
-
+/**
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\App\Response\Http\FileFactory;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Filesystem;
 use Sezzle\Sezzlepay\Api\Data\SettlementReportsInterface;
+use Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface;
 use Sezzle\Sezzlepay\Api\SettlementReportsRepositoryInterface;
 use Sezzle\Sezzlepay\Api\V2Interface;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * Class SettlementReportsManagement
  * @package Sezzle\Sezzlepay\Model
  */
-class SettlementReportsManagement implements \Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface
+class SettlementReportsManagement implements SettlementReportsManagementInterface
 {
     /**
      * @var SettlementReportsFactory
@@ -42,12 +49,17 @@ class SettlementReportsManagement implements \Sezzle\Sezzlepay\Api\SettlementRep
      * @var FileFactory
      */
     private $fileFactory;
+    /**
+     * @var Data
+     */
+    private $sezzleHelper;
 
     /**
      * SettlementReportsManagement constructor.
      * @param SettlementReportsFactory $settlementReportsFactory
      * @param DataObjectHelper $dataObjectHelper
      * @param Filesystem $filesystem
+     * @param Data $sezzleHelper
      * @param FileFactory $fileFactory
      * @param SettlementReportsRepositoryInterface $settlementReportsRepository
      * @param V2Interface $v2
@@ -56,10 +68,12 @@ class SettlementReportsManagement implements \Sezzle\Sezzlepay\Api\SettlementRep
         SettlementReportsFactory $settlementReportsFactory,
         DataObjectHelper $dataObjectHelper,
         Filesystem $filesystem,
+        Data $sezzleHelper,
         FileFactory $fileFactory,
         SettlementReportsRepositoryInterface $settlementReportsRepository,
         V2Interface $v2
     ) {
+        $this->sezzleHelper = $sezzleHelper;
         $this->settlementReportsFactory = $settlementReportsFactory;
         $this->filesystem = $filesystem;
         $this->fileFactory = $fileFactory;
@@ -74,38 +88,24 @@ class SettlementReportsManagement implements \Sezzle\Sezzlepay\Api\SettlementRep
     public function syncAndSave()
     {
         $settlementReports = $this->v2->getSettlementSummaries();
-        $settlementReports = [
-            0 => [
-                'uuid' => 'b7916fbe-f30a-4435-b411-124634287a8ca',
-                'payout_currency' => 'USD',
-                'payout_date' => '2019-12-09T15:52:33Z',
-                'net_settlement_amount' => 9370,
-                'forex_fees' => 0,
-                'status' => 'Complete',
-            ],
-            1 => [
-                'uuid' => 'c51343hba-d54b-5641-e341-15235523b3at',
-                'payout_currency' => 'USD',
-                'payout_date' => '2019-12-10T15:52:33Z',
-                'net_settlement_amount' => 23470,
-                'forex_fees' => 0,
-                'status' => 'Complete',
-            ],
-        ];
-        $reportsArray = [];
-        if (!empty($settlementReports)) {
-            foreach ($settlementReports as $settlementReport) {
-                $settlementReportsModel = $this->settlementReportsFactory->create();
-                $this->dataObjectHelper->populateWithArray(
-                    $settlementReportsModel,
-                    $settlementReport,
-                    SettlementReportsInterface::class
-                );
-                $reportsArray[] = $settlementReportsModel;
-            }
-            $this->settlementReportsRepository->saveMultiple($reportsArray);
+        if (empty($settlementReports)) {
+            throw new NotFoundException(__("No report found."));
+        } elseif (isset($settlementReports['id']) && $settlementReports['id'] == 'error') {
+            throw new InputException(__($settlementReports['message']));
         }
+        $reportsArray = [];
+        foreach ($settlementReports as $settlementReport) {
+            $settlementReportsModel = $this->settlementReportsFactory->create();
+            $this->dataObjectHelper->populateWithArray(
+                $settlementReportsModel,
+                $settlementReport,
+                SettlementReportsInterface::class
+            );
+            $reportsArray[] = $settlementReportsModel;
+        }
+        $this->settlementReportsRepository->saveMultiple($reportsArray);
     }
+
 
     /**
      * @inheritDoc
@@ -114,11 +114,11 @@ class SettlementReportsManagement implements \Sezzle\Sezzlepay\Api\SettlementRep
     {
         $details = $this->v2->getSettlementDetails($payoutUUID);
 
-        $details = "total_order_amount,total_refund_amount,total_fee_amount,total_returned_fee_amount,total_chargeback_amount,total_chargeback_reversal_amount,total_correction_amount,total_referral_revenue_transfer_amount,total_bank_account_withdrawals,total_bank_account_withdrawal_reversals,forex_fees,net_settlement_amount,payment_uuid,settlement_currency,payout_date,payout_status
-10.00,0.00,-0.60,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.18,9.22,51ce75eb-7156-48a5-9cb2-c31774a76570,,2018-02-08 01:07:27 +0000 UTC,Pending
-type,order_capture_date,order_created_at,event_date,order_uuid,customer_order_id,external_reference_id,amount,posting_currency,type_code,chargeback_code
-ORDER,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,b9obg-irk6g-0000a-8is70,3,100000074,10.00,USD,001,
-FEE,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,0001-01-01T00:00:00Z,b9obg-irk6g-0000a-8is70,3,100000074,-0.60,USD,003,";
+        if (is_array($details) && $details['status'] == '404') {
+            throw new LocalizedException(
+                __('Invalid Payout UUID is provided.')
+            );
+        }
 
         $dir = $this->filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
         $fileName = sprintf('%s.csv', $payoutUUID);
@@ -132,20 +132,16 @@ FEE,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,0001-01-01T00:00:00Z,b9obg-irk6g-0
         return $response;
     }
 
+
     /**
-     * @param string $payoutUUID
-     * @return mixed
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
+     * @inheritDoc
      */
     public function getPayoutDetails($payoutUUID)
     {
-        //return $this->v2->getSettlementDetails($payoutUUID);
-
-        return "total_order_amount,total_refund_amount,total_fee_amount,total_returned_fee_amount,total_chargeback_amount,total_chargeback_reversal_amount,total_correction_amount,total_referral_revenue_transfer_amount,total_bank_account_withdrawals,total_bank_account_withdrawal_reversals,forex_fees,net_settlement_amount,payment_uuid,settlement_currency,payout_date,payout_status
-10.00,0.00,-0.60,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.18,9.22,51ce75eb-7156-48a5-9cb2-c31774a76570,,2018-02-08 01:07:27 +0000 UTC,Pending
-type,order_capture_date,order_created_at,event_date,order_uuid,customer_order_id,external_reference_id,amount,posting_currency,type_code,chargeback_code
-ORDER,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,b9obg-irk6g-0000a-8is70,3,100000074,10.00,USD,001,
-FEE,2018-01-30T18:24:12Z,2018-01-30T18:24:12Z,0001-01-01T00:00:00Z,b9obg-irk6g-0000a-8is70,3,100000074,-0.60,USD,003,";
+        $csvData = $this->v2->getSettlementDetails($payoutUUID);
+        if (!$csvData) {
+            return false;
+        }
+        return $this->sezzleHelper->csvToArray($csvData);
     }
 }

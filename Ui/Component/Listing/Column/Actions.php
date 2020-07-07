@@ -1,7 +1,8 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 namespace Sezzle\Sezzlepay\Ui\Component\Listing\Column;
 
@@ -50,8 +51,6 @@ class Actions extends Column
     public function prepareDataSource(array $dataSource)
     {
         if (isset($dataSource['data']['items'])) {
-            $storeId = $this->context->getFilterParam('store_id');
-
             foreach ($dataSource['data']['items'] as &$item) {
                 $item[$this->getData('name')] = [
                     'view' => [
