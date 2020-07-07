@@ -124,6 +124,7 @@
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\SettlementReports\SyncingSchedule</source_model>
                         <depends>
                             <field id="settlement_reports_auto_sync">1</field>
+                            <field id="settlement_reports">1</field>
                         </depends>
                     </field>
                     <!-- settlement reports time -->
@@ -133,6 +134,7 @@
                         <config_path>payment/sezzlepay/settlement_reports_time</config_path>
                         <depends>
                             <field id="settlement_reports_auto_sync">1</field>
+                            <field id="settlement_reports">1</field>
                         </depends>
                     </field>
                 </group>
