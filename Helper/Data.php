@@ -23,7 +23,8 @@ class Data extends AbstractHelper
 {
     const PRECISION = 2;
     const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
-    const SEZZLE_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
+    const SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
+    const SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH = '/vendor/sezzle/sezzlepay/composer.json';
 
     /**
      * @var SezzleConfigInterface
@@ -77,17 +78,25 @@ class Data extends AbstractHelper
 
     /**
      * Get Sezzle Module Version
-     *
-     * @throws FileSystemException
      */
     public function getVersion()
     {
-        $file = $this->file->fileGetContents(BP . self::SEZZLE_COMPOSER_FILE_PATH);
-        if ($file) {
-            $contents = $this->jsonHelper->jsonDecode($file);
-            if (is_array($contents) && isset($contents['version'])) {
-                return $contents['version'];
+        try {
+            if ($this->file->isExists(BP . self::SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH)) {
+                $composerFilePath = BP . self::SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH;
+            } else {
+                $composerFilePath = BP . self::SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH;
             }
+            $file = $this->file->fileGetContents($composerFilePath);
+            if ($file) {
+                $contents = $this->jsonHelper->jsonDecode($file);
+                if (is_array($contents) && isset($contents['version'])) {
+                    return $contents['version'];
+                }
+            }
+        } catch (FileSystemException $e) {
+            $this->logSezzleActions("Module not found");
+            return '--';
         }
         return '--';
     }
