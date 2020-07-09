@@ -13,6 +13,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
@@ -129,6 +130,10 @@ class V2 implements V2Interface
      * @var CustomerInterfaceFactory
      */
     private $customerInterfaceFactory;
+    /**
+     * @var TimezoneInterface
+     */
+    private $timezone;
 
     /**
      * V2 constructor.
@@ -150,6 +155,7 @@ class V2 implements V2Interface
      * @param TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory
      * @param LinkInterfaceFactory $linkInterfaceFactory
      * @param CustomerInterfaceFactory $customerInterfaceFactory
+     * @param TimezoneInterface $timezone
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -169,7 +175,8 @@ class V2 implements V2Interface
         AmountInterfaceFactory $amountInterfaceFactory,
         TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
         LinkInterfaceFactory $linkInterfaceFactory,
-        CustomerInterfaceFactory $customerInterfaceFactory
+        CustomerInterfaceFactory $customerInterfaceFactory,
+        TimezoneInterface $timezone
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -190,6 +197,7 @@ class V2 implements V2Interface
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
         $this->linkInterfaceFactory = $linkInterfaceFactory;
         $this->customerInterfaceFactory = $customerInterfaceFactory;
+        $this->timezone = $timezone;
     }
 
     /**
@@ -597,7 +605,12 @@ class V2 implements V2Interface
     public function getSettlementSummaries($from = null, $to = null)
     {
         $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
-        $range = $from ?: $this->sezzleConfig->getSettlementReportsRange();
+        $range = $this->sezzleConfig->getSettlementReportsRange();
+        $interval = sprintf("P%D", $range);
+        $currentDate = $this->timezone->date();
+        $endDate = clone $currentDate;
+        $startDate = $from ?: $currentDate->sub(new \DateInterval($interval))->format('Y-m-d');
+        $endDate = $to ?: $endDate->format('Y-m-d');
         $url = $url . "?start-date=" . $startDate . "&end-date=" . $endDate;
         $auth = $this->authenticate();
         try {
@@ -607,8 +620,7 @@ class V2 implements V2Interface
                 null,
                 ZendClient::GET
             );
-            $body = $this->jsonHelper->jsonDecode($response);
-            return $body;
+            return $this->jsonHelper->jsonDecode($response);
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

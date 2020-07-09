@@ -91,8 +91,8 @@
                         <config_path>payment/sezzlepay/settlement_reports</config_path>
                     </field>
                     <!-- settlement reports range -->
-                    <field id="settlement_reports_range" translate="label" type="date" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Start Date</label>
+                    <field id="settlement_reports_range" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Range</label>
                         <config_path>payment/sezzlepay/settlement_reports_range</config_path>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\SettlementReports\Range</source_model>
                         <depends>

@@ -20,8 +20,9 @@ class Range implements \Magento\Framework\Option\ArrayInterface
             7 => __("Last 7 days"),
             14 => __("Last 14 days"),
             21 => __("Last 21 days"),
-            28 => __("Last 28 days"),
-            35 => __("Last 35 days")
+            30 => __("Last 1 month"),
+            180 => __("Last 6 months"),
+            365 => __("Last 1 year")
         ];
     }
 }

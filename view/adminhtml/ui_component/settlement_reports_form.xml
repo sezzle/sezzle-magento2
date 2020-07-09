@@ -43,7 +43,7 @@
     </dataSource>
     <fieldset name="settlement_reports" sortOrder="10">
         <settings>
-            <label translate="true">Sync Form</label>
+            <label translate="true">Quick Sync</label>
             <collapsible>true</collapsible>
         </settings>
         <container name="date_group" component="Magento_Ui/js/form/components/group" sortOrder="220">

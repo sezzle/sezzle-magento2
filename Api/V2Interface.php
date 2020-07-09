@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Api;
 
+use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
@@ -108,6 +109,7 @@ interface V2Interface
      * @return mixed
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @throws Exception
      */
     public function getSettlementSummaries($from = null, $to = null);
 
