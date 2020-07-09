@@ -103,11 +103,13 @@ interface V2Interface
     /**
      * Get Settlement Report Summaries
      *
+     * @param string|null $from
+     * @param string|null $to
      * @return mixed
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getSettlementSummaries();
+    public function getSettlementSummaries($from = null, $to = null);
 
     /**
      * Get Settlement Report Details for a payout UUID

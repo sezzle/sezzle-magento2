@@ -90,23 +90,15 @@
                         <comment>Makes you enable Settlement Reports Dashboard</comment>
                         <config_path>payment/sezzlepay/settlement_reports</config_path>
                     </field>
-                    <!-- settlement reports start date -->
-                    <field id="settlement_reports_start_date" translate="label" type="date" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <!-- settlement reports range -->
+                    <field id="settlement_reports_range" translate="label" type="date" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Start Date</label>
-                        <config_path>payment/sezzlepay/settlement_reports_start_date</config_path>
-                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\Date</frontend_model>
+                        <config_path>payment/sezzlepay/settlement_reports_range</config_path>
+                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\SettlementReports\Range</source_model>
                         <depends>
                             <field id="settlement_reports">1</field>
                         </depends>
-                    </field>
-                    <!-- settlement reports end date -->
-                    <field id="settlement_reports_end_date" translate="label" type="date" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>End Date</label>
-                        <config_path>payment/sezzlepay/settlement_reports_end_date</config_path>
-                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\Date</frontend_model>
-                        <depends>
-                            <field id="settlement_reports">1</field>
-                        </depends>
+                        <validate>required-entry</validate>
                     </field>
                     <!-- settlement reports auto sync -->
                     <field id="settlement_reports_auto_sync" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -122,6 +114,7 @@
                         <label>Schedule</label>
                         <config_path>payment/sezzlepay/settlement_reports_schedule</config_path>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\SettlementReports\SyncingSchedule</source_model>
+                        <validate>required-entry</validate>
                         <depends>
                             <field id="settlement_reports_auto_sync">1</field>
                             <field id="settlement_reports">1</field>
@@ -132,6 +125,7 @@
                         <label>Time of Day</label>
                         <backend_model>Sezzle\Sezzlepay\Model\System\Config\Backend\Cron</backend_model>
                         <config_path>payment/sezzlepay/settlement_reports_time</config_path>
+                        <validate>required-entry</validate>
                         <depends>
                             <field id="settlement_reports_auto_sync">1</field>
                             <field id="settlement_reports">1</field>

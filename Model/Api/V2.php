@@ -594,11 +594,10 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getSettlementSummaries()
+    public function getSettlementSummaries($from = null, $to = null)
     {
         $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
-        $startDate = $this->sezzleConfig->getSettlementReportsStartDate();
-        $endDate = $this->sezzleConfig->getSettlementReportsEndDate();
+        $range = $from ?: $this->sezzleConfig->getSettlementReportsRange();
         $url = $url . "?start-date=" . $startDate . "&end-date=" . $endDate;
         $auth = $this->authenticate();
         try {

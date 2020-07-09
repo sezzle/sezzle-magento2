@@ -7,6 +7,7 @@
 namespace Sezzle\Sezzlepay\Controller\Adminhtml\SettlementReports;
 
 use Exception;
+use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
@@ -26,17 +27,24 @@ class SyncAndSave extends Action
      * @var SettlementReportsManagementInterface
      */
     private $settlementReportsManagement;
+    /**
+     * @var DateTime
+     */
+    private $dateTime;
 
     /**
      * SyncAndSave constructor.
      * @param Action\Context $context
+     * @param DateTime $dateTime
      * @param SettlementReportsManagementInterface $settlementReportsManagement
      */
     public function __construct(
         Action\Context $context,
+        DateTime $dateTime,
         SettlementReportsManagementInterface $settlementReportsManagement
     ) {
         parent::__construct($context);
+        $this->dateTime = $dateTime;
         $this->settlementReportsManagement = $settlementReportsManagement;
     }
 
@@ -51,7 +59,10 @@ class SyncAndSave extends Action
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         try {
-            $this->settlementReportsManagement->syncAndSave();
+            $postData = $this->getRequest()->getPostValue();
+            $fromDate = isset($postData['from_date']) ? $this->dateTime->date('Y-m-d', $postData['from_date']) : null;
+            $toDate = isset($postData['to_date']) ? $this->dateTime->date('Y-m-d', $postData['to_date']) : null;
+            $this->settlementReportsManagement->syncAndSave($fromDate, $toDate);
         } catch (NotFoundException $e) {
             $this->messageManager->addNoticeMessage(__('No reports found to sync.'));
             return $resultRedirect->setPath('*/*/index');

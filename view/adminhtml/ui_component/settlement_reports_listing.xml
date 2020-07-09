@@ -13,13 +13,6 @@
         </item>
     </argument>
     <settings>
-        <buttons>
-            <button name="add">
-                <url path="*/*/syncandsave"/>
-                <class>primary</class>
-                <label translate="true">Sync Reports</label>
-            </button>
-        </buttons>
         <spinner>settlement_reports_columns</spinner>
         <deps>
             <dep>settlement_reports_listing.settlement_reports_listing_data_source</dep>

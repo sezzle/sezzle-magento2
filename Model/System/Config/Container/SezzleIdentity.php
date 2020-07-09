@@ -34,8 +34,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     private $sandboxGatewayUrl = "https://sandbox.gateway.sezzle.com";
 
     const XML_PATH_SETTLEMENT_REPORTS = 'payment/sezzlepay/settlement_reports';
-    const XML_PATH_SETTLEMENT_REPORTS_START_DATE = 'payment/sezzlepay/settlement_reports_start_date';
-    const XML_PATH_SETTLEMENT_REPORTS_END_DATE = 'payment/sezzlepay/settlement_reports_end_date';
+    const XML_PATH_SETTLEMENT_REPORTS_RANGE = 'payment/sezzlepay/settlement_reports_range';
 
     /**
      * @inheritdoc
@@ -235,21 +234,10 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function getSettlementReportsStartDate()
+    public function getSettlementReportsRange()
     {
         return $this->getConfigValue(
-            self::XML_PATH_SETTLEMENT_REPORTS_START_DATE,
-            $this->getStore()->getStoreId()
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSettlementReportsEndDate()
-    {
-        return $this->getConfigValue(
-            self::XML_PATH_SETTLEMENT_REPORTS_END_DATE,
+            self::XML_PATH_SETTLEMENT_REPORTS_RANGE,
             $this->getStore()->getStoreId()
         );
     }

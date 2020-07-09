@@ -125,14 +125,8 @@ interface SezzleConfigInterface extends IdentityInterface
     public function isSettlementReportsEnabled();
 
     /**
-     * Get Settlement Reports start date
-     * @return string
+     * Get Settlement Reports range
+     * @return int
      */
-    public function getSettlementReportsStartDate();
-
-    /**
-     * Get Settlement Reports end date
-     * @return string
-     */
-    public function getSettlementReportsEndDate();
+    public function getSettlementReportsRange();
 }

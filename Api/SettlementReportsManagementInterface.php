@@ -24,13 +24,15 @@ interface SettlementReportsManagementInterface
     /**
      * Sync and Save reports
      *
+     * @param string|null $from
+     * @param string|null $to
      * @throws LocalizedException
      * @throws InputException
      * @throws NoSuchEntityException
      * @throws NotFoundException
      * @throws Exception
      */
-    public function syncAndSave();
+    public function syncAndSave($from = null, $to = null);
 
     /**
      * Download settlement report details

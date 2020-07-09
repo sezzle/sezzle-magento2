@@ -85,9 +85,9 @@ class SettlementReportsManagement implements SettlementReportsManagementInterfac
     /**
      * @inheritDoc
      */
-    public function syncAndSave()
+    public function syncAndSave($from = null, $to = null)
     {
-        $settlementReports = $this->v2->getSettlementSummaries();
+        $settlementReports = $this->v2->getSettlementSummaries($from, $to);
         if (empty($settlementReports)) {
             throw new NotFoundException(__("No report found."));
         } elseif (isset($settlementReports['id']) && $settlementReports['id'] == 'error') {
