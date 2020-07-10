@@ -14,6 +14,7 @@ use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
+use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
@@ -31,25 +32,41 @@ class UpgradeData implements UpgradeDataInterface
      * @var AttributeSetFactory
      */
     private $attributeSetFactory;
-    /**
-     * @var Tokenize
-     */
-    private $tokenizeModel;
 
     /**
      * @param CustomerSetupFactory $customerSetupFactory
      * @param AttributeSetFactory $attributeSetFactory
-     * @param Tokenize $tokenizeModel
      */
     public function __construct(
         CustomerSetupFactory $customerSetupFactory,
-        AttributeSetFactory $attributeSetFactory,
-        Tokenize $tokenizeModel
+        AttributeSetFactory $attributeSetFactory
     ) {
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
-        $this->tokenizeModel = $tokenizeModel;
     }
+
+    protected $sezzleCustomerAttributes = [
+        Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => [
+            'input' => 'text',
+            'label' => 'Sezzle Tokenize Status',
+        ],
+        Tokenize::ATTR_SEZZLE_TOKEN_STATUS => [
+            'input' => 'boolean',
+            'label' => 'Sezzle Customer UUID'
+        ],
+        Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION => [
+            'input' => 'text',
+            'label' => 'Sezzle Customer UUID Expiration'
+        ],
+        Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => [
+            'input' => 'text',
+            'label' => 'Sezzle Order Create Link By Customer UUID',
+        ],
+        Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK => [
+            'input' => 'text',
+            'label' => 'Sezzle Get Customer Link By Customer UUID',
+        ]
+    ];
 
     /**
      * @param ModuleDataSetupInterface $setup
@@ -58,10 +75,8 @@ class UpgradeData implements UpgradeDataInterface
     public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
         if (version_compare($context->getVersion(), '2.0.0', '<')) {
-            if (is_array($this->tokenizeModel->sezzleCustomerAttributes)) {
-                foreach ($this->tokenizeModel->sezzleCustomerAttributes as $attributeCode => $attribute) {
-                    $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
-                }
+            foreach ($this->sezzleCustomerAttributes as $attributeCode => $attribute) {
+                $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
             }
         }
     }
