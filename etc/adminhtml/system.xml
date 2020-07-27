@@ -14,6 +14,7 @@
 </div>]]></label>
                 <fieldset_css>complex sezzle-payment-section</fieldset_css>
                 <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+                <attribute type="displayIn">recommended_solutions</attribute>
                 <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\SezzleRegisterConfig</frontend_model>
                 </field>
@@ -85,6 +86,13 @@
                     <label><![CDATA[Widget Settings]]></label>
                     <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                         <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\SezzleWidgetInfo</frontend_model>
+                    </field>
+                    <!-- static widget -->
+                    <field id="static_widget" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Static Widget Module?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>If yes, widget will be loaded from your own server else from Sezzle server</comment>
+                        <config_path>payment/sezzlepay/static_widget</config_path>
                     </field>
                     <!-- widget pdp -->
                     <field id="widget_pdp" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
