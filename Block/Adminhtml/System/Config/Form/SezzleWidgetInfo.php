@@ -24,7 +24,7 @@ class SezzleWidgetInfo extends Field
     {
         $output = '<div class="deprecated-message">';
         $output .= '<div class="comment">';
-        $output .= __("Make sure to put <code>&ltdiv id='sezzle-widget'/&gt</code> after the price element in the PDP and Cart theme files
+        $output .= __("If and only if Static Widget Module is enabled, make sure to put <code>&ltdiv id='sezzle-widget'/&gt</code> after the price element in the PDP and Cart theme files
                         once you have enabled the below options.");
         $output .= "</div></div>";
         return $output;

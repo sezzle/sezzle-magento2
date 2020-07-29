@@ -68,6 +68,34 @@ class Cart extends \Magento\Checkout\Block\Cart
     }
 
     /**
+     * Get Merchant UUID
+     *
+     * @return string|null
+     */
+    public function getMerchantUUID()
+    {
+        try {
+            return $this->sezzleConfig->getMerchantUUID();
+        } catch (NoSuchEntityException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Is Static Widget Enabled
+     *
+     * @return bool
+     */
+    public function isStaticWidgetEnabled()
+    {
+        try {
+            return $this->sezzleConfig->isStaticWidgetEnabled();
+        } catch (NoSuchEntityException $e) {
+            return false;
+        }
+    }
+
+    /**
      * Get Widget Script for Cart Page status
      *
      * @return string

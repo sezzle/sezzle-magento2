@@ -23,6 +23,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
     const XML_PATH_PAYMENT_ACTION = 'payment/sezzlepay/payment_action';
     const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
+    const XML_PATH_STATIC_WIDGET = 'payment/sezzlepay/static_widget';
     const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
     const XML_PATH_TOKENIZE = 'payment/sezzlepay/tokenize';
@@ -98,12 +99,10 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
         switch ($paymentMode) {
             case self::PROD_MODE:
                 return $this->liveGatewayUrl;
-                break;
             case self::SANDBOX_MODE:
                 return $this->sandboxGatewayUrl;
-                break;
             default:
-                break;
+                return null;
         }
     }
 
@@ -136,6 +135,17 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_MIN_CHECKOUT_AMOUNT,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isStaticWidgetEnabled()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_STATIC_WIDGET,
             $this->getStore()->getStoreId()
         );
     }
