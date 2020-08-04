@@ -22,7 +22,7 @@ class DeveloperLogs extends Field
 {
     const DOWNLOAD_PATH = 'sezzle/download';
 
-    const LOGS = [
+    protected $logs = [
         'sezzleLog' => [
             'name' => 'Sezzle Log',
             'path' => Data::SEZZLE_LOG_FILE_PATH
@@ -126,7 +126,7 @@ class DeveloperLogs extends Field
 
         $path = $this->directoryList->getPath(DirectoryList::ROOT);
 
-        foreach (self::LOGS as $name => $data) {
+        foreach ($this->logs as $name => $data) {
             $filePath = $data['path'];
 
             $exists = file_exists($path . $filePath);

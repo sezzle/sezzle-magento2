@@ -25,7 +25,7 @@ class Tokenize
 {
     const ATTR_SEZZLE_CUSTOMER_UUID = "sezzle_customer_uuid";
     const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
-    const ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION = "sezzle_customer_uuid_expiration";
+    const ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION = "sezzle_customer_uuid_expiry";
 
     const STATUS_TOKEN_APPROVED = 'Approved';
     const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
