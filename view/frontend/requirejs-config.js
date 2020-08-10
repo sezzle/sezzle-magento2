@@ -9,5 +9,13 @@ var config = {
             sezzleWidgetCore: 'Sezzle_Sezzlepay/js/sezzle_widget/sezzle-widget-core',
             widgetRenderer: 'Sezzle_Sezzlepay/js/sezzle_widget/widget-renderer'
         }
+    },
+    paths: {
+        sezzleInContextCheckout: 'http://localhost/checkout-sdk-web/build/checkout'
+    },
+    shim: {
+        sezzleInContextCheckout: {
+            exports: 'sezzle'
+        }
     }
 };

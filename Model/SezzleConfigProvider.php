@@ -24,7 +24,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 Sezzle::PAYMENT_CODE => [
-                    'methodCode' => Sezzle::PAYMENT_CODE
+                    'methodCode' => Sezzle::PAYMENT_CODE,
+                    'isInContextCheckout' => true
                 ]
             ]
         ];
