@@ -77,6 +77,47 @@ class Data extends AbstractHelper
     }
 
     /**
+     * Export CSV string to array
+     *
+     * @param string $content
+     * @return array
+     */
+    public function csvToArray($content)
+    {
+        $data = ['header' => [], 'data' => []];
+        $summary = [];
+        $result = [];
+
+        $lines = str_getcsv($content, "\n");
+        foreach ($lines as $index => $line) {
+            if ($index == 0 || $index == 2) {
+                if ($index == 2) {
+                    $summary = $data;
+                    unset($data);
+                }
+                $data['header'] = str_getcsv($line);
+            } else {
+                $row = array_combine($data['header'], str_getcsv($line));
+                $data['data'][] = $row;
+            }
+        }
+        array_push($result, $summary, $data);
+        return $result;
+    }
+
+    /**
+     * Convert string from snake case to title case
+     * @param string $name
+     * @return string
+     */
+    public function snakeCaseToTitleCase($name)
+    {
+        $name = str_replace("_", " ", $name);
+        $name = ucwords($name);
+        return $name;
+    }
+
+    /**
      * Get Sezzle Module Version
      */
     public function getVersion()

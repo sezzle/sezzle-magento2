@@ -34,6 +34,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     private $liveGatewayUrl = "https://gateway.sezzle.com";
     private $sandboxGatewayUrl = "https://sandbox.gateway.sezzle.com";
 
+    const XML_PATH_SETTLEMENT_REPORTS = 'payment/sezzlepay/settlement_reports';
+    const XML_PATH_SETTLEMENT_REPORTS_RANGE = 'payment/sezzlepay/settlement_reports_range';
+
     /**
      * @inheritdoc
      */
@@ -224,6 +227,28 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             [
                 '_secure' => true
             ]
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isSettlementReportsEnabled()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_SETTLEMENT_REPORTS,
+            $this->getStore()->getStoreId()
+        ) ? true : false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSettlementReportsRange()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_SETTLEMENT_REPORTS_RANGE,
+            $this->getStore()->getStoreId()
         );
     }
 }

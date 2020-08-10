@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="admin.scope.col.wrap" htmlClass="admin__old" />
+        <referenceContainer name="content">
+            <uiComponent name="settlement_reports_form"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -8,8 +8,9 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
-        <job name="sezzle_logs_daily_send" instance="Sezzle\Sezzlepay\Model\Cron\SezzleLog" method="execute">
-            <schedule>0 0/5 * * *</schedule>
+        <job name="sezzle_sync_settlement_reports" instance="Sezzle\Sezzlepay\Cron\SyncSettlementReports" method="execute"/>
+        <job name="sezzle_sync_logs" instance="Sezzle\Sezzlepay\Cron\SezzleLog" method="execute">
+            <schedule>* */5 * * *</schedule>
         </job>
     </group>
 </config>

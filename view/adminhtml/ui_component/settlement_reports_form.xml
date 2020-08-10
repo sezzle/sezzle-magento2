@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">settlement_reports_form.settlement_reports_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Customer Information</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+        <item name="reverseMetadataMerge" xsi:type="boolean">true</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="save" class="Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\SyncButton"/>
+        </buttons>
+        <namespace>settlement_reports_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>settlement_reports_form.settlement_reports_form_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="settlement_reports_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="*/*/syncandsave"/>
+        </settings>
+        <dataProvider class="Sezzle\Sezzlepay\Model\SettlementReports\DataProvider" name="settlement_reports_form_data_source">
+            <settings>
+                <requestFieldName>id</requestFieldName>
+                <primaryFieldName>entity_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <fieldset name="settlement_reports" sortOrder="10">
+        <settings>
+            <label translate="true">Quick Sync</label>
+            <collapsible>true</collapsible>
+        </settings>
+        <container name="date_group" component="Magento_Ui/js/form/components/group" sortOrder="220">
+            <argument name="data" xsi:type="array">
+                <item name="type" xsi:type="string">group</item>
+                <item name="config" xsi:type="array">
+                    <item name="additionalClasses" xsi:type="string">admin__control-grouped-date</item>
+                    <item name="breakLine" xsi:type="boolean">false</item>
+                </item>
+            </argument>
+            <field name="from_date" sortOrder="230" formElement="date">
+                <settings>
+                    <additionalClasses>
+                        <class name="admin__field-date">true</class>
+                    </additionalClasses>
+                    <dataType>string</dataType>
+                    <label translate="true">From</label>
+                    <validation>
+                        <rule name="validate-date" xsi:type="boolean">true</rule>
+                    </validation>
+                </settings>
+            </field>
+            <field name="to_date" sortOrder="240" formElement="date">
+                <settings>
+                    <scopeLabel/>
+                    <additionalClasses>
+                        <class name="admin__field-date">true</class>
+                    </additionalClasses>
+                    <dataType>string</dataType>
+                    <label translate="true">To</label>
+                    <validation>
+                        <rule name="validate-date" xsi:type="boolean">true</rule>
+                    </validation>
+                </settings>
+            </field>
+        </container>
+    </fieldset>
+    <fieldset name="settlement_reports_listing" sortOrder="20">
+        <settings>
+            <label translate="true">Settlement Reports List</label>
+        </settings>
+        <insertListing name="settlement_reports_listing" >
+            <settings>
+                <dataLinks>
+                    <exports>false</exports>
+                    <imports>true</imports>
+                </dataLinks>
+                <autoRender>true</autoRender>
+                <selectionsProvider>settlement_reports_listing.settlement_reports_listing.columns.ids</selectionsProvider>
+                <dataScope>settlement_reports_listing</dataScope>
+                <ns>settlement_reports_listing</ns>
+            </settings>
+        </insertListing>
+    </fieldset>
+</form>

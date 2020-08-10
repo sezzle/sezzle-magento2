@@ -28,7 +28,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Api\V2Interface;
-use Sezzle\Sezzlepay\Block\Order\Info;
 use Sezzle\Sezzlepay\Helper\Data;
 
 /**

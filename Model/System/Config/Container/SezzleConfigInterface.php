@@ -124,4 +124,16 @@ interface SezzleConfigInterface extends IdentityInterface
      * @return string
      */
     public function getTokenizePaymentCompleteURL();
+
+    /**
+     * Status of Settlement Reports
+     * @return bool
+     */
+    public function isSettlementReportsEnabled();
+
+    /**
+     * Get Settlement Reports range
+     * @return int
+     */
+    public function getSettlementReportsRange();
 }
