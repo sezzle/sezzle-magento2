@@ -64,7 +64,7 @@ class SezzleLog
     public function execute()
     {
         $isLogsSendingToSezzleAllowed = $this->sezzleConfig->isLogsSendingToSezzleAllowed();
-        $isProductionMode = $this->sezzleConfig->getPaymentMode() == SezzleIdentity::SANDBOX_MODE;
+        $isProductionMode = $this->sezzleConfig->getPaymentMode() == SezzleIdentity::PROD_MODE;
         if ($isLogsSendingToSezzleAllowed && $isProductionMode) {
             $this->sezzleHelper->logSezzleActions("****Cron started****");
             $merchantUUID = $this->sezzleConfig->getMerchantUUID();
