@@ -55,15 +55,15 @@ class SyncSettlementReports
             $this->settlementReportsManagement->syncAndSave();
             $this->sezzleHelper->logSezzleActions("****Reports syncing ended****");
         } catch (InputException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+            $this->sezzleHelper->logSezzleActions("Report sync error(InputException) - " . $e->getMessage());
         } catch (NoSuchEntityException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+            $this->sezzleHelper->logSezzleActions("Report sync error(NoSuchEntityException) - " . $e->getMessage());
         } catch (NotFoundException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+            $this->sezzleHelper->logSezzleActions("Report sync error(NotFoundException) - " . $e->getMessage());
         } catch (LocalizedException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+            $this->sezzleHelper->logSezzleActions("Report sync error(LocalizedException) - " . $e->getMessage());
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error - " . $e->getMessage());
+            $this->sezzleHelper->logSezzleActions("Report sync error(Exception) - " . $e->getMessage());
         }
     }
 }

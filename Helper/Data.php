@@ -62,7 +62,7 @@ class Data extends AbstractHelper
     /**
      * Dump Sezzle log actions
      *
-     * @param string|null $msg
+     * @param string|null $data
      * @return void
      * @throws NoSuchEntityException
      */
