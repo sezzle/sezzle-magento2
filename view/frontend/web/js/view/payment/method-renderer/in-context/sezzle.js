@@ -10,7 +10,7 @@ define([
     'Magento_Checkout/js/model/payment/additional-validators',
     'Magento_Ui/js/model/messageList',
     'Magento_Ui/js/lib/view/utils/async'
-], function ($, Component, Wrapper) {
+], function ($, Component, Wrapper, setPaymentMethod, additionalValidators, messageList) {
     'use strict';
 
     return Component.extend(Wrapper).extend({

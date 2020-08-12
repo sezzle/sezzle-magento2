@@ -14,8 +14,6 @@ define(
     ) {
         'use strict';
 
-        consol
-
         var isInContextCheckout = window.checkoutConfig.payment.sezzlepay.isInContextCheckout,
             sezzleComponent = 'Sezzle_Sezzlepay/js/view/payment/method-renderer' +
                 (isInContextCheckout ? '/in-context/sezzle' : '/sezzle');

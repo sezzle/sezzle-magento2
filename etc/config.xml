@@ -17,6 +17,7 @@
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>1</log_tracker>
                 <payment_action>authorize_capture</payment_action>
+                <active_in_context>0</active_in_context>
                 <tokenize>1</tokenize>
                 <send_logs_via_cron>1</send_logs_via_cron>
                 <title>Sezzle</title>

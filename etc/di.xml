@@ -26,6 +26,7 @@
     <preference for="Sezzle\Sezzlepay\Api\V2Interface" type="Sezzle\Sezzlepay\Model\Api\V2"/>
     <preference for="Sezzle\Sezzlepay\Api\SettlementReportsRepositoryInterface" type="Sezzle\Sezzlepay\Model\SettlementReportsRepository"/>
     <preference for="Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface" type="Sezzle\Sezzlepay\Model\SettlementReportsManagement"/>
+    <preference for="Sezzle\Sezzlepay\Api\OrderManagementInterface" type="Sezzle\Sezzlepay\Model\OrderManagement"/>
 
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>

@@ -7,8 +7,12 @@ define([
     'mage/translate',
     'Magento_Customer/js/customer-data',
     'Sezzle_Sezzlepay/js/in-context/sezzle-smart-button',
-    'mage/cookies'
-], function ($, $t, customerData, checkoutSmartButtons) {
+    'Magento_Checkout/js/model/quote',
+    'mage/storage',
+    'mage/url',
+    'Magento_Customer/js/model/customer',
+    'mage/cookies',
+], function ($, $t, customerData, checkoutSmartButtons, quote, storage, mageUrl, customer) {
     'use strict';
 
     return {
@@ -20,9 +24,119 @@ define([
         /**
          * Render PayPal buttons using checkout.js
          */
-        renderSezzleButtons: function (element) {
-            checkoutSmartButtons(element);
+        initSezzleSDKCheckout: function (element) {
+            checkoutSmartButtons(this.prepareClientConfig(), element);
         },
+
+        getSezzleCheckoutURL: function () {
+            var url = mageUrl.build("sezzle/payment/redirect");
+            var data = $("#co-shipping-form").serialize();
+            if (!customer.isLoggedIn()) {
+                var email = quote.guestEmail;
+                data += '&email=' + email;
+            }
+
+
+            $.ajax({
+                url: url,
+                method:'post',
+                showLoader: true,
+                data: data,
+                success: function (response) {
+                    // Send this response to sezzle api
+                    // This would redirect to sezzle
+                    var jsonData = $.parseJSON(response);
+                    if (jsonData.redirectURL) {
+                        return jsonData.redirectURL;
+                    } else if (typeof jsonData['message'] !== 'undefined') {
+                        // globalMessageList.addErrorMessage({
+                        //     'message': jsonData['message']
+                        // });
+                    }
+                }
+            });
+        },
+
+        getSDKConfig: function() {
+            return {
+                'mode': this.clientConfig.inContextMode
+            };
+        },
+
+        getCaptureObject: function () {
+            return {
+                payload: {
+                    capture_amount: {
+                        amount_in_cents: 5000,
+                        currency: "USD"
+                    },
+                    partial_capture: true
+                }
+            };
+        },
+
+        getCheckoutObject: function () {
+            return {
+                "amount_in_cents": 12999,
+                "currency_code": "USD",
+                "order_reference_id": "fgdfgffgh",
+                "order_description": "Order #1800",
+                "checkout_cancel_url": "https://sezzle.com/cart",
+                "checkout_complete_url": "https://sezzle.com/complete",
+                "customer_details":
+                    {
+                        "first_name": "John",
+                        "last_name": "Doe",
+                        "email": "john.doe@sezzle.com",
+                        "phone": "5555045294"
+                    },
+                "billing_address": {
+                    "name": "John Doe",
+                    "street": "123 W Lake St",
+                    "street2": "Unit 104",
+                    "city": "Minneapolis",
+                    "state": "MN",
+                    "postal_code": "55408",
+                    "country_code": "US",
+                    "phone_number": "5555045294"
+                },
+                "shipping_address": {
+                    "name": "John Doe",
+                    "street": "123 W Lake St",
+                    "street2": "Unit 104",
+                    "city": "Minneapolis",
+                    "state": "MN",
+                    "postal_code": "55408",
+                    "country_code": "US",
+                    "phone_number": "5555045294"
+                },
+                "requires_shipping_info": false,
+                "merchant_completes": true
+            };
+        },
+
+        afterOnComplete: function () {
+            var url = mageUrl.build("sezzle/payment/complete");
+            return storage.post(url, data);
+        },
+
+        beforeOnComplete: function () {},
+
+        catchOnComplete: function () {},
+
+        afterOnClick: function () {},
+
+        beforeOnClick: function () {
+            var url = mageUrl.build("sezzle/payment/redirect");
+            var data = $("#co-shipping-form").serialize();
+            if (!customer.isLoggedIn()) {
+                data = data.concat("&email=", quote.guestEmail);
+            }
+            var url = 'rest/default/V1/sezzle/mine/create-checkout'
+            return storage.post(url, data);
+        },
+
+        catchOnClick: function () {},
 
         // /**
         //  * Validate payment method
@@ -163,25 +277,27 @@ define([
         //     });
         // },
         //
-        // /**
-        //  * @returns {String}
-        //  */
-        // getButtonId: function () {
-        //     return this.inContextId;
-        // },
-        //
-        // /**
-        //  * Populate client config with all required data
-        //  *
-        //  * @return {Object}
-        //  */
-        // prepareClientConfig: function () {
-        //     this.clientConfig.client = {};
-        //     this.clientConfig.client[this.clientConfig.environment] = this.clientConfig.merchantId;
-        //     this.clientConfig.rendererComponent = this;
-        //     this.clientConfig.formKey = $.mage.cookies.get('form_key');
-        //
-        //     return this.clientConfig;
-        // }
+        /**
+         * @returns {String}
+         */
+        getButtonId: function () {
+            return this.inContextId;
+        },
+
+        /**
+         * Populate client config with all required data
+         *
+         * @return {Object}
+         */
+        prepareClientConfig: function () {
+            this.clientConfig = {};
+            //this.clientConfig.client = {};
+            //this.clientConfig.client[this.clientConfig.environment] = this.clientConfig.merchantId;
+            this.clientConfig.rendererComponent = this;
+            this.clientConfig.formKey = $.mage.cookies.get('form_key');
+            this.clientConfig.inContextMode = window.checkoutConfig.payment.sezzlepay.inContextMode;
+
+            return this.clientConfig;
+        }
     };
 });

@@ -136,4 +136,10 @@ interface SezzleConfigInterface extends IdentityInterface
      * @return int
      */
     public function getSettlementReportsRange();
+
+    /**
+     * Get InContext Checkout Mode
+     * @return string
+     */
+    public function getInContextMode();
 }

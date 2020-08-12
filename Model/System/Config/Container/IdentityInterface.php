@@ -24,6 +24,12 @@ interface IdentityInterface
     public function isEnabled();
 
     /**
+     * Check if InContext Solution is active
+     * @return bool
+     */
+    public function isInContextModeEnabled();
+
+    /**
      * Set store
      * @return Store
      */

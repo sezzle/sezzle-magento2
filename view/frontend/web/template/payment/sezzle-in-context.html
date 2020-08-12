@@ -25,6 +25,12 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        <div class="actions-toolbar" attr="id: getButtonId()" afterRender="renderSezzleButtons"></div>
+        <div class="actions-toolbar" attr="{id: getButtonId()}">
+            <div class="primary"
+                 id="sezzle-smart-button-container"
+                 templateText="Pay with %%logo%%"
+                 borderType="semi-rounded"
+                 afterRender="initSezzleSDKCheckout"></div>
+        </div>
     </div>
 </div>

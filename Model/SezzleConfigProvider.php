@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
  * Class SezzleConfigProvider
@@ -15,6 +16,16 @@ use Magento\Checkout\Model\ConfigProviderInterface;
  */
 class SezzleConfigProvider implements ConfigProviderInterface
 {
+
+    /**
+     * @var SezzleConfigInterface
+     */
+    private $sezzleConfig;
+
+    public function __construct(SezzleConfigInterface $sezzleConfig)
+    {
+        $this->sezzleConfig = $sezzleConfig;
+    }
 
     /**
      * @return array
@@ -25,7 +36,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
             'payment' => [
                 Sezzle::PAYMENT_CODE => [
                     'methodCode' => Sezzle::PAYMENT_CODE,
-                    'isInContextCheckout' => true
+                    'isInContextCheckout' => (bool)$this->sezzleConfig->isInContextModeEnabled(),
+                    'inContextMode' => $this->sezzleConfig->getInContextMode()
                 ]
             ]
         ];
