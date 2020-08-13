@@ -16,9 +16,9 @@ define(
         'use strict';
 
         var isInContextCheckout = window.checkoutConfig.payment.sezzlepay.isInContextCheckout,
-            isMobileTablet = new Checkout({}).isMobileTablet(),
+            isMobileOrTablet = window.checkoutConfig.payment.sezzlepay.isMobileOrTablet,
             sezzleComponent = 'Sezzle_Sezzlepay/js/view/payment/method-renderer' +
-                ((isInContextCheckout && !isMobileTablet) ? '/in-context/sezzle' : '/sezzle');
+                ((isInContextCheckout && !isMobileOrTablet) ? '/in-context/sezzle' : '/sezzle');
 
         rendererList.push(
             {

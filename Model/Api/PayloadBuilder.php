@@ -62,7 +62,8 @@ class PayloadBuilder
         $orderPayload = [];
         $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
-        if (!$this->sezzleConfig->isInContextModeEnabled()) {
+        if (!$this->sezzleConfig->isInContextModeEnabled()
+            || !$this->sezzleHelper->isMobileOrTablet()) {
             $completeURL['complete_url'] = [
                 "href" => $this->sezzleConfig->getCompleteUrl()
             ];
@@ -107,7 +108,7 @@ class PayloadBuilder
             "tax_amount" => $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount()),
             "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal()),
         ];
-        if ($this->sezzleConfig->isInContextModeEnabled()) {
+        if ($this->sezzleConfig->isInContextModeEnabled() && !$this->sezzleHelper->isMobileOrTablet()) {
             return array_merge($orderPayload, ['checkout_mode' => $this->sezzleConfig->getInContextMode()]);
         }
         return $orderPayload;

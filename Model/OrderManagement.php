@@ -14,7 +14,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\QuoteRepository\SaveHandler;
+use Sezzle\Sezzlepay\Model\Order\SaveHandler;
 use Sezzle\Sezzlepay\Api\OrderManagementInterface;
 
 /**
