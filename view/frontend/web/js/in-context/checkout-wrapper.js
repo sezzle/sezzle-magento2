@@ -33,6 +33,8 @@ define([
     return {
         defaults: {
             paymentActionError: $t('Something went wrong with your request. Please try again later.'),
+            paymentCancelError: $t('Payment has been cancelled.'),
+            paymentFailureError: $t('Payment has been failed. Verify and try again.'),
             signInMessage: $t('To check out, please sign in with your email address.'),
             redirectOnSuccess: true
         },
@@ -49,7 +51,7 @@ define([
          *
          * @returns {Object}
          */
-        getSDKConfig: function() {
+        getSDKConfig: function () {
             return {
                 'mode': this.clientConfig.inContextMode
             };
@@ -125,17 +127,58 @@ define([
         /**
          * Before Checkout Complete Action
          */
-        beforeOnComplete: function () {},
+        beforeOnComplete: function () {
+        },
 
         /**
          * Handle Checkout Complete Exception
          */
-        catchOnComplete: function () {},
+        catchOnComplete: function () {
+        },
+
+        /**
+         * After Checkout Cancel Action
+         */
+        afterOnCancel: function () {
+        },
+
+        /**
+         * Before Checkout Cancel Action
+         */
+        beforeOnCancel: function () {
+        },
+
+        /**
+         * Handle Checkout Cancel Exception
+         */
+        catchOnCancel: function () {
+            errorProcessor.process({responseText: this.paymentCancelError}, this.messageContainer);
+        },
+
+        /**
+         * After Checkout Failure Action
+         */
+        afterOnFailure: function () {
+        },
+
+        /**
+         * Before Checkout Failure Action
+         */
+        beforeOnFailure: function () {
+        },
+
+        /**
+         * Handle Checkout Failure Exception
+         */
+        catchOnFailure: function () {
+            errorProcessor.process({responseText: this.paymentFailureError}, this.messageContainer);
+        },
 
         /**
          * After Sezzle Button onClick Action
          */
-        afterOnClick: function () {},
+        afterOnClick: function () {
+        },
 
         /**
          * Before Sezzle Button onClick Action
@@ -161,7 +204,8 @@ define([
         /**
          * Handle Sezzle Button onClick Exception
          */
-        catchOnClick: function () {},
+        catchOnClick: function () {
+        },
 
         /**
          * Get Button ID

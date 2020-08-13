@@ -34,6 +34,12 @@ define([
             },
             onComplete: function () {
                 clientConfig.rendererComponent.afterOnComplete();
+            },
+            onCancel: function () {
+                clientConfig.rendererComponent.catchOnCancel();
+            },
+            onFailure: function () {
+                clientConfig.rendererComponent.catchOnFailure();
             }
         });
     };
