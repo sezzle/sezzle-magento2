@@ -60,17 +60,23 @@ class PayloadBuilder
     public function buildSezzleCheckoutPayload($quote, $reference)
     {
         $orderPayload = [];
-        $completeURL['complete_url'] = [
-            "href" => $this->sezzleConfig->getCompleteUrl()
-        ];
-        $cancelURL['cancel_url'] = [
-            "href" => $this->sezzleConfig->getCancelUrl()
-        ];
         $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
+        if (!$this->sezzleConfig->isInContextModeEnabled()) {
+            $completeURL['complete_url'] = [
+                "href" => $this->sezzleConfig->getCompleteUrl()
+            ];
+            $cancelURL['cancel_url'] = [
+                "href" => $this->sezzleConfig->getCancelUrl()
+            ];
+            return array_merge(
+                $completeURL,
+                $cancelURL,
+                $orderPayload,
+                $customerPayload
+            );
+        }
         return array_merge(
-            $completeURL,
-            $cancelURL,
             $orderPayload,
             $customerPayload
         );
@@ -89,7 +95,7 @@ class PayloadBuilder
         $intent = $this->sezzleConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE
             ? "CAPTURE"
             : "AUTH";
-        return [
+        $orderPayload = [
             "intent" => $intent,
             "reference_id" => $reference,
             "description" => $this->storeManager->getStore()->getName(),
@@ -101,6 +107,10 @@ class PayloadBuilder
             "tax_amount" => $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount()),
             "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal()),
         ];
+        if ($this->sezzleConfig->isInContextModeEnabled()) {
+            return array_merge($orderPayload, ['checkout_mode' => $this->sezzleConfig->getInContextMode()]);
+        }
+        return $orderPayload;
     }
 
     /**
@@ -127,8 +137,9 @@ class PayloadBuilder
     private function buildCustomerPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
+        $tokenize = $this->sezzleConfig->isInContextModeEnabled() ? false : $this->sezzleConfig->isTokenizationAllowed();
         return [
-            "tokenize" => $this->sezzleConfig->isTokenizationAllowed(),
+            "tokenize" => $tokenize,
             "email" => $quote->getCustomerEmail(),
             "first_name" => $quote->getCustomerFirstname()
                 ? $quote->getCustomerFirstname()

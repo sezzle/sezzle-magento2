@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <!--
-/**
- * PHP version 7
-* Copyright © Mobegic Inc. DBA Unbound Commerce.
- * All rights reserved.
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
 
-    <!-- Managing Transaction Information -->
-    <route url="/V1/sezzle/mine/create-checkout" method="POST">
+    <!-- Create Sezzle Checkout -->
+    <route url="/V1/sezzle/carts/mine/create-checkout" method="POST">
         <service class="Sezzle\Sezzlepay\Api\OrderManagementInterface" method="createCheckout"/>
         <resources>
             <resource ref="self" />
@@ -20,7 +20,16 @@
         </data>
     </route>
 
-    <route url="/V1/sezzle/mine/place-order" method="POST">
+    <!-- Create Guest Sezzle Checkout -->
+    <route url="/V1/sezzle/guest-carts/:cartId/create-checkout" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" method="createCheckout"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
+    <!--    Place Order for Sezzle Transaction-->
+    <route url="/V1/sezzle/carts/mine/place-order" method="POST">
         <service class="Sezzle\Sezzlepay\Api\OrderManagementInterface" method="placeOrder"/>
         <resources>
             <resource ref="self" />
@@ -28,5 +37,13 @@
         <data>
             <parameter name="cartId" force="true">%cart_id%</parameter>
         </data>
+    </route>
+
+    <!--    Place Order for Guest Sezzle Transaction-->
+    <route url="/V1/sezzle/guest-carts/:cartId/place-order" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" method="placeOrder"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
     </route>
 </routes>

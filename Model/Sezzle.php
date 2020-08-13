@@ -207,10 +207,10 @@ class Sezzle extends AbstractMethod
      */
     public function getSezzleRedirectUrl($quote)
     {
-        $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
+        $payment = $quote->getPayment();
+        $referenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $this->sezzleHelper->logSezzleActions("Reference Id : $referenceID");
         $this->sezzleHelper->logSezzleActions("Payment Type : " . $this->getConfigPaymentAction());
-        $payment = $quote->getPayment();
         $additionalInformation[self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $redirectURL = '';
         if ($quote->getCustomer() && $this->tokenizeModel->isCustomerUUIDValid($quote)) {

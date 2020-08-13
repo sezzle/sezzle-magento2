@@ -10,19 +10,21 @@ namespace Sezzle\Sezzlepay\Model;
 use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Json\Helper\Data;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
-use Sezzle\Sezzlepay\Api\OrderManagementInterface;
+use Sezzle\Sezzlepay\Api\GuestOrderManagementInterface;
 use Sezzle\Sezzlepay\Model\Api\PayloadBuilder;
 
-class OrderManagement implements OrderManagementInterface
+class GuestOrderManagement implements GuestOrderManagementInterface
 {
 
     /**
@@ -79,6 +81,10 @@ class OrderManagement implements OrderManagementInterface
      * @var PayloadBuilder
      */
     private $apiPayloadBuilder;
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    private $quoteIdMaskFactory;
 
     /**
      * Payment constructor.
@@ -93,6 +99,8 @@ class OrderManagement implements OrderManagementInterface
      * @param QuoteManagement $quoteManagement
      * @param OrderSender $orderSender
      * @param Tokenize $tokenize
+     * @param CartRepositoryInterface $cartRepository
+     * @param PayloadBuilder $apiPayloadBuilder
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -107,7 +115,8 @@ class OrderManagement implements OrderManagementInterface
         OrderSender $orderSender,
         Tokenize $tokenize,
         CartRepositoryInterface $cartRepository,
-        PayloadBuilder $apiPayloadBuilder
+        PayloadBuilder $apiPayloadBuilder,
+        QuoteIdMaskFactory $quoteIdMaskFactory
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -122,35 +131,27 @@ class OrderManagement implements OrderManagementInterface
         $this->tokenize = $tokenize;
         $this->cartRepository = $cartRepository;
         $this->apiPayloadBuilder = $apiPayloadBuilder;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
     }
 
     /**
      * @inheritDoc
      */
-    public function createCheckout($cartId, $createSezzleCheckout)
+    public function createCheckout($cartId, $email, $createSezzleCheckout)
     {
         $this->sezzleHelper->logSezzleActions("****Starting Sezzle Checkout****");
+        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
         /** @var \Magento\Quote\Model\Quote $quote */
-        $quote = $this->cartRepository->getActive($cartId);
-        if (!$quote) {
+        $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
+        if (!$quote || !$email) {
             return false;
         }
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         $this->sezzleHelper->logSezzleActions("Order ID from quote : " . $quote->getReservedOrderId());
-
-        $customer = $quote->getCustomer();
-        $this->sezzleHelper->logSezzleActions("Customer Id : " . $customer->getId());
-        $billingAddress = $quote->getBillingAddress();
-        $shippingAddress = $quote->getShippingAddress();
-        if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
-            $json = $this->jsonHelper->jsonEncode(["message" => "Please select an address"]);
-            $jsonResult = $this->resultJsonFactory->create();
-            $jsonResult->setData($json);
-            return $jsonResult;
-        } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
-            $quote->setBillingAddress($shippingAddress);
-        }
-
+        $this->sezzleHelper->logSezzleActions("Guest customer");
+        $quote->setCustomerEmail($email)
+            ->setCustomerIsGuest(true)
+            ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
         $payment = $quote->getPayment();
         $payment->setMethod(Sezzle::PAYMENT_CODE);
         $quote->reserveOrderId();
@@ -174,8 +175,9 @@ class OrderManagement implements OrderManagementInterface
     public function placeOrder($cartId)
     {
         try {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
             /** @var \Magento\Quote\Model\Quote $quote */
-            $quote = $this->cartRepository->getActive($cartId);
+            $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
             if (!$quote) {
                 return false;
             }

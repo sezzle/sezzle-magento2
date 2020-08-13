@@ -15,25 +15,26 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 
 /**
- * Interface OrderManagementInterface
+ * Interface GuestOrderManagementInterface
  * @package Sezzle\Sezzlepay\Api
  */
-interface OrderManagementInterface
+interface GuestOrderManagementInterface
 {
 
     /**
      * Create Checkout
      *
-     * @param int $cartId
+     * @param string $cartId
+     * @param string $email
      * @param bool $createSezzleCheckout
-     * @return void
+     * @return string
      */
-    public function createCheckout($cartId, $createSezzleCheckout);
+    public function createCheckout($cartId, $email, $createSezzleCheckout);
 
     /**
      * Place Order
      *
-     * @param $cartId
+     * @param string $cartId
      * @return bool
      */
     public function placeOrder($cartId);
