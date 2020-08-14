@@ -15,6 +15,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 use Sezzle\Sezzlepay\Api\GuestOrderManagementInterface;
 use Sezzle\Sezzlepay\Model\Order\SaveHandler;
 
@@ -29,15 +30,22 @@ class GuestOrderManagement implements GuestOrderManagementInterface
      * @var
      */
     private $saveHandler;
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    private $quoteIdMaskFactory;
 
     /**
      * Payment constructor.
      * @param CartRepositoryInterface $cartRepository
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
      */
     public function __construct(
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        QuoteIdMaskFactory $quoteIdMaskFactory
     ) {
         $this->cartRepository = $cartRepository;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
     }
 
     /**
@@ -46,8 +54,9 @@ class GuestOrderManagement implements GuestOrderManagementInterface
     public function createCheckout($cartId, $email, $createSezzleCheckout)
     {
         try {
+            $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
             /** @var Quote $quote */
-            $quote = $this->cartRepository->getActive($cartId);
+            $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
             if (!$quote) {
                 throw new NotFoundException(__("Cart ID is invalid."));
             }
@@ -78,8 +87,9 @@ class GuestOrderManagement implements GuestOrderManagementInterface
      */
     public function placeOrder($cartId)
     {
+        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
         /** @var Quote $quote */
-        $quote = $this->cartRepository->getActive($cartId);
+        $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
         if (!$quote) {
             throw new NotFoundException(__("Cart ID is invalid."));
         }
