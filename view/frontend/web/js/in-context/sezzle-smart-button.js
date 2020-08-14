@@ -21,7 +21,7 @@ define([
                 fullScreenLoader.startLoader();
                 clientConfig.rendererComponent.beforeOnClick().success(function (response) {
                     var jsonResponse = $.parseJSON(response);
-                    checkoutSDK.renderModal({
+                    checkoutSDK.startCheckout({
                         checkout_url: jsonResponse.checkout_url
                     });
                 }).always(function () {
