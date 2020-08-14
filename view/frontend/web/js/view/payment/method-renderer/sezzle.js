@@ -5,22 +5,32 @@
  */
 define(
     [
+        'jquery',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/model/resource-url-manager',
         'mage/storage',
         'Magento_Checkout/js/view/payment/default',
-        'jquery',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Checkout/js/action/set-payment-information',
-        'mage/url',
-        'mage/translate',
-        'Magento_Checkout/js/checkout-data',
-        'Magento_Checkout/js/action/select-payment-method',
-        'Magento_Ui/js/model/messageList',
-        'Magento_Checkout/js/model/quote'
+        'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Checkout/js/model/url-builder',
+        'Magento_Checkout/js/model/error-processor',
     ],
-    function (customer, resourceUrlManager, storage, Component, $, additionalValidators, setPaymentInformationAction, mageUrl, $t, checkoutData, selectPaymentMethodAction, globalMessageList, quote) {
+    function (
+        $,
+        customer,
+        resourceUrlManager,
+        storage,
+        Component,
+        additionalValidators,
+        quote,
+        fullScreenLoader,
+        urlBuilder,
+        errorProcessor) {
         'use strict';
+
+        var serviceUrl,
+            payload = {};
         return Component.extend({
             defaults: {
                 template: 'Sezzle_Sezzlepay/payment/sezzle'
@@ -96,43 +106,33 @@ define(
             },
 
             /**
-             * Handle ajax action of the redirection
-             */
-            redirectToSezzleController: function (data) {
-
-                // Make a post request to redirect
-                var url = mageUrl.build("sezzle/payment/redirect");
-
-                $.ajax({
-                    url: url,
-                    method:'post',
-                    showLoader: true,
-                    data: data,
-                    success: function (response) {
-                        // Send this response to sezzle api
-                        // This would redirect to sezzle
-                        var jsonData = $.parseJSON(response);
-                        if (jsonData.redirectURL) {
-                            location.href = jsonData.redirectURL;
-                        } else if (typeof jsonData['message'] !== 'undefined') {
-                            globalMessageList.addErrorMessage({
-                                'message': jsonData['message']
-                            });
-                        }
-                    }
-                });
-            },
-
-            /**
              * Handle redirection
              */
             handleRedirectAction: function () {
-                var data = $("#co-shipping-form").serialize();
+                payload.createSezzleCheckout = true;
                 if (!customer.isLoggedIn()) {
-                    var email = quote.guestEmail;
-                    data += '&email=' + email;
+                    serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/create-checkout', {
+                        cartId: quote.getQuoteId()
+                    });
+                    payload.email = quote.guestEmail;
+                } else {
+                    serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/create-checkout', {});
                 }
-                this.redirectToSezzleController(data);
+
+                fullScreenLoader.startLoader();
+                return storage.post(
+                    serviceUrl, JSON.stringify(payload)
+                ).success(function (response) {
+
+                    var jsonResponse = $.parseJSON(response);
+                    $.mage.redirect(jsonResponse.checkout_url);
+
+                }).fail(
+                    function (response) {
+                        fullScreenLoader.stopLoader();
+                        errorProcessor.process(response, this.messageContainer);
+                    }
+                );
             },
 
             /**
@@ -140,10 +140,6 @@ define(
              */
             continueToSezzle: function () {
                 if (this.validate() && additionalValidators.validate()) {
-                    var loaderMsg = this.getLoaderMsg(),
-                        msgPart1 = "<div><style>.page-loader{display:-ms-flexbox;display:flex;-ms-flex-direction:column;flex-direction:column;-ms-flex-pack:center;justify-content:center;position:fixed;top:0;left:0;z-index:10000000;width:100vw;height:100vh;background-color:#fff}.page-loader .loader-image{width:auto;height:120px;background-image:url(https://media.sezzle.com/branding/2.0/styleGuide/loader.svg);background-repeat:no-repeat;background-position:50%;background-size:80px auto}.page-loader .loader-text{font-size:18px;font-weight:normal;text-align:center;color:#252525}</style><div class='page-loader'><div class='loader-image'></div><div class='loader-text'>",
-                        msgPart2 = "</div></div></div>";
-                    $("body").append(msgPart1.concat(loaderMsg, msgPart2));
                     this.handleRedirectAction();
                 }
             }

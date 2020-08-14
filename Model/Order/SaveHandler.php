@@ -17,6 +17,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Json\Helper\Data;
+use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
@@ -88,6 +89,10 @@ class SaveHandler
      * @var PayloadBuilder
      */
     private $apiPayloadBuilder;
+    /**
+     * @var UrlInterface
+     */
+    private $url;
 
     /**
      * SaveHandler constructor.
@@ -104,6 +109,7 @@ class SaveHandler
      * @param Tokenize $tokenize
      * @param CartRepositoryInterface $cartRepository
      * @param PayloadBuilder $apiPayloadBuilder
+     * @param UrlInterface $url
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -118,7 +124,8 @@ class SaveHandler
         OrderSender $orderSender,
         Tokenize $tokenize,
         CartRepositoryInterface $cartRepository,
-        PayloadBuilder $apiPayloadBuilder
+        PayloadBuilder $apiPayloadBuilder,
+        UrlInterface $url
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -133,6 +140,7 @@ class SaveHandler
         $this->tokenize = $tokenize;
         $this->cartRepository = $cartRepository;
         $this->apiPayloadBuilder = $apiPayloadBuilder;
+        $this->url = $url;
     }
 
     /**
@@ -151,14 +159,16 @@ class SaveHandler
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         $this->sezzleHelper->logSezzleActions("Order ID from quote : " . $quote->getReservedOrderId());
 
-        $customer = $quote->getCustomer();
-        $this->sezzleHelper->logSezzleActions("Customer Id : " . $customer->getId());
-        $billingAddress = $quote->getBillingAddress();
-        $shippingAddress = $quote->getShippingAddress();
-        if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
-            throw new NotFoundException(__("Please select an address"));
-        } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
-            $quote->setBillingAddress($shippingAddress);
+        if (!$quote->getCustomerIsGuest()) {
+            $customer = $quote->getCustomer();
+            $this->sezzleHelper->logSezzleActions("Customer Id : " . $customer->getId());
+            $billingAddress = $quote->getBillingAddress();
+            $shippingAddress = $quote->getShippingAddress();
+            if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
+                throw new NotFoundException(__("Please select an address"));
+            } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
+                $quote->setBillingAddress($shippingAddress);
+            }
         }
 
         $payment = $quote->getPayment();
@@ -172,6 +182,14 @@ class SaveHandler
         $this->checkoutSession->replaceQuote($quote);
         if ($createSezzleCheckout) {
             $checkoutUrl = $this->sezzleModel->getSezzleRedirectUrl($quote);
+            if ($quote->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
+                $orderId = $this->save($quote);
+                if (!$orderId) {
+                    throw new CouldNotSaveException(__("Unable to place your order."));
+                }
+                $successURL = $this->url->getUrl("checkout/onepage/success");
+                return $this->jsonHelper->jsonEncode(["checkout_url" => $successURL]);
+            }
             return $this->jsonHelper->jsonEncode(["checkout_url" => $checkoutUrl]);
         }
         $payload = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $referenceID);
@@ -188,7 +206,6 @@ class SaveHandler
      */
     public function save($quote)
     {
-        $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
         $orderId = $quote->getReservedOrderId();
         $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
 

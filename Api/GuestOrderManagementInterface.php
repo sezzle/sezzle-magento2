@@ -6,10 +6,7 @@
  */
 namespace Sezzle\Sezzlepay\Api;
 
-use Exception;
-use Magento\Framework\App\ResponseInterface;
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
@@ -28,6 +25,8 @@ interface GuestOrderManagementInterface
      * @param string $email
      * @param bool $createSezzleCheckout
      * @return string
+     * @throws NotFoundException
+     * @throws CouldNotSaveException
      */
     public function createCheckout($cartId, $email, $createSezzleCheckout);
 
@@ -35,7 +34,11 @@ interface GuestOrderManagementInterface
      * Place Order
      *
      * @param string $cartId
-     * @return bool
+     * @return int
+     * @throws CouldNotSaveException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @throws NotFoundException
      */
     public function placeOrder($cartId);
 

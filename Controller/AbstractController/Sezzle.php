@@ -19,6 +19,7 @@ use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
+use Sezzle\Sezzlepay\Api\OrderManagementInterface;
 use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
@@ -77,6 +78,10 @@ abstract class Sezzle extends Action
      * @var CartRepositoryInterface
      */
     protected $cartRepository;
+    /**
+     * @var OrderManagementInterface
+     */
+    protected $orderManagement;
 
     /**
      * Payment constructor.
@@ -93,6 +98,7 @@ abstract class Sezzle extends Action
      * @param OrderSender $orderSender
      * @param Tokenize $tokenize
      * @param CartRepositoryInterface $cartRepository
+     * @param OrderManagementInterface $orderManagement
      */
     public function __construct(
         Context $context,
@@ -107,7 +113,8 @@ abstract class Sezzle extends Action
         QuoteManagement $quoteManagement,
         OrderSender $orderSender,
         Tokenize $tokenize,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        OrderManagementInterface $orderManagement
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -121,6 +128,7 @@ abstract class Sezzle extends Action
         $this->resultJsonFactory = $resultJsonFactory;
         $this->tokenize = $tokenize;
         $this->cartRepository = $cartRepository;
+        $this->orderManagement = $orderManagement;
         parent::__construct($context);
     }
 

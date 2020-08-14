@@ -213,7 +213,10 @@ class Sezzle extends AbstractMethod
         $this->sezzleHelper->logSezzleActions("Payment Type : " . $this->getConfigPaymentAction());
         $additionalInformation[self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $redirectURL = '';
-        if ($quote->getCustomer() && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
+        if ((!$this->sezzleConfig->isInContextModeEnabled()
+            || $this->sezzleHelper->isMobileOrTablet())
+            && $quote->getCustomer()
+            && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
             $this->sezzleHelper->logSezzleActions("Tokenized Checkout");
             $tokenizeInformation = [
                 Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue(),
@@ -268,6 +271,7 @@ class Sezzle extends AbstractMethod
             [self::SEZZLE_ORDER_TYPE => self::API_V2]
         ));
         $this->quoteRepository->save($quote);
+        $this->sezzleHelper->logSezzleActions("Checkout URL : $redirectURL");
         return $redirectURL;
     }
 

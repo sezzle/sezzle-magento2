@@ -101,7 +101,7 @@ class OrderManagement implements OrderManagementInterface
     /**
      * Get Save Handler
      *
-     * @return Order\SaveHandler
+     * @return SaveHandler
      */
     private function getSaveHandler()
     {

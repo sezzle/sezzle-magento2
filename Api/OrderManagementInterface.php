@@ -6,11 +6,7 @@
  */
 namespace Sezzle\Sezzlepay\Api;
 
-use Exception;
-use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;

@@ -63,7 +63,7 @@ class PayloadBuilder
         $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
         if (!$this->sezzleConfig->isInContextModeEnabled()
-            || !$this->sezzleHelper->isMobileOrTablet()) {
+            || $this->sezzleHelper->isMobileOrTablet()) {
             $completeURL['complete_url'] = [
                 "href" => $this->sezzleConfig->getCompleteUrl()
             ];
@@ -138,7 +138,10 @@ class PayloadBuilder
     private function buildCustomerPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
-        $tokenize = $this->sezzleConfig->isInContextModeEnabled() ? false : $this->sezzleConfig->isTokenizationAllowed();
+        $tokenize = ($this->sezzleConfig->isInContextModeEnabled()
+            && !$this->sezzleHelper->isMobileOrTablet())
+            ? false
+            : $this->sezzleConfig->isTokenizationAllowed();
         return [
             "tokenize" => $tokenize,
             "email" => $quote->getCustomerEmail(),

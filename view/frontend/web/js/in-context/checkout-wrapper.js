@@ -39,6 +39,8 @@ define([
             redirectOnSuccess: true
         },
 
+        redirectAfterPlaceOrder: true,
+
         /**
          * Render Sezzle button using checkout.js
          */
@@ -109,7 +111,7 @@ define([
                 serviceUrl
             ).success(
                 function (response) {
-                    if (this.redirectOnSuccess) {
+                    if (self.redirectAfterPlaceOrder) {
                         redirectOnSuccessAction.execute();
                     }
                 }
