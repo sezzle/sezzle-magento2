@@ -20,6 +20,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
 use Sezzle\Sezzlepay\Model\Tokenize;
+use Magento\Framework\Data\Form\FormKey\Validator;
 
 /**
  * Class Sezzle
@@ -77,6 +78,10 @@ abstract class Sezzle extends Action
      * @var CartRepositoryInterface
      */
     protected $cartRepository;
+    /**
+     * @var Validator
+     */
+    protected $formKeyValidator;
 
     /**
      * Payment constructor.
@@ -93,6 +98,7 @@ abstract class Sezzle extends Action
      * @param OrderSender $orderSender
      * @param Tokenize $tokenize
      * @param CartRepositoryInterface $cartRepository
+     * @param Validator $formKeyValidator
      */
     public function __construct(
         Context $context,
@@ -107,7 +113,8 @@ abstract class Sezzle extends Action
         QuoteManagement $quoteManagement,
         OrderSender $orderSender,
         Tokenize $tokenize,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        Validator $formKeyValidator
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -121,6 +128,7 @@ abstract class Sezzle extends Action
         $this->resultJsonFactory = $resultJsonFactory;
         $this->tokenize = $tokenize;
         $this->cartRepository = $cartRepository;
+        $this->formKeyValidator = $formKeyValidator;
         parent::__construct($context);
     }
 

@@ -23,12 +23,18 @@ class Redirect extends Sezzle
     /**
      * Redirection
      *
-     * @return Json
+     * @return \Magento\Framework\Controller\Result\Redirect|Json
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
     public function execute()
     {
+        if (!$this->formKeyValidator->validate($this->getRequest())) {
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setPath('checkout/cart');
+            return $resultRedirect;
+        }
+
         $this->sezzleHelper->logSezzleActions("****Starting Sezzle Checkout****");
         $quote = $this->checkoutSession->getQuote();
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
@@ -38,16 +44,6 @@ class Redirect extends Sezzle
             $this->sezzleHelper->logSezzleActions("Customer Id : $customerId");
             $customer = $this->customerRepository->getById($customerId);
             $quote->setCustomer($customer);
-            $billingAddress = $quote->getBillingAddress();
-            $shippingAddress = $quote->getShippingAddress();
-            if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
-                $json = $this->jsonHelper->jsonEncode(["message" => "Please select an address"]);
-                $jsonResult = $this->resultJsonFactory->create();
-                $jsonResult->setData($json);
-                return $jsonResult;
-            } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
-                $quote->setBillingAddress($shippingAddress);
-            }
         } else {
             $post = $this->getRequest()->getPostValue();
             $this->sezzleHelper->logSezzleActions("Guest customer");
@@ -57,6 +53,18 @@ class Redirect extends Sezzle
                     ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
             }
         }
+
+        $billingAddress = $quote->getBillingAddress();
+        $shippingAddress = $quote->getShippingAddress();
+        if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
+            $json = $this->jsonHelper->jsonEncode(["message" => "Please select an address"]);
+            $jsonResult = $this->resultJsonFactory->create();
+            $jsonResult->setData($json);
+            return $jsonResult;
+        } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
+            $quote->setBillingAddress($shippingAddress);
+        }
+
         $payment = $quote->getPayment();
         $payment->setMethod(\Sezzle\Sezzlepay\Model\Sezzle::PAYMENT_CODE);
         $quote->reserveOrderId();
