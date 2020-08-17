@@ -98,6 +98,7 @@ define(
 
             handleRedirectAction: function () {
                 var data = $("#co-shipping-form").serialize();
+                data += '&form_key='+$.mage.cookies.get('form_key');
                 if (!customer.isLoggedIn()) {
                     var email = quote.guestEmail;
                     data += '&email=' + email;

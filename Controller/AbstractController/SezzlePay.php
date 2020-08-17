@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Controller\AbstractController;
 
 use Magento\Framework\App\Action\Action;
+use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
 
@@ -88,6 +89,10 @@ abstract class SezzlePay extends Action
      * @var SezzleApiConfigInterface
      */
     protected $sezzleApiIdentity;
+    /**
+     * @var Validator
+     */
+    protected $formKeyValidator;
 
     /**
      * Sezzlepay constructor.
@@ -109,6 +114,7 @@ abstract class SezzlePay extends Action
      * @param Order\Payment\Transaction\BuilderInterface $transactionBuilder
      * @param Order\Email\Sender\OrderSender $orderSender
      * @param SezzleApiConfigInterface $sezzleApiIdentity
+     * @param Validator $formKeyValidator
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -128,7 +134,8 @@ abstract class SezzlePay extends Action
         \Magento\Quote\Model\QuoteManagement $quoteManagement,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
-        SezzleApiConfigInterface $sezzleApiIdentity
+        SezzleApiConfigInterface $sezzleApiIdentity,
+        Validator $formKeyValidator
     )
     {
         $this->_customerSession = $customerSession;
@@ -149,6 +156,7 @@ abstract class SezzlePay extends Action
         $this->_orderSender = $orderSender;
         $this->_resultJsonFactory = $resultJsonFactory;
         $this->sezzleApiIdentity = $sezzleApiIdentity;
+        $this->formKeyValidator = $formKeyValidator;
         parent::__construct($context);
     }
 

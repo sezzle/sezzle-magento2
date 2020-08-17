@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Model\Gateway;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 use Sezzle\Sezzlepay\Model\Api\ConfigInterface;
 use Sezzle\Sezzlepay\Model\Config\Container\SezzleApiConfigInterface;
+use Sezzle\Sezzlepay\Helper\Util;
 
 /**
  * Class Transaction
@@ -137,7 +138,7 @@ class Transaction
                 $orderForSezzle = [
                     'order_number' => $orderIncrementId,
                     'payment_method' => $payment->getMethod(),
-                    'amount' => (int)(round($order->getGrandTotal() * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION)),
+                    'amount' => Util::formatToCents($order->getGrandTotal()),
                     'currency' => $order->getOrderCurrencyCode(),
                     'sezzle_reference' => $payment->getLastTransId(),
                     'customer_email' => $billing->getEmail(),

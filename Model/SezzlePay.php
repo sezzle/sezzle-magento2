@@ -11,6 +11,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Sales\Model\Order;
+use Sezzle\Sezzlepay\Helper\Util;
 
 /**
  * Class SezzlePay
@@ -228,7 +229,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
      */
     public function isOrderAmountMatched($magentoAmount, $sezzleAmount)
     {
-        return (round($magentoAmount, 2) == round($sezzleAmount, 2)) ? true : false;
+        return Util::formatToCents($magentoAmount) == Util::formatToCents($sezzleAmount);
     }
 
     /**
@@ -244,7 +245,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
     {
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
-        $grandTotalInCents = (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION));
+        $grandTotalInCents = Util::formatToCents($amount);
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
         $result = $this->getSezzleOrderInfo($reference);
@@ -252,6 +253,11 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                                 $result['amount_in_cents'] :
                                 null;
         $this->sezzleHelper->logSezzleActions("Sezzle Order Total : $sezzleOrderTotal");
+        $captureExpiration = (isset($result['capture_expiration']) && $result['capture_expiration']) ? $result['capture_expiration'] : null;
+        if ($captureExpiration === null) {
+            $this->sezzleHelper->logSezzleActions("Not authorized on Sezzle");
+            throw new LocalizedException(__('Not authorized on Sezzle. Please try again.'));
+        }
 
         if ($sezzleOrderTotal != null
         && !$this->isOrderAmountMatched($grandTotalInCents, $sezzleOrderTotal)) {
@@ -279,7 +285,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
             throw new LocalizedException(__('Invalid amount for capture.'));
         }
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDERID);
-        $grandTotalInCents = (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION));
+        $grandTotalInCents = Util::formatToCents($amount);
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $this->sezzleHelper->logSezzleActions("Magento Order Total : $grandTotalInCents");
         $result = $this->getSezzleOrderInfo($reference);
@@ -405,7 +411,7 @@ class SezzlePay extends \Magento\Payment\Model\Method\AbstractMethod
                 $url = $this->sezzleApiIdentity->getSezzleBaseUrl() . '/v1/orders' . '/' . $orderId . '/refund';
                 $authToken = $this->sezzleApiConfig->getAuthToken();
                 $requestPayload = ["amount" => [
-                    "amount_in_cents" => (int)(round($amount * 100, \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION)),
+                    "amount_in_cents" => Util::formatToCents($amount),
                     "currency" => $currency
                 ]
                 ];

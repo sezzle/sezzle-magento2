@@ -23,6 +23,7 @@ use Magento\Sales\Model\Order\ShipmentFactory;
 use Magento\Sales\Model\Service\InvoiceService;
 use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Model\SezzlePay;
+use Sezzle\Sezzlepay\Helper\Util;
 
 class SavePlugin
 {
@@ -331,10 +332,8 @@ class SavePlugin
         $reference = $this->order->getPayment()->getAdditionalInformation(SezzlePay::ADDITIONAL_INFORMATION_KEY_ORDERID);
         $currentTime = $this->dateTime->gmtDate("Y-m-d H:i:s");
         $currentTimestamp = $this->dateTime->timestamp($currentTime);
-        $grandTotalInCents = (int)(round(
-            $this->order->getGrandTotal() * 100,
-            \Sezzle\Sezzlepay\Model\Api\PayloadBuilder::PRECISION
-        ));
+        $grandTotalInCents = Util::formatToCents(
+            $this->order->getGrandTotal());
         $sezzleOrderInfo = $this->sezzlePay
                             ->getSezzleOrderInfo($reference);
 

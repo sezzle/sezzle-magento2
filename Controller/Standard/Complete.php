@@ -33,7 +33,6 @@ class Complete extends SezzlePay
                 ->setLastQuoteId($quote->getId())
                 ->setLastSuccessQuoteId($quote->getId())
                 ->clearHelperData();
-            $this->sezzleHelper->logSezzleActions("Set data on checkout session");
 
             $quote->collectTotals();
             $order = $this->_quoteManagement->submit($quote);

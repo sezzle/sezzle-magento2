@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Store\Model\StoreManagerInterface;
+use Sezzle\Sezzlepay\Helper\Util;
 
 /**
  * Class PayloadBuilder
@@ -75,7 +76,7 @@ class PayloadBuilder
         $orderId = $quote->getReservedOrderId();
         $completeUrl = $this->sezzleApiConfig->getCompleteUrl($orderId, $reference);
         $cancelUrl = $this->sezzleApiConfig->getCancelUrl();
-        $checkoutPayload["amount_in_cents"] = (int)(round($quote->getGrandTotal() * 100, self::PRECISION));
+        $checkoutPayload["amount_in_cents"] = Util::formatToCents($quote->getGrandTotal());//(int)(round($quote->getGrandTotal() * 100, self::PRECISION));
         $checkoutPayload["currency_code"] = $this->storeManager->getStore()->getCurrentCurrencyCode();
         $checkoutPayload["order_description"] = $reference;
         $checkoutPayload["order_reference_id"] = $reference;
@@ -161,7 +162,7 @@ class PayloadBuilder
                 "sku" => $productSku,
                 "quantity" => $productQuantity,
                 "price" => [
-                    "amount_in_cents" => (int)(round($item->getPriceInclTax() * 100, self::PRECISION)),
+                    "amount_in_cents" => Util::formatToCents($item->getPrice()),
                     "currency" => $currencyCode
                 ]
             ];

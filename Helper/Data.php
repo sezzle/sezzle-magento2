@@ -30,6 +30,26 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         parent::__construct($context);
     }
 
+
+
+    /**
+     * Returns formated price.
+     *
+     * @param string $price
+     * @param string $currencyCode
+     * @return string
+     */
+    public function formatPrice($price, $currencyCode = '')
+    {
+        $formatedPrice = number_format($price, 2, '.', '');
+
+        if ($currencyCode) {
+            return $formatedPrice . ' ' . $currencyCode;
+        } else {
+            return $formatedPrice;
+        }
+    }
+
     /**
      * Dump Sezzle log actions
      *
