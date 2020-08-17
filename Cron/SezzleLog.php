@@ -69,7 +69,7 @@ class SezzleLog
             $this->sezzleHelper->logSezzleActions("****Cron started****");
             $merchantUUID = $this->sezzleConfig->getMerchantUUID();
             $this->sezzleHelper->logSezzleActions("Merchant UUID : $merchantUUID");
-            $logContents = $this->file->fileGetContents(Data::SEZZLE_LOG_FILE_PATH);
+            $logContents = $this->file->fileGetContents(BP . Data::SEZZLE_LOG_FILE_PATH);
             $this->v1->sendLogsToSezzle($merchantUUID, $logContents);
             $this->sezzleHelper->logSezzleActions("****Cron end****");
         }

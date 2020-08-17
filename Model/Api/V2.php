@@ -606,7 +606,7 @@ class V2 implements V2Interface
     {
         $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
         $range = $this->sezzleConfig->getSettlementReportsRange();
-        $interval = sprintf("P%D", $range);
+        $interval = sprintf("P%sD", $range);
         $currentDate = $this->timezone->date();
         $endDate = clone $currentDate;
         $startDate = $from ?: $currentDate->sub(new \DateInterval($interval))->format('Y-m-d');
