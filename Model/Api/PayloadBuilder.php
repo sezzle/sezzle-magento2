@@ -12,6 +12,7 @@ use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Helper\Util;
 use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
@@ -113,7 +114,7 @@ class PayloadBuilder
     private function getPriceObject($amount)
     {
         return [
-            "amount_in_cents" => $this->sezzleHelper->getAmountInCents($amount),
+            "amount_in_cents" => Util::formatToCents($amount),
             "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
         ];
     }
@@ -202,7 +203,7 @@ class PayloadBuilder
                 "sku" => $productSku,
                 "quantity" => $productQuantity,
                 "price" => [
-                    "amount_in_cents" => $this->sezzleHelper->getAmountInCents($item->getPriceInclTax()),
+                    "amount_in_cents" => Util::formatToCents($item->getPriceInclTax()),
                     "currency" => $currencyCode
                 ]
             ];

@@ -147,6 +147,7 @@ class Data extends AbstractHelper
      *
      * @param float $amount
      * @return int
+     * @deprecated 4.1.2
      */
     public function getAmountInCents($amount)
     {
