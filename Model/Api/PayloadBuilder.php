@@ -62,22 +62,15 @@ class PayloadBuilder
         $orderPayload = [];
         $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
-        if (!$this->sezzleConfig->isInContextModeEnabled()
-            || $this->sezzleHelper->isMobileOrTablet()) {
-            $completeURL['complete_url'] = [
-                "href" => $this->sezzleConfig->getCompleteUrl()
-            ];
-            $cancelURL['cancel_url'] = [
-                "href" => $this->sezzleConfig->getCancelUrl()
-            ];
-            return array_merge(
-                $completeURL,
-                $cancelURL,
-                $orderPayload,
-                $customerPayload
-            );
-        }
+        $completeURL['complete_url'] = [
+            "href" => $this->sezzleConfig->getCompleteUrl()
+        ];
+        $cancelURL['cancel_url'] = [
+            "href" => $this->sezzleConfig->getCancelUrl()
+        ];
         return array_merge(
+            $completeURL,
+            $cancelURL,
             $orderPayload,
             $customerPayload
         );
@@ -108,7 +101,7 @@ class PayloadBuilder
             "tax_amount" => $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount()),
             "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal()),
         ];
-        if ($this->sezzleConfig->isInContextModeEnabled() && !$this->sezzleHelper->isMobileOrTablet()) {
+        if ($this->sezzleConfig->isInContextCheckout()) {
             return array_merge($orderPayload, ['checkout_mode' => $this->sezzleConfig->getInContextMode()]);
         }
         return $orderPayload;
@@ -138,8 +131,7 @@ class PayloadBuilder
     private function buildCustomerPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
-        $tokenize = ($this->sezzleConfig->isInContextModeEnabled()
-            && !$this->sezzleHelper->isMobileOrTablet())
+        $tokenize = $this->sezzleConfig->isInContextCheckout()
             ? false
             : $this->sezzleConfig->isTokenizationAllowed();
         return [

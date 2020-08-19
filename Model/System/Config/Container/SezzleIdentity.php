@@ -17,7 +17,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const SANDBOX_MODE = 'sandbox';
 
     const INCONTEXT_MODE_IFRAME = 'iframe';
-    const INCONTEXT_MODE_POPUP = 'pop_up';
+    const INCONTEXT_MODE_POPUP = 'popup';
 
     const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
@@ -278,5 +278,23 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             self::XML_PATH_INCONTEXT_MODE,
             $this->getStore()->getStoreId()
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isInContextCheckout()
+    {
+        return $this->isInContextModeEnabled()
+            && !$this->isMobileOrTablet();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isMobileOrTablet()
+    {
+        $userAgent = $this->httpHeader->getHttpUserAgent();
+        return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 }

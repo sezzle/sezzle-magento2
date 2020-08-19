@@ -51,7 +51,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'methodCode' => Sezzle::PAYMENT_CODE,
                     'isInContextCheckout' => (bool)$this->sezzleConfig->isInContextModeEnabled(),
                     'inContextMode' => $this->sezzleConfig->getInContextMode(),
-                    'isMobileOrTablet' => $this->sezzleHelper->isMobileOrTablet()
+                    'isMobileOrTablet' => $this->sezzleConfig->isMobileOrTablet()
                 ]
             ]
         ];

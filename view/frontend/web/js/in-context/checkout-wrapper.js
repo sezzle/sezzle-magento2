@@ -35,11 +35,8 @@ define([
             paymentActionError: $t('Something went wrong with your request. Please try again later.'),
             paymentCancelError: $t('Payment has been cancelled.'),
             paymentFailureError: $t('Payment has been failed. Verify and try again.'),
-            signInMessage: $t('To check out, please sign in with your email address.'),
-            redirectOnSuccess: true
+            signInMessage: $t('To check out, please sign in with your email address.')
         },
-
-        redirectAfterPlaceOrder: true,
 
         /**
          * Render Sezzle button using checkout.js
@@ -111,9 +108,7 @@ define([
                 serviceUrl
             ).success(
                 function (response) {
-                    if (self.redirectAfterPlaceOrder) {
-                        redirectOnSuccessAction.execute();
-                    }
+                    redirectOnSuccessAction.execute();
                 }
             ).fail(
                 function (response) {
@@ -154,7 +149,12 @@ define([
          * Handle Checkout Cancel Exception
          */
         catchOnCancel: function () {
-            errorProcessor.process({responseText: this.paymentCancelError}, this.messageContainer);
+            errorProcessor.process(
+                {
+                    responseText: JSON.stringify({message:this.paymentCancelError})
+                },
+                this.messageContainer
+            );
         },
 
         /**
@@ -173,7 +173,12 @@ define([
          * Handle Checkout Failure Exception
          */
         catchOnFailure: function () {
-            errorProcessor.process({responseText: this.paymentFailureError}, this.messageContainer);
+            errorProcessor.process(
+                {
+                    responseText: JSON.stringify({message:this.paymentFailureError})
+                },
+                this.messageContainer
+            );
         },
 
         /**

@@ -214,7 +214,7 @@ class Sezzle extends AbstractMethod
         $additionalInformation[self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $redirectURL = '';
         if ((!$this->sezzleConfig->isInContextModeEnabled()
-            || $this->sezzleHelper->isMobileOrTablet())
+            || $this->sezzleConfig->isMobileOrTablet())
             && $quote->getCustomer()
             && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
             $this->sezzleHelper->logSezzleActions("Tokenized Checkout");
