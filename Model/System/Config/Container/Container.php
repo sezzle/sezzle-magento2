@@ -9,6 +9,7 @@ namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\HTTP\Header;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -51,20 +52,27 @@ abstract class Container implements IdentityInterface
      * @var UrlInterface
      */
     public $urlBuilder;
+    /**
+     * @var Header
+     */
+    protected $httpHeader;
 
     /**
      * @param UrlInterface $urlBuilder
      * @param ScopeConfigInterface $scopeConfig
      * @param StoreManagerInterface $storeManager
+     * @param Header $httpHeader
      */
     public function __construct(
         UrlInterface $urlBuilder,
         ScopeConfigInterface $scopeConfig,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Header $httpHeader
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
+        $this->httpHeader = $httpHeader;
     }
 
     /**

@@ -16,6 +16,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const PROD_MODE = 'live';
     const SANDBOX_MODE = 'sandbox';
 
+    const INCONTEXT_MODE_IFRAME = 'iframe';
+    const INCONTEXT_MODE_POPUP = 'popup';
+
     const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
     const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
@@ -27,6 +30,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
     const XML_PATH_TOKENIZE = 'payment/sezzlepay/tokenize';
+
+    const XML_PATH_INCONTEXT_ACTIVE = 'payment/sezzlepay/active_in_context';
+    const XML_PATH_INCONTEXT_MODE = 'payment/sezzlepay/in_context_mode';
 
     const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
     const XML_PATH_CRON_LOGS = 'payment/sezzlepay/send_logs_via_cron';
@@ -250,5 +256,45 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             self::XML_PATH_SETTLEMENT_REPORTS_RANGE,
             $this->getStore()->getStoreId()
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isInContextModeEnabled()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_INCONTEXT_ACTIVE,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getInContextMode()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_INCONTEXT_MODE,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isInContextCheckout()
+    {
+        return $this->isInContextModeEnabled()
+            && !$this->isMobileOrTablet();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isMobileOrTablet()
+    {
+        $userAgent = $this->httpHeader->getHttpUserAgent();
+        return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 }

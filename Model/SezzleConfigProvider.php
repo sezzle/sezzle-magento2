@@ -8,6 +8,8 @@
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
  * Class SezzleConfigProvider
@@ -17,6 +19,28 @@ class SezzleConfigProvider implements ConfigProviderInterface
 {
 
     /**
+     * @var SezzleConfigInterface
+     */
+    private $sezzleConfig;
+    /**
+     * @var Data
+     */
+    private $sezzleHelper;
+
+    /**
+     * SezzleConfigProvider constructor.
+     * @param SezzleConfigInterface $sezzleConfig
+     * @param Data $sezzleHelper
+     */
+    public function __construct(
+        SezzleConfigInterface $sezzleConfig,
+        Data $sezzleHelper
+    ) {
+        $this->sezzleHelper = $sezzleHelper;
+        $this->sezzleConfig = $sezzleConfig;
+    }
+
+    /**
      * @return array
      */
     public function getConfig()
@@ -24,7 +48,10 @@ class SezzleConfigProvider implements ConfigProviderInterface
         return [
             'payment' => [
                 Sezzle::PAYMENT_CODE => [
-                    'methodCode' => Sezzle::PAYMENT_CODE
+                    'methodCode' => Sezzle::PAYMENT_CODE,
+                    'isInContextCheckout' => (bool)$this->sezzleConfig->isInContextModeEnabled(),
+                    'inContextMode' => $this->sezzleConfig->getInContextMode(),
+                    'isMobileOrTablet' => $this->sezzleConfig->isMobileOrTablet()
                 ]
             ]
         ];

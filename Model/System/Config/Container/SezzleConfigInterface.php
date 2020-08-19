@@ -136,4 +136,24 @@ interface SezzleConfigInterface extends IdentityInterface
      * @return int
      */
     public function getSettlementReportsRange();
+
+    /**
+     * Get InContext Checkout Mode
+     * @return string
+     */
+    public function getInContextMode();
+
+    /**
+     * Check if current checkout is in context
+     *
+     * @return bool
+     */
+    public function isInContextCheckout();
+
+    /**
+     * Check if Device is Mobile or Tablet
+     *
+     * @return bool
+     */
+    public function isMobileOrTablet();
 }

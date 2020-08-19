@@ -207,13 +207,16 @@ class Sezzle extends AbstractMethod
      */
     public function getSezzleRedirectUrl($quote)
     {
-        $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
+        $payment = $quote->getPayment();
+        $referenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $this->sezzleHelper->logSezzleActions("Reference Id : $referenceID");
         $this->sezzleHelper->logSezzleActions("Payment Type : " . $this->getConfigPaymentAction());
-        $payment = $quote->getPayment();
         $additionalInformation[self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $redirectURL = '';
-        if ($quote->getCustomer() && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
+        if ((!$this->sezzleConfig->isInContextModeEnabled()
+            || $this->sezzleConfig->isMobileOrTablet())
+            && $quote->getCustomer()
+            && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
             $this->sezzleHelper->logSezzleActions("Tokenized Checkout");
             $tokenizeInformation = [
                 Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue(),
@@ -268,6 +271,7 @@ class Sezzle extends AbstractMethod
             [self::SEZZLE_ORDER_TYPE => self::API_V2]
         ));
         $this->quoteRepository->save($quote);
+        $this->sezzleHelper->logSezzleActions("Checkout URL : $redirectURL");
         return $redirectURL;
     }
 

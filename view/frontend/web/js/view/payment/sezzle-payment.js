@@ -6,17 +6,24 @@
 define(
     [
         'uiComponent',
-        'Magento_Checkout/js/model/payment/renderer-list'
+        'Magento_Checkout/js/model/payment/renderer-list',
+        'sezzleInContextCheckout'
     ],
     function (
         Component,
         rendererList
     ) {
         'use strict';
+
+        var isInContextCheckout = window.checkoutConfig.payment.sezzlepay.isInContextCheckout,
+            isMobileOrTablet = window.checkoutConfig.payment.sezzlepay.isMobileOrTablet,
+            sezzleComponent = 'Sezzle_Sezzlepay/js/view/payment/method-renderer' +
+                ((isInContextCheckout && !isMobileOrTablet) ? '/in-context/sezzle' : '/sezzle');
+
         rendererList.push(
             {
                 type: 'sezzlepay',
-                component: 'Sezzle_Sezzlepay/js/view/payment/method-renderer/sezzle'
+                component: sezzleComponent
             }
         );
 

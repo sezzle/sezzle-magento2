@@ -19,7 +19,7 @@
                     <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\SezzleRegisterConfig</frontend_model>
                 </field>
                 <group id="sezzle_payment" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[Payment Settings]]></label>
+                    <label><![CDATA[General]]></label>
                     <!-- active -->
                     <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enabled</label>
@@ -80,6 +80,24 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>Makes you enable Customer tokenization</comment>
                         <config_path>payment/sezzlepay/tokenize</config_path>
+                    </field>
+                </group>
+                <group id="sezzle_payment_in_context" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[In-Context Settings]]></label>
+                    <!-- active_in_context -->
+                    <field id="active_in_context" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable In-Context Solution</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/sezzlepay/active_in_context</config_path>
+                    </field>
+                    <!-- in_context_mode -->
+                    <field id="in_context_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>In-Context Checkout Mode</label>
+                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\InContextMode</source_model>
+                        <config_path>payment/sezzlepay/in_context_mode</config_path>
+                        <depends>
+                            <field id="active_in_context">1</field>
+                        </depends>
                     </field>
                 </group>
                 <group id="sezzle_settlement_reports" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="2">

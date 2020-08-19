@@ -26,20 +26,13 @@
             <!-- ko template: getTemplate() --><!-- /ko -->
             <!--/ko-->
         </div>
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button class="action primary checkout"
-                        type="submit"
-                        data-bind="
-                        click: continueToSezzle,
-                        attr: {title: getSubmitButtonName()},
-                        css: {disabled: !isPlaceOrderActionAllowed()},
-                        enable: (getCode() == isChecked())
-                        "
-                        disabled>
-                    <span data-bind="i18n: getSubmitButtonName()"></span>
-                </button>
-            </div>
+        <div class="actions-toolbar" attr="{id: getButtonId()}">
+            <div class="primary"
+                 id="sezzle-smart-button-container"
+                 templateText="Pay with %%logo%%"
+                 borderType="semi-rounded"
+                 customClass="action,primary,checkout"
+                 afterRender="initSezzleSDKCheckout"></div>
         </div>
     </div>
 </div>
