@@ -17,7 +17,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const SANDBOX_MODE = 'sandbox';
 
     const INCONTEXT_MODE_IFRAME = 'iframe';
-    const INCONTEXT_MODE_POPUP = 'popup';
+    const INCONTEXT_MODE_POPUP = 'pop_up';
 
     const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
