@@ -84,6 +84,9 @@
                 </group>
                 <group id="sezzle_payment_in_context" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[In-Context Settings]]></label>
+                    <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\InContextInfo</frontend_model>
+                    </field>
                     <!-- active_in_context -->
                     <field id="active_in_context" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable In-Context Solution</label>

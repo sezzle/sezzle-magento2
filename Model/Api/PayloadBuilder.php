@@ -13,6 +13,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Helper\Util;
 
 /**
  * Class PayloadBuilder
@@ -74,6 +75,25 @@ class PayloadBuilder
             $orderPayload,
             $customerPayload
         );
+//        if (!$this->sezzleConfig->isInContextModeEnabled()
+//            || $this->sezzleHelper->isMobileOrTablet()) {
+//            $completeURL['complete_url'] = [
+//                "href" => $this->sezzleConfig->getCompleteUrl()
+//            ];
+//            $cancelURL['cancel_url'] = [
+//                "href" => $this->sezzleConfig->getCancelUrl()
+//            ];
+//            return array_merge(
+//                $completeURL,
+//                $cancelURL,
+//                $orderPayload,
+//                $customerPayload
+//            );
+//        }
+//        return array_merge(
+//            $orderPayload,
+//            $customerPayload
+//        );
     }
 
     /**
@@ -117,7 +137,7 @@ class PayloadBuilder
     private function getPriceObject($amount)
     {
         return [
-            "amount_in_cents" => $this->sezzleHelper->getAmountInCents($amount),
+            "amount_in_cents" => Util::formatToCents($amount),
             "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
         ];
     }
@@ -209,7 +229,7 @@ class PayloadBuilder
                 "sku" => $productSku,
                 "quantity" => $productQuantity,
                 "price" => [
-                    "amount_in_cents" => $this->sezzleHelper->getAmountInCents($item->getPriceInclTax()),
+                    "amount_in_cents" => Util::formatToCents($item->getPriceInclTax()),
                     "currency" => $currencyCode
                 ]
             ];
