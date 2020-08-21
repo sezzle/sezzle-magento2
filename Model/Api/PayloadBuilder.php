@@ -63,22 +63,15 @@ class PayloadBuilder
         $orderPayload = [];
         $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
-        if (!$this->sezzleConfig->isInContextModeEnabled()
-            || $this->sezzleHelper->isMobileOrTablet()) {
-            $completeURL['complete_url'] = [
-                "href" => $this->sezzleConfig->getCompleteUrl()
-            ];
-            $cancelURL['cancel_url'] = [
-                "href" => $this->sezzleConfig->getCancelUrl()
-            ];
-            return array_merge(
-                $completeURL,
-                $cancelURL,
-                $orderPayload,
-                $customerPayload
-            );
-        }
+        $completeURL['complete_url'] = [
+            "href" => $this->sezzleConfig->getCompleteUrl()
+        ];
+        $cancelURL['cancel_url'] = [
+            "href" => $this->sezzleConfig->getCancelUrl()
+        ];
         return array_merge(
+            $completeURL,
+            $cancelURL,
             $orderPayload,
             $customerPayload
         );
