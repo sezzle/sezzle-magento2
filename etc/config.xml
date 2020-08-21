@@ -21,7 +21,8 @@
                 <tokenize>1</tokenize>
                 <send_logs_via_cron>1</send_logs_via_cron>
                 <title>Sezzle</title>
-	        </sezzlepay>
+                <sort_order>1</sort_order>
+            </sezzlepay>
         </payment>
     </default>
 </config>
