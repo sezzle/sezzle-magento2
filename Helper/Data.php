@@ -12,7 +12,6 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
-use Magento\Framework\HTTP\Header;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Zend\Log\Logger;
 use Zend\Log\Writer\Stream;
@@ -39,10 +38,6 @@ class Data extends AbstractHelper
      * @var \Magento\Framework\Json\Helper\Data
      */
     private $jsonHelper;
-    /**
-     * @var Header
-     */
-    private $httpHeader;
 
     /**
      * Initialize dependencies.
@@ -51,19 +46,16 @@ class Data extends AbstractHelper
      * @param File $file
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
      * @param SezzleConfigInterface $sezzleConfig
-     * @param Header $httpHeader
      */
     public function __construct(
         Context $context,
         File $file,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
-        SezzleConfigInterface $sezzleConfig,
-        Header $httpHeader
+        SezzleConfigInterface $sezzleConfig
     ) {
         $this->file = $file;
         $this->jsonHelper = $jsonHelper;
         $this->sezzleConfig = $sezzleConfig;
-        $this->httpHeader = $httpHeader;
         parent::__construct($context);
     }
 
@@ -91,7 +83,7 @@ class Data extends AbstractHelper
      */
     public function isMobileOrTablet()
     {
-        $userAgent = $this->httpHeader->getHttpUserAgent();
+        $userAgent = $this->_httpHeader->getHttpUserAgent();
         return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 

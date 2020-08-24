@@ -157,23 +157,20 @@ class SaveHandler
     {
         $this->sezzleHelper->logSezzleActions("****Starting Sezzle Checkout****");
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
-        $this->sezzleHelper->logSezzleActions("Order ID from quote : " . $quote->getReservedOrderId());
+        $this->sezzleHelper->logSezzleActions("Customer Id : " . $quote->getCustomer()->getId());
 
-        if (!$quote->getCustomerIsGuest()) {
-            $customer = $quote->getCustomer();
-            $this->sezzleHelper->logSezzleActions("Customer Id : " . $customer->getId());
-            $billingAddress = $quote->getBillingAddress();
-            $shippingAddress = $quote->getShippingAddress();
-            if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
-                throw new NotFoundException(__("Please select an address"));
-            } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
-                $quote->setBillingAddress($shippingAddress);
-            }
+        $billingAddress = $quote->getBillingAddress();
+        $shippingAddress = $quote->getShippingAddress();
+        if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
+            throw new NotFoundException(__("Please select an address"));
+        } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
+            $quote->setBillingAddress($shippingAddress);
         }
 
         $payment = $quote->getPayment();
         $payment->setMethod(Sezzle::PAYMENT_CODE);
         $quote->reserveOrderId();
+        $this->sezzleHelper->logSezzleActions("Order ID from quote : " . $quote->getReservedOrderId());
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
         $additionalInformation[Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $payment->setAdditionalInformation($additionalInformation);

@@ -59,6 +59,7 @@
                     <field id="sort_order" translate="label" type="text" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sort Order</label>
                         <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/sezzlepay/sort_order</config_path>
                     </field>
                     <!--payment mode-->
                     <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">

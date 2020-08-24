@@ -19,8 +19,12 @@
                 <payment_action>authorize_capture</payment_action>
                 <active_in_context>0</active_in_context>
                 <tokenize>1</tokenize>
-                <send_logs_via_cron>1</send_logs_via_cron>
+                <sort_order>0</sort_order>
+                <send_logs_via_cron>0</send_logs_via_cron>
                 <title>Sezzle</title>
+                <active_in_context>0</active_in_context>
+                <settlement_reports>0</settlement_reports>
+                <static_widget>0</static_widget>
 	        </sezzlepay>
         </payment>
     </default>

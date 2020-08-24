@@ -8,55 +8,63 @@
 namespace Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice;
 
 use Closure;
-use Magento\Backend\App\Action;
-use Magento\Backend\Model\View\Result\Redirect;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Registry;
-use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Api\OrderRepositoryInterface as SezzlePluginOrderRepositoryInterface;
 use Magento\Sales\Controller\Adminhtml\Order\Invoice\NewAction;
 use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Service\InvoiceService;
 use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
  * Class NewActionPlugin
  * @package Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice
  */
-class NewActionPlugin extends NewAction
+class NewActionPlugin
 {
     /**
-     * @var SezzlePluginOrderRepositoryInterface
+     * @var OrderRepositoryInterface
      */
-    private $sezzlePluginOrderRepositoryInterface;
+    private $orderRepositoryInterface;
     /**
      * @var Sezzle
      */
     private $sezzleModel;
+    /**
+     * @var ManagerInterface
+     */
+    private $messageManager;
+    /**
+     * @var RedirectFactory
+     */
+    private $resultRedirectFactory;
+    /**
+     * @var RequestInterface
+     */
+    private $request;
 
     /**
      * NewActionPlugin constructor.
-     * @param Action\Context $context
-     * @param Registry $registry
-     * @param PageFactory $resultPageFactory
-     * @param InvoiceService $invoiceService
-     * @param SezzlePluginOrderRepositoryInterface $sezzlePluginOrderRepositoryInterface
+     * @param OrderRepositoryInterface $orderRepositoryInterface
      * @param Sezzle $sezzleModel
-     * @param SezzlePluginOrderRepositoryInterface|null $orderRepository
+     * @param ManagerInterface $messageManager
+     * @param RedirectFactory $resultRedirectFactory
+     * @param RequestInterface $request
      */
     public function __construct(
-        Action\Context $context,
-        Registry $registry,
-        PageFactory $resultPageFactory,
-        InvoiceService $invoiceService,
-        SezzlePluginOrderRepositoryInterface $sezzlePluginOrderRepositoryInterface,
+        OrderRepositoryInterface $orderRepositoryInterface,
         Sezzle $sezzleModel,
-        OrderRepositoryInterface $orderRepository = null
+        ManagerInterface $messageManager,
+        RedirectFactory $resultRedirectFactory,
+        RequestInterface $request
     ) {
         $this->sezzleModel = $sezzleModel;
-        $this->sezzlePluginOrderRepositoryInterface = $sezzlePluginOrderRepositoryInterface;
-        parent::__construct($context, $registry, $resultPageFactory, $invoiceService, $orderRepository);
+        $this->orderRepositoryInterface = $orderRepositoryInterface;
+        $this->messageManager = $messageManager;
+        $this->resultRedirectFactory = $resultRedirectFactory;
+        $this->request = $request;
     }
 
     /**
@@ -64,17 +72,17 @@ class NewActionPlugin extends NewAction
      *
      * @param NewAction $subject
      * @param Closure $proceed
-     * @return Redirect
+     * @return \Magento\Framework\Controller\Result\Redirect
      */
     public function aroundExecute(
         NewAction $subject,
         Closure $proceed
     ) {
-        $orderId = $this->getRequest()->getParam('order_id');
+        $orderId = $this->request->getParam('order_id');
 
         try {
             /** @var Order $order */
-            $order = $this->sezzlePluginOrderRepositoryInterface->get($orderId);
+            $order = $this->orderRepositoryInterface->get($orderId);
             if ($order->getPayment()->getMethod() === Sezzle::PAYMENT_CODE
                     && !$this->sezzleModel->canInvoice($order)) {
                 throw new LocalizedException(
@@ -84,7 +92,9 @@ class NewActionPlugin extends NewAction
             return $proceed();
         } catch (LocalizedException $exception) {
             $this->messageManager->addErrorMessage($exception->getMessage());
-            return $this->_redirectToOrder($orderId);
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setPath('sales/order/view', ['order_id' => $orderId]);
+            return $resultRedirect;
         }
     }
 }
