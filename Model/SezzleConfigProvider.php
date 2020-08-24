@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
@@ -42,6 +43,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
 
     /**
      * @return array
+     * @throws NoSuchEntityException
      */
     public function getConfig()
     {
@@ -51,7 +53,9 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'methodCode' => Sezzle::PAYMENT_CODE,
                     'isInContextCheckout' => (bool)$this->sezzleConfig->isInContextModeEnabled(),
                     'inContextMode' => $this->sezzleConfig->getInContextMode(),
-                    'isMobileOrTablet' => $this->sezzleConfig->isMobileOrTablet()
+                    'isMobileOrTablet' => $this->sezzleConfig->isMobileOrTablet(),
+                    'inContextTransactionMode' => $this->sezzleConfig->getPaymentMode(),
+                    'inContextApiVersion' => 'v2'
                 ]
             ]
         ];

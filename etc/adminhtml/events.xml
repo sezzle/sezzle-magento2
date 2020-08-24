@@ -9,6 +9,6 @@
 
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="sales_order_payment_void">
-        <observer name="Sezzle_Sezzlepay_sales_order_payment_void" instance="Sezzle\Sezzlepay\Observer\OrderStatusChangeOnVoidObserver" />
+        <observer name="sezzle_sales_order_payment_void" instance="Sezzle\Sezzlepay\Observer\OrderStatusChangeOnVoidObserver" />
     </event>
 </config>

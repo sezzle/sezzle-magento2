@@ -3,13 +3,14 @@
     <policies>
         <policy id="script-src">
             <values>
-                <value id="sezzle-sdk" type="host">www.sezzle.com</value>
+                <value id="sezzle-sdk" type="host">checkout-sdk.sezzle.com</value>
+                <value id="sandbox-sezzle-sdk" type="host">sandbox.checkout-sdk.sezzle.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="sezzle-incontext-checkout" type="host">www.sezzle.com</value>
-                <value id="sandbox-sezzle-incontext-checkout" type="host">www.sandbox.sezzle.com</value>
+                <value id="sezzle-incontext-checkout" type="host">checkout.sezzle.com</value>
+                <value id="sandbox-sezzle-incontext-checkout" type="host">sandbox.checkout.sezzle.com</value>
             </values>
         </policy>
     </policies>

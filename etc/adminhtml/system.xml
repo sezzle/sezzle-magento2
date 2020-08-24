@@ -55,6 +55,12 @@
                         <comment>Look for this in your Sezzle Dashboard</comment>
                         <config_path>payment/sezzlepay/merchant_id</config_path>
                     </field>
+                    <!--sort order-->
+                    <field id="sort_order" translate="label" type="text" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/sezzlepay/sort_order</config_path>
+                    </field>
                     <!--payment mode-->
                     <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Mode</label>
@@ -90,6 +96,9 @@
                 </group>
                 <group id="sezzle_payment_in_context" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[In-Context Settings]]></label>
+                    <field id="simplepath" type="text" translate="label comment" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\InContextInfo</frontend_model>
+                    </field>
                     <!-- active_in_context -->
                     <field id="active_in_context" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enable In-Context Solution</label>
