@@ -29,6 +29,7 @@ use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Helper\Util;
 
 /**
  * Class Sezzle
@@ -333,7 +334,7 @@ class Sezzle extends AbstractMethod
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
 
-        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
+        $amountInCents = Util::formatToCents($amount);
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         $sezzleOrderUUID = "";
         if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
@@ -372,7 +373,7 @@ class Sezzle extends AbstractMethod
             throw new LocalizedException(__('Invalid amount for capture.'));
         }
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
+        $amountInCents = Util::formatToCents($amount);
         $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
         if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
             $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
@@ -415,7 +416,7 @@ class Sezzle extends AbstractMethod
             throw new LocalizedException(__('Failed to void the payment.'));
         }
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $amountInCents = $this->sezzleHelper->getAmountInCents($payment->getOrder()->getBaseGrandTotal());
+        $amountInCents = Util::formatToCents($payment->getOrder()->getBaseGrandTotal());
 
         $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_LINK);
         $this->v2->release($url, $orderUUID, $amountInCents);
@@ -445,7 +446,7 @@ class Sezzle extends AbstractMethod
             throw new LocalizedException(__('Unable to validate the order.'));
         }
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
+        $amountInCents = Util::formatToCents($amount);
         $sezzleOrderType = $payment->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
         if ($sezzleOrderType == self::API_V2) {
             if (!$sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
@@ -587,7 +588,7 @@ class Sezzle extends AbstractMethod
     private function handleV1Capture($payment, $amount)
     {
         $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1);
-        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
+        $amountInCents = Util::formatToCents($amount);
         if (!$orderReferenceID) {
             throw new LocalizedException(__("Unable to capture. Order Reference ID is missing."));
         }
@@ -611,8 +612,8 @@ class Sezzle extends AbstractMethod
     private function handleV2Capture($payment, $amount)
     {
         $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
-        $amountInCents = $this->sezzleHelper->getAmountInCents($amount);
-        $orderTotalInCents = $this->sezzleHelper->getAmountInCents($payment->getOrder()->getBaseGrandTotal());
+        $amountInCents = Util::formatToCents($amount);
+        $orderTotalInCents = Util::formatToCents($payment->getOrder()->getBaseGrandTotal());
         $this->sezzleHelper->logSezzleActions("Order UUID : $sezzleOrderUUID");
         $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_CAPTURE_LINK);
         $this->v2->capture($url, $sezzleOrderUUID, $amountInCents, $amountInCents < $orderTotalInCents);

@@ -52,7 +52,9 @@ define([
          */
         getSDKConfig: function () {
             return {
-                'mode': this.clientConfig.inContextMode
+                'mode': this.clientConfig.inContextMode,
+                'apiMode': this.clientConfig.inContextTransactionMode,
+                'apiVersion': this.clientConfig.inContextApiVersion
             };
         },
 
@@ -234,6 +236,8 @@ define([
             this.clientConfig.sezzleButtonContainerElementID = "sezzle-smart-button-container";
             this.clientConfig.formKey = $.mage.cookies.get('form_key');
             this.clientConfig.inContextMode = window.checkoutConfig.payment.sezzlepay.inContextMode;
+            this.clientConfig.inContextTransactionMode = window.checkoutConfig.payment.sezzlepay.inContextTransactionMode;
+            this.clientConfig.inContextApiVersion = window.checkoutConfig.payment.sezzlepay.inContextApiVersion;
 
             return this.clientConfig;
         }
