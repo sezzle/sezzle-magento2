@@ -87,11 +87,8 @@ class PayloadBuilder
      */
     private function buildOrderPayload($quote, $reference)
     {
-        $intent = $this->sezzleConfig->getPaymentAction() == Sezzle::ACTION_AUTHORIZE_CAPTURE
-            ? "CAPTURE"
-            : "AUTH";
         $orderPayload = [
-            "intent" => $intent,
+            "intent" => "AUTH",
             "reference_id" => $reference,
             "description" => $this->storeManager->getStore()->getName(),
             "requires_shipping_info" => false,
