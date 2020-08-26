@@ -1,3 +1,9 @@
+<p align="center">
+    <a href="https://sezzle.com">
+        <img src="https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg" width="300px" alt="Sezzle" />
+    </a>
+</p>
+
 ## Sezzle Extension for Magento 2
 
 ## Introduction
@@ -74,19 +80,35 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
 * Set the `Merchant UUID`, `Public Key` and `Private Key`.
 * Set `Payment Action` as `Authorize only` for doing payment authorization only and `Authorize and Capture` for doing instant capture.
-* Set the Merchant Country as per the origin.
+* Set the `Merchant Country` as per the origin.
 * Set `Min Checkout Amount` to restrict Sezzle payment method below that amount.
 * Set `Payment from Applicable Countries` to `Specific Countries`.
 * Set `Payment from Specific Countries` to `United States` or `Canada` as Sezzle is currently available for US and Canada only.
 * Set `Enable Customer Tokenization` to `Yes` for allowing Sezzle to tokenize the customer account if they approve it. If customer wish to tokenize their account, next time, they don't have to redirect to Sezzle Checkout for completing the purchase, rather it will happen in your website.
 * Save the configuration and clear the cache.
 
+### InContext Configuration
+
+* Set `Enable In-Context Solution` to `Yes` for the InContext Checkout to get activated.
+* Set `In-Context Checkout Mode` to `IFrame` or `PopUp` depending on how you want Sezzle Checkout to get hosted. 
+
+### Settlement Report Configuration
+
+* Set `Enable Settlement Reports` to `Yes` for the Settlement Reports Dashboard to get activated.
+* Set `Range` to a value based on which you want to fetch the Settlement Reports.
+* Set `Enable Automatic Syncing` to fetch the Settlement Reports asynchronously.
+* Set `Schedule` and `Time of Day` based on which the above automatic sync will work.
+
+_**Note** : Automatic Syncing will occur using cron. Make sure, cron is enabled before you enable it._
+
 ### Widget Configuration
 
-* Make sure to put `<div id='sezzle-widget'/>` after the price element in the PDP and Cart theme files once you have enabled the below options.
+* Set `Enable Static Widget Module` to `Yes` if you want to load the Sezzle Widget from your server else widget will be loaded from Sezzle server.
 * Set `Enable Widget in PDP` to `Yes` for adding widget script in the Product Display Page which will help in enabling `Sezzle Widget` Modal in PDP.
 * Set `Enable Widget in Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Sezzle Widget` Modal in Cart Page.
 * Save the configuration and clear the cache.
+
+_**Note** : Make sure to put `<div id='sezzle-widget'/>` after the price element in the PDP and Cart theme files once you have enabled `Static Widget` Module._
 
 ### Developer Configuration
 
@@ -148,21 +170,43 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Status as `Refunded` means payment is refunded.
 * Status as `Deleted due to checkout not being captured before expiration` means either payment was not captured in time or the payment is released.
 
+## Customer Tokenization Details
+
+* Login to `Magento` admin and navigate to `Customers > All Customers`.
+* Go inside a customer for which you want to see the tokenization details.
+* `Sezzle` tab will appear if the customer is tokenized.
+* `Customer UUID`, `Expiration Date` and `Status` will appear.
+
+## Settlement Reports
+
+* Login to `Magento` admin and navigate to `Reports > Sales > Sezzle Settlement`.
+* List of the latest Settlement Reports will be shown.
+* To make a quick sync, enter the `From` and `To` Date and click on `Sync`.
+* Click on `Download` from the `Action` column for downloading a Settlement Report.
+* For viewing the details of a particular Settlement Report, click on `View` from `Action` column.
+* Settlement Report details can also be downloaded by entering inside the Settlement Report view.
+* Settlement Report can be downloaded via `CSV` or `Excel` and Settlement Report Details will be downloaded via `CSV`.
+
 ## How Sandbox works?
 
 * In the `Sezzle` configuration page of your `Magento` admin, enter the `Sandbox` `API Keys` from your [`Sezzle Merchant Sandbox Dashboard`](https://sandbox.dashboard.sezzle.com/merchant/) and set the `Payment Mode` to `Sandbox`, then save the configuration. Make sure you are doing this on your `dev/staging` website.
 * On your website, add an item to the cart, then proceed to `Checkout` and select `Sezzle` as the payment method.
-* Click `Continue` then `Place Order` and you should be redirected to the `Sezzle Checkout` page. If prompted, sign in and continue.
+* Depending on the Checkout mode, Place Order button will appear
+    * Normally, it would be `Continue to Sezzle` if customer is not tokenized.
+    * `Place Order`, if customer if tokenized.
+    * `Pay with Sezzle`, which is a customized Sezzle Button will appear for `InContext` Checkout.
+* For `InContext Checkout`, you will see `Sezzle Checkout` hosted in `IFrame` or `PopUp` depending on the mode used. In other cases, it will be a redirection to `Sezzle Checkout`.
+* Sign In or Sign Up to continue.
 * Enter the payment details using test data, then move to final page.
 * Check the `Approve {Website Name} to process payments from your Sezzle account for future transactions. You may revoke this authorization at any time in your Sezzle Dashboard` to tokenize your account.
 * If your account is already tokenized, order will be placed without redirection otherwise you will be redirected to Sezzle Checkout for completing the purchase.
-* After the payment is completed at `Sezzle`, you should be redirected back to your website and see a successful payment page.
+* After the payment is completed at `Sezzle`, you should be redirected back to your website only if the checkout is not `InContext` and see a successful payment page.
 * `Sandbox` testing is complete. You can login to your `Sezzle Merchant Sandbox Dashboard` to see the test order you just placed.
 
 ## Troubleshooting/Debugging
 * There is logging enabled by `Sezzle` for tracing the `Sezzle` actions.
 * In case merchant is facing issues which is unknown to `Merchant Success` and `Support` team, they can ask for this logs and forward to the `Platform Integrations` team.
-* Name of the log should be like `sezzle.log`.It is always recommended to send the `system.log` and `exception.log` for better tracing of issues.
+* Name of the log should be like `sezzlepay.log`.It is always recommended to send the `system.log` and `exception.log` for better tracing of issues.
 
 ## Docker Environment Set Up
 
