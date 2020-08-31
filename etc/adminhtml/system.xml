@@ -82,7 +82,7 @@
                         <config_path>payment/sezzlepay/tokenize</config_path>
                     </field>
                     <!--sort order-->
-                    <field id="sort_order" translate="label" type="text" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sort Order</label>
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/sezzlepay/sort_order</config_path>

@@ -32,8 +32,10 @@ define(
                     var self = this;
 
                     self.$sezzleConfig = $('#sezzle_config');
-                    self.$sezzlementHeader = $('#payment_' + self.getCountry() + '_' + self.selector
+                    self.$sezzlePaymentHeader = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_payment-head');
+                    self.$sezzlePayment = $('#payment_' + self.getCountry() + '_' + self.selector
+                        + '_payment');
                     self.$sezzleMerchantUUID = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_payment_merchant_uuid').val();
                     self.$container = $('#sezzle_config');
@@ -89,8 +91,8 @@ define(
                  */
                 showSezzleConfig: function () {
                     this.$sezzleConfig.show();
-                    if (this.$sezzlementHeader.hasClass('open')) {
-                        this.$sezzlementHeader.click();
+                    if (this.$sezzlePaymentHeader.hasClass('open')) {
+                        this.$sezzlePaymentHeader.click();
                     }
                 },
 
@@ -99,8 +101,9 @@ define(
                  */
                 hideSezzleConfig: function () {
                     this.$sezzleConfig.hide();
-                    if (!this.$sezzlementHeader.hasClass('open')) {
-                        this.$sezzlementHeader.click();
+                    if (!this.$sezzlePaymentHeader.hasClass('open')) {
+                        this.$sezzlePaymentHeader.addClass('open');
+                        this.$sezzlePayment.css("display", "block");
                     }
                 },
 
