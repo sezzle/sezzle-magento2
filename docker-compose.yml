@@ -1,29 +1,27 @@
-version: "3.6"
+version: '3.6'
 services:
-  web:
-      build: .
-      container_name: sezzle_magento2
-      ports:
-      - "8085:80"
-      links:
-        - db
-      volumes:
-      - .:/var/www/html/app/code/Sezzle/Sezzlepay
-      env_file:
-        - docker.env
-  db:
-      image: mysql:5.6.23
-      container_name: sezzle_magento2_db
-      volumes:
-          - db-data:/var/lib/mysql/data
-      env_file:
-          - docker.env
-  phpmyadmin:
-      image: phpmyadmin/phpmyadmin
-      container_name: sezzle_magento2_phpmyadmin
-      ports:
-          - "8580:80"
-      links:
-          - db
+  magento2:
+    container_name: sezzle_magento2
+    build:
+      context: ./internal
+      args:
+        MAGENTO_VERSION: 2.3.5
+    restart: always
+    ports:
+      - 80:8080
+    env_file:
+      - ./internal/docker.env
+    volumes:
+      - ./:/var/www/html/app/code/Sezzle/Sezzlepay
+    depends_on:
+      - magento2_db
+  magento2_db:
+    container_name: sezzle_magento2_db
+    image: mysql:5.7
+    restart: always
+    env_file:
+      - ./internal/docker.env
+    volumes:
+      - database:/var/lib/mysql
 volumes:
-  db-data:
+  database:
