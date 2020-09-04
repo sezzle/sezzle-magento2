@@ -131,7 +131,7 @@ class PayloadBuilder
         $billingAddress = $quote->getBillingAddress();
         $tokenize = $this->sezzleConfig->isInContextCheckout()
             ? false
-            : $this->sezzleConfig->isTokenizationAllowed();
+            : $this->sezzleConfig->isTokenizationAllowed() && !$quote->getCustomerIsGuest();
         return [
             "tokenize" => $tokenize,
             "email" => $quote->getCustomerEmail(),
