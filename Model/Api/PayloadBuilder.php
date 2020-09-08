@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
@@ -34,21 +35,28 @@ class PayloadBuilder
      * @var Data
      */
     private $sezzleHelper;
+    /**
+     * @var TimezoneInterface timezone
+     */
+    private $timezone;
 
     /**
      * PayloadBuilder constructor.
      * @param StoreManagerInterface $storeManager
      * @param SezzleConfigInterface $sezzleConfig
      * @param Data $sezzleHelper
+     * @param TimezoneInterface $timezone
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         SezzleConfigInterface $sezzleConfig,
-        Data $sezzleHelper
+        Data $sezzleHelper,
+        TimezoneInterface $timezone
     ) {
         $this->storeManager = $storeManager;
         $this->sezzleConfig = $sezzleConfig;
         $this->sezzleHelper = $sezzleHelper;
+        $this->timezone = $timezone;
     }
 
     /**
@@ -98,11 +106,24 @@ class PayloadBuilder
                 ->getBaseShippingAmount()),
             "tax_amount" => $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount()),
             "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal()),
+            "checkout_expiration" => $this->getOrderCheckoutExpiration()
         ];
         if ($this->sezzleConfig->isInContextCheckout()) {
             return array_merge($orderPayload, ['checkout_mode' => $this->sezzleConfig->getInContextMode()]);
         }
         return $orderPayload;
+    }
+
+    /**
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    private function getOrderCheckoutExpiration()
+    {
+        $configuredDaysOffset = $this->sezzleConfig->getAuthorizationDuration();
+        return $this->timezone->date(
+            strtotime(sprintf("+%s days", $configuredDaysOffset), time())
+        )->format("c");
     }
 
     /**
