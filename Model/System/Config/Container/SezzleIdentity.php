@@ -25,6 +25,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
     const XML_PATH_PAYMENT_ACTION = 'payment/sezzlepay/payment_action';
+    const XML_PATH_AUTHORIZATION_DURATION = 'payment/sezzlepay/authorization_duration';
     const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
     const XML_PATH_STATIC_WIDGET = 'payment/sezzlepay/static_widget';
     const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
@@ -84,6 +85,17 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_PAYMENT_MODE,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAuthorizationDuration()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_AUTHORIZATION_DURATION,
             $this->getStore()->getStoreId()
         );
     }

@@ -38,6 +38,13 @@ interface SezzleConfigInterface extends IdentityInterface
     public function getPaymentMode();
 
     /**
+     * Get authorization duration in days.
+     * @return string|null
+     * @throws NoSuchEntityException
+     */
+    public function getAuthorizationDuration();
+
+    /**
      * Get Merchant UUID
      * @return string|null
      * @throws NoSuchEntityException
