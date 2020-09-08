@@ -17,6 +17,7 @@
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>1</log_tracker>
                 <payment_action>authorize_capture</payment_action>
+                <authorization_duration>7</authorization_duration>
                 <active_in_context>0</active_in_context>
                 <tokenize>1</tokenize>
                 <sort_order>0</sort_order>

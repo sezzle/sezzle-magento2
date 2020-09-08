@@ -74,6 +74,14 @@
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\PaymentAction</source_model>
                         <config_path>payment/sezzlepay/payment_action</config_path>
                     </field>
+                    <field id="authorization_duration" translate="label comment" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Authorization duration</label>
+                        <comment>Authorization duration in days (default is 7 days)</comment>
+                        <config_path>payment/sezzlepay/authorization_duration</config_path>
+                        <depends>
+                            <field id="payment_action">authorize</field>
+                        </depends>
+                    </field>
                     <!-- tokenize -->
                     <field id="tokenize" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Customer Tokenization?</label>
