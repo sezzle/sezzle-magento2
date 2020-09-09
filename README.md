@@ -135,6 +135,7 @@ _**Note** : Make sure to put `<div id='sezzle-widget'/>` after the price element
     * Go the order and click on `Invoice`.
     * Verify your input in the `Create Invoice` page and click on `Save` to create the invoice.
     * This will automatically capture the payment in `Sezzle`.
+    * Payment can also be captured via Magento 2 Invoice API.
 
 ## Refund Payment
 
@@ -143,6 +144,7 @@ _**Note** : Make sure to put `<div id='sezzle-widget'/>` after the price element
 * Click on `Credit Memo` and verify your input in the `Create Credit Memo` page.
 * Save it and the refunded will be initiated in `Sezzle`.
 * In `Sezzle Merchant Dashboard`, `Order Status` as `Refunded` means payment has been fully refunded and `Order Status` as `Partially Refunded` means payment has been partially refunded.
+* Payment can also be refunded via Magento 2 Refund API.
 
 ## Release Payment
 
@@ -151,6 +153,7 @@ _**Note** : Make sure to put `<div id='sezzle-widget'/>` after the price element
 * Click on `Void` and confirm your action.
 * In `Sezzle Merchant Dashboard`, `Order Status` as `Deleted due to checkout not being captured before expiration` means payment has been fully released.
 * Only Full Release is supported from Magento.
+* Payment can also be released via Magento 2 Void API.
 
 ## Order Verification in Magento Admin
 
