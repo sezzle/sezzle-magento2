@@ -1,0 +1,12 @@
+apiVersion: v2
+name: magento2AppFrontends
+type: application
+version: 0.1.0
+appVersion: 1.0.0
+description: Magento 2 extension for Sezzle
+home: https://gitlab.sezzle.com/Frontend/magento2AppFrontends
+dependencies:
+- name: webservice
+  version: 0.1.0
+  repository: git+https://gitlab.sezzle.com/DevOps/charts@webservice?ref=production
+

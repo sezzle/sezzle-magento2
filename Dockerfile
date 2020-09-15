@@ -1,6 +1,6 @@
 FROM trafex/alpine-nginx-php7
 
-ARG MAGENTO_VERSION
+ARG MAGENTO_VERSION=2.3.5
 
 ENV INSTALL_DIR /var/www/html
 ENV COMPOSER_HOME /var/www/.composer
@@ -19,9 +19,9 @@ RUN curl -sS https://getcomposer.org/installer | php && \
 
 RUN mkdir -p $COMPOSER_HOME && chown -R nobody:nobody $COMPOSER_HOME/
 
-COPY ./scripts/nginx.conf /etc/nginx/nginx.conf
-COPY ./scripts/install.sh /usr/local/bin/install
-COPY ./scripts/process.sh /usr/local/bin/process
+COPY ./internal/scripts/nginx.conf /etc/nginx/nginx.conf
+COPY ./internal/scripts/install.sh /usr/local/bin/install
+COPY ./internatl/scripts/process.sh /usr/local/bin/process
 RUN chmod +x /usr/local/bin/install
 RUN chmod +x /usr/local/bin/process
 

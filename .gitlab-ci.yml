@@ -1,0 +1,6 @@
+include:
+  - project: 'DevOps/templates'
+    file: '/docker.yml'
+  - project: 'DevOps/templates'
+    file: '/k8s/deploy.yml'
+

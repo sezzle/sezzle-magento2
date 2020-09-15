@@ -1,0 +1,17 @@
+webservice:
+  # Team this service is owned by
+  team: integrations
+  # Number of required pods
+  replicaCount: 1
+  # Image for this pod
+  image:
+    repository: registry.sezzle.com/frontends/magento2AppFrontends
+    pullPolicy: IfNotPresent
+  hpa:
+    enabled: false
+  # Override for Docker COMMAND
+  args: ["install"]
+  # Extra environment variables to mount
+  extraEnvs:
+  - name: foo
+    value: bar
