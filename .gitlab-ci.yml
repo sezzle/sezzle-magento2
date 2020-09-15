@@ -1,3 +1,41 @@
+# GLOBAL DEFAULTS #
+stages:
+  - test
+  - build
+  - deploy
+  
+image: registry.sezzle.com/devops/jenkins:latest
+
+variables:
+  # DEFAULT CHART PATH
+  CHART_PATH: "./deploy"
+  # HELM CONFIG #
+  HELM_DRIVER: "configmap"
+
+  # K8S CONFIG #
+  ## Configuration for the k8s environment.
+  production_ns: "production"
+  staging_ns: "staging"
+  sandbox_ns: ""
+
+# global rules
+workflow:
+  # only run when one of theses are true
+  rules:
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH == "production"
+    - if: $CI_COMMIT_BRANCH == "sandbox"
+    # if this is a branch commit and it isn't tied to an MR
+    # then a pipeline will not run.
+    
+# global before script 
+default:
+  before_script:
+    - mkdir -p ~ 
+    - echo -e "machine gitlab.sezzle.com\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
+
 include:
   - project: 'DevOps/templates'
     file: '/docker.yml'
