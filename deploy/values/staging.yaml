@@ -5,7 +5,7 @@ webservice:
   replicaCount: 1
   # Image for this pod
   image:
-    repository: registry.sezzle.com/frontends/magento2AppFrontends
+    repository: registry.sezzle.com/frontend/magento2AppFrontends
     pullPolicy: IfNotPresent
   hpa:
     enabled: false
