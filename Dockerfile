@@ -21,7 +21,7 @@ RUN mkdir -p $COMPOSER_HOME && chown -R nobody:nobody $COMPOSER_HOME/
 
 COPY ./internal/scripts/nginx.conf /etc/nginx/nginx.conf
 COPY ./internal/scripts/install.sh /usr/local/bin/install
-COPY ./internatl/scripts/process.sh /usr/local/bin/process
+COPY ./internal/scripts/process.sh /usr/local/bin/process
 RUN chmod +x /usr/local/bin/install
 RUN chmod +x /usr/local/bin/process
 
