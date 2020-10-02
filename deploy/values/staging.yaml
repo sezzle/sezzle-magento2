@@ -13,5 +13,45 @@ webservice:
   args: ["install"]
   # Extra environment variables to mount
   extraEnvs:
-  - name: foo
-    value: bar
+  - name: MYSQL_HOST
+    value:
+  - name: MYSQL_DATABASE
+    value: magento2
+  - name: MYSQL_ROOT_PASSWORD
+    value:
+  - name: MYSQL_USER
+    value:
+  - name: MYSQL_PASSWORD
+    value:
+  - name: MAGENTO_VERSION
+    value: 2.3.5
+  - name: MAGENTO_LOCALE
+    value: en_US
+  - name: MAGENTO_TIMEZONE
+    value: America/Los_Angeles
+  - name: MAGENTO_DEFAULT_CURRENCY
+    value: USD
+  - name: MAGENTO_URL
+    value:
+  - name: MAGENTO_BACKEND_FRONTNAME
+    value: admin
+  - name: MAGENTO_USE_SECURE
+    value: 0
+  - name: MAGENTO_BASE_URL_SECURE
+    value: 0
+  - name: MAGENTO_USE_SECURE_ADMIN
+    value: 0
+  - name: MAGENTO_ADMIN_FIRSTNAME
+    value: Sezzle
+  - name: MAGENTO_ADMIN_LASTNAME
+    value: Dev
+  - name: MAGENTO_ADMIN_EMAIL
+    value: info@sezzle.com
+  - name: MAGENTO_ADMIN_USERNAME
+    value: admin
+  - name: MAGENTO_ADMIN_PASSWORD
+    value: abcd.1234
+  - name: MAGENTO_CUSTOMER_EMAIL
+    value: dev@sezzle.com
+  - name: MAGENTO_CUSTOMER_PASSWORD
+    value: abcd.1234
