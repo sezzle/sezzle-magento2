@@ -1,0 +1,13 @@
+<div class="primary">
+    <button class="action primary checkout"
+            type="submit"
+            data-bind="
+                        click: placeOrderWithSezzle,
+                        attr: {title: getSubmitButtonName()},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: isPlaceOrderActionAllowed()
+                        "
+            disabled>
+        <span data-bind="i18n: getSubmitButtonName()"></span>
+    </button>
+</div>
