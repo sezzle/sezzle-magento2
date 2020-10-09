@@ -29,16 +29,23 @@ class SezzleConfigProvider implements ConfigProviderInterface
     private $sezzleHelper;
 
     /**
+     * @var \Magento\Framework\Module\Manager
+     */
+    private $moduleManager;
+
+    /**
      * SezzleConfigProvider constructor.
      * @param SezzleConfigInterface $sezzleConfig
      * @param Data $sezzleHelper
      */
     public function __construct(
         SezzleConfigInterface $sezzleConfig,
-        Data $sezzleHelper
+        Data $sezzleHelper,
+        \Magento\Framework\Module\Manager $moduleManager
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -55,7 +62,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'inContextMode' => $this->sezzleConfig->getInContextMode(),
                     'isMobileOrTablet' => $this->sezzleConfig->isMobileOrTablet(),
                     'inContextTransactionMode' => $this->sezzleConfig->getPaymentMode(),
-                    'inContextApiVersion' => 'v2'
+                    'inContextApiVersion' => 'v2',
+                    'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout')
                 ]
             ]
         ];

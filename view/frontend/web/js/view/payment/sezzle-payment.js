@@ -17,8 +17,10 @@ define(
 
         var isInContextCheckout = window.checkoutConfig.payment.sezzlepay.isInContextCheckout,
             isMobileOrTablet = window.checkoutConfig.payment.sezzlepay.isMobileOrTablet,
+            isAheadworksCheckoutEnabled = window.checkoutConfig.payment.sezzlepay.isAheadworksCheckoutEnabled,
             sezzleComponent = 'Sezzle_Sezzlepay/js/view/payment/method-renderer' +
-                ((isInContextCheckout && !isMobileOrTablet) ? '/in-context/sezzle' : '/sezzle');
+                ((!isAheadworksCheckoutEnabled && (isInContextCheckout && !isMobileOrTablet)) ? '/in-context/sezzle' : '/sezzle');
+
 
         rendererList.push(
             {

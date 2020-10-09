@@ -1,3 +1,12 @@
+<!-- ko if: isInContextCheckout() -->
+<div class="primary"
+     id="sezzle-smart-button-container"
+     templateText="Pay with %%logo%%"
+     borderType="semi-rounded"
+     customClass="action,primary,checkout"
+     afterRender="initSezzleSDKCheckout"></div>
+<!-- /ko -->
+<!-- ko ifnot: isInContextCheckout() -->
 <div class="primary">
     <button class="action primary checkout"
             type="submit"
@@ -11,3 +20,4 @@
         <span data-bind="i18n: getSubmitButtonName()"></span>
     </button>
 </div>
+<!-- /ko -->
