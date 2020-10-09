@@ -42,7 +42,6 @@ define(
              */
             hasCustomerUUID: function () {
                 var customerCustomAttributes = customer.customerData.custom_attributes;
-                console.log(customerCustomAttributes);
                 return !(customerCustomAttributes === undefined
                     || customerCustomAttributes.sezzle_customer_uuid === undefined
                     || !customerCustomAttributes.sezzle_customer_uuid.value);
