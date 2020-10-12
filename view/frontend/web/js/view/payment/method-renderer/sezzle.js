@@ -42,9 +42,9 @@ define(
              */
             hasCustomerUUID: function () {
                 var customerCustomAttributes = customer.customerData.custom_attributes;
-                return !(customerCustomAttributes === undefined
-                    || customerCustomAttributes.sezzle_customer_uuid === undefined
-                    || !customerCustomAttributes.sezzle_customer_uuid.value);
+                return customerCustomAttributes !== undefined
+                    && customerCustomAttributes.sezzle_customer_uuid !== undefined
+                    && customerCustomAttributes.sezzle_customer_uuid.value;
             },
 
             /**
