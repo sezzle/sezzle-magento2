@@ -215,7 +215,7 @@ class Sezzle extends AbstractMethod
         $additionalInformation[self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $redirectURL = '';
         if ((!$this->sezzleConfig->isInContextModeEnabled()
-            || $this->sezzleConfig->isMobileOrTablet())
+                || $this->sezzleConfig->isMobileOrTablet())
             && $quote->getCustomer()
             && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
             $this->sezzleHelper->logSezzleActions("Tokenized Checkout");
@@ -333,12 +333,13 @@ class Sezzle extends AbstractMethod
         }
         $this->sezzleHelper->logSezzleActions("****Authorization start****");
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
 
         $amountInCents = Util::formatToCents($amount);
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
-        $sezzleOrderUUID = "";
-        if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
+        if (!$sezzleOrderUUID && ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID))) {
             $this->tokenizeModel->createOrder($payment, $amountInCents);
+            $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
         }
         if (!$this->validateOrder($payment)) {
             throw new LocalizedException(__('Unable to validate the order.'));
@@ -375,16 +376,16 @@ class Sezzle extends AbstractMethod
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $amountInCents = Util::formatToCents($amount);
         $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
-        if ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
+        $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
+        if (!$sezzleOrderUUID && ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID))) {
+            $this->tokenizeModel->createOrder($payment, $amountInCents);
             $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
-            if (!$sezzleOrderUUID) {
-                $this->tokenizeModel->createOrder($payment, $amountInCents);
-            }
         }
         if (!$this->validateOrder($payment)) {
             throw new LocalizedException(__('Unable to validate the order.'));
         }
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
+        $this->sezzleHelper->logSezzleActions("Order UUID : $sezzleOrderUUID");
         $sezzleOrderType = $payment->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
         $this->sezzleHelper->logSezzleActions("Sezzle Order Type : $sezzleOrderType");
         if ($sezzleOrderType == self::API_V2) {
@@ -422,7 +423,7 @@ class Sezzle extends AbstractMethod
         $this->v2->release($url, $orderUUID, $amountInCents);
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT, $payment->getOrder()->getBaseGrandTotal());
         $payment->getOrder()->setState(Order::STATE_CLOSED)
-                ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
+            ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
         $this->sezzleHelper->logSezzleActions("Released payment successfully");
         $this->sezzleHelper->logSezzleActions("****Release end****");
 
