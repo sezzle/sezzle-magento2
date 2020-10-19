@@ -384,6 +384,21 @@ class Sezzle extends AbstractMethod
         if (!$this->validateOrder($payment)) {
             throw new LocalizedException(__('Unable to validate the order.'));
         }
+        $currentInvoice = $this->_registry->registry('current_invoice');
+        $this->sezzleHelper->logSezzleActions("Invoice : ".$currentInvoice->getIncrementId());
+//        if (!$this->canInvoice($payment->getOrder())) {
+//            $currentInvoice = $this->_registry->registry('current_invoice');
+//            $this->sezzleHelper->logSezzleActions("Invoice : $currentInvoice");
+////            $response = $this->v2->reauthorizeOrder("", $sezzleOrderUUID, $amountInCents);
+////            if (!$response->getApproved()) {
+////                throw new LocalizedException(__('ReAuthorization is not approved by Sezzle.'));
+////            }
+////            if ($sezzleOrderUUID = $response->getUuid()) {
+////                $payment->setAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
+////            }
+////            $currentInvoice = $this->_registry->registry('current_invoice');
+////            $this->sezzleHelper->logSezzleActions("Invoice : $currentInvoice");
+//        }
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
         $this->sezzleHelper->logSezzleActions("Order UUID : $sezzleOrderUUID");
         $sezzleOrderType = $payment->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
@@ -558,7 +573,9 @@ class Sezzle extends AbstractMethod
      */
     public function canInvoice($order)
     {
-        if ($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE) {
+        $paymentType = $order->getPayment()->getAdditionalInformation('payment_type');
+        if ($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE
+            && $paymentType === self::ACTION_AUTHORIZE) {
             $sezzleOrderType = $order->getPayment()->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
             $currentTimestamp = $this->dateTime->timestamp('now');
             if ($sezzleOrderType == Sezzle::API_V2) {

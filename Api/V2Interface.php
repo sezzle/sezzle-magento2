@@ -122,4 +122,15 @@ interface V2Interface
      * @throws NoSuchEntityException
      */
     public function getSettlementDetails($payoutUUID);
+
+    /**
+     * Reauthorize Payment by Order UUID
+     *
+     * @param string $url
+     * @param string $orderUUID
+     * @param int $amount
+     * @return AuthorizationInterface
+     * @throws LocalizedException
+     */
+    public function reauthorizeOrder($url, $orderUUID, $amount);
 }
