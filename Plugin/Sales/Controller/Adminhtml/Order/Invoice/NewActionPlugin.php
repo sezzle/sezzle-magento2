@@ -83,12 +83,12 @@ class NewActionPlugin
         try {
             /** @var Order $order */
             $order = $this->orderRepositoryInterface->get($orderId);
-            if ($order->getPayment()->getMethod() === Sezzle::PAYMENT_CODE
-                    && !$this->sezzleModel->canInvoice($order)) {
-                throw new LocalizedException(
-                    __('Authorization expired. Invoice cannot be created anymore.')
-                );
-            }
+//            if ($order->getPayment()->getMethod() === Sezzle::PAYMENT_CODE
+//                    && !$this->sezzleModel->canInvoice($order)) {
+//                throw new LocalizedException(
+//                    __('Authorization expired. Invoice cannot be created anymore.')
+//                );
+//            }
             return $proceed();
         } catch (LocalizedException $exception) {
             $this->messageManager->addErrorMessage($exception->getMessage());

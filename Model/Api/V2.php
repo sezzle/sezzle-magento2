@@ -337,7 +337,7 @@ class V2 implements V2Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
+            return isset($body['uuid']) && $body['uuid'] ? $body['uuid'] : "";
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
@@ -368,7 +368,7 @@ class V2 implements V2Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
+            return isset($body['uuid']) && $body['uuid'] ? $body['uuid'] : "";
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

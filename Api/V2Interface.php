@@ -34,7 +34,7 @@ interface V2Interface
      * @param string $orderUUID
      * @param int $amount
      * @param bool $isPartialCapture
-     * @return bool
+     * @return string|null
      * @throws LocalizedException
      */
     public function capture($url, $orderUUID, $amount, $isPartialCapture);
@@ -45,7 +45,7 @@ interface V2Interface
      * @param string $url
      * @param string $orderUUID
      * @param int $amount
-     * @return bool
+     * @return string|null
      * @throws LocalizedException
      */
     public function refund($url, $orderUUID, $amount);
