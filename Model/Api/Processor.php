@@ -80,7 +80,6 @@ class Processor implements ProcessorInterface
         try {
             if ($authToken) {
                 $this->curl->addHeader("Authorization", "Bearer $authToken");
-                $this->curl->addHeader("Sezzle-Platform", "eyJpZCI6ImN5YmVyc291cmNlOmNlYjdmYmJiLWJiYTktNDA5OS05ZjA0LTg1OThjNzNkNTZkNiJ9");
             }
             $this->sezzleHelper->logSezzleActions("Auth token : $authToken");
             $this->sezzleHelper->logSezzleActions("****Request Info****");
