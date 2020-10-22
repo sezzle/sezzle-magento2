@@ -6,6 +6,38 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 5.0.2
+
+_Tue 19 Oct 2020_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- New Sezzle Checkout Button for InContext Checkout only.
+
+## Version 5.0.1
+
+_Tue 13 Oct 2020_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- Twice Checkout Creation on Auth Only Fix.
+
 ## Version 5.0.0
 
 _Tue 9 Sep 2020_
