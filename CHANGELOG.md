@@ -53,7 +53,6 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Twice Checkout Creation on Auth Only Fix.
->>>>>>> master
 
 ## Version 5.0.0
 
