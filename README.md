@@ -85,6 +85,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Set `Payment from Applicable Countries` to `Specific Countries`.
 * Set `Payment from Specific Countries` to `United States` or `Canada` as Sezzle is currently available for US and Canada only.
 * Set `Enable Customer Tokenization` to `Yes` for allowing Sezzle to tokenize the customer account if they approve it. If customer wish to tokenize their account, next time, they don't have to redirect to Sezzle Checkout for completing the purchase, rather it will happen in your website.
+* Set `Reauthorize Payment` to `Yes` for reauthorizing any expired payments. Note that this only works when tokenization is allowed.
 * Save the configuration and clear the cache.
 
 ### In-Context Configuration
