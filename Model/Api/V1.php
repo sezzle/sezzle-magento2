@@ -194,7 +194,7 @@ class V1 implements V1Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['refund_id']) && $body['refund_id'];
+            return (isset($body['refund_id']) && $body['refund_id']) ? $body['refund_id'] : "";
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

@@ -30,6 +30,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
     const XML_PATH_TOKENIZE = 'payment/sezzlepay/tokenize';
+    const XML_PATH_REAUTHORIZE = 'payment/sezzlepay/reauthorize';
 
     const XML_PATH_INCONTEXT_ACTIVE = 'payment/sezzlepay/active_in_context';
     const XML_PATH_INCONTEXT_MODE = 'payment/sezzlepay/in_context_mode';
@@ -188,6 +189,20 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_TOKENIZE,
+            $this->getStore()->getStoreId()
+        ) ? true : false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isReauthorizationAllowed()
+    {
+        if (!$this->isTokenizationAllowed() || $this->isInContextCheckout()) {
+            return false;
+        }
+        return $this->getConfigValue(
+            self::XML_PATH_REAUTHORIZE,
             $this->getStore()->getStoreId()
         ) ? true : false;
     }

@@ -195,12 +195,6 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                 </div>
                 <div class="admin__page-section-item-content">
                     <table class="admin__table-secondary order-information-table">
-                        <?php if ($sezzleOrderUUID = $block->getSezzleOrderUUID()) : ?>
-                            <tr>
-                                <th><?= $block->escapeHtml(__('Order UUID')) ?></th>
-                                <td><?= $block->escapeHtml($sezzleOrderUUID); ?></td>
-                            </tr>
-                        <?php endif; ?>
                         <?php if ($sezzleAuthAmount = $block->getSezzleAuthAmount()) : ?>
                             <tr>
                                 <th><?= $block->escapeHtml(__('Auth Amount')) ?></th>

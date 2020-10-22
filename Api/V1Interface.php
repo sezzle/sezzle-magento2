@@ -35,7 +35,7 @@ interface V1Interface
     /**
      * @param string $orderReferenceID
      * @param int $amount
-     * @return bool
+     * @return string|null
      * @throws NoSuchEntityException
      * @throws LocalizedException
      */

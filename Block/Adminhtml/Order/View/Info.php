@@ -226,6 +226,6 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      */
     public function getSezzleOrderUUID()
     {
-        return $this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_ORDER_UUID);
+        return $this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
     }
 }

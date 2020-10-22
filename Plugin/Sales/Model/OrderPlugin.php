@@ -43,6 +43,8 @@ class OrderPlugin
         $sezzleOrderType = $order->getPayment()->getAdditionalInformation(Sezzle::SEZZLE_ORDER_TYPE);
         if ($sezzleOrderType != Sezzle::API_V2) {
             return false;
+        } elseif ($order->hasInvoices()) {
+            return false;
         }
         return $result;
     }

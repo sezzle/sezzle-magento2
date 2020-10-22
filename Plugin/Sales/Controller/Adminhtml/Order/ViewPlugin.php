@@ -83,7 +83,7 @@ class ViewPlugin extends View
         $resultRedirect = $this->resultRedirectFactory->create();
         if ($order) {
             try {
-                $order->setActionFlag(Order::ACTION_FLAG_INVOICE, true);
+                $order->setActionFlag(Order::ACTION_FLAG_INVOICE, $this->sezzleModel->canInvoice($order));
                 $resultPage = $this->_initAction();
                 $resultPage->getConfig()->getTitle()->prepend(__('Orders'));
             } catch (\Exception $e) {
