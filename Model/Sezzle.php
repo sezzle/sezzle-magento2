@@ -420,7 +420,10 @@ class Sezzle extends AbstractMethod
         $amountInCents = Util::formatToCents($payment->getOrder()->getBaseGrandTotal());
 
         $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_LINK);
-        $this->v2->release($url, $orderUUID, $amountInCents);
+        $isReleased = $this->v2->release($url, $orderUUID, $amountInCents);
+        if (!$isReleased) {
+            throw new LocalizedException(__('Failed to void the payment.'));
+        }
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT, $payment->getOrder()->getBaseGrandTotal());
         $payment->getOrder()->setState(Order::STATE_CLOSED)
             ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
@@ -454,7 +457,10 @@ class Sezzle extends AbstractMethod
                 throw new LocalizedException(__('Failed to refund the payment. Order UUID is missing.'));
             }
             $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_LINK);
-            $this->v2->refund($url, $sezzleOrderUUID, $amountInCents);
+            $isRefunded = $this->v2->refund($url, $sezzleOrderUUID, $amountInCents);
+            if (!$isRefunded) {
+                throw new LocalizedException(__('Failed to refund the payment.'));
+            }
             $refundedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT);
             $refundedAmount += $amount;
             $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT, $refundedAmount);
@@ -463,7 +469,10 @@ class Sezzle extends AbstractMethod
             if (!$orderReferenceID) {
                 throw new LocalizedException(__('Failed to refund the payment. Order Reference ID is missing.'));
             }
-            $this->v1->refund($orderReferenceID, $amountInCents);
+            $isRefunded = $this->v1->refund($orderReferenceID, $amountInCents);
+            if (!$isRefunded) {
+                throw new LocalizedException(__('Failed to refund the payment.'));
+            }
         }
         $this->sezzleHelper->logSezzleActions("Refunded payment successfully");
         $this->sezzleHelper->logSezzleActions("****Refund end****");
@@ -599,7 +608,10 @@ class Sezzle extends AbstractMethod
         } elseif ($sezzleOrder->getCaptureExpiration() == null) {
             throw new LocalizedException(__('Unable to capture as the order is not authorized.'));
         }
-        $this->v1->capture($orderReferenceID);
+        $isCaptured = $this->v1->capture($orderReferenceID);
+        if (!$isCaptured) {
+            throw new LocalizedException(__("Failed to capture the amount."));
+        }
     }
 
     /**
@@ -617,7 +629,10 @@ class Sezzle extends AbstractMethod
         $orderTotalInCents = Util::formatToCents($payment->getOrder()->getBaseGrandTotal());
         $this->sezzleHelper->logSezzleActions("Order UUID : $sezzleOrderUUID");
         $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_CAPTURE_LINK);
-        $this->v2->capture($url, $sezzleOrderUUID, $amountInCents, $amountInCents < $orderTotalInCents);
+        $isCaptured = $this->v2->capture($url, $sezzleOrderUUID, $amountInCents, $amountInCents < $orderTotalInCents);
+        if (!$isCaptured) {
+            throw new LocalizedException(__("Failed to capture the amount."));
+        }
         if (!$payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID)) {
             $payment->setAdditionalInformation(
                 self::ADDITIONAL_INFORMATION_KEY_ORDER_UUID,
