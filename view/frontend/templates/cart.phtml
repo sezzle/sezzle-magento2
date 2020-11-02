@@ -17,7 +17,8 @@ use Sezzle\Sezzlepay\Block\Widget\Cart;
                 "is_static_widget" : <?php echo $block->isStaticWidgetEnabled(); ?>,
                 "merchant_uuid" : "<?php echo $block->getMerchantUUID(); ?>",
                 "price" : "<?php echo $block->getGrandTotal() ?>",
-                "alignment" : "<?php echo $block->getAlignment() ?>"
+                "alignment" : "<?php echo $block->getAlignment() ?>",
+                "is_cart" : true
             }
         }
     }
