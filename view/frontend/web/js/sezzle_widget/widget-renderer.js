@@ -13,12 +13,21 @@ define([
     'use strict';
 
     return Component.extend({
-        is_static_widget: false, merchant_uuid: null,
+        is_static_widget: false, merchant_uuid: null, is_cart: false,
 
         initialize: function () {
             this._super();
             if (this.is_static_widget) {
-                this.processStaticSezzleWidget();
+                if (!this.is_cart) {
+                    this.processStaticSezzleWidget();
+                    return;
+                }
+                setInterval(() => {
+                    if (document.getElementById("sezzle-widget")
+                        && !document.getElementById("sezzle-widget").innerHTML) {
+                        this.processStaticSezzleWidget();
+                    }
+                }, 300)
             } else {
                 if (this.merchant_uuid === null || this.merchant_uuid === 0) {
                     console.warn('Sezzle: merchant uuid not set, cannot render widget');
