@@ -6,6 +6,22 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 5.1.0
+
+_Tue 5 Nov 2020_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- Aheadworks OneStepCheckout Compatibility.
+
 ## Version 5.0.4
 
 _Tue 2 Nov 2020_

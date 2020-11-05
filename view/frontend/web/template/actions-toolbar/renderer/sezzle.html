@@ -1,0 +1,22 @@
+<!-- ko if: isInContextCheckout() -->
+<div class="primary"
+     id="sezzle-smart-button-container"
+     templateText="Pay with %%logo%%"
+     borderType="semi-rounded"
+     afterRender="initSezzleSDKCheckout"></div>
+<!-- /ko -->
+<!-- ko ifnot: isInContextCheckout() -->
+<div class="primary">
+    <button class="action primary checkout"
+            type="submit"
+            data-bind="
+                        click: placeOrderWithSezzle,
+                        attr: {title: getSubmitButtonName()},
+                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        enable: isPlaceOrderActionAllowed()
+                        "
+            disabled>
+        <span data-bind="i18n: getSubmitButtonName()"></span>
+    </button>
+</div>
+<!-- /ko -->
