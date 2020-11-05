@@ -215,9 +215,7 @@ class Sezzle extends AbstractMethod
         $this->sezzleHelper->logSezzleActions("Payment Type : " . $this->getConfigPaymentAction());
         $additionalInformation[self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $redirectURL = '';
-        if ((!$this->sezzleConfig->isInContextModeEnabled()
-                || $this->sezzleConfig->isMobileOrTablet())
-            && $quote->getCustomer()
+        if ($quote->getCustomer()
             && $this->tokenizeModel->isCustomerUUIDValid($quote)) {
             $this->sezzleHelper->logSezzleActions("Tokenized Checkout");
             $tokenizeInformation = [
@@ -381,7 +379,7 @@ class Sezzle extends AbstractMethod
             $this->tokenizeModel->createOrder($payment, $amountInCents);
             $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
         }
-        if (!$this->canInvoice($payment->getOrder())) {
+        if (!$this->canInvoice($payment->getOrder()) && $this->sezzleConfig->isReauthorizationAllowed()) {
             $response = $this->v2->reauthorizeOrder("", $sezzleOrderUUID, $amountInCents);
             if (!$response->getApproved()) {
                 throw new LocalizedException(__('ReAuthorization is not approved by Sezzle.'));
@@ -616,9 +614,7 @@ class Sezzle extends AbstractMethod
             }
             if ($expirationTimestamp < $currentTimestamp) {
                 $this->sezzleHelper->logSezzleActions("Authorization expired.");
-                $isReauthAllowed = $this->sezzleConfig->isReauthorizationAllowed();
-                $this->sezzleHelper->logSezzleActions("Reauthorize Flag : " . $isReauthAllowed);
-                return $isReauthAllowed;
+                return false;
             }
         }
         return true;

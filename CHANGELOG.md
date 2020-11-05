@@ -8,7 +8,7 @@
 
 ## Version 5.2.0
 
-_Tue 30 Oct 2020_
+_Tue 9 Nov 2020_
 
 ### Supported Editions & Versions
 
@@ -20,6 +20,24 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
+- Capability of reauthorizing expired orders.
+- Preference of tokenized checkout over in-context checkout.
+
+## Version 5.0.4
+
+_Tue 2 Nov 2020_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- Render the Sezzle Widget after the Order Totals section loads in Cart Page.
 - Capability of reauthorizing expired orders.
 
 ## Version 5.0.3

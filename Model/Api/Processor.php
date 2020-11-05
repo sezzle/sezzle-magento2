@@ -8,11 +8,13 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
  * Class Processor
@@ -44,42 +46,50 @@ class Processor implements ProcessorInterface
     protected $sezzleHelper;
 
     /**
+     * @var SezzleConfigInterface
+     */
+    private $sezzleConfig;
+
+    /**
      * Processor constructor.
      * @param Curl $curl
      * @param SezzleHelper $sezzleHelper
      * @param JsonHelper $jsonHelper
      * @param Logger $logger
      * @param ScopeConfig $scopeConfig
+     * @param SezzleConfigInterface $sezzleConfig
      */
     public function __construct(
         Curl $curl,
         SezzleHelper $sezzleHelper,
         JsonHelper $jsonHelper,
         Logger $logger,
-        ScopeConfig $scopeConfig
+        ScopeConfig $scopeConfig,
+        SezzleConfigInterface $sezzleConfig
     ) {
         $this->curl = $curl;
         $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
         $this->logger = $logger;
         $this->scopeConfig = $scopeConfig;
+        $this->sezzleConfig = $sezzleConfig;
     }
 
     /**
-     * Call to Sezzle Gateway
-     *
-     * @param $url
-     * @param $authToken
-     * @param bool $body
-     * @param string $method
-     * @return mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @inheritDoc
      */
     public function call($url, $authToken = null, $body = false, $method = ZendClient::GET)
     {
         try {
             if ($authToken) {
                 $this->curl->addHeader("Authorization", "Bearer $authToken");
+            }
+            if (strpos("reauthorize", $url) !== false) {
+                if (!$merchantUUID = $this->sezzleConfig->getMerchantUUID()) {
+                    throw new LocalizedException(__("Merchant UUID is missing."));
+                }
+                $platformKey = base64_encode("magento:" . $merchantUUID);
+                $this->curl->addHeader("Sezzle-Platform", $platformKey);
             }
             $this->sezzleHelper->logSezzleActions("Auth token : $authToken");
             $this->sezzleHelper->logSezzleActions("****Request Info****");
@@ -115,7 +125,7 @@ class Processor implements ProcessorInterface
             $this->sezzleHelper->logSezzleActions($responseLog);
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new \Magento\Framework\Exception\LocalizedException(
+            throw new LocalizedException(
                 __('Gateway error: %1', $e->getMessage())
             );
         }

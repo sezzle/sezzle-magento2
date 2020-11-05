@@ -11,7 +11,7 @@ var config = {
         }
     },
     paths: {
-        sezzleInContextCheckout: 'http://localhost/checkout-sdk-web/build/checkout.min'
+        sezzleInContextCheckout: 'https://checkout-sdk.sezzle.com/checkout'
     },
     shim: {
         sezzleInContextCheckout: {
