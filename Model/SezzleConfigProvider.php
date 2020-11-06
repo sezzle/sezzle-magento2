@@ -12,6 +12,7 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Module\Manager;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
@@ -39,6 +40,10 @@ class SezzleConfigProvider implements ConfigProviderInterface
      * @var Tokenize
      */
     private $tokenizeModel;
+    /**
+     * @var Manager
+     */
+    private $moduleManager;
 
     /**
      * SezzleConfigProvider constructor.
@@ -46,17 +51,20 @@ class SezzleConfigProvider implements ConfigProviderInterface
      * @param Data $sezzleHelper
      * @param Session $checkoutSession
      * @param Tokenize $tokenizeModel
+     * @param Manager $moduleManager
      */
     public function __construct(
         SezzleConfigInterface $sezzleConfig,
         Data $sezzleHelper,
         Session $checkoutSession,
-        Tokenize $tokenizeModel
+        Tokenize $tokenizeModel,
+        Manager $moduleManager
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
         $this->checkoutSession = $checkoutSession;
         $this->tokenizeModel = $tokenizeModel;
+        $this->moduleManager = $moduleManager;
     }
 
     /**
@@ -78,7 +86,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'allowInContextCheckout' => $allowInContextCheckout,
                     'inContextMode' => $this->sezzleConfig->getInContextMode(),
                     'inContextTransactionMode' => $this->sezzleConfig->getPaymentMode(),
-                    'inContextApiVersion' => 'v2'
+                    'inContextApiVersion' => 'v2',
+                    'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout')
                 ]
             ]
         ];

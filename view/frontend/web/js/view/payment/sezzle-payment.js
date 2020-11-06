@@ -14,10 +14,10 @@ define(
         rendererList
     ) {
         'use strict';
-
         var allowInContextCheckout = window.checkoutConfig.payment.sezzlepay.allowInContextCheckout,
+            isAheadworksCheckoutEnabled = window.checkoutConfig.payment.sezzlepay.isAheadworksCheckoutEnabled,
             sezzleComponent = 'Sezzle_Sezzlepay/js/view/payment/method-renderer' +
-                (allowInContextCheckout ? '/in-context/sezzle' : '/sezzle');
+                ((allowInContextCheckout && !isAheadworksCheckoutEnabled) ? '/in-context/sezzle' : '/sezzle');
 
         rendererList.push(
             {
