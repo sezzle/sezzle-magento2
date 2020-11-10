@@ -101,13 +101,6 @@ interface SezzleConfigInterface extends IdentityInterface
     public function isTokenizationAllowed();
 
     /**
-     * Get reauthorization status
-     * @return bool
-     * @throws NoSuchEntityException
-     */
-    public function isReauthorizationAllowed();
-
-    /**
      * Get complete url
      * @return bool
      * @throws NoSuchEntityException

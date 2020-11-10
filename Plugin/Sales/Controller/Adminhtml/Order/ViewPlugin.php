@@ -25,6 +25,7 @@ use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 class ViewPlugin extends View
 {
@@ -107,10 +108,11 @@ class ViewPlugin extends View
         $resultRedirect = $this->resultRedirectFactory->create();
         if ($order) {
             try {
+                $isTokenizedOrder = $order->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
                 $order->setActionFlag(
                     Order::ACTION_FLAG_INVOICE,
                     $this->sezzleModel->canInvoice($order)
-                || $this->sezzleConfig->isReauthorizationAllowed()
+                || $isTokenizedOrder
                 );
                 $resultPage = $this->_initAction();
                 $resultPage->getConfig()->getTitle()->prepend(__('Orders'));

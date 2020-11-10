@@ -18,6 +18,7 @@ use Magento\Sales\Controller\Adminhtml\Order\Invoice\NewAction;
 use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Class NewActionPlugin
@@ -91,11 +92,14 @@ class NewActionPlugin
         try {
             /** @var Order $order */
             $order = $this->orderRepositoryInterface->get($orderId);
+            $isTokenizedOrder = $order->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
             if ($order->getPayment()->getMethod() === Sezzle::PAYMENT_CODE
                 && (!$this->sezzleModel->canInvoice($order)
-                && !$this->sezzleConfig->isReauthorizationAllowed())) {
+                    && !$isTokenizedOrder)) {
                 throw new LocalizedException(
-                    __('Authorization expired. Invoice cannot be created anymore.')
+                    __(!$isTokenizedOrder
+                        ? 'Authorization expired. Requires a tokenized customer for creating invoice.'
+                        : 'Authorization expired. Invoice cannot be created anymore.')
                 );
             }
             return $proceed();
