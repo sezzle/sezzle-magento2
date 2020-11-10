@@ -609,17 +609,16 @@ class Sezzle extends AbstractMethod
             if ($sezzleOrderType == Sezzle::API_V2) {
                 $authExpiry = $order->getPayment()->getAdditionalInformation(self::SEZZLE_AUTH_EXPIRY);
                 $expirationTimestamp = $this->dateTime->timestamp($authExpiry);
-                $this->sezzleHelper->logSezzleActions("Authorization valid.");
             } else {
                 $captureExpiry = $order->getPayment()->getAdditionalInformation(self::SEZZLE_CAPTURE_EXPIRY);
                 $expirationTimestamp = $this->dateTime->timestamp($captureExpiry);
-                $this->sezzleHelper->logSezzleActions("Authorization valid.");
             }
             if ($expirationTimestamp < $currentTimestamp) {
                 $this->sezzleHelper->logSezzleActions("Authorization expired.");
                 return false;
             }
         }
+        $this->sezzleHelper->logSezzleActions("Authorization valid.");
         return true;
     }
 
