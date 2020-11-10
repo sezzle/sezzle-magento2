@@ -179,7 +179,7 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
     </div>
 </section>
 
-<?php if (($order->getPayment()->getMethod() == $block->getSezzlePaymentMethodCode())
+<?php if (($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE)
         && $block->getSezzleOrderType() == Sezzle::API_V2) : ?>
     <section class="admin__page-section order-view-account-information sezzle">
         <div class="admin__page-section-title">
