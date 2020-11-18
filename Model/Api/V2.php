@@ -418,6 +418,15 @@ class V2 implements V2Interface
                     $body['authorization'],
                     AuthorizationInterface::class
                 );
+                if (isset($body['authorization']['authorization_amount'])) {
+                    $amountModel = $this->amountInterfaceFactory->create();
+                    $this->dataObjectHelper->populateWithArray(
+                        $amountModel,
+                        $body['authorization']['authorization_amount'],
+                        AmountInterface::class
+                    );
+                    $authorizationModel->setAuthorizationAmount($amountModel);
+                }
                 $orderModel->setAuthorization($authorizationModel);
             }
             return $orderModel;

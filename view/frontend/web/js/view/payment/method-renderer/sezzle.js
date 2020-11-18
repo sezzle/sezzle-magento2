@@ -15,6 +15,8 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/url-builder',
         'Magento_Checkout/js/model/error-processor',
+        'Magento_Checkout/js/action/set-billing-address',
+        'Magento_Ui/js/model/messageList'
     ],
     function (
         $,
@@ -26,7 +28,9 @@ define(
         quote,
         fullScreenLoader,
         urlBuilder,
-        errorProcessor) {
+        errorProcessor,
+        setBillingAddressAction,
+        globalMessageList) {
         'use strict';
 
         var serviceUrl,
@@ -139,7 +143,11 @@ define(
              */
             continueToSezzle: function () {
                 if (this.validate() && additionalValidators.validate()) {
-                    this.handleRedirectAction();
+                    var self = this;
+                    setBillingAddressAction(globalMessageList).done(function () {
+                        self.handleRedirectAction();
+                    });
+
                 }
             }
         });

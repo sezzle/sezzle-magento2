@@ -19,13 +19,23 @@ class Info extends \Magento\Sales\Block\Order\Info
      */
     protected $_template = 'Sezzle_Sezzlepay::order/sezzle_order_reference.phtml';
 
+    /**
+     * Get Sezzle Reference ID
+     *
+     * @return string[]
+     */
     public function getSezzleOrderReferenceID()
     {
         return $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
     }
 
+    /**
+     * Determine Sezzle Order
+     *
+     * @return bool
+     */
     public function isSezzleOrder()
     {
-        return $this->getOrder()->getPayment()->getMethod();
+        return $this->getOrder()->getPayment()->getMethod() == Sezzle::PAYMENT_CODE;
     }
 }

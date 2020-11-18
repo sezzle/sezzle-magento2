@@ -21,9 +21,11 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Quote\Model\QuoteValidator;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
+use Sezzle\Sezzlepay\Model\AddressValidator;
 use Sezzle\Sezzlepay\Model\Api\PayloadBuilder;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\Tokenize;
@@ -93,6 +95,14 @@ class SaveHandler
      * @var UrlInterface
      */
     private $url;
+    /**
+     * @var QuoteValidator
+     */
+    private $quoteValidator;
+    /**
+     * @var AddressValidator
+     */
+    private $addressValidator;
 
     /**
      * SaveHandler constructor.
@@ -110,6 +120,8 @@ class SaveHandler
      * @param CartRepositoryInterface $cartRepository
      * @param PayloadBuilder $apiPayloadBuilder
      * @param UrlInterface $url
+     * @param QuoteValidator $quoteValidator
+     * @param AddressValidator $addressValidator
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -125,7 +137,9 @@ class SaveHandler
         Tokenize $tokenize,
         CartRepositoryInterface $cartRepository,
         PayloadBuilder $apiPayloadBuilder,
-        UrlInterface $url
+        UrlInterface $url,
+        QuoteValidator $quoteValidator,
+        AddressValidator $addressValidator
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -141,6 +155,8 @@ class SaveHandler
         $this->cartRepository = $cartRepository;
         $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->url = $url;
+        $this->quoteValidator = $quoteValidator;
+        $this->addressValidator = $addressValidator;
     }
 
     /**
@@ -159,13 +175,7 @@ class SaveHandler
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         $this->sezzleHelper->logSezzleActions("Customer Id : " . $quote->getCustomer()->getId());
 
-        $billingAddress = $quote->getBillingAddress();
-        $shippingAddress = $quote->getShippingAddress();
-        if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
-            throw new NotFoundException(__("Please select an address"));
-        } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
-            $quote->setBillingAddress($shippingAddress);
-        }
+        $this->addressValidator->validateAddress($quote);
 
         $payment = $quote->getPayment();
         $payment->setMethod(Sezzle::PAYMENT_CODE);
@@ -175,6 +185,7 @@ class SaveHandler
         $additionalInformation[Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $payment->setAdditionalInformation($additionalInformation);
         $quote->setPayment($payment);
+        $this->quoteValidator->validateBeforeSubmit($quote);
         $this->cartRepository->save($quote);
         $this->checkoutSession->replaceQuote($quote);
         if ($createSezzleCheckout) {
