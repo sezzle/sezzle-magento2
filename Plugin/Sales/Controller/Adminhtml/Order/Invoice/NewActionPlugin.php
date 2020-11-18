@@ -92,12 +92,12 @@ class NewActionPlugin
         try {
             /** @var Order $order */
             $order = $this->orderRepositoryInterface->get($orderId);
-            $isTokenizedOrder = $order->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
+            $isTokenizedAllowed = $this->sezzleConfig->isTokenizationAllowed();
             if ($order->getPayment()->getMethod() === Sezzle::PAYMENT_CODE
                 && (!$this->sezzleModel->canInvoice($order)
-                    && !$isTokenizedOrder)) {
+                    && !$isTokenizedAllowed)) {
                 throw new LocalizedException(
-                    __(!$isTokenizedOrder
+                    __(!$isTokenizedAllowed
                         ? 'Authorization expired. Requires a tokenized customer for creating invoice.'
                         : 'Authorization expired. Invoice cannot be created anymore.')
                 );

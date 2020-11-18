@@ -22,12 +22,14 @@ interface ProcessorInterface
      * @param string $authToken
      * @param bool|array $body
      * @param string $method
-     * @return mixed
+     * @param bool $getResponseStatusCode
+     * @return array|string
      */
     public function call(
         $url,
         $authToken = null,
         $body = false,
-        $method = ZendClient::GET
+        $method = ZendClient::GET,
+        $getResponseStatusCode = false
     );
 }

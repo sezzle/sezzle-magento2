@@ -108,11 +108,11 @@ class ViewPlugin extends View
         $resultRedirect = $this->resultRedirectFactory->create();
         if ($order) {
             try {
-                $isTokenizedOrder = $order->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
+                $isTokenizedAllowed = $this->sezzleConfig->isTokenizationAllowed();
                 $order->setActionFlag(
                     Order::ACTION_FLAG_INVOICE,
                     $this->sezzleModel->canInvoice($order)
-                || $isTokenizedOrder
+                || $isTokenizedAllowed
                 );
                 $resultPage = $this->_initAction();
                 $resultPage->getConfig()->getTitle()->prepend(__('Orders'));

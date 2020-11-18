@@ -380,7 +380,7 @@ class Sezzle extends AbstractMethod
             $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
         }
         if (!$this->canInvoice($payment->getOrder())) {
-            if (!$isTokenizedOrder = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
+            if (!$isTokenizedAllowed = $this->sezzleConfig->isTokenizationAllowed()) {
                 throw new LocalizedException(__('Invoice operation is not permitted. Requires a tokenized customer.'));
             }
             $response = $this->v2->reauthorizeOrder("", $sezzleOrderUUID, $amountInCents);

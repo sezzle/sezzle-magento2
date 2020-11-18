@@ -8,7 +8,7 @@
 
 ## Version 5.2.0
 
-_Tue 10 Nov 2020_
+_Tue 12 Nov 2020_
 
 ### Supported Editions & Versions
 
@@ -22,6 +22,22 @@ Tested and verified in clean installations of Magento 2:
 
 - Capability of reauthorizing expired orders.
 - Preference of tokenized checkout over in-context checkout.
+
+## Version 5.1.1
+
+_Tue 10 Nov 2020_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- FIX : Visibility of Sezzle Information section for other payment method's order in Admin Panel.
 
 ## Version 5.1.0
 

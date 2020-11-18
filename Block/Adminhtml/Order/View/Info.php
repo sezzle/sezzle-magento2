@@ -210,18 +210,6 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * @return string|null
-     */
-    public function getSezzlePaymentMethodCode()
-    {
-        try {
-            return $this->getOrder()->getPayment()->getMethod();
-        } catch (LocalizedException $e) {
-            return null;
-        }
-    }
-
-    /**
      * @return string[]|null
      */
     public function getSezzleOrderUUID()
