@@ -704,7 +704,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('Gateway reauthorize payment error: %1', $e->getMessage())
+                __('Capturing expired auth error : %1', $e->getMessage())
             );
         }
     }

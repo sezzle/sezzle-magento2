@@ -223,9 +223,18 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                             <tr>
                                 <th><?= $block->escapeHtml(__('Auth Expiry')) ?></th>
                                 <td>
-                                    <strong>
-                                        <?= $block->escapeHtml($sezzleAuthExpiry); ?> <br>
-                                    </strong>
+                                    <?php if ($block->isAuthExpired()) : ?>
+                                    <style>
+                                        .sezzle-auth-expiry {
+                                            color: #ff0000
+                                        }
+                                    </style>
+                                    <?php endif; ?>
+                                    <span class="sezzle-auth-expiry">
+                                        <strong>
+                                            <?= $block->escapeHtml($sezzleAuthExpiry); ?> <br>
+                                        </strong>
+                                    </span>
                                 </td>
                             </tr>
                         <?php endif; ?>
