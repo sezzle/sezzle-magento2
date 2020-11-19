@@ -24,7 +24,6 @@ Tested and verified in clean installations of Magento 2:
 - Additional Address validator added.
 - Copying of Shipping Address to Billing Address if any of the required field is empty.
 - Setting Billing Address once again on clicking Place Order to make sure it does not reach backend as empty. 
-- Amount Validation added for auth, capture and refund. 
 
 ## Version 5.1.1
 
