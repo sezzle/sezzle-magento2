@@ -8,7 +8,7 @@
 
 ## Version 5.2.0
 
-_Tue 12 Nov 2020_
+_Tue 23 Nov 2020_
 
 ### Supported Editions & Versions
 
@@ -22,6 +22,7 @@ Tested and verified in clean installations of Magento 2:
 
 - Capability of reauthorizing expired orders.
 - Preference of tokenized checkout over in-context checkout.
+- FIX:Showing of Sezzle Referece ID in all orders in Storefront.
 
 ## Version 5.1.1
 
