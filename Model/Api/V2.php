@@ -52,6 +52,7 @@ class V2 implements V2Interface
     const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/capture";
     const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/refund";
     const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/release";
+    const SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT = "/v2/order/%s/reauthorize";
     const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/v2/customer/%s/order";
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
 
@@ -235,7 +236,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway authentication error: %1', $e->getMessage())
+                __('Gateway authentication error: %1', $e->getMessage())
             );
         }
     }
@@ -306,7 +307,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway checkout error: %1', $e->getMessage())
+                __('Gateway checkout error: %1', $e->getMessage())
             );
         }
     }
@@ -336,11 +337,11 @@ class V2 implements V2Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
+            return isset($body['uuid']) && $body['uuid'] ? $body['uuid'] : "";
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway capture error: %1', $e->getMessage())
+                __('Gateway capture error: %1', $e->getMessage())
             );
         }
     }
@@ -367,11 +368,11 @@ class V2 implements V2Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['uuid']);
+            return isset($body['uuid']) && $body['uuid'] ? $body['uuid'] : "";
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway refund error: %1', $e->getMessage())
+                __('Gateway refund error: %1', $e->getMessage())
             );
         }
     }
@@ -424,7 +425,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway order error: %1', $e->getMessage())
+                __('Gateway order error: %1', $e->getMessage())
             );
         }
     }
@@ -457,7 +458,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway customer error: %1', $e->getMessage())
+                __('Gateway customer error: %1', $e->getMessage())
             );
         }
     }
@@ -514,7 +515,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway create order error: %1', $e->getMessage())
+                __('Gateway create order error: %1', $e->getMessage())
             );
         }
     }
@@ -563,7 +564,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway get token error: %1', $e->getMessage())
+                __('Gateway get token error: %1', $e->getMessage())
             );
         }
     }
@@ -594,7 +595,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway release payment error: %1', $e->getMessage())
+                __('Gateway release payment error: %1', $e->getMessage())
             );
         }
     }
@@ -624,7 +625,7 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway get settlement summaries error: %1', $e->getMessage())
+                __('Gateway get settlement summaries error: %1', $e->getMessage())
             );
         }
     }
@@ -647,7 +648,63 @@ class V2 implements V2Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V2 Gateway get settlement details error: %1', $e->getMessage())
+                __('Gateway get settlement details error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reauthorizeOrder($url, $orderUUID, $amount)
+    {
+        if (!$url) {
+            $reauthEndpoint = sprintf(self::SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT, $orderUUID);
+            $url = $this->sezzleConfig->getSezzleBaseUrl() . $reauthEndpoint;
+        }
+        $auth = $this->authenticate();
+        $payload = [
+            "amount_in_cents" => $amount,
+            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                $payload,
+                ZendClient::POST,
+                true
+            );
+            $body = $this->jsonHelper->jsonDecode($response["body"]);
+            $responseStatusCode = $response["status_code"];
+            if ($responseStatusCode == 422) {
+                throw new \Exception(__("Tokenized customer not found."));
+            }
+            $authorizationModel = $this->authorizationInterfaceFactory->create();
+            $this->dataObjectHelper->populateWithArray(
+                $authorizationModel,
+                $body,
+                AuthorizationInterface::class
+            );
+            $linksArray = [];
+            if (isset($body['links']) && is_array($body['links'])) {
+                foreach ($body['links'] as $link) {
+                    $linksModel = $this->linkInterfaceFactory->create();
+                    $this->dataObjectHelper->populateWithArray(
+                        $linksModel,
+                        $link,
+                        LinkInterface::class
+                    );
+                    $linksArray[] = $linksModel;
+                }
+                $authorizationModel->setLinks($linksArray);
+            }
+            $authorizationModel->setApproved(isset($body['authorization']['approved']));
+            return $authorizationModel;
+        } catch (\Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Capturing expired auth error : %1', $e->getMessage())
             );
         }
     }

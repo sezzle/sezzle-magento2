@@ -9,7 +9,7 @@ namespace Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice;
 
 use Closure;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
@@ -17,6 +17,8 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Controller\Adminhtml\Order\Invoice\NewAction;
 use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Class NewActionPlugin
@@ -44,6 +46,10 @@ class NewActionPlugin
      * @var RequestInterface
      */
     private $request;
+    /**
+     * @var SezzleConfigInterface
+     */
+    private $sezzleConfig;
 
     /**
      * NewActionPlugin constructor.
@@ -52,19 +58,22 @@ class NewActionPlugin
      * @param ManagerInterface $messageManager
      * @param RedirectFactory $resultRedirectFactory
      * @param RequestInterface $request
+     * @param SezzleConfigInterface $sezzleConfig
      */
     public function __construct(
         OrderRepositoryInterface $orderRepositoryInterface,
         Sezzle $sezzleModel,
         ManagerInterface $messageManager,
         RedirectFactory $resultRedirectFactory,
-        RequestInterface $request
+        RequestInterface $request,
+        SezzleConfigInterface $sezzleConfig
     ) {
         $this->sezzleModel = $sezzleModel;
         $this->orderRepositoryInterface = $orderRepositoryInterface;
         $this->messageManager = $messageManager;
         $this->resultRedirectFactory = $resultRedirectFactory;
         $this->request = $request;
+        $this->sezzleConfig = $sezzleConfig;
     }
 
     /**
@@ -72,7 +81,7 @@ class NewActionPlugin
      *
      * @param NewAction $subject
      * @param Closure $proceed
-     * @return \Magento\Framework\Controller\Result\Redirect
+     * @return Redirect
      */
     public function aroundExecute(
         NewAction $subject,
@@ -83,10 +92,14 @@ class NewActionPlugin
         try {
             /** @var Order $order */
             $order = $this->orderRepositoryInterface->get($orderId);
+            $isTokenizedAllowed = $this->sezzleConfig->isTokenizationAllowed();
             if ($order->getPayment()->getMethod() === Sezzle::PAYMENT_CODE
-                    && !$this->sezzleModel->canInvoice($order)) {
+                && (!$this->sezzleModel->canInvoice($order)
+                    && !$isTokenizedAllowed)) {
                 throw new LocalizedException(
-                    __('Authorization expired. Invoice cannot be created anymore.')
+                    __(!$isTokenizedAllowed
+                        ? 'Authorization expired. Requires a tokenized customer for creating invoice.'
+                        : 'Authorization expired. Invoice cannot be created anymore.')
                 );
             }
             return $proceed();
