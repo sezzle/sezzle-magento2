@@ -7,8 +7,12 @@
 
 namespace Sezzle\Sezzlepay\Model;
 
+use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Module\Manager;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
@@ -29,7 +33,15 @@ class SezzleConfigProvider implements ConfigProviderInterface
     private $sezzleHelper;
 
     /**
-     * @var \Magento\Framework\Module\Manager
+     * @var Session
+     */
+    private $checkoutSession;
+    /**
+     * @var Tokenize
+     */
+    private $tokenizeModel;
+    /**
+     * @var Manager
      */
     private $moduleManager;
 
@@ -37,30 +49,42 @@ class SezzleConfigProvider implements ConfigProviderInterface
      * SezzleConfigProvider constructor.
      * @param SezzleConfigInterface $sezzleConfig
      * @param Data $sezzleHelper
+     * @param Session $checkoutSession
+     * @param Tokenize $tokenizeModel
+     * @param Manager $moduleManager
      */
     public function __construct(
         SezzleConfigInterface $sezzleConfig,
         Data $sezzleHelper,
-        \Magento\Framework\Module\Manager $moduleManager
+        Session $checkoutSession,
+        Tokenize $tokenizeModel,
+        Manager $moduleManager
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
+        $this->checkoutSession = $checkoutSession;
+        $this->tokenizeModel = $tokenizeModel;
         $this->moduleManager = $moduleManager;
     }
 
     /**
      * @return array
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|LocalizedException
+     * @throws Exception
      */
     public function getConfig()
     {
+        $quote = $this->checkoutSession->getQuote();
+        $isTokenizeCheckoutAllowed = $this->tokenizeModel->isCustomerUUIDValid($quote);
+        $isInContextCheckout = (bool)$this->sezzleConfig->isInContextModeEnabled();
+        $isMobileOrTablet = $this->sezzleConfig->isMobileOrTablet();
+        $allowInContextCheckout = $isInContextCheckout && !$isTokenizeCheckoutAllowed && !$isMobileOrTablet;
         return [
             'payment' => [
                 Sezzle::PAYMENT_CODE => [
                     'methodCode' => Sezzle::PAYMENT_CODE,
-                    'isInContextCheckout' => (bool)$this->sezzleConfig->isInContextModeEnabled(),
+                    'allowInContextCheckout' => $allowInContextCheckout,
                     'inContextMode' => $this->sezzleConfig->getInContextMode(),
-                    'isMobileOrTablet' => $this->sezzleConfig->isMobileOrTablet(),
                     'inContextTransactionMode' => $this->sezzleConfig->getPaymentMode(),
                     'inContextApiVersion' => 'v2',
                     'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout')

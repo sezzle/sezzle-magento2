@@ -20,7 +20,7 @@ class Info extends \Magento\Sales\Block\Order\Info
     protected $_template = 'Sezzle_Sezzlepay::order/sezzle_order_reference.phtml';
 
     /**
-     * Get Sezzle Reference ID
+     * Get Sezzle Order Reference ID
      *
      * @return string[]
      */
@@ -30,7 +30,7 @@ class Info extends \Magento\Sales\Block\Order\Info
     }
 
     /**
-     * Determine Sezzle Order
+     * Check if current order is Sezzle Order
      *
      * @return bool
      */

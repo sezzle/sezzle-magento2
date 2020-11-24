@@ -157,7 +157,7 @@ class Tokenize
             throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
         }
         if ($sezzleOrderUUID = $response->getUuid()) {
-            $payment->setAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_ORDER_UUID, $sezzleOrderUUID);
+            $payment->setAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID, $sezzleOrderUUID);
         }
         if (is_array($response->getLinks())) {
             foreach ($response->getLinks() as $link) {

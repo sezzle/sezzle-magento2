@@ -24,6 +24,8 @@ use Magento\Sales\Model\Order;
 use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 class ViewPlugin extends View
 {
@@ -35,7 +37,28 @@ class ViewPlugin extends View
      * @var Sezzle
      */
     private $sezzleModel;
+    /**
+     * @var SezzleConfigInterface
+     */
+    private $sezzleConfig;
 
+    /**
+     * ViewPlugin constructor.
+     * @param Action\Context $context
+     * @param Registry $coreRegistry
+     * @param FileFactory $fileFactory
+     * @param InlineInterface $translateInline
+     * @param PageFactory $resultPageFactory
+     * @param JsonFactory $resultJsonFactory
+     * @param LayoutFactory $resultLayoutFactory
+     * @param RawFactory $resultRawFactory
+     * @param OrderManagementInterface $orderManagement
+     * @param OrderRepositoryInterface $orderRepository
+     * @param LoggerInterface $logger
+     * @param Data $sezzleHelper
+     * @param Sezzle $sezzleModel
+     * @param SezzleConfigInterface $sezzleConfig
+     */
     public function __construct(
         Action\Context $context,
         Registry $coreRegistry,
@@ -49,10 +72,12 @@ class ViewPlugin extends View
         OrderRepositoryInterface $orderRepository,
         LoggerInterface $logger,
         Data $sezzleHelper,
-        Sezzle $sezzleModel
+        Sezzle $sezzleModel,
+        SezzleConfigInterface $sezzleConfig
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleModel = $sezzleModel;
+        $this->sezzleConfig = $sezzleConfig;
         parent::__construct(
             $context,
             $coreRegistry,
@@ -83,7 +108,12 @@ class ViewPlugin extends View
         $resultRedirect = $this->resultRedirectFactory->create();
         if ($order) {
             try {
-                $order->setActionFlag(Order::ACTION_FLAG_INVOICE, $this->sezzleModel->canInvoice($order));
+                $isTokenizedAllowed = $this->sezzleConfig->isTokenizationAllowed();
+                $order->setActionFlag(
+                    Order::ACTION_FLAG_INVOICE,
+                    $this->sezzleModel->canInvoice($order)
+                || $isTokenizedAllowed
+                );
                 $resultPage = $this->_initAction();
                 $resultPage->getConfig()->getTitle()->prepend(__('Orders'));
             } catch (\Exception $e) {

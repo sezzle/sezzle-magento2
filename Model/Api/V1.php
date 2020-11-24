@@ -142,7 +142,7 @@ class V1 implements V1Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V1 Gateway authentication error: %1', $e->getMessage())
+                __('Gateway authentication error: %1', $e->getMessage())
             );
         }
     }
@@ -167,7 +167,7 @@ class V1 implements V1Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V1 Gateway capture error: %1', $e->getMessage())
+                __('Gateway capture error: %1', $e->getMessage())
             );
         }
     }
@@ -194,11 +194,11 @@ class V1 implements V1Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['refund_id']) && $body['refund_id'];
+            return (isset($body['refund_id']) && $body['refund_id']) ? $body['refund_id'] : "";
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V1 Gateway refund error: %1', $e->getMessage())
+                __('Gateway refund error: %1', $e->getMessage())
             );
         }
     }
@@ -229,7 +229,7 @@ class V1 implements V1Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V1 Gateway get order error: %1', $e->getMessage())
+                __('Gateway get order error: %1', $e->getMessage())
             );
         }
     }
@@ -260,7 +260,7 @@ class V1 implements V1Interface
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
-                __('V1 Gateway log error: %1', $e->getMessage())
+                __('Gateway log error: %1', $e->getMessage())
             );
         }
     }
