@@ -38,7 +38,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_CRON_LOGS = 'payment/sezzlepay/send_logs_via_cron';
 
     private $liveGatewayUrl = "https://gateway.sezzle.com";
-    private $sandboxGatewayUrl = "https://staging.gateway.sezzle.com";
+    private $sandboxGatewayUrl = "https://sandbox.gateway.sezzle.com";
 
     const XML_PATH_SETTLEMENT_REPORTS = 'payment/sezzlepay/settlement_reports';
     const XML_PATH_SETTLEMENT_REPORTS_RANGE = 'payment/sezzlepay/settlement_reports_range';
