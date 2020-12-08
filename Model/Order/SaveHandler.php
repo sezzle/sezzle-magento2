@@ -21,6 +21,7 @@ use Magento\Framework\UrlInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
@@ -93,6 +94,10 @@ class SaveHandler
      * @var UrlInterface
      */
     private $url;
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
 
     /**
      * SaveHandler constructor.
@@ -110,6 +115,7 @@ class SaveHandler
      * @param CartRepositoryInterface $cartRepository
      * @param PayloadBuilder $apiPayloadBuilder
      * @param UrlInterface $url
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -125,7 +131,8 @@ class SaveHandler
         Tokenize $tokenize,
         CartRepositoryInterface $cartRepository,
         PayloadBuilder $apiPayloadBuilder,
-        UrlInterface $url
+        UrlInterface $url,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -141,6 +148,7 @@ class SaveHandler
         $this->cartRepository = $cartRepository;
         $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->url = $url;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -205,21 +213,11 @@ class SaveHandler
     {
         $orderId = $quote->getReservedOrderId();
         $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
-
-        $this->checkoutSession
-            ->setLastQuoteId($quote->getId())
-            ->setLastSuccessQuoteId($quote->getId())
-            ->clearHelperData();
-        $this->sezzleHelper->logSezzleActions("Set data on checkout session");
-
-        $quote->collectTotals();
-        /** @var Order $order */
-        $order = $this->quoteManagement->submit($quote);
-        if ($order) {
+        $orderId = $this->quoteManagement->placeOrder($quote->getId());
+        if ($orderId) {
+            /** @var Order $order */
+            $order = $this->orderRepository->get($orderId);
             $this->sezzleHelper->logSezzleActions("Order created");
-            $this->checkoutSession->setLastOrderId($order->getId())
-                ->setLastRealOrderId($order->getIncrementId())
-                ->setLastOrderStatus($order->getStatus());
             // send email
             try {
                 $this->orderSender->send($order);
@@ -232,6 +230,6 @@ class SaveHandler
                 );
             }
         }
-        return $order->getId();
+        return $orderId;
     }
 }
