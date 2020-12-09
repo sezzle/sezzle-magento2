@@ -18,19 +18,22 @@ define([
         checkoutSDK.init({
             onClick: function () {
                 event.preventDefault();
-                fullScreenLoader.startLoader();
-                clientConfig.rendererComponent.beforeOnClick().success(function (response) {
-                    var jsonResponse = $.parseJSON(response);
-                    checkoutSDK.startCheckout({
-                        checkout_url: jsonResponse.checkout_url
-                    });
-                }).always(function () {
-                    fullScreenLoader.stopLoader();
-                }).fail(
-                    function (response) {
-                        errorProcessor.process(response, this.messageContainer);
-                    }
-                )
+                clientConfig.rendererComponent.validateCheckout().done(function () {
+                    fullScreenLoader.startLoader();
+                    clientConfig.rendererComponent.beforeOnClick().success(function (response) {
+                        var jsonResponse = $.parseJSON(response);
+                        checkoutSDK.startCheckout({
+                            checkout_url: jsonResponse.checkout_url
+                        });
+                    }).always(function () {
+                        fullScreenLoader.stopLoader();
+                    }).fail(
+                        function (response) {
+                            errorProcessor.process(response, this.messageContainer);
+                        }
+                    )
+                })
+
             },
             onComplete: function () {
                 clientConfig.rendererComponent.afterOnComplete();

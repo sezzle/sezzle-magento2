@@ -14,6 +14,7 @@ define([
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/model/url-builder',
     'Magento_Checkout/js/model/error-processor',
+    'Magento_Checkout/js/model/payment/additional-validators'
 ], function (
     $,
     $t,
@@ -24,7 +25,8 @@ define([
     redirectOnSuccessAction,
     fullScreenLoader,
     urlBuilder,
-    errorProcessor) {
+    errorProcessor,
+    additionalValidators) {
     'use strict';
 
     var serviceUrl,
@@ -190,12 +192,43 @@ define([
         },
 
         /**
+         * Return Sezzle Payment Method object
+         */
+        getData: function () {
+            return {
+                'method': 'sezzlepay',
+                'additional_data': null,
+                'po_number': null
+            };
+        },
+
+        validateCheckout: function () {
+            if (this.clientConfig.isAheadworksCheckoutEnabled) {
+                return this._beforeAction();
+            }
+            else {
+                if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === false) {
+                    return $.Deferred().resolve();
+                }
+                errorProcessor.process({
+                    responseText: JSON.stringify({message:"Unable to process you request."})
+                }, this.messageContainer);
+                return $.Deferred().reject();
+            }
+        },
+
+        /**
          * Before Sezzle Button onClick Action
          *
          * @returns {Promise}
          */
         beforeOnClick: function () {
-            payload.createSezzleCheckout = true;
+            payload = {
+                cartId: quote.getQuoteId(),
+                billingAddress: quote.billingAddress(),
+                paymentMethod: this.getData(),
+                createSezzleCheckout: true
+            };
             if (!customer.isLoggedIn()) {
                 serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/create-checkout', {
                     cartId: quote.getQuoteId()
@@ -238,6 +271,7 @@ define([
             this.clientConfig.inContextMode = window.checkoutConfig.payment.sezzlepay.inContextMode;
             this.clientConfig.inContextTransactionMode = window.checkoutConfig.payment.sezzlepay.inContextTransactionMode;
             this.clientConfig.inContextApiVersion = window.checkoutConfig.payment.sezzlepay.inContextApiVersion;
+            this.clientConfig.isAheadworksCheckoutEnabled = window.checkoutConfig.payment.sezzlepay.isAheadworksCheckoutEnabled;
 
             return this.clientConfig;
         }

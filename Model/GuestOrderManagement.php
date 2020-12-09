@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Model;
 
+use Magento\Checkout\Api\GuestPaymentInformationManagementInterface;
 use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -14,6 +15,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Sezzle\Sezzlepay\Api\GuestOrderManagementInterface;
@@ -34,25 +37,37 @@ class GuestOrderManagement implements GuestOrderManagementInterface
      * @var QuoteIdMaskFactory
      */
     private $quoteIdMaskFactory;
+    /**
+     * @var GuestPaymentInformationManagementInterface
+     */
+    private $paymentInformationManagement;
 
     /**
      * Payment constructor.
      * @param CartRepositoryInterface $cartRepository
      * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param GuestPaymentInformationManagementInterface $paymentInformationManagement
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
-        QuoteIdMaskFactory $quoteIdMaskFactory
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        GuestPaymentInformationManagementInterface $paymentInformationManagement
     ) {
         $this->cartRepository = $cartRepository;
         $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->paymentInformationManagement = $paymentInformationManagement;
     }
 
     /**
      * @inheritDoc
      */
-    public function createCheckout($cartId, $email, $createSezzleCheckout)
-    {
+    public function createCheckout(
+        $cartId,
+        $email,
+        $createSezzleCheckout,
+        PaymentInterface $paymentMethod,
+        AddressInterface $billingAddress = null
+    ) {
         try {
             $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
             /** @var Quote $quote */
@@ -60,7 +75,14 @@ class GuestOrderManagement implements GuestOrderManagementInterface
             if (!$quote) {
                 throw new NotFoundException(__("Cart ID is invalid."));
             }
-            $quote->setCustomerEmail($email)
+            $this->paymentInformationManagement->savePaymentInformation(
+                $cartId,
+                $email,
+                $paymentMethod,
+                $billingAddress
+            );
+            $quote->setCustomerId(null)
+                ->setCustomerEmail($email)
                 ->setCustomerIsGuest(true)
                 ->setCustomerGroupId(GroupInterface::NOT_LOGGED_IN_ID);
             return $this->getSaveHandler()->createCheckout($quote, $createSezzleCheckout);

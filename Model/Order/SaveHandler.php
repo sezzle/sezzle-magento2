@@ -26,6 +26,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
 use Sezzle\Sezzlepay\Model\Api\PayloadBuilder;
+use Sezzle\Sezzlepay\Model\CheckoutValidator;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\Tokenize;
 
@@ -98,6 +99,10 @@ class SaveHandler
      * @var OrderRepositoryInterface
      */
     private $orderRepository;
+    /**
+     * @var CheckoutValidator
+     */
+    private $checkoutValidator;
 
     /**
      * SaveHandler constructor.
@@ -116,6 +121,7 @@ class SaveHandler
      * @param PayloadBuilder $apiPayloadBuilder
      * @param UrlInterface $url
      * @param OrderRepositoryInterface $orderRepository
+     * @param CheckoutValidator $checkoutValidator
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -132,7 +138,8 @@ class SaveHandler
         CartRepositoryInterface $cartRepository,
         PayloadBuilder $apiPayloadBuilder,
         UrlInterface $url,
-        OrderRepositoryInterface $orderRepository
+        OrderRepositoryInterface $orderRepository,
+        CheckoutValidator $checkoutValidator
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -149,6 +156,7 @@ class SaveHandler
         $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->url = $url;
         $this->orderRepository = $orderRepository;
+        $this->checkoutValidator = $checkoutValidator;
     }
 
     /**
@@ -167,16 +175,10 @@ class SaveHandler
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         $this->sezzleHelper->logSezzleActions("Customer Id : " . $quote->getCustomer()->getId());
 
-        $billingAddress = $quote->getBillingAddress();
-        $shippingAddress = $quote->getShippingAddress();
-        if ((empty($shippingAddress) || empty($shippingAddress->getStreetLine(1))) && (empty($billingAddress) || empty($billingAddress->getStreetLine(1)))) {
-            throw new NotFoundException(__("Please select an address"));
-        } elseif (empty($billingAddress) || empty($billingAddress->getStreetLine(1)) || empty($billingAddress->getFirstname())) {
-            $quote->setBillingAddress($shippingAddress);
-        }
+        $this->checkoutValidator->validate($quote);
 
         $payment = $quote->getPayment();
-        $payment->setMethod(Sezzle::PAYMENT_CODE);
+        //$payment->setMethod(Sezzle::PAYMENT_CODE);
         $quote->reserveOrderId();
         $this->sezzleHelper->logSezzleActions("Order ID from quote : " . $quote->getReservedOrderId());
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();

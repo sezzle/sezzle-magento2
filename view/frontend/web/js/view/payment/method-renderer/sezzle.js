@@ -108,7 +108,15 @@ define(
              * Handle redirection
              */
             handleRedirectAction: function () {
-                payload.createSezzleCheckout = true;
+                var self = this;
+
+                this.isPlaceOrderActionAllowed(false);
+                payload = {
+                    cartId: quote.getQuoteId(),
+                    billingAddress: quote.billingAddress(),
+                    paymentMethod: this.getData(),
+                    createSezzleCheckout : true
+                };
                 if (!customer.isLoggedIn()) {
                     serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/create-checkout', {
                         cartId: quote.getQuoteId()
@@ -122,23 +130,27 @@ define(
                 return storage.post(
                     serviceUrl, JSON.stringify(payload)
                 ).success(function (response) {
-
                     var jsonResponse = $.parseJSON(response);
                     $.mage.redirect(jsonResponse.checkout_url);
-
-                }).fail(
-                    function (response) {
-                        fullScreenLoader.stopLoader();
-                        errorProcessor.process(response, this.messageContainer);
-                    }
-                );
+                }).fail(function (response) {
+                    fullScreenLoader.stopLoader();
+                    errorProcessor.process(response, this.messageContainer);
+                }).always(function () {
+                    self.isPlaceOrderActionAllowed(true);
+                });
             },
 
             /**
              * Place Order click event
              */
-            continueToSezzle: function () {
-                if (this.validate() && additionalValidators.validate()) {
+            continueToSezzle: function (data, event) {
+                if (event) {
+                    event.preventDefault();
+                }
+
+                if (this.validate()
+                    && additionalValidators.validate()
+                    && this.isPlaceOrderActionAllowed() === true) {
                     this.handleRedirectAction();
                 }
             }

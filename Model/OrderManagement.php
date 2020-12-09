@@ -7,15 +7,18 @@
 
 namespace Sezzle\Sezzlepay\Model;
 
+use Magento\Checkout\Api\PaymentInformationManagementInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Model\Quote;
-use Sezzle\Sezzlepay\Model\Order\SaveHandler;
 use Sezzle\Sezzlepay\Api\OrderManagementInterface;
+use Sezzle\Sezzlepay\Model\Order\SaveHandler;
 
 /**
  * Class OrderManagement
@@ -32,28 +35,44 @@ class OrderManagement implements OrderManagementInterface
      * @var
      */
     private $saveHandler;
+    /**
+     * @var PaymentInformationManagementInterface
+     */
+    private $paymentInformationManagement;
 
     /**
      * Payment constructor.
      * @param CartRepositoryInterface $cartRepository
+     * @param PaymentInformationManagementInterface $paymentInformationManagement
      */
     public function __construct(
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        PaymentInformationManagementInterface $paymentInformationManagement
     ) {
         $this->cartRepository = $cartRepository;
+        $this->paymentInformationManagement = $paymentInformationManagement;
     }
 
     /**
      * @inheritDoc
      */
-    public function createCheckout($cartId, $createSezzleCheckout)
-    {
+    public function createCheckout(
+        $cartId,
+        $createSezzleCheckout,
+        PaymentInterface $paymentMethod,
+        AddressInterface $billingAddress = null
+    ) {
         try {
             /** @var Quote $quote */
             $quote = $this->cartRepository->getActive($cartId);
             if (!$quote) {
                 throw new NotFoundException(__("Cart ID is invalid."));
             }
+            $this->paymentInformationManagement->savePaymentInformation(
+                $cartId,
+                $paymentMethod,
+                $billingAddress
+            );
             return $this->getSaveHandler()->createCheckout($quote, $createSezzleCheckout);
         } catch (NoSuchEntityException $e) {
             throw new CouldNotSaveException(
