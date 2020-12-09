@@ -334,7 +334,11 @@ class Sezzle extends AbstractMethod
         $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
 
+        $this->sezzleHelper->logSezzleActions("Incoming amount from Magento : $amount");
         $amountInCents = Util::formatToCents($amount);
+        $this->sezzleHelper->logSezzleActions("Amount In Cents : $amountInCents");
+        $this->trackCartItemInformation($payment);
+
         $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
         if (!$sezzleOrderUUID && ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID))) {
             $this->tokenizeModel->createOrder($payment, $amountInCents);
@@ -372,7 +376,11 @@ class Sezzle extends AbstractMethod
         } elseif ($amount <= 0) {
             throw new LocalizedException(__('Invalid amount for capture.'));
         }
+        $this->sezzleHelper->logSezzleActions("Incoming amount from Magento : $amount");
         $amountInCents = Util::formatToCents($amount);
+        $this->sezzleHelper->logSezzleActions("Amount In Cents : $amountInCents");
+        $this->trackCartItemInformation($payment);
+
         $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
         $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
         if (!$sezzleOrderUUID && ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID))) {
@@ -498,6 +506,32 @@ class Sezzle extends AbstractMethod
         $this->sezzleHelper->logSezzleActions("****Refund end****");
 
         return $this;
+    }
+
+    /**
+     * Track Cart Item Information
+     *
+     * @param InfoInterface $payment
+     * @throws NoSuchEntityException
+     */
+    private function trackCartItemInformation(InfoInterface $payment)
+    {
+        try {
+            if ($quoteId = $payment->getOrder()->getQuoteId()) {
+                $quote = $this->quoteRepository->get(2534353);
+                $this->sezzleHelper->logSezzleActions("Collecting Quote Item Information");
+                foreach ($quote->getAllVisibleItems() as $item) {
+                    $this->sezzleHelper->logSezzleActions(
+                        "Sku : " . $item->getSku() .
+                        " | " . "Qty : " . $item->getQty() .
+                        " | " . "Price : " . $item->getPrice()
+                    );
+                }
+                $this->sezzleHelper->logSezzleActions("Collection done");
+            }
+        } catch (Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+        }
     }
 
     /**
