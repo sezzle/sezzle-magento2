@@ -216,21 +216,22 @@ class SaveHandler
         $orderId = $quote->getReservedOrderId();
         $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
         $orderId = $this->quoteManagement->placeOrder($quote->getId());
-        if ($orderId) {
-            /** @var Order $order */
-            $order = $this->orderRepository->get($orderId);
-            $this->sezzleHelper->logSezzleActions("Order created");
-            // send email
-            try {
-                $this->orderSender->send($order);
-            } catch (Exception $e) {
-                $this->sezzleHelper->logSezzleActions("Transaction Email Sending Error: ");
-                $this->sezzleHelper->logSezzleActions($e->getMessage());
-                throw new CouldNotSaveException(
-                    __($e->getMessage()),
-                    $e
-                );
-            }
+        if (!$orderId) {
+            throw new CouldNotSaveException(__("Unable to place your order."));
+        }
+        /** @var Order $order */
+        $order = $this->orderRepository->get($orderId);
+        $this->sezzleHelper->logSezzleActions("Order created");
+        // send email
+        try {
+            $this->orderSender->send($order);
+        } catch (Exception $e) {
+            $this->sezzleHelper->logSezzleActions("Transaction Email Sending Error: ");
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new CouldNotSaveException(
+                __($e->getMessage()),
+                $e
+            );
         }
         return $orderId;
     }

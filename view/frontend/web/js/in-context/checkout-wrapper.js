@@ -194,7 +194,7 @@ define([
         /**
          * Return Sezzle Payment Method object
          */
-        getData: function () {
+        getSezzlePayment: function () {
             return {
                 'method': 'sezzlepay',
                 'additional_data': null,
@@ -226,7 +226,7 @@ define([
             payload = {
                 cartId: quote.getQuoteId(),
                 billingAddress: quote.billingAddress(),
-                paymentMethod: this.getData(),
+                paymentMethod: this.getSezzlePayment(),
                 createSezzleCheckout: true
             };
             if (!customer.isLoggedIn()) {

@@ -518,7 +518,7 @@ class Sezzle extends AbstractMethod
     {
         try {
             if ($quoteId = $payment->getOrder()->getQuoteId()) {
-                $quote = $this->quoteRepository->get(2534353);
+                $quote = $this->quoteRepository->get($quoteId);
                 $this->sezzleHelper->logSezzleActions("Collecting Quote Item Information");
                 foreach ($quote->getAllVisibleItems() as $item) {
                     $this->sezzleHelper->logSezzleActions(
