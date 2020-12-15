@@ -77,8 +77,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
         $quote = $this->checkoutSession->getQuote();
         $isTokenizeCheckoutAllowed = $this->tokenizeModel->isCustomerUUIDValid($quote);
         $isInContextCheckout = (bool)$this->sezzleConfig->isInContextModeEnabled();
-        $isMobileOrTablet = $this->sezzleConfig->isMobileOrTablet();
-        $allowInContextCheckout = $isInContextCheckout && !$isTokenizeCheckoutAllowed && !$isMobileOrTablet;
+        $allowInContextCheckout = $isInContextCheckout && !$isTokenizeCheckoutAllowed;
         return [
             'payment' => [
                 Sezzle::PAYMENT_CODE => [

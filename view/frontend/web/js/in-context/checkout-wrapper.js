@@ -205,9 +205,8 @@ define([
         validateCheckout: function () {
             if (this.clientConfig.isAheadworksCheckoutEnabled) {
                 return this._beforeAction();
-            }
-            else {
-                if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === false) {
+            } else {
+                if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === true) {
                     return $.Deferred().resolve();
                 }
                 errorProcessor.process({
