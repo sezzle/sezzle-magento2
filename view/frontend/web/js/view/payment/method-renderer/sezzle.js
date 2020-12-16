@@ -15,6 +15,7 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/url-builder',
         'Magento_Checkout/js/model/error-processor',
+        'Magento_Customer/js/customer-data'
     ],
     function (
         $,
@@ -26,7 +27,8 @@ define(
         quote,
         fullScreenLoader,
         urlBuilder,
-        errorProcessor) {
+        errorProcessor,
+        customerData) {
         'use strict';
 
         var serviceUrl,
@@ -131,6 +133,20 @@ define(
                     serviceUrl, JSON.stringify(payload)
                 ).success(function (response) {
                     var jsonResponse = $.parseJSON(response);
+                    var clearData = {
+                        'selectedShippingAddress': null,
+                        'shippingAddressFromData': null,
+                        'newCustomerShippingAddress': null,
+                        'selectedShippingRate': null,
+                        'selectedPaymentMethod': null,
+                        'selectedBillingAddress': null,
+                        'billingAddressFromData': null,
+                        'newCustomerBillingAddress': null
+                    };
+
+                    if (jsonResponse.checkout_url) {
+                        customerData.set('checkout-data', clearData);
+                    }
                     $.mage.redirect(jsonResponse.checkout_url);
                 }).fail(function (response) {
                     fullScreenLoader.stopLoader();
