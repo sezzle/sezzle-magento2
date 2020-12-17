@@ -2,6 +2,7 @@
 
 namespace Sezzle\Sezzlepay\Model;
 
+use Exception;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Api\AttributeInterfaceFactory;
@@ -109,36 +110,37 @@ class Tokenize
     /**
      * Saving tokenize record
      * @param Quote $quote
-     * @throws LocalizedException
      * @throws NoSuchEntityException
-     * @throws NotFoundException
-     * @throws InputException
-     * @throws InputMismatchException
      */
     public function saveTokenizeRecord($quote)
     {
-        if ($this->quote == null) {
-            $this->quote = $quote;
+        try {
+            if ($this->quote == null) {
+                $this->quote = $quote;
+            }
+            if (!$this->customerSession->getCustomerSezzleTokenStatus()
+                || !($sezzleToken = $this->customerSession->getCustomerSezzleToken())
+                || !$this->customerSession->getCustomerSezzleTokenExpiration()) {
+                throw new NotFoundException(__('Tokenize record not found.'));
+            }
+            /** @var TokenizeCustomerInterface $tokenDetails */
+            $url = $this->customerSession->getGetTokenDetailsLink();
+            $tokenDetails = $this->v2->getTokenDetails($url, $sezzleToken);
+            if (!$tokenDetails) {
+                throw new NotFoundException(__('Unable to fetch token record from Sezzle.'));
+            }
+            if ($this->customerSession->getCustomerId()) {
+                $this->saveTokenizeRecordToCustomer($tokenDetails);
+            }
+            $this->saveTokenizeRecordToQuote($tokenDetails);
+            $this->customerSession->unsCustomerSezzleTokenStatus();
+            $this->customerSession->unsCustomerSezzleToken();
+            $this->customerSession->unsCustomerSezzleTokenExpiration();
+            $this->customerSession->unsGetTokenDetailsLink();
+        } catch (LocalizedException $e) {
+            $this->sezzleHelper->logSezzleActions("Sezzle Tokenize Record Save Error");
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
         }
-        if (!$this->customerSession->getCustomerSezzleTokenStatus()
-            || !($sezzleToken = $this->customerSession->getCustomerSezzleToken())
-            || !$this->customerSession->getCustomerSezzleTokenExpiration()) {
-            throw new NotFoundException(__('Tokenize record not found.'));
-        }
-        /** @var TokenizeCustomerInterface $tokenDetails */
-        $url = $this->customerSession->getGetTokenDetailsLink();
-        $tokenDetails = $this->v2->getTokenDetails($url, $sezzleToken);
-        if (!$tokenDetails) {
-            throw new NotFoundException(__('Unable to fetch token record from Sezzle.'));
-        }
-        if ($this->customerSession->getCustomerId()) {
-            $this->saveTokenizeRecordToCustomer($tokenDetails);
-        }
-        $this->saveTokenizeRecordToQuote($tokenDetails);
-        $this->customerSession->unsCustomerSezzleTokenStatus();
-        $this->customerSession->unsCustomerSezzleToken();
-        $this->customerSession->unsCustomerSezzleTokenExpiration();
-        $this->customerSession->unsGetTokenDetailsLink();
     }
 
     /**
@@ -258,7 +260,7 @@ class Tokenize
      *
      * @param Quote $quote
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function isCustomerUUIDValid($quote)
     {
@@ -275,7 +277,7 @@ class Tokenize
             ->getValue();
         $customer = $this->v2->getCustomer($url, $sezzleCustomerUUID);
         $currentTimestamp = $this->dateTime->timestamp('now');
-        $sezzleCustomerUUIDExpirationTimestamp =  $this->dateTime->timestamp($sezzleCustomerUUIDExpiration->getValue());
+        $sezzleCustomerUUIDExpirationTimestamp = $this->dateTime->timestamp($sezzleCustomerUUIDExpiration->getValue());
         if (!$customer->getFirstName() || ($currentTimestamp > $sezzleCustomerUUIDExpirationTimestamp)) {
             $this->sezzleHelper->logSezzleActions("Customer UUID is not valid. Deleting record now.");
             $this->deleteCustomerTokenRecord($quote->getCustomerId());

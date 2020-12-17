@@ -101,14 +101,14 @@ define([
         afterOnComplete: function () {
             fullScreenLoader.startLoader();
             if (!customer.isLoggedIn()) {
-                serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/place-order', {
+                serviceUrl = urlBuilder.createUrl('/guest-carts/:cartId/order', {
                     cartId: quote.getQuoteId()
                 });
             } else {
-                serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/place-order', {});
+                serviceUrl = urlBuilder.createUrl('/carts/mine/order', {});
             }
 
-            return storage.post(
+            return storage.put(
                 serviceUrl
             ).success(
                 function (response) {

@@ -36,16 +36,4 @@ interface OrderManagementInterface
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
     );
-
-    /**
-     * Place Order
-     *
-     * @param int $cartId
-     * @return int
-     * @throws CouldNotSaveException
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     * @throws NotFoundException
-     */
-    public function placeOrder($cartId);
 }

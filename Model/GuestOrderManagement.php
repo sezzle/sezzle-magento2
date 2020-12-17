@@ -105,32 +105,6 @@ class GuestOrderManagement implements GuestOrderManagementInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function placeOrder($cartId)
-    {
-        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
-        /** @var Quote $quote */
-        $quote = $this->cartRepository->getActive($quoteIdMask->getQuoteId());
-        if (!$quote) {
-            throw new NotFoundException(__("Cart ID is invalid."));
-        }
-        try {
-            return $this->getSaveHandler()->save($quote);
-        } catch (CouldNotSaveException $e) {
-            throw new CouldNotSaveException(
-                __($e->getMessage()),
-                $e
-            );
-        } catch (NoSuchEntityException $e) {
-            throw new CouldNotSaveException(
-                __($e->getMessage()),
-                $e
-            );
-        }
-    }
-
-    /**
      * Get Save Handler
      *
      * @return SaveHandler

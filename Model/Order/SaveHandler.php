@@ -7,7 +7,6 @@
 
 namespace Sezzle\Sezzlepay\Model\Order;
 
-use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
@@ -15,14 +14,13 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Json\Helper\Data;
 use Magento\Framework\UrlInterface;
+use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
 use Sezzle\Sezzlepay\Model\Api\PayloadBuilder;
@@ -103,6 +101,10 @@ class SaveHandler
      * @var CheckoutValidator
      */
     private $checkoutValidator;
+    /**
+     * @var CartManagementInterface
+     */
+    private $cartManagement;
 
     /**
      * SaveHandler constructor.
@@ -122,6 +124,7 @@ class SaveHandler
      * @param UrlInterface $url
      * @param OrderRepositoryInterface $orderRepository
      * @param CheckoutValidator $checkoutValidator
+     * @param CartManagementInterface $cartManagement
      */
     public function __construct(
         CustomerRepositoryInterface $customerRepository,
@@ -139,7 +142,8 @@ class SaveHandler
         PayloadBuilder $apiPayloadBuilder,
         UrlInterface $url,
         OrderRepositoryInterface $orderRepository,
-        CheckoutValidator $checkoutValidator
+        CheckoutValidator $checkoutValidator,
+        CartManagementInterface $cartManagement
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -157,6 +161,7 @@ class SaveHandler
         $this->url = $url;
         $this->orderRepository = $orderRepository;
         $this->checkoutValidator = $checkoutValidator;
+        $this->cartManagement = $cartManagement;
     }
 
     /**
@@ -167,7 +172,6 @@ class SaveHandler
      * @return string
      * @throws LocalizedException
      * @throws NoSuchEntityException
-     * @throws NotFoundException
      */
     public function createCheckout($quote, $createSezzleCheckout)
     {
@@ -178,7 +182,6 @@ class SaveHandler
         $this->checkoutValidator->validate($quote);
 
         $payment = $quote->getPayment();
-        //$payment->setMethod(Sezzle::PAYMENT_CODE);
         $quote->reserveOrderId();
         $this->sezzleHelper->logSezzleActions("Order ID from quote : " . $quote->getReservedOrderId());
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
@@ -190,7 +193,7 @@ class SaveHandler
         if ($createSezzleCheckout) {
             $checkoutUrl = $this->sezzleModel->getSezzleRedirectUrl($quote);
             if ($quote->getPayment()->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
-                $orderId = $this->save($quote);
+                $orderId = $this->cartManagement->placeOrder($quote->getId());
                 if (!$orderId) {
                     throw new CouldNotSaveException(__("Unable to place your order."));
                 }
@@ -201,38 +204,5 @@ class SaveHandler
         }
         $payload = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $referenceID);
         return $this->jsonHelper->jsonEncode(["payload" => $payload]);
-    }
-
-    /**
-     * Save Order
-     *
-     * @param Quote $quote
-     * @return int
-     * @throws CouldNotSaveException
-     * @throws NoSuchEntityException|LocalizedException
-     */
-    public function save($quote)
-    {
-        $orderId = $quote->getReservedOrderId();
-        $this->sezzleHelper->logSezzleActions("Order ID from quote : $orderId.");
-        $orderId = $this->quoteManagement->placeOrder($quote->getId());
-        if (!$orderId) {
-            throw new CouldNotSaveException(__("Unable to place your order."));
-        }
-        /** @var Order $order */
-        $order = $this->orderRepository->get($orderId);
-        $this->sezzleHelper->logSezzleActions("Order created");
-        // send email
-        try {
-            $this->orderSender->send($order);
-        } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions("Transaction Email Sending Error: ");
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new CouldNotSaveException(
-                __($e->getMessage()),
-                $e
-            );
-        }
-        return $orderId;
     }
 }

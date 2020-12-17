@@ -39,16 +39,4 @@ interface GuestOrderManagementInterface
         AddressInterface $billingAddress = null
     );
 
-    /**
-     * Place Order
-     *
-     * @param string $cartId
-     * @return int
-     * @throws CouldNotSaveException
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     * @throws NotFoundException
-     */
-    public function placeOrder($cartId);
-
 }

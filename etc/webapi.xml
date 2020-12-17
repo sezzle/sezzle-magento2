@@ -29,21 +29,21 @@
     </route>
 
     <!--    Place Order for Sezzle Transaction-->
-    <route url="/V1/sezzle/carts/mine/place-order" method="POST">
-        <service class="Sezzle\Sezzlepay\Api\OrderManagementInterface" method="placeOrder"/>
-        <resources>
-            <resource ref="self" />
-        </resources>
-        <data>
-            <parameter name="cartId" force="true">%cart_id%</parameter>
-        </data>
-    </route>
+<!--    <route url="/V1/sezzle/carts/mine/place-order" method="POST">-->
+<!--        <service class="Sezzle\Sezzlepay\Api\OrderManagementInterface" method="placeOrder"/>-->
+<!--        <resources>-->
+<!--            <resource ref="self" />-->
+<!--        </resources>-->
+<!--        <data>-->
+<!--            <parameter name="cartId" force="true">%cart_id%</parameter>-->
+<!--        </data>-->
+<!--    </route>-->
 
-    <!--    Place Order for Guest Sezzle Transaction-->
-    <route url="/V1/sezzle/guest-carts/:cartId/place-order" method="POST">
-        <service class="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" method="placeOrder"/>
-        <resources>
-            <resource ref="anonymous" />
-        </resources>
-    </route>
+<!--    &lt;!&ndash;    Place Order for Guest Sezzle Transaction&ndash;&gt;-->
+<!--    <route url="/V1/sezzle/guest-carts/:cartId/place-order" method="POST">-->
+<!--        <service class="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" method="placeOrder"/>-->
+<!--        <resources>-->
+<!--            <resource ref="anonymous" />-->
+<!--        </resources>-->
+<!--    </route>-->
 </routes>
