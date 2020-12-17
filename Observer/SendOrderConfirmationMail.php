@@ -35,8 +35,8 @@ class SendOrderConfirmationMail implements ObserverInterface
      */
     public function __construct(
         OrderSender $orderSender,
-        Data $sezzleHelper)
-    {
+        Data $sezzleHelper
+    ) {
         $this->orderSender = $orderSender;
         $this->sezzleHelper = $sezzleHelper;
     }
@@ -51,14 +51,15 @@ class SendOrderConfirmationMail implements ObserverInterface
         /* @var Order $order */
         $order = $observer->getEvent()->getData('order');
         try {
-            if (!$order->getId()) {
+            if (!$order->getId() || $order->getPayment()->getMethod() !== Sezzle::PAYMENT_CODE) {
                 return $this;
             }
             $this->orderSender->send($order);
         } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions(
                 "Sezzle Order Confirmation Mail Sending Error: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
         }
 
         return $this;
