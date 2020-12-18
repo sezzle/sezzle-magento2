@@ -163,7 +163,7 @@ class V1 implements V1Interface
                 ZendClient::POST
             );
             $body = $this->jsonHelper->jsonDecode($response);
-            return isset($body['captured_at']) && $body['captured_at'];
+            return isset($body['order_reference_id']) && $body['order_reference_id'];
         } catch (\Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
