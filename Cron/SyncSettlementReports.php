@@ -45,8 +45,6 @@ class SyncSettlementReports
 
     /**
      * Settlement Reports Sync
-     *
-     * @throws NoSuchEntityException
      */
     public function execute()
     {

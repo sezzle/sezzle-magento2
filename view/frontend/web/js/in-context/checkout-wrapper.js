@@ -205,15 +205,15 @@ define([
         validateCheckout: function () {
             if (this.clientConfig.isAheadworksCheckoutEnabled) {
                 return this._beforeAction();
-            } else {
-                if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === true) {
-                    return $.Deferred().resolve();
-                }
-                errorProcessor.process({
-                    responseText: JSON.stringify({message:"Unable to process you request."})
-                }, this.messageContainer);
-                return $.Deferred().reject();
             }
+
+            if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === true) {
+                return $.Deferred().resolve();
+            }
+            errorProcessor.process({
+                responseText: JSON.stringify({message:"Unable to process you request."})
+            }, this.messageContainer);
+            return $.Deferred().reject();
         },
 
         /**

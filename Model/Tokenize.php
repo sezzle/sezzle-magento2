@@ -110,7 +110,6 @@ class Tokenize
     /**
      * Saving tokenize record
      * @param Quote $quote
-     * @throws NoSuchEntityException
      */
     public function saveTokenizeRecord($quote)
     {

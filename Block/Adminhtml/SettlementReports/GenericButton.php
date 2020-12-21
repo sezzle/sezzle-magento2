@@ -7,6 +7,9 @@
 namespace Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports;
 
 
+use Magento\Backend\Block\Widget\Context;
+use Magento\Framework\Registry;
+
 class GenericButton
 {
     /**
@@ -19,19 +22,19 @@ class GenericButton
     /**
      * Registry
      *
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $registry;
 
     /**
      * Constructor
      *
-     * @param \Magento\Backend\Block\Widget\Context $context
-     * @param \Magento\Framework\Registry $registry
+     * @param Context $context
+     * @param Registry $registry
      */
     public function __construct(
-        \Magento\Backend\Block\Widget\Context $context,
-        \Magento\Framework\Registry $registry
+        Context $context,
+        Registry $registry
     ) {
         $this->urlBuilder = $context->getUrlBuilder();
         $this->registry = $registry;

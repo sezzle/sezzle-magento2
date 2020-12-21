@@ -62,7 +62,6 @@ class SezzleRegisterAdmin extends Template
     /**
      * Get Sezzle Module Version
      * @return string
-     * @throws FileSystemException
      */
     public function getSezzleModuleVersion()
     {

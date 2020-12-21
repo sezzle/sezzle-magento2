@@ -54,7 +54,6 @@ class Complete extends Sezzle
      * Handling Exception
      *
      * @param mixed $exc
-     * @throws NoSuchEntityException
      */
     private function handleException($exc)
     {

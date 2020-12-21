@@ -98,7 +98,6 @@ class CheckoutValidator
      *
      * @param Quote $quote
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     protected function validateShippingMethod(Quote $quote)
     {

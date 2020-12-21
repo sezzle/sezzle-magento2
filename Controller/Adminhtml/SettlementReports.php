@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Controller\Adminhtml;
 use Magento\Backend\App\Action;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 use Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface;
 use Sezzle\Sezzlepay\Helper\Data;
@@ -25,7 +26,7 @@ abstract class SettlementReports extends Action
      */
     private $settlementReportsManagement;
     /**
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     private $coreRegistry;
     /**
@@ -40,7 +41,7 @@ abstract class SettlementReports extends Action
     public function __construct(
         Action\Context $context,
         SettlementReportsManagementInterface $settlementReportsManagement,
-        \Magento\Framework\Registry $coreRegistry,
+        Registry $coreRegistry,
         Data $sezzleHelper,
         PageFactory $resultPageFactory
     ) {

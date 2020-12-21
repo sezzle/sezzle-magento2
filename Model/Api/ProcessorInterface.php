@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Http\ZendClient;
 
 /**
@@ -24,6 +25,7 @@ interface ProcessorInterface
      * @param string $method
      * @param bool $getResponseStatusCode
      * @return array|string
+     * @throws LocalizedException
      */
     public function call(
         $url,

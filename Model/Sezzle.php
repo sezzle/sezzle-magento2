@@ -512,7 +512,6 @@ class Sezzle extends AbstractMethod
      * Track Cart Item Information
      *
      * @param InfoInterface $payment
-     * @throws NoSuchEntityException
      */
     private function trackCartItemInformation(InfoInterface $payment)
     {
@@ -540,7 +539,6 @@ class Sezzle extends AbstractMethod
      * @param CartInterface|null $quote
      * @return bool
      * @throws LocalizedException
-     * @deprecated 100.2.0
      */
     public function isAvailable(CartInterface $quote = null)
     {
@@ -631,7 +629,6 @@ class Sezzle extends AbstractMethod
      *
      * @param OrderInterface $order
      * @return bool
-     * @throws NoSuchEntityException
      */
     public function canInvoice($order)
     {
