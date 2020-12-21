@@ -1,0 +1,31 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<?php
+use Sezzle\Sezzlepay\Block\Onepage\Success;
+/** @var $block Success */
+?>
+<?php if ($block->isSezzleOrder()) : ?>
+<script>
+    require([
+        'Magento_Customer/js/customer-data'
+    ], function(customerData) {
+        var clearData = {
+            'selectedShippingAddress': null,
+            'shippingAddressFromData': null,
+            'newCustomerShippingAddress': null,
+            'selectedShippingRate': null,
+            'selectedPaymentMethod': null,
+            'selectedBillingAddress': null,
+            'billingAddressFromData': null,
+            'newCustomerBillingAddress': null
+        };
+
+        customerData.set('checkout-data', clearData);
+    })
+</script>
+<?php endif; ?>

@@ -15,6 +15,7 @@ use Magento\Framework\Filesystem\Driver\File;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Zend\Log\Logger;
 use Zend\Log\Writer\Stream;
+use Zend_Http_UserAgent_Mobile;
 
 /**
  * Sezzle Helper
@@ -64,15 +65,17 @@ class Data extends AbstractHelper
      *
      * @param string|null $data
      * @return void
-     * @throws NoSuchEntityException
      */
     public function logSezzleActions($data = null)
     {
-        if ($this->sezzleConfig->isLogTrackerEnabled()) {
-            $writer = new Stream(BP . self::SEZZLE_LOG_FILE_PATH);
-            $logger = new Logger();
-            $logger->addWriter($writer);
-            $logger->info($data);
+        try {
+            if ($this->sezzleConfig->isLogTrackerEnabled()) {
+                $writer = new Stream(BP . self::SEZZLE_LOG_FILE_PATH);
+                $logger = new Logger();
+                $logger->addWriter($writer);
+                $logger->info($data);
+            }
+        } catch (NoSuchEntityException $e) {
         }
     }
 
@@ -84,7 +87,7 @@ class Data extends AbstractHelper
     public function isMobileOrTablet()
     {
         $userAgent = $this->_httpHeader->getHttpUserAgent();
-        return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
+        return Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 
     /**
@@ -158,7 +161,6 @@ class Data extends AbstractHelper
      *
      * @param float $amount
      * @return int
-     * @deprecated 5.0.0
      */
     public function getAmountInCents($amount)
     {

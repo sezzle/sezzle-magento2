@@ -10,7 +10,6 @@ namespace Sezzle\Sezzlepay\Controller\Payment;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Exception\NotFoundException;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
 
 /**
@@ -35,32 +34,32 @@ class Complete extends Sezzle
                 $this->sezzleHelper->logSezzleActions("****Start Tokenize record end****");
             }
 
-            $orderId = $this->orderManagement->placeOrder($quote->getId());
+            $orderId = $this->cartManagement->placeOrder($quote->getId());
             if (!$orderId) {
                 throw new CouldNotSaveException(__("Unable to place the order."));
             }
+
             $redirect = 'checkout/onepage/success';
         } catch (CouldNotSaveException $e) {
-            $this->sezzleHelper->logSezzleActions("Sezzle Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addErrorMessage(
-                $e->getMessage()
-            );
+            $this->handleException($e);
         } catch (NoSuchEntityException $e) {
-            $this->sezzleHelper->logSezzleActions("Sezzle Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addErrorMessage(
-                $e->getMessage()
-            );
-        } catch (NotFoundException $e) {
-            $this->sezzleHelper->logSezzleActions("Sezzle Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addErrorMessage(
-                $e->getMessage()
-            );
+            $this->handleException($e);
         } catch (LocalizedException $e) {
-            $this->sezzleHelper->logSezzleActions("Sezzle Transaction Exception: " . $e->getMessage());
-            $this->messageManager->addErrorMessage(
-                $e->getMessage()
-            );
+            $this->handleException($e);
         }
         return $this->_redirect($redirect);
+    }
+
+    /**
+     * Handling Exception
+     *
+     * @param mixed $exc
+     */
+    private function handleException($exc)
+    {
+        $this->sezzleHelper->logSezzleActions("Sezzle Transaction Exception: " . $exc->getMessage());
+        $this->messageManager->addErrorMessage(
+            $exc->getMessage()
+        );
     }
 }

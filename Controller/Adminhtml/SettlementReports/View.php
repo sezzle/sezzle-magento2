@@ -11,6 +11,7 @@ use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Result\Page;
 use Sezzle\Sezzlepay\Controller\Adminhtml\SettlementReports;
 
 /**
@@ -23,7 +24,7 @@ class View extends SettlementReports
     /**
      * Payout Details view
      *
-     * @return ResponseInterface|ResultInterface|\Magento\Framework\View\Result\Page
+     * @return ResponseInterface|ResultInterface|Page
      */
     public function execute()
     {

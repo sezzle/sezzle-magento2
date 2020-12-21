@@ -14,6 +14,7 @@ define([
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/model/url-builder',
     'Magento_Checkout/js/model/error-processor',
+    'Magento_Checkout/js/model/payment/additional-validators'
 ], function (
     $,
     $t,
@@ -24,7 +25,8 @@ define([
     redirectOnSuccessAction,
     fullScreenLoader,
     urlBuilder,
-    errorProcessor) {
+    errorProcessor,
+    additionalValidators) {
     'use strict';
 
     var serviceUrl,
@@ -99,14 +101,14 @@ define([
         afterOnComplete: function () {
             fullScreenLoader.startLoader();
             if (!customer.isLoggedIn()) {
-                serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/place-order', {
+                serviceUrl = urlBuilder.createUrl('/guest-carts/:cartId/order', {
                     cartId: quote.getQuoteId()
                 });
             } else {
-                serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/place-order', {});
+                serviceUrl = urlBuilder.createUrl('/carts/mine/order', {});
             }
 
-            return storage.post(
+            return storage.put(
                 serviceUrl
             ).success(
                 function (response) {
@@ -190,12 +192,42 @@ define([
         },
 
         /**
+         * Return Sezzle Payment Method object
+         */
+        getSezzlePayment: function () {
+            return {
+                'method': 'sezzlepay',
+                'additional_data': null,
+                'po_number': null
+            };
+        },
+
+        validateCheckout: function () {
+            if (this.clientConfig.isAheadworksCheckoutEnabled) {
+                return this._beforeAction();
+            }
+
+            if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === true) {
+                return $.Deferred().resolve();
+            }
+            errorProcessor.process({
+                responseText: JSON.stringify({message:"Unable to process you request."})
+            }, this.messageContainer);
+            return $.Deferred().reject();
+        },
+
+        /**
          * Before Sezzle Button onClick Action
          *
          * @returns {Promise}
          */
         beforeOnClick: function () {
-            payload.createSezzleCheckout = true;
+            payload = {
+                cartId: quote.getQuoteId(),
+                billingAddress: quote.billingAddress(),
+                paymentMethod: this.getSezzlePayment(),
+                createSezzleCheckout: true
+            };
             if (!customer.isLoggedIn()) {
                 serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/create-checkout', {
                     cartId: quote.getQuoteId()
@@ -238,6 +270,7 @@ define([
             this.clientConfig.inContextMode = window.checkoutConfig.payment.sezzlepay.inContextMode;
             this.clientConfig.inContextTransactionMode = window.checkoutConfig.payment.sezzlepay.inContextTransactionMode;
             this.clientConfig.inContextApiVersion = window.checkoutConfig.payment.sezzlepay.inContextApiVersion;
+            this.clientConfig.isAheadworksCheckoutEnabled = window.checkoutConfig.payment.sezzlepay.isAheadworksCheckoutEnabled;
 
             return this.clientConfig;
         }

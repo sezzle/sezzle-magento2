@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Sezzle\Sezzlepay\Block\Onepage\Success" name="sezzle.checkout.success" template="Sezzle_Sezzlepay::checkout/onepage/success.phtml" cacheable="false"/>
+        </referenceContainer>
+    </body>
+</page>

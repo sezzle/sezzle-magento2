@@ -30,13 +30,13 @@ interface IdentityInterface
     public function isInContextModeEnabled();
 
     /**
-     * Set store
+     * Get store
      * @return Store
      */
     public function getStore();
 
     /**
-     * Get Store
+     * Set Store
      * @param Store $store
      * @return mixed
      */

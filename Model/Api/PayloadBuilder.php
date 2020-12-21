@@ -11,9 +11,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
-use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Helper\Util;
+use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
  * Class PayloadBuilder
@@ -87,6 +87,7 @@ class PayloadBuilder
      */
     private function buildOrderPayload($quote, $reference)
     {
+        $this->sezzleHelper->logSezzleActions("Order Total : " . $quote->getBaseGrandTotal());
         $orderPayload = [
             "intent" => "AUTH",
             "reference_id" => $reference,
@@ -201,7 +202,7 @@ class PayloadBuilder
         foreach ($quote->getAllVisibleItems() as $item) {
             $productName = $item->getName();
             $productSku = $item->getSku();
-            $productQuantity = $item->getQtyOrdered();
+            $productQuantity = $item->getQty();
             $itemData = [
                 "name" => $productName,
                 "sku" => $productSku,

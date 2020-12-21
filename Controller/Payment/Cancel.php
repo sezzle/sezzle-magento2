@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Controller\Payment;
 
+use Magento\Framework\Exception\LocalizedException;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
 
 /**
@@ -17,6 +18,7 @@ class Cancel extends Sezzle
 {
     /**
      * Restore the quote if any
+     * @throws LocalizedException
      */
     public function execute()
     {

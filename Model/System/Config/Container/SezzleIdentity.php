@@ -285,8 +285,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     public function isInContextCheckout()
     {
-        return $this->isInContextModeEnabled()
-            && !$this->isMobileOrTablet();
+        return $this->isInContextModeEnabled();
     }
 
     /**

@@ -38,9 +38,7 @@ define(
             },
 
             isInContextCheckout: function () {
-                var isInContextCheckout = window.checkoutConfig.payment.sezzlepay.isInContextCheckout,
-                    isMobileOrTablet = window.checkoutConfig.payment.sezzlepay.isMobileOrTablet;
-                    return isInContextCheckout && !isMobileOrTablet;
+                return window.checkoutConfig.payment.sezzlepay.allowInContextCheckout;
             },
 
             /**
@@ -54,9 +52,15 @@ define(
             /**
              * Place Order click event
              */
-            placeOrderWithSezzle: function () {
+            placeOrderWithSezzle: function (data, event) {
                 var self = this;
-                    self._getMethodRenderComponent().continueToSezzle();
+
+                if (event) {
+                    event.preventDefault();
+                }
+                this._beforeAction().done(function () {
+                    self._getMethodRenderComponent().continueToSezzle(data, event);
+                });
             }
         });
     }
