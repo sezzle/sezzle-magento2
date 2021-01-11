@@ -7,6 +7,8 @@
 
 namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
+use Magento\Framework\Exception\NoSuchEntityException;
+
 /**
  * Class SezzleIdentity
  * @package Sezzle\Sezzlepay\Model\System\Config\Container
@@ -29,6 +31,10 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_STATIC_WIDGET = 'payment/sezzlepay/static_widget';
     const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
+
+    const XML_PATH_WIDGET_INSTALLMENT = 'payment/sezzlepay/widget_installment';
+    const XML_PATH_WIDGET_INSTALLMENT_PRICE = 'payment/sezzlepay/widget_installment_price_path';
+
     const XML_PATH_TOKENIZE = 'payment/sezzlepay/tokenize';
 
     const XML_PATH_INCONTEXT_ACTIVE = 'payment/sezzlepay/active_in_context';
@@ -295,5 +301,27 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         $userAgent = $this->httpHeader->getHttpUserAgent();
         return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isInstallmentWidgetEnabled()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_WIDGET_INSTALLMENT,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getInstallmentWidgetPricePath()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_WIDGET_INSTALLMENT_PRICE,
+            $this->getStore()->getStoreId()
+        );
     }
 }

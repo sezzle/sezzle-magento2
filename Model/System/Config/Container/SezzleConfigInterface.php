@@ -94,6 +94,20 @@ interface SezzleConfigInterface extends IdentityInterface
     public function isWidgetEnabledForCartPage();
 
     /**
+     * Get installment widget status for checkout page
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function isInstallmentWidgetEnabled();
+
+    /**
+     * Get installment widget price path
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getInstallmentWidgetPricePath();
+
+    /**
      * Get tokenization status
      * @return bool
      * @throws NoSuchEntityException

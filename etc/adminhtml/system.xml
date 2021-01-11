@@ -186,6 +186,22 @@
                         <comment>Makes you enable Sezzle Widget in Cart Page</comment>
                         <config_path>payment/sezzlepay/widget_cart</config_path>
                     </field>
+                    <!-- widget installment -->
+                    <field id="widget_installment" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Installment Widget in Checkout Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Makes you enable Sezzle Installment Widget in Checkout Page</comment>
+                        <config_path>payment/sezzlepay/widget_installment</config_path>
+                    </field>
+                    <!-- widget installment price path -->
+                    <field id="widget_installment_price_path" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Path to Price Element</label>
+                        <depends>
+                            <field id="widget_installment">1</field>
+                        </depends>
+                        <comment>e.g. .grand.totals>.amount</comment>
+                        <config_path>payment/sezzlepay/widget_installment_price_path</config_path>
+                    </field>
                 </group>
                 <group id="sezzle_developer" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Developer Settings]]></label>
