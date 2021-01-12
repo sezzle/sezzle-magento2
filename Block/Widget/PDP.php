@@ -110,6 +110,20 @@ class PDP extends View
     }
 
     /**
+     * Get Widget Type
+     *
+     * @return bool|string
+     */
+    public function getWidgetType()
+    {
+        try {
+            return $this->sezzleConfig->isStaticWidgetEnabled() ? "static" : "standard";
+        } catch (NoSuchEntityException $e) {
+            return false;
+        }
+    }
+
+    /**
      * Get Widget Script for PDP status
      *
      * @return string

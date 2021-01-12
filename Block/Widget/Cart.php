@@ -8,12 +8,12 @@
 namespace Sezzle\Sezzlepay\Block\Widget;
 
 use Magento\Catalog\Model\ResourceModel\Url;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\View\Element\Template\Context;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
-use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Checkout\Model\Session as CheckoutSession;
 
 /**
  * Class Cart
@@ -90,6 +90,20 @@ class Cart extends \Magento\Checkout\Block\Cart
     {
         try {
             return $this->sezzleConfig->isStaticWidgetEnabled();
+        } catch (NoSuchEntityException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get Widget Type
+     *
+     * @return bool|string
+     */
+    public function getWidgetType()
+    {
+        try {
+            return $this->sezzleConfig->isStaticWidgetEnabled() ? "static" : "standard";
         } catch (NoSuchEntityException $e) {
             return false;
         }

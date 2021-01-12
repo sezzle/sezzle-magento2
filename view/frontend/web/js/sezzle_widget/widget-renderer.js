@@ -7,16 +7,39 @@ define([
     'jquery',
     'ko',
     'uiComponent',
+    'Magento_Checkout/js/model/quote',
+    'Magento_SalesRule/js/model/coupon',
     'sezzleWidgetCore',
     'domReady!'
-], function ($, ko, Component) {
+], function ($, ko, Component, quote, coupon) {
     'use strict';
 
+    var totals = quote.getTotals(),
+        couponCode = coupon.getCouponCode(),
+        isApplied = coupon.getIsApplied();
+
+    if (totals()) {
+        couponCode(totals()['coupon_code']);
+    }
+    isApplied(couponCode() != null);
+
     return Component.extend({
-        is_static_widget: false, merchant_uuid: null, is_cart: false,
+        is_static_widget: false,
+        merchant_uuid: null,
+        is_cart: false,
+        widget_type: "standard",
+        price_path: null,
+        isApplied: isApplied,
 
         initialize: function () {
             this._super();
+            if (this.widget_type === "installment") {
+                setInterval(() => {
+                    console.log(isApplied())
+                }, 300)
+                this.processInstallmentWidget();
+                return;
+            }
             if (this.is_static_widget) {
                 if (!this.is_cart) {
                     this.processStaticSezzleWidget();
@@ -56,6 +79,10 @@ define([
             $("head").append(script);
 
             console.log("dom loaded");
-        }
+        },
+
+        processInstallmentWidget: function() {
+            return;
+        },
     });
 });
