@@ -1,13 +1,9 @@
 document.addEventListener('readystatechange', function () {
     setInterval(function () {
-        // if (!sezzle_installment_widget.order_total_container_class_name || !sezzle_installment_widget.order_total_container_parent_class_name) {
-        //     return;
-        // }
-        // let checkoutTotalParent = document.querySelector("."+sezzle_installment_widget.order_total_container_parent_class_name);
-        // if (!checkoutTotalParent) {
-        //     return;
-        // }
-        let checkoutTotal = 100, //checkoutTotalParent.querySelector("."+sezzle_installment_widget.order_total_container_class_name), // WooCommerce
+        if (!window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath) {
+            return;
+        }
+        let checkoutTotal = document.querySelector(window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath), // WooCommerce
             installmentBox = document.querySelector('#sezzle-installment-widget-box');
         if (!checkoutTotal || !installmentBox) {
             return;
@@ -345,7 +341,7 @@ document.addEventListener('readystatechange', function () {
             }
 
             // calculates installment price from total price element content
-            let totalPriceText = "$100.00";
+            let totalPriceText = checkoutTotal.innerText;
             let includeComma = commaDelimited(totalPriceText);
             let price = parsePriceString(totalPriceText, includeComma);
             let installmentAmount = (price/4).toFixed(2);
