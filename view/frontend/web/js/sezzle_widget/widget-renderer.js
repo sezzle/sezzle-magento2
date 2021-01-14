@@ -7,7 +7,6 @@ define([
     'jquery',
     'ko',
     'uiComponent',
-    'sezzleWidgetCore',
     'domReady!'
 ], function ($, ko, Component) {
     'use strict';
@@ -32,18 +31,6 @@ define([
                         break;
                     }
                     this.processLegacySezzleWidget();
-                    break;
-                case "static":
-                    if (!this.is_cart) {
-                        this.processStaticSezzleWidget();
-                        break;
-                    }
-                    setInterval(() => {
-                        if (document.getElementById("sezzle-widget")
-                            && !document.getElementById("sezzle-widget").innerHTML) {
-                            this.processStaticSezzleWidget();
-                        }
-                    }, 300)
                     break;
                 case "installment":
                     this.processInstallmentWidget();
