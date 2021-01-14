@@ -28,4 +28,11 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Framework\Notification\MessageList">
+        <arguments>
+            <argument name="messages" xsi:type="array">
+                <item name="releaseNotification" xsi:type="string">Sezzle\Sezzlepay\Model\Notification\Release</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
