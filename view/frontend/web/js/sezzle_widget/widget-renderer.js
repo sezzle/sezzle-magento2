@@ -53,8 +53,6 @@ define([
                 isComma = priceOnly[priceOnly.length - 3] === ',';
             } else if (priceOnly.indexOf('.') > -1) {
                 isComma = priceOnly[priceOnly.length - 3] !== '.';
-            } else {
-                isComma = false;
             }
             return isComma;
         },
@@ -78,17 +76,6 @@ define([
                 formattedPrice.replace(',', '.');
             }
             return parseFloat(formattedPrice);
-        },
-
-        // process sezzle widget from host server
-        processStaticSezzleWidget: function () {
-            console.log("Sezzle widget rendering started from host server");
-            const renderSezzle = new AwesomeSezzle({
-                amount: this.price,
-                alignment: this.alignment
-            });
-            renderSezzle.init();
-            console.log("Sezzle widget is rendered.");
         },
 
         // process sezzle widget from sezzle server
