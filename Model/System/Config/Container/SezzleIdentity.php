@@ -307,6 +307,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     public function getInstallmentWidgetPricePath()
     {
+        if (!$this->isInstallmentWidgetEnabled()) {
+            return "";
+        }
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_INSTALLMENT_PRICE,
             $this->getStore()->getStoreId()
