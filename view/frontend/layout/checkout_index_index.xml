@@ -7,7 +7,13 @@
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <link src="Sezzle_Sezzlepay::js/sezzle_widget/installment-widget.js"/>
+    </head>
     <body>
+        <referenceBlock name="head.additional">
+            <block class="Sezzle\Sezzlepay\Block\Widget\Installment" name="sezzle.widget.installment.view" template="installment.phtml"/>
+        </referenceBlock>
         <referenceBlock name="checkout.root">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">
