@@ -181,11 +181,11 @@ document.addEventListener('readystatechange', function () {
 			margin: 10px 0px -24px 0px;
 		}
 		.sezzle-modal-logo {
-			background-image: url('https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg');
-			background-repeat: no-repeat;
-			background-position: center;
-			height: 20px;
-			margin: 20px 0px 35px;
+			background-image: url('https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg') !important;
+			background-repeat: no-repeat !important;
+			background-position: center !important;
+			height: 20px !important;
+			margin: 20px 0px 35px !important;
 		}
 		.sezzle-modal-title {
 			text-align: center;
@@ -244,7 +244,7 @@ document.addEventListener('readystatechange', function () {
 				font-size: 18px;
 			}
 			.sezzle-modal-logo {
-				height: 30px;
+				height: 30px !important;
 			}
 			.sezzle-modal-title {
 				font-size: 30px;
@@ -467,12 +467,12 @@ document.addEventListener('readystatechange', function () {
             installmentWidget.innerHTML = '4 paiement sans inte&#769;re&#770;ts r&#233;partis sur 6 semaines';
             modalTitle.innerHTML = 'Comment &#231;a marche';
             firstParagraph.innerHTML = 'R&#233;partissez le montant de votre commande en 4 versements sans int&#233;r&#234;ts &#233;tal&#233;s sur 6 semaines. Pas de frais si vous payez &#224; temps, pas d\'impact sur votre cote de cr&#233;dit.';
-            secondParagraph.innerHTML = 'Apr&#232;s avoir cliqu&#233; sur &#171;&nbsp;Terminer la commande&nbsp;&#187; sur ce site, vous serez redirig&#233;(e) vers Sezzle pour finaliser votre achat en toute s&#233;curit&#233;.'
+            secondParagraph.innerHTML = 'Apr&#232;s avoir cliqu&#233; sur &#171;&nbsp;Continuez vers Sezzle&nbsp;&#187; sur ce site, vous serez redirig&#233;(e) vers Sezzle pour finaliser votre achat en toute s&#233;curit&#233;.'
         } else {
             installmentWidget.innerHTML = '4 interest-free payments over 6 weeks';
             modalTitle.innerHTML = 'How it works';
             firstParagraph.innerHTML = 'Split your entire order into 4 interest-free payments over 6 weeks. No fees if you pay on time with zero impact to your credit.';
-            secondParagraph.innerHTML = 'After clicking "Complete Order" on this site, you will be redirected to Sezzle to complete your purchase securely.';
+            secondParagraph.innerHTML = 'After clicking "Continue to Sezzle" on this site, you will be redirected to Sezzle to complete your purchase securely.';
         }
 
         // creates the info icon to open the modal
