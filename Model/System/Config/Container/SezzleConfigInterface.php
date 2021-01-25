@@ -73,13 +73,6 @@ interface SezzleConfigInterface extends IdentityInterface
     public function getMinCheckoutAmount();
 
     /**
-     * Static Widget Status
-     * @return bool
-     * @throws NoSuchEntityException
-     */
-    public function isStaticWidgetEnabled();
-
-    /**
      * Get widget script status for PDP
      * @return bool
      * @throws NoSuchEntityException
@@ -92,6 +85,20 @@ interface SezzleConfigInterface extends IdentityInterface
      * @throws NoSuchEntityException
      */
     public function isWidgetEnabledForCartPage();
+
+    /**
+     * Get installment widget status for checkout page
+     * @return bool
+     * @throws NoSuchEntityException
+     */
+    public function isInstallmentWidgetEnabled();
+
+    /**
+     * Get installment widget price path
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    public function getInstallmentWidgetPricePath();
 
     /**
      * Get tokenization status

@@ -1,0 +1,22 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<?php
+use Sezzle\Sezzlepay\Block\Widget\Installment;
+/** @var $block Installment */
+?>
+<?php if ($block->isInstallmentWidgetEnabled()) : ?>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "widgetRenderer": {
+                "widget_type" : "installment"
+            }
+        }
+    }
+</script>
+<?php endif; ?>

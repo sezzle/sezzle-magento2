@@ -26,6 +26,7 @@ use Sezzle\Sezzlepay\Block\Onepage\Success;
         };
 
         customerData.set('checkout-data', clearData);
+        customerData.invalidate(['cart']);
     })
 </script>
 <?php endif; ?>

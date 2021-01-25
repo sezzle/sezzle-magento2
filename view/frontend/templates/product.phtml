@@ -14,10 +14,10 @@ use Sezzle\Sezzlepay\Block\Widget\PDP;
     {
         "*": {
             "widgetRenderer": {
-                "is_static_widget" : <?php echo $block->isStaticWidgetEnabled(); ?>,
                 "merchant_uuid" : "<?php echo $block->getMerchantUUID(); ?>",
                 "price" : "<?php echo $block->getItemPrice() ?>",
-                "alignment" : "<?php echo $block->getAlignment() ?>"
+                "alignment" : "<?php echo $block->getAlignment() ?>",
+                "widget_type" : "<?php echo $block->getWidgetType(); ?>"
             }
         }
     }

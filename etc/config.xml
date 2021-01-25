@@ -24,7 +24,10 @@
                 <title>Sezzle</title>
                 <active_in_context>0</active_in_context>
                 <settlement_reports>0</settlement_reports>
-                <static_widget>0</static_widget>
+                <widget_pdp>0</widget_pdp>
+                <widget_cart>0</widget_cart>
+                <widget_installment>1</widget_installment>
+                <widget_installment_price_path>.grand.totals>.amount</widget_installment_price_path>
 	        </sezzlepay>
         </payment>
     </default>

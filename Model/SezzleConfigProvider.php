@@ -86,7 +86,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'inContextMode' => $this->sezzleConfig->getInContextMode(),
                     'inContextTransactionMode' => $this->sezzleConfig->getPaymentMode(),
                     'inContextApiVersion' => 'v2',
-                    'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout')
+                    'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout'),
+                    'installmentWidgetPricePath' => $this->sezzleConfig->getInstallmentWidgetPricePath()
                 ]
             ]
         ];

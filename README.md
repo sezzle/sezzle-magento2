@@ -103,12 +103,11 @@ _**Note** : Automatic Syncing requires cron to be enabled._
 
 ### Widget Configuration
 
-* Set `Enable Static Widget Module` to `Yes` if you want to load the Sezzle Widget from your server else widget will be loaded from Sezzle server.
 * Set `Enable Widget in PDP` to `Yes` for adding widget script in the Product Display Page which will help in enabling `Sezzle Widget` Modal in PDP.
 * Set `Enable Widget in Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Sezzle Widget` Modal in Cart Page.
+* Set `Enable Installment Widget in Checkout Page` to `Yes` if you want to show the Sezzle Installment Widget under Sezzle Payment Option in Checkout Page.
+* Set `Path to Price Element`. This is the path to the element in the Checkout Page where the order total text value will be detected.
 * Save the configuration and clear the cache.
-
-_**Note** : Make sure to put `<div id='sezzle-widget'/>` after the price element in the PDP and Cart theme files once you have enabled `Static Widget` Module._
 
 ### Developer Configuration
 
