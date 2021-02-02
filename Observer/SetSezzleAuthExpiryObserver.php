@@ -66,7 +66,7 @@ class SetSezzleAuthExpiryObserver implements ObserverInterface
         try {
             /** @var OrderInterface $order */
             $order = $observer->getEvent()->getOrder();
-            if ($order->getPayment()->getMethod() != Sezzle::PAYMENT_CODE) {
+            if (!$order || $order->getPayment()->getMethod() != Sezzle::PAYMENT_CODE) {
                 return $this;
             }
             $this->sezzleHelper->logSezzleActions('****Sezzle capture time setting start****');
