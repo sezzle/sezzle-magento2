@@ -44,14 +44,13 @@ class SendOrderConfirmationMail implements ObserverInterface
     /**
      * @param Observer $observer
      * @return SendOrderConfirmationMail
-     * @throws NoSuchEntityException
      */
     public function execute(Observer $observer)
     {
         /* @var Order $order */
         $order = $observer->getEvent()->getData('order');
         try {
-            if (!$order->getId() || $order->getPayment()->getMethod() !== Sezzle::PAYMENT_CODE) {
+            if (!$order || $order->getPayment()->getMethod() !== Sezzle::PAYMENT_CODE) {
                 return $this;
             }
             $this->orderSender->send($order);
