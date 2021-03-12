@@ -32,6 +32,9 @@ define([
                     this.processLegacySezzleWidget();
                     break;
                 case "installment":
+                    if (window.checkoutConfig.payment.sezzlepay === 'undefined') {
+                        break;
+                    }
                     var pricePath = window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath;
                     if (!pricePath) {
                         break;
