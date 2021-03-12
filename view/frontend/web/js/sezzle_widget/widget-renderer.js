@@ -20,7 +20,6 @@ define([
         merchant_uuid: null,
         is_cart: false,
         widget_type: "standard",
-        price_path: window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath,
 
         initialize: function () {
             this._super();
@@ -33,7 +32,11 @@ define([
                     this.processLegacySezzleWidget();
                     break;
                 case "installment":
-                    this.processInstallmentWidget();
+                    var pricePath = window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath;
+                    if (!pricePath) {
+                        break;
+                    }
+                    this.processInstallmentWidget(pricePath);
                     break;
             }
         },
@@ -91,10 +94,10 @@ define([
         },
 
         // process sezzle installment widget in checkout page from host server
-        processInstallmentWidget: function () {
+        processInstallmentWidget: function (pricePath) {
             setInterval(() => {
-                this.addInstallmentWidgetContainer();
-                var priceElement = document.querySelector(this.price_path),
+                this.addInstallmentWidgetContainer(pricePath);
+                var priceElement = document.querySelector(pricePath),
                     installmentPriceElement = document.getElementsByClassName("sezzle-payment-schedule-prices")[0];
                 if (!priceElement || !priceElement.innerText) {
                     priceElement = document.querySelector(".estimated-price");
@@ -123,10 +126,10 @@ define([
         },
 
         // add installment widget container inside sezzle payment section
-        addInstallmentWidgetContainer: function () {
+        addInstallmentWidgetContainer: function (pricePath) {
             var sezzlePaymentLine = document.querySelector('#sezzle-method');
             if (!document.getElementById('sezzle-installment-widget-box') && sezzlePaymentLine) {
-                $.cookieStorage.set('sezzle-total', document.querySelector(this.price_path).innerText);
+                $.cookieStorage.set('sezzle-total', document.querySelector(pricePath).innerText);
                 sezzlePaymentLine = sezzlePaymentLine.getElementsByClassName("payment-method-content")[0];
                 var sezzleCheckoutWidget = document.createElement('div');
                 sezzleCheckoutWidget.id = 'sezzle-installment-widget-box';
