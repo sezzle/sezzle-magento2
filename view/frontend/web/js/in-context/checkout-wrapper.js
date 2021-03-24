@@ -14,7 +14,8 @@ define([
     'Magento_Checkout/js/model/full-screen-loader',
     'Magento_Checkout/js/model/url-builder',
     'Magento_Checkout/js/model/error-processor',
-    'Magento_Checkout/js/model/payment/additional-validators'
+    'Magento_Checkout/js/model/payment/additional-validators',
+    'Magento_CheckoutAgreements/js/model/agreements-assigner'
 ], function (
     $,
     $t,
@@ -26,7 +27,8 @@ define([
     fullScreenLoader,
     urlBuilder,
     errorProcessor,
-    additionalValidators) {
+    additionalValidators,
+    agreementsAssigner) {
     'use strict';
 
     var serviceUrl,
@@ -222,10 +224,12 @@ define([
          * @returns {Promise}
          */
         beforeOnClick: function () {
+            var paymentData = this.getSezzlePayment();
+            agreementsAssigner(paymentData);
             payload = {
                 cartId: quote.getQuoteId(),
                 billingAddress: quote.billingAddress(),
-                paymentMethod: this.getSezzlePayment(),
+                paymentMethod: paymentData,
                 createSezzleCheckout: true
             };
             if (!customer.isLoggedIn()) {
