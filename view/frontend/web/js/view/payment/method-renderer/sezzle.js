@@ -14,7 +14,8 @@ define(
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/url-builder',
-        'Magento_Checkout/js/model/error-processor'
+        'Magento_Checkout/js/model/error-processor',
+        'Magento_CheckoutAgreements/js/model/agreements-assigner'
     ],
     function (
         $,
@@ -26,7 +27,8 @@ define(
         quote,
         fullScreenLoader,
         urlBuilder,
-        errorProcessor) {
+        errorProcessor,
+        agreementsAssigner) {
         'use strict';
 
         var serviceUrl,
@@ -108,13 +110,15 @@ define(
              * Handle redirection
              */
             handleRedirectAction: function () {
-                var self = this;
+                var self = this,
+                    paymentData = this.getData();
 
                 this.isPlaceOrderActionAllowed(false);
+                agreementsAssigner(paymentData);
                 payload = {
                     cartId: quote.getQuoteId(),
                     billingAddress: quote.billingAddress(),
-                    paymentMethod: this.getData(),
+                    paymentMethod: paymentData,
                     createSezzleCheckout : true
                 };
                 if (!customer.isLoggedIn()) {
