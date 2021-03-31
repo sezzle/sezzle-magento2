@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Controller\Payment;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Model\QuoteIdMask;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
 
 /**
@@ -37,14 +38,13 @@ class Complete extends Sezzle
             $cartManager = $this->customerSession->isLoggedIn() ? self::CART_MANAGER : self::GUEST_CART_MANAGER;
             $quoteId = $quote->getId();
             if ($cartManager === self::GUEST_CART_MANAGER) {
-                $quoteIdMask = $this->quoteIdMaskFactory->create()->load($quote->getId(), "quote_id");
-                $quoteId = $quoteIdMask->getMaskedId();
+                $quoteId = $this->quoteIdToMaskedQuoteIdInterface->execute($quoteId);
             }
+
             $orderId = $this->$cartManager->placeOrder($quoteId);
             if (!$orderId) {
                 throw new CouldNotSaveException(__("Unable to place the order."));
             }
-
             $redirect = 'checkout/onepage/success';
         } catch (CouldNotSaveException $e) {
             $this->handleException($e);

@@ -17,7 +17,7 @@ use Magento\Framework\Json\Helper\Data;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\GuestCartManagementInterface;
-use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -91,9 +91,9 @@ abstract class Sezzle extends Action
      */
     protected $guestCartManagement;
     /**
-     * @var QuoteIdMaskFactory
+     * @var QuoteIdToMaskedQuoteIdInterface
      */
-    protected $quoteIdMaskFactory;
+    protected $quoteIdToMaskedQuoteIdInterface;
 
     /**
      * Payment constructor.
@@ -112,7 +112,7 @@ abstract class Sezzle extends Action
      * @param CartRepositoryInterface $cartRepository
      * @param CartManagementInterface $cartManagement
      * @param GuestCartManagementInterface $guestCartManagement
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
      */
     public function __construct(
         Context $context,
@@ -130,7 +130,7 @@ abstract class Sezzle extends Action
         CartRepositoryInterface $cartRepository,
         CartManagementInterface $cartManagement,
         GuestCartManagementInterface $guestCartManagement,
-        QuoteIdMaskFactory $quoteIdMaskFactory
+        QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -146,7 +146,7 @@ abstract class Sezzle extends Action
         $this->cartRepository = $cartRepository;
         $this->cartManagement = $cartManagement;
         $this->guestCartManagement = $guestCartManagement;
-        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
+        $this->quoteIdToMaskedQuoteIdInterface = $quoteIdToMaskedQuoteIdInterface;
         parent::__construct($context);
     }
 

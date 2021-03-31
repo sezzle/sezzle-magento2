@@ -63,7 +63,7 @@ class OrderManagement implements OrderManagementInterface
         AddressInterface $billingAddress = null
     ) {
         try {
-            if ($this->paymentInformationManagement->savePaymentInformation(
+            if (!$this->paymentInformationManagement->savePaymentInformation(
                 $cartId,
                 $paymentMethod,
                 $billingAddress
