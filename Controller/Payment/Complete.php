@@ -34,7 +34,13 @@ class Complete extends Sezzle
                 $this->sezzleHelper->logSezzleActions("****Start Tokenize record end****");
             }
 
-            $orderId = $this->cartManagement->placeOrder($quote->getId());
+            $cartManager = $this->customerSession->isLoggedIn() ? self::CART_MANAGER : self::GUEST_CART_MANAGER;
+            $quoteId = $quote->getId();
+            if ($cartManager === self::GUEST_CART_MANAGER) {
+                $quoteIdMask = $this->quoteIdMaskFactory->create()->load($quote->getId(), "quote_id");
+                $quoteId = $quoteIdMask->getMaskedId();
+            }
+            $orderId = $this->$cartManager->placeOrder($quoteId);
             if (!$orderId) {
                 throw new CouldNotSaveException(__("Unable to place the order."));
             }

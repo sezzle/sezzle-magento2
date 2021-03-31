@@ -16,6 +16,8 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Json\Helper\Data;
 use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\GuestCartManagementInterface;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -28,6 +30,8 @@ use Sezzle\Sezzlepay\Model\Tokenize;
  */
 abstract class Sezzle extends Action
 {
+    const GUEST_CART_MANAGER = "guestCartManagement";
+    const CART_MANAGER = "cartManagement";
     /**
      * @var CustomerSession
      */
@@ -82,6 +86,14 @@ abstract class Sezzle extends Action
      * @var CartManagementInterface
      */
     protected $cartManagement;
+    /**
+     * @var GuestCartManagementInterface
+     */
+    protected $guestCartManagement;
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    protected $quoteIdMaskFactory;
 
     /**
      * Payment constructor.
@@ -99,6 +111,8 @@ abstract class Sezzle extends Action
      * @param Tokenize $tokenize
      * @param CartRepositoryInterface $cartRepository
      * @param CartManagementInterface $cartManagement
+     * @param GuestCartManagementInterface $guestCartManagement
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
      */
     public function __construct(
         Context $context,
@@ -114,7 +128,9 @@ abstract class Sezzle extends Action
         OrderSender $orderSender,
         Tokenize $tokenize,
         CartRepositoryInterface $cartRepository,
-        CartManagementInterface $cartManagement
+        CartManagementInterface $cartManagement,
+        GuestCartManagementInterface $guestCartManagement,
+        QuoteIdMaskFactory $quoteIdMaskFactory
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -129,6 +145,8 @@ abstract class Sezzle extends Action
         $this->tokenize = $tokenize;
         $this->cartRepository = $cartRepository;
         $this->cartManagement = $cartManagement;
+        $this->guestCartManagement = $guestCartManagement;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         parent::__construct($context);
     }
 

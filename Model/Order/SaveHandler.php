@@ -167,14 +167,14 @@ class SaveHandler
     /**
      * Start Sezzle Checkout
      *
-     * @param Quote $quote
      * @param bool $createSezzleCheckout
      * @return string
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function createCheckout($quote, $createSezzleCheckout)
+    public function createCheckout($createSezzleCheckout)
     {
+        $quote = $this->checkoutSession->getQuote();
         $this->sezzleHelper->logSezzleActions("****Starting Sezzle Checkout****");
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         $this->sezzleHelper->logSezzleActions("Customer Id : " . $quote->getCustomer()->getId());
