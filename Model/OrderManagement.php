@@ -63,17 +63,14 @@ class OrderManagement implements OrderManagementInterface
         AddressInterface $billingAddress = null
     ) {
         try {
-            /** @var Quote $quote */
-            $quote = $this->cartRepository->getActive($cartId);
-            if (!$quote) {
-                throw new NotFoundException(__("Cart ID is invalid."));
-            }
-            $this->paymentInformationManagement->savePaymentInformation(
+            if (!$this->paymentInformationManagement->savePaymentInformation(
                 $cartId,
                 $paymentMethod,
                 $billingAddress
-            );
-            return $this->getSaveHandler()->createCheckout($quote, $createSezzleCheckout);
+            )) {
+                throw new NotFoundException(__("Unable to save payment information."));
+            }
+            return $this->getSaveHandler()->createCheckout($createSezzleCheckout);
         } catch (NoSuchEntityException $e) {
             throw new CouldNotSaveException(
                 __($e->getMessage()),
