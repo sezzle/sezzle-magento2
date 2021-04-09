@@ -8,6 +8,8 @@
 namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\ScopeInterface;
+use Zend_Http_UserAgent_Mobile;
 
 /**
  * Class SezzleIdentity
@@ -25,6 +27,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
     const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
+    const XML_PATH_GATEWAY_REGION = 'payment/sezzlepay/gateway_region';
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
     const XML_PATH_PAYMENT_ACTION = 'payment/sezzlepay/payment_action';
     const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
@@ -48,6 +51,11 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_SETTLEMENT_REPORTS = 'payment/sezzlepay/settlement_reports';
     const XML_PATH_SETTLEMENT_REPORTS_RANGE = 'payment/sezzlepay/settlement_reports_range';
 
+    const GATEWAY_URL = "https://%sgateway.%s/%s";
+    const SEZZLE_DOMAIN = "%ssezzle.com";
+
+    private $supportedRegions = ['US/CA', 'EU'];
+
     /**
      * @inheritdoc
      */
@@ -55,7 +63,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         return $this->scopeConfig->isSetFlag(
             self::XML_PATH_PAYMENT_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->getStore()->getStoreId()
         );
     }
@@ -107,17 +115,31 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
+    public function getGatewayRegion()
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_GATEWAY_REGION,
+            $this->getStore()->getStoreId()
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getSezzleBaseUrl()
     {
-        $paymentMode = $this->getPaymentMode();
-        switch ($paymentMode) {
-            case self::PROD_MODE:
-                return $this->liveGatewayUrl;
-            case self::SANDBOX_MODE:
-                return $this->sandboxGatewayUrl;
-            default:
-                return null;
-        }
+        $gatewayRegion = $this->getGatewayRegion()
+            ? $this->getGatewayRegion()
+            : $this->supportedRegions[0];
+        return $this->getGatewayUrl('v2', $gatewayRegion);
+//        switch ($paymentMode) {
+//            case self::PROD_MODE:
+//                return $this->liveGatewayUrl;
+//            case self::SANDBOX_MODE:
+//                return $this->sandboxGatewayUrl;
+//            default:
+//                return null;
+//        }
     }
 
     /**
@@ -288,7 +310,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     public function isMobileOrTablet()
     {
         $userAgent = $this->httpHeader->getHttpUserAgent();
-        return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
+        return Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 
     /**
@@ -314,5 +336,34 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             self::XML_PATH_WIDGET_INSTALLMENT_PRICE,
             $this->getStore()->getStoreId()
         );
+    }
+
+    /**
+     * Get Sezzle domain
+     *
+     * @param string $gatewayRegion
+     * @return string
+     */
+    private function getSezzleSomain($gatewayRegion = '')
+    {
+        switch ($gatewayRegion) {
+            case $this->supportedRegions[1]:
+                return sprintf(self::SEZZLE_DOMAIN, 'eu.');
+            case $this->supportedRegions[0]:
+            default:
+                return sprintf(self::SEZZLE_DOMAIN, '');
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getGatewayUrl($apiVersion, $gatewayRegion = '')
+    {
+        $sezzleDomain = $this->getSezzleSomain($gatewayRegion);
+        if ($this->getPaymentMode() === self::SANDBOX_MODE) {
+            return sprintf(self::GATEWAY_URL, 'sandbox.', $sezzleDomain, $apiVersion);
+        }
+        return sprintf(self::GATEWAY_URL, "", $sezzleDomain, $apiVersion);
     }
 }

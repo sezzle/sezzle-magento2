@@ -45,6 +45,13 @@ interface SezzleConfigInterface extends IdentityInterface
     public function getMerchantUUID();
 
     /**
+     * Get Gateway Region
+     * @return string|null
+     * @throws NoSuchEntityException
+     */
+    public function getGatewayRegion();
+
+    /**
      * Get Sezzle base url
      * @return string|null
      * @throws NoSuchEntityException
@@ -163,4 +170,14 @@ interface SezzleConfigInterface extends IdentityInterface
      * @return bool
      */
     public function isMobileOrTablet();
+
+    /**
+     * Get Gateway URL
+     *
+     * @param string $apiVersion
+     * @param string $gatewayRegion
+     * @return mixed
+     * @throws NoSuchEntityException
+     */
+    public function getGatewayUrl($apiVersion, $gatewayRegion = '');
 }
