@@ -47,19 +47,19 @@ use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
  */
 class V2 implements V2Interface
 {
-    const SEZZLE_AUTH_ENDPOINT = "/v2/authentication";
-    const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
-    const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%s";
-    const SEZZLE_GET_CUSTOMER_ENDPOINT = "/v2/customer/%s";
-    const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/capture";
-    const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/refund";
-    const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/release";
-    const SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT = "/v2/order/%s/reauthorize";
-    const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/v2/customer/%s/order";
-    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
+    const SEZZLE_AUTH_ENDPOINT = "/authentication";
+    const SEZZLE_CREATE_SESSION_ENDPOINT = "/session";
+    const SEZZLE_GET_ORDER_ENDPOINT = "/order/%s";
+    const SEZZLE_GET_CUSTOMER_ENDPOINT = "/customer/%s";
+    const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/order/%s/capture";
+    const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/order/%s/refund";
+    const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/order/%s/release";
+    const SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT = "/order/%s/reauthorize";
+    const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/customer/%s/order";
+    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/token/%s/session";
 
-    const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/v2/settlements/summaries";
-    const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/v2/settlements/details/%s";
+    const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
+    const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
 
     /**
      * @var SezzleConfigInterface

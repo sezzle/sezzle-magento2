@@ -45,9 +45,6 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
     const XML_PATH_CRON_LOGS = 'payment/sezzlepay/send_logs_via_cron';
 
-    private $liveGatewayUrl = "https://gateway.sezzle.com";
-    private $sandboxGatewayUrl = "https://sandbox.gateway.sezzle.com";
-
     const XML_PATH_SETTLEMENT_REPORTS = 'payment/sezzlepay/settlement_reports';
     const XML_PATH_SETTLEMENT_REPORTS_RANGE = 'payment/sezzlepay/settlement_reports_range';
 
@@ -132,14 +129,6 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             ? $this->getGatewayRegion()
             : $this->supportedRegions[0];
         return $this->getGatewayUrl('v2', $gatewayRegion);
-//        switch ($paymentMode) {
-//            case self::PROD_MODE:
-//                return $this->liveGatewayUrl;
-//            case self::SANDBOX_MODE:
-//                return $this->sandboxGatewayUrl;
-//            default:
-//                return null;
-//        }
     }
 
     /**

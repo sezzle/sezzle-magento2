@@ -7,13 +7,12 @@
 
 namespace Sezzle\Sezzlepay\Observer;
 
+use Exception;
 use Magento\Framework\App\Config\ValueFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Magento\Framework\Exception\InputException;
+use Sezzle\Sezzlepay\Model\System\Config\Config;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 use Sezzle\Sezzlepay\Model\System\Config\Source\Payment\GatewayRegion;
 
@@ -32,24 +31,25 @@ class AddGatewayRegionObserver implements ObserverInterface
      * @var GatewayRegion
      */
     private $gatewayRegion;
+    /**
+     * @var Config
+     */
+    private $config;
 
     /**
      * AddGatewayRegionObserver constructor.
-     * @param ValueFactory $configValueFactory
+     * @param Config $config
      */
     public function __construct(
-        GatewayRegion $gatewayRegion,
-        ValueFactory $configValueFactory
+        Config $config
     ) {
-        $this->gatewayRegion = $gatewayRegion;
-        $this->configValueFactory = $configValueFactory;
+        $this->config = $config;
     }
 
     /**
      * @param Observer $observer
      * @return AddGatewayRegionObserver
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
+     * @throws InputException
      */
     public function execute(Observer $observer)
     {
@@ -67,29 +67,11 @@ class AddGatewayRegionObserver implements ObserverInterface
             return $this;
         }
 
-        $scope = "default";
-        $scopeId = 0;
-        if ($website) {
-            $scope = StoreScopeInterface::SCOPE_WEBSITES;
-            $scopeId = $website;
-        } elseif ($store) {
-            $scope = StoreScopeInterface::SCOPE_WEBSITES;
-            $scopeId = $store;
+        try {
+            $this->config->setGatewayRegion($website, $store);
+        } catch (Exception $e) {
+            throw new InputException(__('Sezzle API Keys not validated'));
         }
-
-        $gatewayRegion = $this->gatewayRegion->getValue();
-        $this->configValueFactory->create()->load(
-            SezzleIdentity::XML_PATH_GATEWAY_REGION,
-            'path'
-        )->setValue(
-            $gatewayRegion
-        )->setPath(
-            SezzleIdentity::XML_PATH_GATEWAY_REGION
-        )->setScope(
-            $scope
-        )->setScopeId(
-            $scopeId
-        )->save();
 
         return $this;
     }
