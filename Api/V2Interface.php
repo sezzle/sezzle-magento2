@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Api;
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\ScopeInterface;
 use Sezzle\Sezzlepay\Api\Data\AuthInterface;
 use Sezzle\Sezzlepay\Api\Data\AuthorizationInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
@@ -22,12 +23,11 @@ interface V2Interface
     /**
      * Authenticate user
      *
-     * @param string $url
+     * @param bool $region
+     * @param string $scope
      * @return AuthInterface
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
-    public function authenticate($url = "");
+    public function authenticate($region = false, $scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Create Sezzle Checkout Session

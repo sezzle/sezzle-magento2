@@ -8,13 +8,11 @@
 namespace Sezzle\Sezzlepay\Observer;
 
 use Exception;
-use Magento\Framework\App\Config\ValueFactory;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\InputException;
 use Sezzle\Sezzlepay\Model\System\Config\Config;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
-use Sezzle\Sezzlepay\Model\System\Config\Source\Payment\GatewayRegion;
 
 /**
  * Class AddGatewayRegionObserver
@@ -22,15 +20,6 @@ use Sezzle\Sezzlepay\Model\System\Config\Source\Payment\GatewayRegion;
  */
 class AddGatewayRegionObserver implements ObserverInterface
 {
-
-    /**
-     * @var ValueFactory
-     */
-    private $configValueFactory;
-    /**
-     * @var GatewayRegion
-     */
-    private $gatewayRegion;
     /**
      * @var Config
      */

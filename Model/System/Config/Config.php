@@ -14,6 +14,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 use Sezzle\Sezzlepay\Model\System\Config\Source\Payment\GatewayRegion;
 
@@ -73,6 +74,10 @@ class Config
      * @var \Magento\Config\Model\ResourceModel\Config
      */
     private $resourceConfig;
+    /**
+     * @var Data
+     */
+    private $sezzleHelper;
 
     /**
      * Config constructor.
@@ -81,6 +86,7 @@ class Config
      * @param StoreManagerInterface $storeManager
      * @param GatewayRegion $gatewayRegion
      * @param \Magento\Config\Model\ResourceModel\Config $resourceConfig
+     * @param Data $sezzleHelper
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
@@ -89,13 +95,15 @@ class Config
         Http $request,
         StoreManagerInterface $storeManager,
         GatewayRegion $gatewayRegion,
-        \Magento\Config\Model\ResourceModel\Config $resourceConfig
+        \Magento\Config\Model\ResourceModel\Config $resourceConfig,
+        Data $sezzleHelper
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->request = $request;
         $this->storeManager = $storeManager;
         $this->gatewayRegion = $gatewayRegion;
         $this->resourceConfig = $resourceConfig;
+        $this->sezzleHelper = $sezzleHelper;
 
         // Find store ID and scope
         $this->websiteId = $request->getParam('website', 0);
@@ -183,11 +191,10 @@ class Config
      * @param int $websiteScope
      * @param int $storeScope
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function setGatewayRegion($websiteScope, $storeScope)
     {
-        $scope = 'default';
+        $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
         $scopeId = 0;
         if ($websiteScope) {
             $scope = StoreScopeInterface::SCOPE_WEBSITES;
@@ -197,11 +204,13 @@ class Config
             $scopeId = $storeScope;
         }
 
-        $gatewayRegion = $this->gatewayRegion->getValue();
+        $gatewayRegion = $this->gatewayRegion->getValue($scope);
         if (!$gatewayRegion) {
+            $this->sezzleHelper->logSezzleActions("Gateway Region not found");
             throw new AuthenticationException(__('Unable to authenticate.'));
         }
 
+        $this->sezzleHelper->logSezzleActions(sprintf("Gateway Region: %s", $gatewayRegion));
         $this->resourceConfig->saveConfig(
             SezzleIdentity::XML_PATH_GATEWAY_REGION,
             $gatewayRegion,

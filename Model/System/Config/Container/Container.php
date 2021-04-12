@@ -111,7 +111,7 @@ abstract class Container implements IdentityInterface
      */
     protected function getConfigValue($path, $storeId, $scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->scopeConfig->getValue(
+        return $this->scopeConfig-> getValue(
             $path,
             $scope,
             $storeId
