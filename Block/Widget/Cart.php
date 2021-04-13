@@ -14,6 +14,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\View\Element\Template\Context;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 
 /**
  * Class Cart
@@ -30,6 +31,10 @@ class Cart extends \Magento\Checkout\Block\Cart
      * @var Data
      */
     private $pricingHelper;
+    /**
+     * @var SezzleHelper
+     */
+    private $sezzleHelper;
 
     /**
      * Cart constructor.
@@ -41,6 +46,7 @@ class Cart extends \Magento\Checkout\Block\Cart
      * @param \Magento\Framework\App\Http\Context $httpContext
      * @param SezzleConfigInterface $sezzleConfig
      * @param Data $pricingHelper
+     * @param SezzleHelper $sezzleHelper
      * @param array $data
      */
     public function __construct(
@@ -52,10 +58,12 @@ class Cart extends \Magento\Checkout\Block\Cart
         \Magento\Framework\App\Http\Context $httpContext,
         SezzleConfigInterface $sezzleConfig,
         Data $pricingHelper,
+        SezzleHelper $sezzleHelper,
         array $data = []
     ) {
         $this->sezzleConfig = $sezzleConfig;
         $this->pricingHelper = $pricingHelper;
+        $this->sezzleHelper = $sezzleHelper;
         parent::__construct(
             $context,
             $customerSession,
@@ -130,5 +138,22 @@ class Cart extends \Magento\Checkout\Block\Cart
     public function getAlignment()
     {
         return "right";
+    }
+
+    /**
+     * Get Widget URL
+     *
+     * @return mixed
+     */
+    public function getWidgetUrl()
+    {
+        if (!$this->getMerchantUUID()) {
+            $this->sezzleHelper->logSezzleActions("Cannot provide widget URL as Merchant UUID is empty");
+            return null;
+        }
+        $gatewayRegion = $this->sezzleConfig->getGatewayRegion();
+        $baseUrl = $this->sezzleConfig->getWidgetUrl('v1', $gatewayRegion);
+        $this->sezzleHelper->logSezzleActions("Widget URL served");
+        return sprintf("$baseUrl/javascript/price-widget?uuid=%s", $this->getMerchantUUID());
     }
 }

@@ -12,7 +12,9 @@ use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 use Zend\Log\Logger;
 use Zend\Log\Writer\Stream;
 use Zend_Http_UserAgent_Mobile;
@@ -28,10 +30,6 @@ class Data extends AbstractHelper
     const SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH = '/vendor/sezzle/sezzlepay/composer.json';
 
     /**
-     * @var SezzleConfigInterface
-     */
-    private $sezzleConfig;
-    /**
      * @var File
      */
     private $file;
@@ -39,6 +37,10 @@ class Data extends AbstractHelper
      * @var \Magento\Framework\Json\Helper\Data
      */
     private $jsonHelper;
+    /**
+     * @var StoreManagerInterface
+     */
+    private $storeManager;
 
     /**
      * Initialize dependencies.
@@ -46,17 +48,17 @@ class Data extends AbstractHelper
      * @param Context $context
      * @param File $file
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
-     * @param SezzleConfigInterface $sezzleConfig
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Context $context,
         File $file,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
-        SezzleConfigInterface $sezzleConfig
+        StoreManagerInterface $storeManager
     ) {
         $this->file = $file;
         $this->jsonHelper = $jsonHelper;
-        $this->sezzleConfig = $sezzleConfig;
+        $this->storeManager = $storeManager;
         parent::__construct($context);
     }
 
@@ -69,7 +71,12 @@ class Data extends AbstractHelper
     public function logSezzleActions($data = null)
     {
         try {
-            if ($this->sezzleConfig->isLogTrackerEnabled()) {
+            $logTrackerEnabled = $this->scopeConfig->getValue(
+                SezzleIdentity::XML_PATH_LOG_TRACKER,
+                ScopeInterface::SCOPE_STORE,
+                $this->storeManager->getStore()->getId()
+            );
+            if ($logTrackerEnabled) {
                 $writer = new Stream(BP . self::SEZZLE_LOG_FILE_PATH);
                 $logger = new Logger();
                 $logger->addWriter($writer);

@@ -63,6 +63,14 @@ class Config
     ];
 
     /**
+     * @var string[]
+     */
+    private $supportedGatewayRegions = [
+        'US/CA',
+        'EU'
+    ];
+
+    /**
      * Config constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param Http $request
@@ -157,5 +165,14 @@ class Config
     public function getSupportedMerchantCountryCodes()
     {
         return $this->supportedCountryCodes;
+    }
+
+    /**
+     * Return array of supported merchant country codes.
+     * @return array
+     */
+    public function getSupportedGatewayRegions()
+    {
+        return $this->supportedGatewayRegions;
     }
 }

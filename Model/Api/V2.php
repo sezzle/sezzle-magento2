@@ -7,10 +7,11 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
+use DateInterval;
+use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
@@ -45,19 +46,19 @@ use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
  */
 class V2 implements V2Interface
 {
-    const SEZZLE_AUTH_ENDPOINT = "/v2/authentication";
-    const SEZZLE_CREATE_SESSION_ENDPOINT = "/v2/session";
-    const SEZZLE_GET_ORDER_ENDPOINT = "/v2/order/%s";
-    const SEZZLE_GET_CUSTOMER_ENDPOINT = "/v2/customer/%s";
-    const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/capture";
-    const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/refund";
-    const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/v2/order/%s/release";
-    const SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT = "/v2/order/%s/reauthorize";
-    const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/v2/customer/%s/order";
-    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/v2/token/%s/session";
+    const SEZZLE_AUTH_ENDPOINT = "/authentication";
+    const SEZZLE_CREATE_SESSION_ENDPOINT = "/session";
+    const SEZZLE_GET_ORDER_ENDPOINT = "/order/%s";
+    const SEZZLE_GET_CUSTOMER_ENDPOINT = "/customer/%s";
+    const SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT = "/order/%s/capture";
+    const SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT = "/order/%s/refund";
+    const SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT = "/order/%s/release";
+    const SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT = "/order/%s/reauthorize";
+    const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/customer/%s/order";
+    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/token/%s/session";
 
-    const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/v2/settlements/summaries";
-    const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/v2/settlements/details/%s";
+    const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
+    const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
 
     /**
      * @var SezzleConfigInterface
@@ -206,7 +207,6 @@ class V2 implements V2Interface
      *
      * @return AuthInterface
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     private function authenticate()
     {
@@ -233,7 +233,7 @@ class V2 implements V2Interface
                 AuthInterface::class
             );
             return $authModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway authentication error: %1', $e->getMessage())
@@ -304,7 +304,7 @@ class V2 implements V2Interface
                 }
             }
             return $sessionModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway checkout error: %1', $e->getMessage())
@@ -338,7 +338,7 @@ class V2 implements V2Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['uuid']) && $body['uuid'] ? $body['uuid'] : "";
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway capture error: %1', $e->getMessage())
@@ -369,7 +369,7 @@ class V2 implements V2Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['uuid']) && $body['uuid'] ? $body['uuid'] : "";
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway refund error: %1', $e->getMessage())
@@ -422,7 +422,7 @@ class V2 implements V2Interface
                 $orderModel->setAuthorization($authorizationModel);
             }
             return $orderModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway order error: %1', $e->getMessage())
@@ -455,7 +455,7 @@ class V2 implements V2Interface
                 CustomerInterface::class
             );
             return $customerModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway customer error: %1', $e->getMessage())
@@ -512,7 +512,7 @@ class V2 implements V2Interface
             }
             $authorizationModel->setApproved(isset($body['authorization']['approved']));
             return $authorizationModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway create order error: %1', $e->getMessage())
@@ -561,7 +561,7 @@ class V2 implements V2Interface
                 }
             }
             return $tokenizeCustomerModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get token error: %1', $e->getMessage())
@@ -592,7 +592,7 @@ class V2 implements V2Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['uuid']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway release payment error: %1', $e->getMessage())
@@ -610,7 +610,7 @@ class V2 implements V2Interface
         $interval = sprintf("P%sD", $range);
         $currentDate = $this->timezone->date();
         $endDate = clone $currentDate;
-        $startDate = $from ?: $currentDate->sub(new \DateInterval($interval))->format('Y-m-d');
+        $startDate = $from ?: $currentDate->sub(new DateInterval($interval))->format('Y-m-d');
         $endDate = $to ?: $endDate->format('Y-m-d');
         $url = $url . "?start-date=" . $startDate . "&end-date=" . $endDate;
         $auth = $this->authenticate();
@@ -622,7 +622,7 @@ class V2 implements V2Interface
                 ZendClient::GET
             );
             return $this->jsonHelper->jsonDecode($response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get settlement summaries error: %1', $e->getMessage())
@@ -645,7 +645,7 @@ class V2 implements V2Interface
                 null,
                 ZendClient::GET
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get settlement details error: %1', $e->getMessage())
@@ -678,7 +678,7 @@ class V2 implements V2Interface
             $body = $this->jsonHelper->jsonDecode($response["body"]);
             $responseStatusCode = $response["status_code"];
             if ($responseStatusCode == 422) {
-                throw new \Exception(__("Tokenized customer not found."));
+                throw new Exception(__("Tokenized customer not found."));
             }
             $authorizationModel = $this->authorizationInterfaceFactory->create();
             $this->dataObjectHelper->populateWithArray(
@@ -701,7 +701,7 @@ class V2 implements V2Interface
             }
             $authorizationModel->setApproved(isset($body['authorization']['approved']));
             return $authorizationModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Capturing expired auth error : %1', $e->getMessage())

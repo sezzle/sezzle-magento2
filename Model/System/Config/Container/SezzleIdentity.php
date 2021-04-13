@@ -7,7 +7,12 @@
 
 namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
-use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\AuthenticationException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
+use Zend_Http_UserAgent_Mobile;
 
 /**
  * Class SezzleIdentity
@@ -25,6 +30,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
     const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
     const XML_PATH_PRIVATE_KEY = 'payment/sezzlepay/private_key';
+    const XML_PATH_GATEWAY_REGION = 'payment/sezzlepay/gateway_region';
     const XML_PATH_MERCHANT_ID = 'payment/sezzlepay/merchant_id';
     const XML_PATH_PAYMENT_ACTION = 'payment/sezzlepay/payment_action';
     const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
@@ -42,11 +48,13 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_LOG_TRACKER = 'payment/sezzlepay/log_tracker';
     const XML_PATH_CRON_LOGS = 'payment/sezzlepay/send_logs_via_cron';
 
-    private $liveGatewayUrl = "https://gateway.sezzle.com";
-    private $sandboxGatewayUrl = "https://sandbox.gateway.sezzle.com";
-
     const XML_PATH_SETTLEMENT_REPORTS = 'payment/sezzlepay/settlement_reports';
     const XML_PATH_SETTLEMENT_REPORTS_RANGE = 'payment/sezzlepay/settlement_reports_range';
+
+    const GATEWAY_URL = "https://%sgateway.%s/%s";
+    const SEZZLE_DOMAIN = "%ssezzle.com";
+
+    const WIDGET_URL = "https://widget.%s/%s";
 
     /**
      * @inheritdoc
@@ -55,7 +63,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         return $this->scopeConfig->isSetFlag(
             self::XML_PATH_PAYMENT_ACTIVE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->getStore()->getStoreId()
         );
     }
@@ -63,137 +71,141 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function getPublicKey()
+    public function getPublicKey($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_PUBLIC_KEY,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function getPrivateKey()
+    public function getPrivateKey($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_PRIVATE_KEY,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function getPaymentMode()
+    public function getPaymentMode($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_PAYMENT_MODE,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function getMerchantUUID()
+    public function getMerchantUUID($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_MERCHANT_ID,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function getSezzleBaseUrl()
+    public function getSezzleBaseUrl($scope = ScopeInterface::SCOPE_STORE)
     {
-        $paymentMode = $this->getPaymentMode();
-        switch ($paymentMode) {
-            case self::PROD_MODE:
-                return $this->liveGatewayUrl;
-            case self::SANDBOX_MODE:
-                return $this->sandboxGatewayUrl;
-            default:
-                return null;
-        }
+        $gatewayRegion = $this->getGatewayRegion($scope) ?: $this->config->getSupportedGatewayRegions()[0];
+        return $this->getGatewayUrl('v2', $gatewayRegion, $scope);
     }
 
     /**
      * @inheritdoc
      */
-    public function isLogTrackerEnabled()
+    public function isLogTrackerEnabled($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_LOG_TRACKER,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function getPaymentAction()
+    public function getPaymentAction($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_PAYMENT_ACTION,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function getMinCheckoutAmount()
+    public function getMinCheckoutAmount($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_MIN_CHECKOUT_AMOUNT,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function isWidgetEnabledForPDP()
+    public function isWidgetEnabledForPDP($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_PDP,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function isWidgetEnabledForCartPage()
+    public function isWidgetEnabledForCartPage($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_CART,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function isTokenizationAllowed()
+    public function isTokenizationAllowed($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_TOKENIZE,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         ) ? true : false;
     }
 
     /**
      * @inheritdoc
      */
-    public function isLogsSendingToSezzleAllowed()
+    public function isLogsSendingToSezzleAllowed($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_CRON_LOGS,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         ) ? true : false;
     }
 
@@ -233,53 +245,57 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function isSettlementReportsEnabled()
+    public function isSettlementReportsEnabled($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_SETTLEMENT_REPORTS,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         ) ? true : false;
     }
 
     /**
      * @inheritdoc
      */
-    public function getSettlementReportsRange()
+    public function getSettlementReportsRange($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_SETTLEMENT_REPORTS_RANGE,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function isInContextModeEnabled()
+    public function isInContextModeEnabled($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_INCONTEXT_ACTIVE,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function getInContextMode()
+    public function getInContextMode($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_INCONTEXT_MODE,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritdoc
      */
-    public function isInContextCheckout()
+    public function isInContextCheckout($scope = ScopeInterface::SCOPE_STORE)
     {
-        return $this->isInContextModeEnabled();
+        return $this->isInContextModeEnabled($scope);
     }
 
     /**
@@ -288,31 +304,125 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     public function isMobileOrTablet()
     {
         $userAgent = $this->httpHeader->getHttpUserAgent();
-        return \Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
+        return Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 
     /**
      * @inheritDoc
      */
-    public function isInstallmentWidgetEnabled()
+    public function isInstallmentWidgetEnabled($scope = ScopeInterface::SCOPE_STORE)
     {
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_INSTALLMENT,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
         );
     }
 
     /**
      * @inheritDoc
      */
-    public function getInstallmentWidgetPricePath()
+    public function getInstallmentWidgetPricePath($scope = ScopeInterface::SCOPE_STORE)
     {
-        if (!$this->isInstallmentWidgetEnabled()) {
+        if (!$this->isInstallmentWidgetEnabled($scope)) {
             return "";
         }
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_INSTALLMENT_PRICE,
-            $this->getStore()->getStoreId()
+            $this->getStore()->getStoreId(),
+            $scope
+        );
+    }
+
+    /**
+     * Get Sezzle domain
+     *
+     * @param string $gatewayRegion
+     * @return string
+     */
+    private function getSezzleDomain($gatewayRegion = '')
+    {
+        switch ($gatewayRegion) {
+            case $this->config->getSupportedGatewayRegions()[1]:
+                return sprintf(self::SEZZLE_DOMAIN, 'eu.');
+            case $this->config->getSupportedGatewayRegions()[0]:
+            default:
+                return sprintf(self::SEZZLE_DOMAIN, '');
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE)
+    {
+        $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
+        if ($this->getPaymentMode($scope) === self::SANDBOX_MODE) {
+            return sprintf(self::GATEWAY_URL, 'sandbox.', $sezzleDomain, $apiVersion);
+        }
+        return sprintf(self::GATEWAY_URL, "", $sezzleDomain, $apiVersion);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWidgetUrl($apiVersion, $gatewayRegion = '')
+    {
+        $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
+        return sprintf(self::WIDGET_URL, $sezzleDomain, $apiVersion);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getGatewayRegion($scope = ScopeInterface::SCOPE_STORE)
+    {
+        $region = $this->getConfigValue(
+            self::XML_PATH_GATEWAY_REGION,
+            $this->getStore()->getStoreId(),
+            $scope
+        );
+        return $region ?: $this->config->getSupportedGatewayRegions()[0];
+    }
+
+    /**
+     * Set gateway region
+     *
+     * @param int $websiteScope
+     * @param int $storeScope
+     * @throws LocalizedException
+     */
+    public function setGatewayRegion($websiteScope, $storeScope)
+    {
+        $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+        $scopeId = 0;
+        if ($websiteScope) {
+            $scope = StoreScopeInterface::SCOPE_WEBSITES;
+            $scopeId = $websiteScope;
+        } elseif ($storeScope) {
+            $scope = StoreScopeInterface::SCOPE_STORES;
+            $scopeId = $storeScope;
+        }
+
+        $gatewayRegion = '';
+        foreach ($this->config->getSupportedGatewayRegions() as $region) {
+            $ok = $this->validateAPIKeys($region, $scope);
+            if ($ok) {
+                $gatewayRegion = $region;
+                break;
+            }
+        }
+        if (!$gatewayRegion) {
+            $this->sezzleHelper->logSezzleActions("Gateway Region not found");
+            throw new AuthenticationException(__('Unable to authenticate.'));
+        }
+
+        $this->sezzleHelper->logSezzleActions(sprintf("Gateway Region: %s", $gatewayRegion));
+        $this->resourceConfig->saveConfig(
+            SezzleIdentity::XML_PATH_GATEWAY_REGION,
+            $gatewayRegion,
+            $scope,
+            $scopeId
         );
     }
 }

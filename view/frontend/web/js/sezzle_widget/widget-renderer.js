@@ -17,16 +17,16 @@ define([
     });
 
     return Component.extend({
-        merchant_uuid: null,
         is_cart: false,
         widget_type: "standard",
+        widget_url: null,
 
         initialize: function () {
             this._super();
             switch (this.widget_type) {
                 case "standard":
-                    if (this.merchant_uuid === null || this.merchant_uuid === 0) {
-                        console.warn('Sezzle: merchant uuid not set, cannot render widget');
+                    if (!!!this.widget_url) {
+                        console.warn('Sezzle: widget url not set, cannot render widget');
                         break;
                     }
                     this.processLegacySezzleWidget();
@@ -90,7 +90,7 @@ define([
 
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = 'https://widget.sezzle.com/v1/javascript/price-widget?uuid=' + this.merchant_uuid;
+            script.src = this.widget_url;
             $("head").append(script);
 
             console.log("dom loaded");
