@@ -409,6 +409,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $ok = $this->validateAPIKeys($region, $scope);
             if ($ok) {
                 $gatewayRegion = $region;
+                break;
             }
         }
         if (!$gatewayRegion) {
