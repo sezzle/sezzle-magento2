@@ -12,6 +12,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\InputException;
 use Sezzle\Sezzlepay\Model\System\Config\Config;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 
 /**
@@ -21,18 +22,18 @@ use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 class AddGatewayRegionObserver implements ObserverInterface
 {
     /**
-     * @var Config
+     * @var SezzleConfigInterface
      */
-    private $config;
+    private $sezzleConfig;
 
     /**
      * AddGatewayRegionObserver constructor.
-     * @param Config $config
+     * @param SezzleConfigInterface $sezzleConfig
      */
     public function __construct(
-        Config $config
+        SezzleConfigInterface $sezzleConfig
     ) {
-        $this->config = $config;
+        $this->sezzleConfig = $sezzleConfig;
     }
 
     /**
@@ -57,7 +58,7 @@ class AddGatewayRegionObserver implements ObserverInterface
         }
 
         try {
-            $this->config->setGatewayRegion($website, $store);
+            $this->sezzleConfig->setGatewayRegion($website, $store);
         } catch (Exception $e) {
             throw new InputException(__('Sezzle API Keys not validated'));
         }

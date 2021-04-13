@@ -7,7 +7,11 @@
 
 namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\AuthenticationException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use Zend_Http_UserAgent_Mobile;
 
 /**
@@ -50,7 +54,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const GATEWAY_URL = "https://%sgateway.%s/%s";
     const SEZZLE_DOMAIN = "%ssezzle.com";
 
-    private $supportedRegions = ['US/CA', 'EU'];
+    const WIDGET_URL = "https://widget.%s/%s";
 
     /**
      * @inheritdoc
@@ -115,21 +119,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function getGatewayRegion($scope = ScopeInterface::SCOPE_STORE)
-    {
-        return $this->getConfigValue(
-            self::XML_PATH_GATEWAY_REGION,
-            $this->getStore()->getStoreId(),
-            $scope
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function getSezzleBaseUrl($scope = ScopeInterface::SCOPE_STORE)
     {
-        $gatewayRegion = $this->getGatewayRegion($scope) ?: $this->supportedRegions[0];
+        $gatewayRegion = $this->getGatewayRegion($scope) ?: $this->config->getSupportedGatewayRegions()[0];
         return $this->getGatewayUrl('v2', $gatewayRegion, $scope);
     }
 
@@ -348,12 +340,12 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      * @param string $gatewayRegion
      * @return string
      */
-    private function getSezzleSomain($gatewayRegion = '')
+    private function getSezzleDomain($gatewayRegion = '')
     {
         switch ($gatewayRegion) {
-            case $this->supportedRegions[1]:
+            case $this->config->getSupportedGatewayRegions()[1]:
                 return sprintf(self::SEZZLE_DOMAIN, 'eu.');
-            case $this->supportedRegions[0]:
+            case $this->config->getSupportedGatewayRegions()[0]:
             default:
                 return sprintf(self::SEZZLE_DOMAIN, '');
         }
@@ -364,10 +356,72 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE)
     {
-        $sezzleDomain = $this->getSezzleSomain($gatewayRegion);
+        $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
         if ($this->getPaymentMode($scope) === self::SANDBOX_MODE) {
             return sprintf(self::GATEWAY_URL, 'sandbox.', $sezzleDomain, $apiVersion);
         }
         return sprintf(self::GATEWAY_URL, "", $sezzleDomain, $apiVersion);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWidgetUrl($apiVersion, $gatewayRegion = '')
+    {
+        $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
+        return sprintf(self::WIDGET_URL, $sezzleDomain, $apiVersion);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getGatewayRegion($scope = ScopeInterface::SCOPE_STORE)
+    {
+        $region = $this->getConfigValue(
+            self::XML_PATH_GATEWAY_REGION,
+            $this->getStore()->getStoreId(),
+            $scope
+        );
+        return $region ?: $this->config->getSupportedGatewayRegions()[0];
+    }
+
+    /**
+     * Set gateway region
+     *
+     * @param int $websiteScope
+     * @param int $storeScope
+     * @throws LocalizedException
+     */
+    public function setGatewayRegion($websiteScope, $storeScope)
+    {
+        $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+        $scopeId = 0;
+        if ($websiteScope) {
+            $scope = StoreScopeInterface::SCOPE_WEBSITES;
+            $scopeId = $websiteScope;
+        } elseif ($storeScope) {
+            $scope = StoreScopeInterface::SCOPE_STORES;
+            $scopeId = $storeScope;
+        }
+
+        $gatewayRegion = '';
+        foreach ($this->config->getSupportedGatewayRegions() as $region) {
+            $ok = $this->validateAPIKeys($region, $scope);
+            if ($ok) {
+                $gatewayRegion = $region;
+            }
+        }
+        if (!$gatewayRegion) {
+            $this->sezzleHelper->logSezzleActions("Gateway Region not found");
+            throw new AuthenticationException(__('Unable to authenticate.'));
+        }
+
+        $this->sezzleHelper->logSezzleActions(sprintf("Gateway Region: %s", $gatewayRegion));
+        $this->resourceConfig->saveConfig(
+            SezzleIdentity::XML_PATH_GATEWAY_REGION,
+            $gatewayRegion,
+            $scope,
+            $scopeId
+        );
     }
 }

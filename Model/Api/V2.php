@@ -15,7 +15,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
@@ -204,20 +203,16 @@ class V2 implements V2Interface
     }
 
     /**
-     * @inheritDoc
+     * Authenticate user
+     *
+     * @return AuthInterface
+     * @throws LocalizedException
      */
-    public function authenticate($region = false, $scope = ScopeInterface::SCOPE_STORE)
+    private function authenticate()
     {
         $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_AUTH_ENDPOINT;
         $publicKey = $this->sezzleConfig->getPublicKey();
         $privateKey = $this->sezzleConfig->getPrivateKey();
-        if ($region) {
-            $gatewayUrl = $this->sezzleConfig->getGatewayUrl('v2', $region, $scope);
-            $url = "$gatewayUrl/authentication";
-            $publicKey = $this->sezzleConfig->getPublicKey($scope);
-            $privateKey = $this->sezzleConfig->getPrivateKey($scope);
-        }
-
         try {
             $authModel = $this->authFactory->create();
             $body = [

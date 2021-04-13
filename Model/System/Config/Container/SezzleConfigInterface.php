@@ -46,13 +46,6 @@ interface SezzleConfigInterface extends IdentityInterface
     public function getMerchantUUID($scope = ScopeInterface::SCOPE_STORE);
 
     /**
-     * Get Gateway Region
-     * @param string $scope
-     * @return string|null
-     */
-    public function getGatewayRegion($scope = ScopeInterface::SCOPE_STORE);
-
-    /**
      * Get Sezzle base url
      * @param string $scope
      * @return string|null
@@ -192,4 +185,30 @@ interface SezzleConfigInterface extends IdentityInterface
      * @return mixed
      */
     public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE);
+
+    /**
+     * Get Widget URL
+     *
+     * @param string $apiVersion
+     * @param string $gatewayRegion
+     * @return mixed
+     */
+    public function getWidgetUrl($apiVersion, $gatewayRegion = '');
+
+    /**
+     * Get Gateway Region
+     *
+     * @param string $scope
+     * @return string|null
+     */
+    public function getGatewayRegion($scope = ScopeInterface::SCOPE_STORE);
+
+    /**
+     * Set Gateway Region
+     *
+     * @param int $websiteScope
+     * @param int $storeScope
+     * @return mixed
+     */
+    public function setGatewayRegion($websiteScope, $storeScope);
 }
