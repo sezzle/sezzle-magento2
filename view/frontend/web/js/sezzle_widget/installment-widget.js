@@ -559,8 +559,10 @@ document.addEventListener('readystatechange', function () {
             let payment = document.createElement('span');
             if (i === 0) {
                 payment.innerHTML = translation[language].today;
+            } else if (interval === 30) {
+                payment.innerHTML = (i * 30) + " " + translation[language].days;
             } else {
-                payment.innerHTML = translation[language].week;
+                payment.innerHTML = translation[language].week + " " + (i * 2);
             }
             sampleSchedule.appendChild(payment);
         }
