@@ -32,8 +32,8 @@ class Installment extends Template
     public function __construct(
         Template\Context $context,
         SezzleConfigInterface $sezzleConfig,
-        array $data = [])
-    {
+        array $data = []
+    ) {
         $this->sezzleConfig = $sezzleConfig;
         parent::__construct($context, $data);
     }
@@ -50,20 +50,6 @@ class Installment extends Template
                 && $this->sezzleConfig->isEnabled();
         } catch (NoSuchEntityException $e) {
             return false;
-        }
-    }
-
-    /**
-     * Get Price Path
-     *
-     * @return string
-     */
-    public function getPricePath()
-    {
-        try {
-            return $this->sezzleConfig->getInstallmentWidgetPricePath();
-        } catch (NoSuchEntityException $e) {
-            return "";
         }
     }
 }

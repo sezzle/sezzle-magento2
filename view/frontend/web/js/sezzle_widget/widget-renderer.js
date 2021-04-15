@@ -44,6 +44,25 @@ define([
             }
         },
 
+        // get currency symbol
+        getCurrencySymbol: function (priceText) {
+            if (window.checkoutConfig.payment.sezzlepay.currencySymbol) {
+                return window.checkoutConfig.payment.sezzlepay.currencySymbol;
+            }
+            for (var i = 0; i < priceText.length; i++) {
+                if (/[$|€||£|₤|₹]/.test(priceText[i])) {
+                    return priceText[i];
+                }
+                // use this instead if on ISO-8859-1, expanding to include any applicable currencies
+                // https://html-css-js.com/html/character-codes/currency/
+                // if(priceText[i] == String.fromCharCode(8364)){ //€ = 8364, 128 = , 163 = £, 8377 = ₹
+                // 	currency = String.fromCharCode(8364)
+                // }
+            }
+            return '$';
+        },
+
+
         // checks if price is comma (fr) format or period (en)
         commaDelimited: function (priceText) {
             var priceOnly = '';
@@ -115,6 +134,7 @@ define([
                 }
                 $.cookieStorage.set('sezzle-total', currentTotal);
                 var priceElements = installmentPriceElement.children,
+                    currencySymbol = this.getCurrencySymbol(currentTotal),
                     includeComma = this.commaDelimited(currentTotal),
                     price = this.parsePriceString(currentTotal, includeComma),
                     installmentAmount = (price / 4).toFixed(2);
@@ -122,7 +142,7 @@ define([
                     if (i === priceElements.length - 1) {
                         installmentAmount = (price - installmentAmount * 3).toFixed(2);
                     }
-                    priceElements[i].innerText = '$' + (includeComma ? installmentAmount.replace('.', ',') : installmentAmount);
+                    priceElements[i].innerText = currencySymbol + (includeComma ? installmentAmount.replace('.', ',') : installmentAmount);
                 }
             }, 250)
 
