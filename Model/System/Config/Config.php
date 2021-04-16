@@ -66,7 +66,7 @@ class Config
      * @var string[]
      */
     private $supportedGatewayRegions = [
-        'US/CA',
+        'US',
         'EU'
     ];
 

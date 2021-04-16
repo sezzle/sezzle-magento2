@@ -9,7 +9,6 @@ namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\AuthenticationException;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use Zend_Http_UserAgent_Mobile;
@@ -55,6 +54,11 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const SEZZLE_DOMAIN = "%ssezzle.com";
 
     const WIDGET_URL = "https://widget.%s/%s";
+
+    private static $logos = [
+        'us' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
+        'eu' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png'
+    ];
 
     /**
      * @inheritdoc
@@ -386,11 +390,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     }
 
     /**
-     * Set gateway region
-     *
-     * @param int $websiteScope
-     * @param int $storeScope
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function setGatewayRegion($websiteScope, $storeScope)
     {
@@ -424,5 +424,16 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $scope,
             $scopeId
         );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLogoByGatewayRegion($gatewayRegion)
+    {
+        if ($gatewayRegion === $this->config->getSupportedGatewayRegions()[1]) {
+            return self::$logos['eu'];
+        }
+        return self::$logos['us'];
     }
 }
