@@ -70,7 +70,7 @@ define(
              * @returns string
              */
             getSezzleImgSrc: function () {
-                return window.checkoutConfig.payment.sezzlepay.logoUrl;
+                return window.checkoutConfig.payment.sezzlepay.logo;
             },
 
             /**
