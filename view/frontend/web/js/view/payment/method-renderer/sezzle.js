@@ -70,7 +70,7 @@ define(
              * @returns string
              */
             getSezzleImgSrc: function () {
-                return 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
+                return window.checkoutConfig.payment.sezzlepay.logoUrl;
             },
 
             /**

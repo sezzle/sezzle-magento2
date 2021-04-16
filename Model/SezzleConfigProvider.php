@@ -97,6 +97,10 @@ class SezzleConfigProvider implements ConfigProviderInterface
         $gatewayRegion = $this->sezzleConfig->getGatewayRegion() === $this->config->getSupportedGatewayRegions()[0]
             ? 'US'
             : $this->sezzleConfig->getGatewayRegion();
+        $sezzleLogoUrl = 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
+        if ($gatewayRegion === $this->config->getSupportedGatewayRegions()[1]) {
+            $sezzleLogoUrl = 'https://media.eu.sezzle.com/payment-method/assets/sezzle.svg';
+        }
 
         return [
             'payment' => [
@@ -109,7 +113,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout'),
                     'installmentWidgetPricePath' => $this->sezzleConfig->getInstallmentWidgetPricePath(),
                     'currencySymbol' => $this->currency->getCurrencySymbol(),
-                    'gatewayRegion' => $gatewayRegion
+                    'gatewayRegion' => $gatewayRegion,
+                    'logoUrl' => $sezzleLogoUrl
                 ]
             ]
         ];
