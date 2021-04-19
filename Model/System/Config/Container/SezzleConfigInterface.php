@@ -215,8 +215,7 @@ interface SezzleConfigInterface extends IdentityInterface
     /**
      * Get logo by gateway region
      *
-     * @param string $gatewayRegion
      * @return mixed
      */
-    public function getLogoByGatewayRegion($gatewayRegion);
+    public function getLogo();
 }

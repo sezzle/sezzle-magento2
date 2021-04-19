@@ -55,10 +55,11 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
 
     const WIDGET_URL = "https://widget.%s/%s";
 
-    private static $logos = [
+    private static $supportedGatewayRegions = [
         'us' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
         'eu' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png'
     ];
+
 
     /**
      * @inheritdoc
@@ -125,7 +126,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     public function getSezzleBaseUrl($scope = ScopeInterface::SCOPE_STORE)
     {
-        $gatewayRegion = $this->getGatewayRegion($scope) ?: $this->config->getSupportedGatewayRegions()[0];
+        $gatewayRegion = $this->getGatewayRegion($scope) ?: array_key_first(self::$supportedGatewayRegions);
         return $this->getGatewayUrl('v2', $gatewayRegion, $scope);
     }
 
@@ -346,13 +347,14 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     private function getSezzleDomain($gatewayRegion = '')
     {
-        switch ($gatewayRegion) {
-            case $this->config->getSupportedGatewayRegions()[1]:
-                return sprintf(self::SEZZLE_DOMAIN, 'eu.');
-            case $this->config->getSupportedGatewayRegions()[0]:
-            default:
-                return sprintf(self::SEZZLE_DOMAIN, '');
+        if (array_key_exists($gatewayRegion, self::$supportedGatewayRegions)) {
+            $regionSpecifier = '';
+            if ($gatewayRegion !== array_key_first(self::$supportedGatewayRegions)) {
+                $regionSpecifier = "$gatewayRegion.";
+            }
+            return sprintf(self::SEZZLE_DOMAIN, $regionSpecifier);
         }
+        return sprintf(self::SEZZLE_DOMAIN, '');
     }
 
     /**
@@ -362,7 +364,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
         if ($this->getPaymentMode($scope) === self::SANDBOX_MODE) {
-            return sprintf(self::GATEWAY_URL, 'sandbox.', $sezzleDomain, $apiVersion);
+            return sprintf(self::GATEWAY_URL, 'staging.', $sezzleDomain, $apiVersion);
         }
         return sprintf(self::GATEWAY_URL, "", $sezzleDomain, $apiVersion);
     }
@@ -386,7 +388,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $this->getStore()->getStoreId(),
             $scope
         );
-        return $region ?: $this->config->getSupportedGatewayRegions()[0];
+        return $region ?: array_key_first(self::$supportedGatewayRegions);
     }
 
     /**
@@ -405,7 +407,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
         }
 
         $gatewayRegion = '';
-        foreach ($this->config->getSupportedGatewayRegions() as $region) {
+        foreach (array_keys(self::$supportedGatewayRegions) as $region) {
             $ok = $this->validateAPIKeys($region, $scope);
             if ($ok) {
                 $gatewayRegion = $region;
@@ -429,11 +431,12 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritDoc
      */
-    public function getLogoByGatewayRegion($gatewayRegion)
+    public function getLogo()
     {
-        if ($gatewayRegion === $this->config->getSupportedGatewayRegions()[1]) {
-            return self::$logos['eu'];
+        $gatewayRegion = $this->getGatewayRegion();
+        if (array_key_exists($gatewayRegion, self::$supportedGatewayRegions)) {
+            return self::$supportedGatewayRegions[$gatewayRegion];
         }
-        return self::$logos['us'];
+        return array_key_first(self::$supportedGatewayRegions);
     }
 }

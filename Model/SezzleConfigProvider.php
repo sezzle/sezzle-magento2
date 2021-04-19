@@ -99,7 +99,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'installmentWidgetPricePath' => $this->sezzleConfig->getInstallmentWidgetPricePath(),
                     'currencySymbol' => $this->currency->getCurrencySymbol(),
                     'gatewayRegion' => $this->sezzleConfig->getGatewayRegion(),
-                    'logo' => $this->sezzleConfig->getLogoByGatewayRegion($this->sezzleConfig->getGatewayRegion()),
+                    'logo' => $this->sezzleConfig->getLogo(),
                 ]
             ]
         ];
