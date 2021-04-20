@@ -364,7 +364,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
         if ($this->getPaymentMode($scope) === self::SANDBOX_MODE) {
-            return sprintf(self::GATEWAY_URL, 'staging.', $sezzleDomain, $apiVersion);
+            return sprintf(self::GATEWAY_URL, 'sandbox.', $sezzleDomain, $apiVersion);
         }
         return sprintf(self::GATEWAY_URL, "", $sezzleDomain, $apiVersion);
     }
