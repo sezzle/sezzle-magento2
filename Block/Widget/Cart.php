@@ -151,8 +151,7 @@ class Cart extends \Magento\Checkout\Block\Cart
             $this->sezzleHelper->logSezzleActions("Cannot provide widget URL as Merchant UUID is empty");
             return null;
         }
-        $gatewayRegion = $this->sezzleConfig->getGatewayRegion();
-        $baseUrl = $this->sezzleConfig->getWidgetUrl('v1', $gatewayRegion);
+        $baseUrl = $this->sezzleConfig->getWidgetUrl('v1');
         $this->sezzleHelper->logSezzleActions("Widget URL served");
         return sprintf("$baseUrl/javascript/price-widget?uuid=%s", $this->getMerchantUUID());
     }

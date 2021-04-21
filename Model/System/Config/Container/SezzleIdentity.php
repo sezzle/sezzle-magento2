@@ -347,14 +347,8 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     private function getSezzleDomain($gatewayRegion = '')
     {
-        if (array_key_exists($gatewayRegion, self::$supportedGatewayRegions)) {
-            $regionSpecifier = '';
-            if ($gatewayRegion !== array_key_first(self::$supportedGatewayRegions)) {
-                $regionSpecifier = "$gatewayRegion.";
-            }
-            return sprintf(self::SEZZLE_DOMAIN, $regionSpecifier);
-        }
-        return sprintf(self::SEZZLE_DOMAIN, '');
+        $region = $gatewayRegion === $this->defaultRegion() ? '' : "$gatewayRegion.";
+        return sprintf(self::SEZZLE_DOMAIN, $region);
     }
 
     /**
@@ -363,18 +357,16 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE)
     {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
-        if ($this->getPaymentMode($scope) === self::SANDBOX_MODE) {
-            return sprintf(self::GATEWAY_URL, 'sandbox.', $sezzleDomain, $apiVersion);
-        }
-        return sprintf(self::GATEWAY_URL, "", $sezzleDomain, $apiVersion);
+        $env = $this->getPaymentMode($scope) === self::SANDBOX_MODE ? 'sandbox.' : '';
+        return sprintf(self::GATEWAY_URL, $env, $sezzleDomain, $apiVersion);
     }
 
     /**
      * @inheritDoc
      */
-    public function getWidgetUrl($apiVersion, $gatewayRegion = '')
+    public function getWidgetUrl($apiVersion)
     {
-        $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
+        $sezzleDomain = $this->getSezzleDomain($this->getGatewayRegion());
         return sprintf(self::WIDGET_URL, $sezzleDomain, $apiVersion);
     }
 
@@ -388,7 +380,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $this->getStore()->getStoreId(),
             $scope
         );
-        return $region ?: array_key_first(self::$supportedGatewayRegions);
+        return $region ?: $this->defaultRegion();
     }
 
     /**
@@ -433,10 +425,14 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     public function getLogo()
     {
-        $gatewayRegion = $this->getGatewayRegion();
-        if (array_key_exists($gatewayRegion, self::$supportedGatewayRegions)) {
-            return self::$supportedGatewayRegions[$gatewayRegion];
-        }
+        return self::$supportedGatewayRegions[$this->getGatewayRegion()];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    private function defaultRegion() 
+    {
         return array_key_first(self::$supportedGatewayRegions);
     }
 }

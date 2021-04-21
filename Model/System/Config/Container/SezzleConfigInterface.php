@@ -193,7 +193,7 @@ interface SezzleConfigInterface extends IdentityInterface
      * @param string $gatewayRegion
      * @return mixed
      */
-    public function getWidgetUrl($apiVersion, $gatewayRegion = '');
+    public function getWidgetUrl($apiVersion);
 
     /**
      * Get Gateway Region
