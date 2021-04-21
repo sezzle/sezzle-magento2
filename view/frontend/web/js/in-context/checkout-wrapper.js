@@ -69,14 +69,7 @@ define([
          */
         getCheckoutObject: function () {
             payload.createSezzleCheckout = false;
-            if (!customer.isLoggedIn()) {
-                serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/create-checkout', {
-                    cartId: quote.getQuoteId()
-                });
-                payload.email = quote.guestEmail;
-            } else {
-                serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/create-checkout', {});
-            }
+            serviceUrl = urlBuilder.createUrl('/sezzle/checkout', {});
 
             fullScreenLoader.startLoader();
             return storage.post(
@@ -227,19 +220,9 @@ define([
             var paymentData = this.getSezzlePayment();
             agreementsAssigner(paymentData);
             payload = {
-                cartId: quote.getQuoteId(),
-                billingAddress: quote.billingAddress(),
-                paymentMethod: paymentData,
                 createSezzleCheckout: true
             };
-            if (!customer.isLoggedIn()) {
-                serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/create-checkout', {
-                    cartId: quote.getQuoteId()
-                });
-                payload.email = quote.guestEmail;
-            } else {
-                serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/create-checkout', {});
-            }
+            serviceUrl = urlBuilder.createUrl('/sezzle/checkout', {});
 
             return storage.post(
                 serviceUrl, JSON.stringify(payload)

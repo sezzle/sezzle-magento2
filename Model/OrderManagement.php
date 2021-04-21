@@ -12,11 +12,7 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Api\Data\AddressInterface;
-use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Quote\Model\Quote;
 use Sezzle\Sezzlepay\Api\OrderManagementInterface;
 use Sezzle\Sezzlepay\Model\Order\SaveHandler;
 
@@ -56,27 +52,11 @@ class OrderManagement implements OrderManagementInterface
     /**
      * @inheritDoc
      */
-    public function createCheckout(
-        $cartId,
-        $createSezzleCheckout,
-        PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
-    ) {
+    public function createCheckout($createSezzleCheckout)
+    {
         try {
-            if (!$this->paymentInformationManagement->savePaymentInformation(
-                $cartId,
-                $paymentMethod,
-                $billingAddress
-            )) {
-                throw new NotFoundException(__("Unable to save payment information."));
-            }
             return $this->getSaveHandler()->createCheckout($createSezzleCheckout);
         } catch (NoSuchEntityException $e) {
-            throw new CouldNotSaveException(
-                __($e->getMessage()),
-                $e
-            );
-        } catch (NotFoundException $e) {
             throw new CouldNotSaveException(
                 __($e->getMessage()),
                 $e

@@ -59,7 +59,8 @@ class Config
      */
     private $supportedCountryCodes = [
         'US',
-        'CA'
+        'CA',
+        'DE'
     ];
 
     /**

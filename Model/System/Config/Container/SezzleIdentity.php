@@ -56,10 +56,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const WIDGET_URL = "https://widget.%s/%s";
 
     private static $supportedGatewayRegions = [
-        'us' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
-        'eu' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png'
+        'US' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
+        'EU' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png'
     ];
-
 
     /**
      * @inheritdoc
@@ -126,7 +125,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     public function getSezzleBaseUrl($scope = ScopeInterface::SCOPE_STORE)
     {
-        $gatewayRegion = $this->getGatewayRegion($scope) ?: array_key_first(self::$supportedGatewayRegions);
+        $gatewayRegion = $this->getGatewayRegion($scope) ?: $this->defaultRegion();
         return $this->getGatewayUrl('v2', $gatewayRegion, $scope);
     }
 
@@ -348,7 +347,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     private function getSezzleDomain($gatewayRegion = '')
     {
         $region = $gatewayRegion === $this->defaultRegion() ? '' : "$gatewayRegion.";
-        return sprintf(self::SEZZLE_DOMAIN, $region);
+        return sprintf(self::SEZZLE_DOMAIN, strtolower($region));
     }
 
     /**
@@ -357,7 +356,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE)
     {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
-        $env = $this->getPaymentMode($scope) === self::SANDBOX_MODE ? 'sandbox.' : '';
+        $env = $this->getPaymentMode($scope) === self::SANDBOX_MODE ? 'staging.' : '';
         return sprintf(self::GATEWAY_URL, $env, $sezzleDomain, $apiVersion);
     }
 
@@ -429,9 +428,11 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     }
 
     /**
-     * @inheritDoc
+     * Get default region
+     *
+     * @return string|null
      */
-    private function defaultRegion() 
+    private function defaultRegion()
     {
         return array_key_first(self::$supportedGatewayRegions);
     }
