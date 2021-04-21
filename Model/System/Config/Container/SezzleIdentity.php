@@ -356,7 +356,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE)
     {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
-        $env = $this->getPaymentMode($scope) === self::SANDBOX_MODE ? 'staging.' : '';
+        $env = $this->getPaymentMode($scope) === self::SANDBOX_MODE ? 'sandbox.' : '';
         return sprintf(self::GATEWAY_URL, $env, $sezzleDomain, $apiVersion);
     }
 
