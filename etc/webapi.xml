@@ -10,7 +10,7 @@
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
 
     <!-- Create Sezzle Checkout -->
-    <route url="/V1/sezzle/carts/mine/create-checkout" method="POST">
+    <route url="/V1/sezzle/carts/mine/checkout" method="POST">
         <service class="Sezzle\Sezzlepay\Api\OrderManagementInterface" method="createCheckout"/>
         <resources>
             <resource ref="self" />
@@ -21,29 +21,11 @@
     </route>
 
     <!-- Create Guest Sezzle Checkout -->
-    <route url="/V1/sezzle/guest-carts/:cartId/create-checkout" method="POST">
+    <route url="/V1/sezzle/guest-carts/:cartId/checkout" method="POST">
         <service class="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" method="createCheckout"/>
         <resources>
             <resource ref="anonymous" />
         </resources>
     </route>
 
-    <!--    Place Order for Sezzle Transaction-->
-<!--    <route url="/V1/sezzle/carts/mine/place-order" method="POST">-->
-<!--        <service class="Sezzle\Sezzlepay\Api\OrderManagementInterface" method="placeOrder"/>-->
-<!--        <resources>-->
-<!--            <resource ref="self" />-->
-<!--        </resources>-->
-<!--        <data>-->
-<!--            <parameter name="cartId" force="true">%cart_id%</parameter>-->
-<!--        </data>-->
-<!--    </route>-->
-
-<!--    &lt;!&ndash;    Place Order for Guest Sezzle Transaction&ndash;&gt;-->
-<!--    <route url="/V1/sezzle/guest-carts/:cartId/place-order" method="POST">-->
-<!--        <service class="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" method="placeOrder"/>-->
-<!--        <resources>-->
-<!--            <resource ref="anonymous" />-->
-<!--        </resources>-->
-<!--    </route>-->
 </routes>

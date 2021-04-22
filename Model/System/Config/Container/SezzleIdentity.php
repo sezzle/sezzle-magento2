@@ -9,7 +9,6 @@ namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\AuthenticationException;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\ScopeInterface as StoreScopeInterface;
 use Zend_Http_UserAgent_Mobile;
@@ -55,6 +54,11 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const SEZZLE_DOMAIN = "%ssezzle.com";
 
     const WIDGET_URL = "https://widget.%s/%s";
+
+    private static $supportedGatewayRegions = [
+        'US' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
+        'EU' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png'
+    ];
 
     /**
      * @inheritdoc
@@ -121,7 +125,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     public function getSezzleBaseUrl($scope = ScopeInterface::SCOPE_STORE)
     {
-        $gatewayRegion = $this->getGatewayRegion($scope) ?: $this->config->getSupportedGatewayRegions()[0];
+        $gatewayRegion = $this->getGatewayRegion($scope) ?: $this->defaultRegion();
         return $this->getGatewayUrl('v2', $gatewayRegion, $scope);
     }
 
@@ -342,13 +346,8 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     private function getSezzleDomain($gatewayRegion = '')
     {
-        switch ($gatewayRegion) {
-            case $this->config->getSupportedGatewayRegions()[1]:
-                return sprintf(self::SEZZLE_DOMAIN, 'eu.');
-            case $this->config->getSupportedGatewayRegions()[0]:
-            default:
-                return sprintf(self::SEZZLE_DOMAIN, '');
-        }
+        $region = $gatewayRegion === $this->defaultRegion() ? '' : "$gatewayRegion.";
+        return sprintf(self::SEZZLE_DOMAIN, strtolower($region));
     }
 
     /**
@@ -357,18 +356,16 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE)
     {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
-        if ($this->getPaymentMode($scope) === self::SANDBOX_MODE) {
-            return sprintf(self::GATEWAY_URL, 'sandbox.', $sezzleDomain, $apiVersion);
-        }
-        return sprintf(self::GATEWAY_URL, "", $sezzleDomain, $apiVersion);
+        $env = $this->getPaymentMode($scope) === self::SANDBOX_MODE ? 'sandbox.' : '';
+        return sprintf(self::GATEWAY_URL, $env, $sezzleDomain, $apiVersion);
     }
 
     /**
      * @inheritDoc
      */
-    public function getWidgetUrl($apiVersion, $gatewayRegion = '')
+    public function getWidgetUrl($apiVersion)
     {
-        $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
+        $sezzleDomain = $this->getSezzleDomain($this->getGatewayRegion());
         return sprintf(self::WIDGET_URL, $sezzleDomain, $apiVersion);
     }
 
@@ -382,15 +379,11 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $this->getStore()->getStoreId(),
             $scope
         );
-        return $region ?: $this->config->getSupportedGatewayRegions()[0];
+        return $region ?: $this->defaultRegion();
     }
 
     /**
-     * Set gateway region
-     *
-     * @param int $websiteScope
-     * @param int $storeScope
-     * @throws LocalizedException
+     * @inheritDoc
      */
     public function setGatewayRegion($websiteScope, $storeScope)
     {
@@ -405,7 +398,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
         }
 
         $gatewayRegion = '';
-        foreach ($this->config->getSupportedGatewayRegions() as $region) {
+        foreach (array_keys(self::$supportedGatewayRegions) as $region) {
             $ok = $this->validateAPIKeys($region, $scope);
             if ($ok) {
                 $gatewayRegion = $region;
@@ -424,5 +417,23 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $scope,
             $scopeId
         );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLogo()
+    {
+        return self::$supportedGatewayRegions[$this->getGatewayRegion()];
+    }
+
+    /**
+     * Get default region
+     *
+     * @return string|null
+     */
+    private function defaultRegion()
+    {
+        return array_key_first(self::$supportedGatewayRegions);
     }
 }

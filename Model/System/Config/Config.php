@@ -59,15 +59,8 @@ class Config
      */
     private $supportedCountryCodes = [
         'US',
-        'CA'
-    ];
-
-    /**
-     * @var string[]
-     */
-    private $supportedGatewayRegions = [
-        'US/CA',
-        'EU'
+        'CA',
+        'DE'
     ];
 
     /**
@@ -165,14 +158,5 @@ class Config
     public function getSupportedMerchantCountryCodes()
     {
         return $this->supportedCountryCodes;
-    }
-
-    /**
-     * Return array of supported merchant country codes.
-     * @return array
-     */
-    public function getSupportedGatewayRegions()
-    {
-        return $this->supportedGatewayRegions;
     }
 }

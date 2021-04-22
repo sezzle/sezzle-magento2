@@ -193,7 +193,7 @@ interface SezzleConfigInterface extends IdentityInterface
      * @param string $gatewayRegion
      * @return mixed
      */
-    public function getWidgetUrl($apiVersion, $gatewayRegion = '');
+    public function getWidgetUrl($apiVersion);
 
     /**
      * Get Gateway Region
@@ -211,4 +211,11 @@ interface SezzleConfigInterface extends IdentityInterface
      * @return mixed
      */
     public function setGatewayRegion($websiteScope, $storeScope);
+
+    /**
+     * Get logo by gateway region
+     *
+     * @return mixed
+     */
+    public function getLogo();
 }

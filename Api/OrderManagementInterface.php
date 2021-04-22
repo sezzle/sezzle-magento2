@@ -6,10 +6,6 @@
  */
 namespace Sezzle\Sezzlepay\Api;
 
-use Magento\Framework\Exception\CouldNotSaveException;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 
@@ -28,7 +24,6 @@ interface OrderManagementInterface
      * @param PaymentInterface $paymentMethod
      * @param AddressInterface|null $billingAddress
      * @return string
-     * @throws CouldNotSaveException
      */
     public function createCheckout(
         $cartId,
