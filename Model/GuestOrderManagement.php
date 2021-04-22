@@ -7,22 +7,20 @@
 
 namespace Sezzle\Sezzlepay\Model;
 
-use Magento\Checkout\Api\PaymentInformationManagementInterface;
+use Magento\Checkout\Api\GuestPaymentInformationManagementInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Sezzle\Sezzlepay\Api\OrderManagementInterface;
+use Magento\Quote\Model\QuoteIdMaskFactory;
+use Sezzle\Sezzlepay\Api\GuestOrderManagementInterface;
 use Sezzle\Sezzlepay\Model\Order\SaveHandler;
 
-/**
- * Class OrderManagement
- * @package Sezzle\Sezzlepay\Model
- */
-class OrderManagement implements OrderManagementInterface
+class GuestOrderManagement implements GuestOrderManagementInterface
 {
 
     /**
@@ -34,20 +32,27 @@ class OrderManagement implements OrderManagementInterface
      */
     private $saveHandler;
     /**
-     * @var PaymentInformationManagementInterface
+     * @var QuoteIdMaskFactory
+     */
+    private $quoteIdMaskFactory;
+    /**
+     * @var GuestPaymentInformationManagementInterface
      */
     private $paymentInformationManagement;
 
     /**
      * Payment constructor.
      * @param CartRepositoryInterface $cartRepository
-     * @param PaymentInformationManagementInterface $paymentInformationManagement
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
+     * @param GuestPaymentInformationManagementInterface $paymentInformationManagement
      */
     public function __construct(
         CartRepositoryInterface $cartRepository,
-        PaymentInformationManagementInterface $paymentInformationManagement
+        QuoteIdMaskFactory $quoteIdMaskFactory,
+        GuestPaymentInformationManagementInterface $paymentInformationManagement
     ) {
         $this->cartRepository = $cartRepository;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->paymentInformationManagement = $paymentInformationManagement;
     }
 
@@ -56,6 +61,7 @@ class OrderManagement implements OrderManagementInterface
      */
     public function createCheckout(
         $cartId,
+        $email,
         $createSezzleCheckout,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
@@ -63,14 +69,19 @@ class OrderManagement implements OrderManagementInterface
         try {
             if (!$this->paymentInformationManagement->savePaymentInformation(
                 $cartId,
+                $email,
                 $paymentMethod,
                 $billingAddress
             )) {
                 throw new NotFoundException(__("Unable to save payment information."));
             }
-
             return $this->getSaveHandler()->createCheckout($createSezzleCheckout);
         } catch (NoSuchEntityException $e) {
+            throw new CouldNotSaveException(
+                __($e->getMessage()),
+                $e
+            );
+        } catch (NotFoundException $e) {
             throw new CouldNotSaveException(
                 __($e->getMessage()),
                 $e

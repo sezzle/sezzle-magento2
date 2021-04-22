@@ -7,32 +7,18 @@ define(
     [
         'jquery',
         'Magento_Customer/js/model/customer',
-        'Magento_Checkout/js/model/resource-url-manager',
-        'mage/storage',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
-        'Magento_Checkout/js/model/quote',
-        'Magento_Checkout/js/model/full-screen-loader',
-        'Magento_Checkout/js/model/url-builder',
-        'Magento_Checkout/js/model/error-processor',
-        'Magento_CheckoutAgreements/js/model/agreements-assigner'
+        'Sezzle_Sezzlepay/js/action/create-sezzle-checkout',
     ],
     function (
         $,
         customer,
-        resourceUrlManager,
-        storage,
         Component,
         additionalValidators,
-        quote,
-        fullScreenLoader,
-        urlBuilder,
-        errorProcessor,
-        agreementsAssigner) {
+        createSezzleCheckoutAction) {
         'use strict';
 
-        var serviceUrl,
-            payload = {};
         return Component.extend({
             defaults: {
                 template: 'Sezzle_Sezzlepay/payment/sezzle'
@@ -40,6 +26,7 @@ define(
 
             /**
              * Check is customer uuid is available
+             *
              * @returns bool
              */
             hasCustomerUUID: function () {
@@ -51,6 +38,7 @@ define(
 
             /**
              * Get Place Order button name
+             *
              * @returns string
              */
             getSubmitButtonName: function () {
@@ -59,6 +47,7 @@ define(
 
             /**
              * Get loader message
+             *
              * @returns string
              */
             getLoaderMsg: function () {
@@ -67,6 +56,7 @@ define(
 
             /**
              * Get Sezzle Image src
+             *
              * @returns string
              */
             getSezzleImgSrc: function () {
@@ -74,64 +64,35 @@ define(
             },
 
             /**
-             * Get Grand Total of the current cart
-             * @returns {*}
-             */
-            getGrandTotal: function () {
-
-                var total = quote.getCalculatedTotal();
-                var format = window.checkoutConfig.priceFormat.pattern;
-
-                storage.get(resourceUrlManager.getUrlForCartTotals(quote), false)
-                    .done(
-                        function (response) {
-
-                            var amount = response.base_grand_total;
-                            var installmentFee = response.base_grand_total / 4;
-                            var installmentFeeLast = amount - installmentFee.toFixed(window.checkoutConfig.priceFormat.precision) * 3;
-
-                            $(".sezzle-grand-total").text('Total : '+format.replace(/%s/g, amount.toFixed(window.checkoutConfig.priceFormat.precision)));
-                            $(".sezzle-installment-amount").text(format.replace(/%s/g, installmentFee.toFixed(window.checkoutConfig.priceFormat.precision)));
-                            $(".sezzle-installment-amount.final").text(format.replace(/%s/g, installmentFeeLast.toFixed(window.checkoutConfig.priceFormat.precision)));
-
-                            return format.replace(/%s/g, amount);
-                        }
-                    )
-                    .fail(
-                        function (response) {
-                            //do your error handling
-
-                            return 'Error';
-                        }
-                    );
-            },
-
-            /**
              * Handle redirection
              */
             handleRedirectAction: function () {
-                var self = this,
-                    paymentData = this.getData();
+                var self = this;
 
-                this.isPlaceOrderActionAllowed(false);
-                agreementsAssigner(paymentData);
-                payload = {
-                    createSezzleCheckout : true
-                };
-                serviceUrl = urlBuilder.createUrl('/sezzle/checkout', {});
+                self.isPlaceOrderActionAllowed(false);
 
-                fullScreenLoader.startLoader();
-                return storage.post(
-                    serviceUrl, JSON.stringify(payload)
-                ).success(function (response) {
-                    var jsonResponse = $.parseJSON(response);
-                    $.mage.redirect(jsonResponse.checkout_url);
-                }).fail(function (response) {
-                    fullScreenLoader.stopLoader();
-                    errorProcessor.process(response, this.messageContainer);
-                }).always(function () {
-                    self.isPlaceOrderActionAllowed(true);
-                });
+                this.getCreateSezzleCheckoutDeferredObject()
+                    .done(
+                        function (response) {
+                            var jsonResponse = $.parseJSON(response);
+                            $.mage.redirect(jsonResponse.checkout_url);
+                        }
+                    ).always(
+                    function () {
+                        self.isPlaceOrderActionAllowed(true);
+                    }
+                );
+            },
+
+            /**
+             * Get Create Sezzle Checkout Deferred Object
+             *
+             * @return {*}
+             */
+            getCreateSezzleCheckoutDeferredObject: function () {
+                return $.when(
+                    createSezzleCheckoutAction(this.getData(), this.messageContainer)
+                );
             },
 
             /**

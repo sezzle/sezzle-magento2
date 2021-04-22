@@ -15,7 +15,7 @@ define([
     'Magento_Checkout/js/model/url-builder',
     'Magento_Checkout/js/model/error-processor',
     'Magento_Checkout/js/model/payment/additional-validators',
-    'Magento_CheckoutAgreements/js/model/agreements-assigner'
+    'Sezzle_Sezzlepay/js/action/create-sezzle-checkout',
 ], function (
     $,
     $t,
@@ -28,11 +28,10 @@ define([
     urlBuilder,
     errorProcessor,
     additionalValidators,
-    agreementsAssigner) {
+    createSezzleCheckoutAction) {
     'use strict';
 
-    var serviceUrl,
-        payload = {};
+    var serviceUrl;
 
     return {
         defaults: {
@@ -45,8 +44,8 @@ define([
         /**
          * Render Sezzle button using checkout.js
          */
-        initSezzleSDKCheckout: function (element) {
-            checkoutSmartButtons(this.prepareClientConfig(), element);
+        initSezzleSDKCheckout: function () {
+            checkoutSmartButtons(this.prepareClientConfig());
         },
 
         /**
@@ -60,34 +59,6 @@ define([
                 'apiMode': this.clientConfig.inContextTransactionMode,
                 'apiVersion': this.clientConfig.inContextApiVersion
             };
-        },
-
-        /**
-         * Get Checkout Payload
-         *
-         * @returns {string}
-         */
-        getCheckoutObject: function () {
-            payload.createSezzleCheckout = false;
-            serviceUrl = urlBuilder.createUrl('/sezzle/checkout', {});
-
-            fullScreenLoader.startLoader();
-            return storage.post(
-                serviceUrl, JSON.stringify(payload)
-            ).success(
-                function (response) {
-                    var jsonResponse = $.parseJSON(response);
-                    return jsonResponse.payload;
-                }
-            ).fail(
-                function (response) {
-                    errorProcessor.process(response, messageContainer);
-                }
-            ).always(
-                function () {
-                    fullScreenLoader.stopLoader();
-                }
-            );
         },
 
         /**
@@ -106,7 +77,7 @@ define([
             return storage.put(
                 serviceUrl
             ).success(
-                function (response) {
+                function () {
                     redirectOnSuccessAction.execute();
                 }
             ).fail(
@@ -154,6 +125,7 @@ define([
                 },
                 this.messageContainer
             );
+            fullScreenLoader.stopLoader();
         },
 
         /**
@@ -178,6 +150,7 @@ define([
                 },
                 this.messageContainer
             );
+            fullScreenLoader.stopLoader();
         },
 
         /**
@@ -197,6 +170,11 @@ define([
             };
         },
 
+        /**
+         * Validate checkout
+         *
+         * @return {*}
+         */
         validateCheckout: function () {
             if (this.clientConfig.isAheadworksCheckoutEnabled) {
                 return this._beforeAction();
@@ -217,15 +195,8 @@ define([
          * @returns {Promise}
          */
         beforeOnClick: function () {
-            var paymentData = this.getSezzlePayment();
-            agreementsAssigner(paymentData);
-            payload = {
-                createSezzleCheckout: true
-            };
-            serviceUrl = urlBuilder.createUrl('/sezzle/checkout', {});
-
-            return storage.post(
-                serviceUrl, JSON.stringify(payload)
+            return $.when(
+                createSezzleCheckoutAction(this.getData(), this.messageContainer)
             );
         },
 
