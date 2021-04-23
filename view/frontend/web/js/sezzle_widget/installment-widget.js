@@ -5,9 +5,9 @@ document.addEventListener('readystatechange', function () {
         }
         let checkoutTotal = document.querySelector(window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath), // WooCommerce
             installmentBox = document.querySelector('#sezzle-installment-widget-box');
-        // if (document.querySelector('.totals.charge')) {
-        //     checkoutTotal = document.querySelector('.totals.charge>.amount');
-        // }
+        if (document.querySelector('.totals.charge')) {
+            checkoutTotal = document.querySelector('.totals.charge>.amount');
+        }
         if (!checkoutTotal || !installmentBox) {
             return;
         }

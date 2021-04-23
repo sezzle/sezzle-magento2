@@ -19,11 +19,11 @@ interface SezzleConfigInterface extends IdentityInterface
 
     /**
      * Get public key
-     * @param string $scope
      * @param bool $storeId
+     * @param string $scope
      * @return string|null
      */
-    public function getPublicKey($scope = ScopeInterface::SCOPE_STORE, $storeId = false);
+    public function getPublicKey($storeId = false, $scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Get private key
@@ -31,7 +31,7 @@ interface SezzleConfigInterface extends IdentityInterface
      * @param bool $storeId
      * @return string|null
      */
-    public function getPrivateKey($scope = ScopeInterface::SCOPE_STORE, $storeId = false);
+    public function getPrivateKey($storeId = false, $scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Get Payment mode
@@ -39,7 +39,7 @@ interface SezzleConfigInterface extends IdentityInterface
      * @param bool $storeId
      * @return string|null
      */
-    public function getPaymentMode($scope = ScopeInterface::SCOPE_STORE, $storeId = false);
+    public function getPaymentMode($storeId = false, $scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Get Merchant UUID
@@ -51,9 +51,10 @@ interface SezzleConfigInterface extends IdentityInterface
     /**
      * Get Sezzle base url
      * @param string $scope
+     * @param bool|string $storeId
      * @return string|null
      */
-    public function getSezzleBaseUrl($scope = ScopeInterface::SCOPE_STORE);
+    public function getSezzleBaseUrl($storeId = false, $scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Get log tracker status
@@ -113,10 +114,11 @@ interface SezzleConfigInterface extends IdentityInterface
 
     /**
      * Get complete url
+     * @param bool|string $storeId
      * @param string $scope
      * @return bool
      */
-    public function isLogsSendingToSezzleAllowed($scope = ScopeInterface::SCOPE_STORE);
+    public function isLogsSendingToSezzleAllowed($storeId = false, $scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Get complete url
@@ -188,13 +190,17 @@ interface SezzleConfigInterface extends IdentityInterface
      * @param bool $storeId
      * @return mixed
      */
-    public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE, $storeId = false);
+    public function getGatewayUrl(
+        $apiVersion,
+        $gatewayRegion = '',
+        $scope = ScopeInterface::SCOPE_STORE,
+        $storeId = false
+    );
 
     /**
      * Get Widget URL
      *
      * @param string $apiVersion
-     * @param string $gatewayRegion
      * @return mixed
      */
     public function getWidgetUrl($apiVersion);
@@ -203,9 +209,10 @@ interface SezzleConfigInterface extends IdentityInterface
      * Get Gateway Region
      *
      * @param string $scope
+     * @param bool|string $storeId
      * @return string|null
      */
-    public function getGatewayRegion($scope = ScopeInterface::SCOPE_STORE);
+    public function getGatewayRegion($scope = ScopeInterface::SCOPE_STORE, $storeId = false);
 
     /**
      * Set Gateway Region

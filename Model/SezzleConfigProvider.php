@@ -97,7 +97,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'inContextApiVersion' => 'v2',
                     'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout'),
                     'installmentWidgetPricePath' => $this->sezzleConfig->getInstallmentWidgetPricePath(),
-                    'currencySymbol' => $this->localeCurrency->getCurrency($quote->getQuoteCurrencyCode())->getSymbol(),
+                    'currencySymbol' => $this->localeCurrency->getCurrency($quote->getBaseCurrencyCode())->getSymbol(),
                     'gatewayRegion' => $this->sezzleConfig->getGatewayRegion(),
                     'logo' => $this->sezzleConfig->getLogo(),
                 ]

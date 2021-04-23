@@ -94,11 +94,21 @@ class PayloadBuilder
             "description" => $this->storeManager->getStore()->getName(),
             "requires_shipping_info" => false,
             "items" => $this->buildItemPayload($quote),
-            "discounts" => [$this->getPriceObject($quote->getShippingAddress()->getBaseDiscountAmount())],
-            "shipping_amount" => $this->getPriceObject($quote->getShippingAddress()
-                ->getBaseShippingAmount()),
-            "tax_amount" => $this->getPriceObject($quote->getShippingAddress()->getBaseTaxAmount()),
-            "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal()),
+            "discounts" => [
+                $this->getPriceObject(
+                    $quote->getShippingAddress()->getBaseDiscountAmount(),
+                    $quote->getBaseCurrencyCode()
+                )
+            ],
+            "shipping_amount" => $this->getPriceObject(
+                $quote->getShippingAddress()->getBaseShippingAmount(),
+                $quote->getBaseCurrencyCode()
+            ),
+            "tax_amount" => $this->getPriceObject(
+                $quote->getShippingAddress()->getBaseTaxAmount(),
+                $quote->getBaseCurrencyCode()
+            ),
+            "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal(), $quote->getBaseCurrencyCode()),
         ];
         if ($this->sezzleConfig->isInContextCheckout()) {
             return array_merge($orderPayload, ['checkout_mode' => $this->sezzleConfig->getInContextMode()]);
@@ -110,14 +120,14 @@ class PayloadBuilder
      * Get Price Object
      *
      * @param float $amount
+     * @param string $currency
      * @return array
-     * @throws NoSuchEntityException
      */
-    private function getPriceObject($amount)
+    private function getPriceObject($amount, $currency)
     {
         return [
             "amount_in_cents" => Util::formatToCents($amount),
-            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            "currency" => $currency
         ];
     }
 
@@ -192,11 +202,9 @@ class PayloadBuilder
      * Build Cart Item Payload
      * @param Quote $quote
      * @return array
-     * @throws NoSuchEntityException
      */
     private function buildItemPayload($quote)
     {
-        $currencyCode = $this->storeManager->getStore()->getCurrentCurrencyCode();
         $itemPayload = [];
         foreach ($quote->getAllVisibleItems() as $item) {
             $productName = $item->getName();
@@ -208,7 +216,7 @@ class PayloadBuilder
                 "quantity" => $productQuantity,
                 "price" => [
                     "amount_in_cents" => Util::formatToCents($item->getPriceInclTax()),
-                    "currency" => $currencyCode
+                    "currency" => $quote->getBaseCurrencyCode()
                 ]
             ];
             array_push($itemPayload, $itemData);

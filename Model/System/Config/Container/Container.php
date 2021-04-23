@@ -197,8 +197,8 @@ abstract class Container implements IdentityInterface
         try {
             $authModel = $this->authFactory->create();
             $body = [
-                "public_key" => $this->getPublicKey($scope, $storeId),
-                "private_key" => $this->getPrivateKey($scope, $storeId)
+                "public_key" => $this->getPublicKey($storeId, $scope),
+                "private_key" => $this->getPrivateKey($storeId, $scope)
             ];
 
             $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);

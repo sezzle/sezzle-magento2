@@ -124,7 +124,7 @@ class Tokenize
             }
             /** @var TokenizeCustomerInterface $tokenDetails */
             $url = $this->customerSession->getGetTokenDetailsLink();
-            $tokenDetails = $this->v2->getTokenDetails($url, $sezzleToken);
+            $tokenDetails = $this->v2->getTokenDetails($url, $sezzleToken, $quote->getStoreId());
             if (!$tokenDetails) {
                 throw new NotFoundException(__('Unable to fetch token record from Sezzle.'));
             }
@@ -153,12 +153,21 @@ class Tokenize
     {
         $url = $payment->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK);
         $sezzleCustomerUUID = $payment->getAdditionalInformation(self::ATTR_SEZZLE_CUSTOMER_UUID);
-        $response = $this->v2->createOrderByCustomerUUID($url, $sezzleCustomerUUID, $amount);
+        $response = $this->v2->createOrderByCustomerUUID(
+            $url,
+            $sezzleCustomerUUID,
+            $amount,
+            $payment->getOrder()->getBaseCurrencyCode(),
+            $payment->getOrder()->getStoreId()
+        );
         if (!$response->getApproved()) {
             throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
         }
         if ($sezzleOrderUUID = $response->getUuid()) {
-            $payment->setAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID, $sezzleOrderUUID);
+            $payment->setAdditionalInformation(
+                Sezzle::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID,
+                $sezzleOrderUUID
+            );
         }
         if (is_array($response->getLinks())) {
             foreach ($response->getLinks() as $link) {
@@ -274,7 +283,7 @@ class Tokenize
         $url = $quote->getCustomer()
             ->getCustomAttribute(Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK)
             ->getValue();
-        $customer = $this->v2->getCustomer($url, $sezzleCustomerUUID);
+        $customer = $this->v2->getCustomer($url, $sezzleCustomerUUID, $quote->getStoreId());
         $currentTimestamp = $this->dateTime->timestamp('now');
         $sezzleCustomerUUIDExpirationTimestamp = $this->dateTime->timestamp($sezzleCustomerUUIDExpiration->getValue());
         if (!$customer->getFirstName() || ($currentTimestamp > $sezzleCustomerUUIDExpirationTimestamp)) {
