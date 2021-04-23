@@ -15,6 +15,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
@@ -205,14 +206,15 @@ class V2 implements V2Interface
     /**
      * Authenticate user
      *
+     * @param int $storeId
      * @return AuthInterface
      * @throws LocalizedException
      */
-    private function authenticate()
+    private function authenticate($storeId)
     {
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_AUTH_ENDPOINT;
-        $publicKey = $this->sezzleConfig->getPublicKey();
-        $privateKey = $this->sezzleConfig->getPrivateKey();
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . self::SEZZLE_AUTH_ENDPOINT;
+        $publicKey = $this->sezzleConfig->getPublicKey($storeId);
+        $privateKey = $this->sezzleConfig->getPrivateKey($storeId);
         try {
             $authModel = $this->authFactory->create();
             $body = [
@@ -244,14 +246,14 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function createSession($reference)
+    public function createSession($reference, $storeId)
     {
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_CREATE_SESSION_ENDPOINT;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . self::SEZZLE_CREATE_SESSION_ENDPOINT;
         $quote = $this->checkoutSession->getQuote();
         $body = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
         $sessionModel = $this->sessionInterfaceFactory->create();
         try {
-            $auth = $this->authenticate();
+            $auth = $this->authenticate($storeId);
             $response = $this->apiProcessor->call(
                 $url,
                 $auth->getToken(),
@@ -315,17 +317,17 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function capture($url, $orderUUID, $amount, $isPartialCapture)
+    public function capture($url, $orderUUID, $amount, $isPartialCapture, $currency, $storeId)
     {
         if (!$url) {
             $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $captureEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $captureEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         $payload = [
             "capture_amount" => [
                 "amount_in_cents" => $amount,
-                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+                "currency" => $currency
             ],
             "partial_capture" => $isPartialCapture
         ];
@@ -349,16 +351,16 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function refund($url, $orderUUID, $amount)
+    public function refund($url, $orderUUID, $amount, $currency, $storeId)
     {
         if (!$url) {
             $refundEndpoint = sprintf(self::SEZZLE_REFUND_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $refundEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $refundEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         $payload = [
             "amount_in_cents" => $amount,
-            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            "currency" => $currency
         ];
         try {
             $response = $this->apiProcessor->call(
@@ -380,13 +382,13 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getOrder($url, $orderUUID)
+    public function getOrder($url, $orderUUID, $storeId)
     {
         if (!$url) {
             $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $orderEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $orderEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         try {
             $response = $this->apiProcessor->call(
                 $url,
@@ -433,13 +435,13 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getCustomer($url, $customerUUID)
+    public function getCustomer($url, $customerUUID, $storeId)
     {
         if (!$url) {
             $customerEndpoint = sprintf(self::SEZZLE_GET_CUSTOMER_ENDPOINT, $customerUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $customerEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $customerEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         try {
             $response = $this->apiProcessor->call(
                 $url,
@@ -466,21 +468,21 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function createOrderByCustomerUUID($url, $customerUUID, $amount)
+    public function createOrderByCustomerUUID($url, $customerUUID, $amount, $currency, $storeId)
     {
         $quote = $this->checkoutSession->getQuote();
         $reference = $quote->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         if (!$url) {
             $authorizeEndpoint = sprintf(self::SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT, $customerUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $authorizeEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $authorizeEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         $payload = [
             "intent" => 'AUTH',
             "reference_id" => $reference,
             "order_amount" => [
                 "amount_in_cents" => $amount,
-                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+                "currency" => $currency
             ]
         ];
         try {
@@ -523,13 +525,13 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getTokenDetails($url, $token)
+    public function getTokenDetails($url, $token, $storeId)
     {
         $sessionTokenEndpoint = sprintf(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token);
         if (!$url) {
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $sessionTokenEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $sessionTokenEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         try {
             $response = $this->apiProcessor->call(
                 $url,
@@ -572,16 +574,16 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function release($url, $orderUUID, $amount)
+    public function release($url, $orderUUID, $amount, $currency, $storeId)
     {
         if (!$url) {
             $releaseEndpoint = sprintf(self::SEZZLE_RELEASE_BY_ORDER_UUID_ENDPOINT, $orderUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $releaseEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $releaseEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         $payload = [
             "amount_in_cents" => $amount,
-            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            "currency" => $currency
         ];
         try {
             $response = $this->apiProcessor->call(
@@ -605,7 +607,7 @@ class V2 implements V2Interface
      */
     public function getSettlementSummaries($from = null, $to = null)
     {
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
         $range = $this->sezzleConfig->getSettlementReportsRange();
         $interval = sprintf("P%sD", $range);
         $currentDate = $this->timezone->date();
@@ -613,7 +615,7 @@ class V2 implements V2Interface
         $startDate = $from ?: $currentDate->sub(new DateInterval($interval))->format('Y-m-d');
         $endDate = $to ?: $endDate->format('Y-m-d');
         $url = $url . "?start-date=" . $startDate . "&end-date=" . $endDate;
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         try {
             $response = $this->apiProcessor->call(
                 $url,
@@ -636,8 +638,8 @@ class V2 implements V2Interface
     public function getSettlementDetails($payoutUUID)
     {
         $settlementDetailsEndpoint = sprintf(self::SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT, $payoutUUID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . $settlementDetailsEndpoint;
-        $auth = $this->authenticate();
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $settlementDetailsEndpoint;
+        $auth = $this->authenticate($storeId);
         try {
             return $this->apiProcessor->call(
                 $url,
@@ -656,16 +658,16 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function reauthorizeOrder($url, $orderUUID, $amount)
+    public function reauthorizeOrder($url, $orderUUID, $amount, $currency, $storeId)
     {
         if (!$url) {
             $reauthEndpoint = sprintf(self::SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT, $orderUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl() . $reauthEndpoint;
+            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $reauthEndpoint;
         }
-        $auth = $this->authenticate();
+        $auth = $this->authenticate($storeId);
         $payload = [
             "amount_in_cents" => $amount,
-            "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+            "currency" => $currency
         ];
         try {
             $response = $this->apiProcessor->call(

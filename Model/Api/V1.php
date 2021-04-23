@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
+use Exception;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -110,15 +111,15 @@ class V1 implements V1Interface
     /**
      * Authenticate user
      *
+     * @param int $storeId
      * @return AuthInterface
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
-    private function authenticate()
+    private function authenticate($storeId)
     {
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_AUTH_ENDPOINT;
-        $publicKey = $this->sezzleConfig->getPublicKey();
-        $privateKey = $this->sezzleConfig->getPrivateKey();
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . self::SEZZLE_AUTH_ENDPOINT;
+        $publicKey = $this->sezzleConfig->getPublicKey($storeId);
+        $privateKey = $this->sezzleConfig->getPrivateKey($storeId);
         try {
             $authModel = $this->authFactory->create();
             $body = [
@@ -139,7 +140,7 @@ class V1 implements V1Interface
                 AuthInterface::class
             );
             return $authModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway authentication error: %1', $e->getMessage())
@@ -150,12 +151,12 @@ class V1 implements V1Interface
     /**
      * @inheritDoc
      */
-    public function capture($orderReferenceID)
+    public function capture($orderReferenceID, $storeId)
     {
         $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_ENDPOINT, $orderReferenceID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . $captureEndpoint;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $captureEndpoint;
         try {
-            $auth = $this->authenticate();
+            $auth = $this->authenticate($storeId);
             $response = $this->apiProcessor->call(
                 $url,
                 $auth->getToken(),
@@ -164,7 +165,7 @@ class V1 implements V1Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['order_reference_id']) && $body['order_reference_id'];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway capture error: %1', $e->getMessage())
@@ -175,18 +176,18 @@ class V1 implements V1Interface
     /**
      * @inheritDoc
      */
-    public function refund($orderReferenceID, $amount)
+    public function refund($orderReferenceID, $amount, $currency, $storeId)
     {
         $refundEndpoint = sprintf(self::SEZZLE_REFUND_ENDPOINT, $orderReferenceID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . $refundEndpoint;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $refundEndpoint;
         $payload = [
             "amount" => [
                 "amount_in_cents" => $amount,
-                "currency" => $this->storeManager->getStore()->getCurrentCurrencyCode()
+                "currency" => $currency
             ]
         ];
         try {
-            $auth = $this->authenticate();
+            $auth = $this->authenticate($storeId);
             $response = $this->apiProcessor->call(
                 $url,
                 $auth->getToken(),
@@ -195,7 +196,7 @@ class V1 implements V1Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return (isset($body['refund_id']) && $body['refund_id']) ? $body['refund_id'] : "";
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway refund error: %1', $e->getMessage())
@@ -206,12 +207,12 @@ class V1 implements V1Interface
     /**
      * @inheritDoc
      */
-    public function getOrder($orderReferenceID)
+    public function getOrder($orderReferenceID, $storeId)
     {
         $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderReferenceID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . $orderEndpoint;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $orderEndpoint;
         try {
-            $auth = $this->authenticate();
+            $auth = $this->authenticate($storeId);
             $response = $this->apiProcessor->call(
                 $url,
                 $auth->getToken(),
@@ -226,7 +227,7 @@ class V1 implements V1Interface
                 OrderInterface::class
             );
             return $orderModel;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get order error: %1', $e->getMessage())
@@ -237,7 +238,7 @@ class V1 implements V1Interface
     /**
      * @inheritDoc
      */
-    public function sendLogsToSezzle($merchantUUID, $log)
+    public function sendLogsToSezzle($merchantUUID, $log, $storeId)
     {
         $logEndpoint = sprintf(self::SEZZLE_LOGGER_ENDPOINT, $merchantUUID);
         $url = $this->sezzleConfig->getSezzleBaseUrl() . $logEndpoint;
@@ -248,7 +249,7 @@ class V1 implements V1Interface
             'log' => $log
         ];
         try {
-            $auth = $this->authenticate();
+            $auth = $this->authenticate($storeId);
             $response = $this->apiProcessor->call(
                 $url,
                 $auth->getToken(),
@@ -257,7 +258,7 @@ class V1 implements V1Interface
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['message']) && $body['message'] = self::LOG_POST_SUCCESS_MESSAGE;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway log error: %1', $e->getMessage())

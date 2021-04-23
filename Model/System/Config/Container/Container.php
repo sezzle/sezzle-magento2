@@ -187,17 +187,18 @@ abstract class Container implements IdentityInterface
      *
      * @param bool $region
      * @param string $scope
+     * @param bool|int $storeId
      * @return bool
      */
-    protected function validateAPIKeys($region = false, $scope = ScopeInterface::SCOPE_STORE)
+    protected function validateAPIKeys($region = false, $scope = ScopeInterface::SCOPE_STORE, $storeId = false)
     {
-        $gatewayUrl = $this->getGatewayUrl('v2', $region, $scope);
+        $gatewayUrl = $this->getGatewayUrl('v2', $region, $scope, $storeId);
         $url = "$gatewayUrl/authentication";
         try {
             $authModel = $this->authFactory->create();
             $body = [
-                "public_key" => $this->getPublicKey($scope),
-                "private_key" => $this->getPrivateKey($scope)
+                "public_key" => $this->getPublicKey($storeId, $scope),
+                "private_key" => $this->getPrivateKey($storeId, $scope)
             ];
 
             $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
