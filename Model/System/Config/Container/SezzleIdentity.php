@@ -75,11 +75,12 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function getPublicKey($scope = ScopeInterface::SCOPE_STORE)
+    public function getPublicKey($scope = ScopeInterface::SCOPE_STORE, $storeId = false)
     {
+        $storeId = $storeId ?: $this->getStore()->getStoreId();
         return $this->getConfigValue(
             self::XML_PATH_PUBLIC_KEY,
-            $this->getStore()->getStoreId(),
+            $storeId,
             $scope
         );
     }
@@ -87,11 +88,12 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function getPrivateKey($scope = ScopeInterface::SCOPE_STORE)
+    public function getPrivateKey($scope = ScopeInterface::SCOPE_STORE, $storeId = false)
     {
+        $storeId = $storeId ?: $this->getStore()->getStoreId();
         return $this->getConfigValue(
             self::XML_PATH_PRIVATE_KEY,
-            $this->getStore()->getStoreId(),
+            $storeId,
             $scope
         );
     }
@@ -99,11 +101,12 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function getPaymentMode($scope = ScopeInterface::SCOPE_STORE)
+    public function getPaymentMode($scope = ScopeInterface::SCOPE_STORE, $storeId = false)
     {
+        $storeId = $storeId ?: $this->getStore()->getStoreId();
         return $this->getConfigValue(
             self::XML_PATH_PAYMENT_MODE,
-            $this->getStore()->getStoreId(),
+            $storeId,
             $scope
         );
     }
@@ -353,10 +356,10 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritDoc
      */
-    public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE)
+    public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE, $storeId = false)
     {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
-        $env = $this->getPaymentMode($scope) === self::SANDBOX_MODE ? 'sandbox.' : '';
+        $env = $this->getPaymentMode($scope, $storeId) === self::SANDBOX_MODE ? 'sandbox.' : '';
         return sprintf(self::GATEWAY_URL, $env, $sezzleDomain, $apiVersion);
     }
 
@@ -399,7 +402,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
 
         $gatewayRegion = '';
         foreach (array_keys(self::$supportedGatewayRegions) as $region) {
-            $ok = $this->validateAPIKeys($region, $scope);
+            $ok = $this->validateAPIKeys($region, $scope, $scopeId);
             if ($ok) {
                 $gatewayRegion = $region;
                 break;

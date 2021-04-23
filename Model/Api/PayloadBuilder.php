@@ -125,7 +125,6 @@ class PayloadBuilder
      * Build Customer Payload
      * @param Quote $quote
      * @return array
-     * @throws NoSuchEntityException
      */
     private function buildCustomerPayload($quote)
     {

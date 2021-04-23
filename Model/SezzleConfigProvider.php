@@ -10,9 +10,9 @@ namespace Sezzle\Sezzlepay\Model;
 use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
-use Magento\Directory\Model\Currency;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Locale\CurrencyInterface;
 use Magento\Framework\Module\Manager;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
@@ -46,9 +46,9 @@ class SezzleConfigProvider implements ConfigProviderInterface
      */
     private $moduleManager;
     /**
-     * @var Currency
+     * @var CurrencyInterface
      */
-    private $currency;
+    private $localeCurrency;
 
     /**
      * SezzleConfigProvider constructor.
@@ -57,7 +57,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
      * @param Session $checkoutSession
      * @param Tokenize $tokenizeModel
      * @param Manager $moduleManager
-     * @param Currency $currency
+     * @param CurrencyInterface $localeCurrency
      */
     public function __construct(
         SezzleConfigInterface $sezzleConfig,
@@ -65,14 +65,14 @@ class SezzleConfigProvider implements ConfigProviderInterface
         Session $checkoutSession,
         Tokenize $tokenizeModel,
         Manager $moduleManager,
-        Currency $currency
+        CurrencyInterface $localeCurrency
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
         $this->checkoutSession = $checkoutSession;
         $this->tokenizeModel = $tokenizeModel;
         $this->moduleManager = $moduleManager;
-        $this->currency = $currency;
+        $this->localeCurrency = $localeCurrency;
     }
 
     /**
@@ -97,7 +97,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'inContextApiVersion' => 'v2',
                     'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout'),
                     'installmentWidgetPricePath' => $this->sezzleConfig->getInstallmentWidgetPricePath(),
-                    'currencySymbol' => $this->currency->getCurrencySymbol(),
+                    'currencySymbol' => $this->localeCurrency->getCurrency($quote->getQuoteCurrencyCode())->getSymbol(),
                     'gatewayRegion' => $this->sezzleConfig->getGatewayRegion(),
                     'logo' => $this->sezzleConfig->getLogo(),
                 ]

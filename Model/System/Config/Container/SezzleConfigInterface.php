@@ -20,28 +20,31 @@ interface SezzleConfigInterface extends IdentityInterface
     /**
      * Get public key
      * @param string $scope
+     * @param bool $storeId
      * @return string|null
      */
-    public function getPublicKey($scope = ScopeInterface::SCOPE_STORE);
+    public function getPublicKey($scope = ScopeInterface::SCOPE_STORE, $storeId = false);
 
     /**
      * Get private key
      * @param string $scope
+     * @param bool $storeId
      * @return string|null
      */
-    public function getPrivateKey($scope = ScopeInterface::SCOPE_STORE);
+    public function getPrivateKey($scope = ScopeInterface::SCOPE_STORE, $storeId = false);
 
     /**
      * Get Payment mode
      * @param string $scope
+     * @param bool $storeId
      * @return string|null
      */
-    public function getPaymentMode($scope = ScopeInterface::SCOPE_STORE);
+    public function getPaymentMode($scope = ScopeInterface::SCOPE_STORE, $storeId = false);
 
     /**
      * Get Merchant UUID
+     * @param string $scope
      * @return string|null
-     * @throws NoSuchEntityException
      */
     public function getMerchantUUID($scope = ScopeInterface::SCOPE_STORE);
 
@@ -182,9 +185,10 @@ interface SezzleConfigInterface extends IdentityInterface
      * @param string $apiVersion
      * @param string $gatewayRegion
      * @param string $scope
+     * @param bool $storeId
      * @return mixed
      */
-    public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE);
+    public function getGatewayUrl($apiVersion, $gatewayRegion = '', $scope = ScopeInterface::SCOPE_STORE, $storeId = false);
 
     /**
      * Get Widget URL
