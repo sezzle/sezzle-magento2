@@ -11,27 +11,27 @@ define([
 ], function ($, sezzle, errorProcessor, fullScreenLoader) {
     'use strict';
 
-    return function (clientConfig, element) {
+    return function (clientConfig) {
         var checkoutSDK = new Checkout(clientConfig.rendererComponent.getSDKConfig());
 
         checkoutSDK.renderSezzleButton(clientConfig.sezzleButtonContainerElementID);
         checkoutSDK.init({
-            onClick: function () {
+            onClick: function (event) {
                 event.preventDefault();
                 clientConfig.rendererComponent.validateCheckout().done(function () {
                     fullScreenLoader.startLoader();
-                    clientConfig.rendererComponent.beforeOnClick().success(function (response) {
+                    clientConfig.rendererComponent.beforeOnClick().done(function (response) {
                         var jsonResponse = $.parseJSON(response);
                         checkoutSDK.startCheckout({
                             checkout_url: jsonResponse.checkout_url
                         });
-                    }).always(function () {
-                        fullScreenLoader.stopLoader();
                     }).fail(
                         function (response) {
                             errorProcessor.process(response, this.messageContainer);
                         }
-                    )
+                    ).always(function () {
+                        fullScreenLoader.stopLoader();
+                    })
                 })
 
             },

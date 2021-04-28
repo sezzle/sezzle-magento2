@@ -9,8 +9,8 @@ namespace Sezzle\Sezzlepay\Block\Widget;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Block\Product\Context;
-use Magento\Catalog\Helper\Product;
 use Magento\Catalog\Block\Product\View;
+use Magento\Catalog\Helper\Product;
 use Magento\Catalog\Model\ProductTypes\ConfigInterface;
 use Magento\Customer\Model\Session;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -19,6 +19,7 @@ use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Framework\Url\EncoderInterface;
+use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 class PDP extends View
@@ -32,6 +33,10 @@ class PDP extends View
      * @var Data
      */
     protected $pricingHelper;
+    /**
+     * @var SezzleHelper
+     */
+    private $sezzleHelper;
 
     /**
      * AbstractWidget constructor.
@@ -47,6 +52,7 @@ class PDP extends View
      * @param PriceCurrencyInterface $priceCurrency
      * @param SezzleConfigInterface $sezzleConfig
      * @param Data $pricingHelper
+     * @param SezzleHelper $sezzleHelper
      * @param array $data
      */
     public function __construct(
@@ -62,10 +68,12 @@ class PDP extends View
         PriceCurrencyInterface $priceCurrency,
         SezzleConfigInterface $sezzleConfig,
         Data $pricingHelper,
+        SezzleHelper $sezzleHelper,
         array $data = []
     ) {
         $this->sezzleConfig = $sezzleConfig;
         $this->pricingHelper = $pricingHelper;
+        $this->sezzleHelper = $sezzleHelper;
         parent::__construct(
             $context,
             $urlEncoder,
@@ -129,6 +137,11 @@ class PDP extends View
         return "left";
     }
 
+    /**
+     * Get Item Price
+     *
+     * @return float|string
+     */
     public function getItemPrice()
     {
         return $this->pricingHelper->currency(
@@ -136,5 +149,21 @@ class PDP extends View
             true,
             false
         );
+    }
+
+    /**
+     * Get Widget URL
+     *
+     * @return mixed
+     */
+    public function getWidgetUrl()
+    {
+        if (!$this->getMerchantUUID()) {
+            $this->sezzleHelper->logSezzleActions("Cannot provide widget URL as Merchant UUID is empty");
+            return null;
+        }
+        $baseUrl = $this->sezzleConfig->getWidgetUrl('v1');
+        $this->sezzleHelper->logSezzleActions("Widget URL served");
+        return sprintf("$baseUrl/javascript/price-widget?uuid=%s", $this->getMerchantUUID());
     }
 }

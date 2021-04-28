@@ -14,11 +14,11 @@ use Sezzle\Sezzlepay\Block\Widget\Cart;
     {
         "*": {
             "widgetRenderer": {
-                "merchant_uuid" : "<?php echo $block->getMerchantUUID(); ?>",
                 "price" : "<?php echo $block->getGrandTotal() ?>",
                 "alignment" : "<?php echo $block->getAlignment() ?>",
                 "is_cart" : true,
-                "widget_type" : "<?php echo $block->getWidgetType(); ?>"
+                "widget_type" : "<?php echo $block->getWidgetType(); ?>",
+                "widget_url" : "<?php echo $block->getWidgetUrl(); ?>"
             }
         }
     }

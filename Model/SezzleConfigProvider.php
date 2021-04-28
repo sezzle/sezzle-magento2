@@ -12,6 +12,7 @@ use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Locale\CurrencyInterface;
 use Magento\Framework\Module\Manager;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
@@ -44,6 +45,10 @@ class SezzleConfigProvider implements ConfigProviderInterface
      * @var Manager
      */
     private $moduleManager;
+    /**
+     * @var CurrencyInterface
+     */
+    private $localeCurrency;
 
     /**
      * SezzleConfigProvider constructor.
@@ -52,19 +57,22 @@ class SezzleConfigProvider implements ConfigProviderInterface
      * @param Session $checkoutSession
      * @param Tokenize $tokenizeModel
      * @param Manager $moduleManager
+     * @param CurrencyInterface $localeCurrency
      */
     public function __construct(
         SezzleConfigInterface $sezzleConfig,
         Data $sezzleHelper,
         Session $checkoutSession,
         Tokenize $tokenizeModel,
-        Manager $moduleManager
+        Manager $moduleManager,
+        CurrencyInterface $localeCurrency
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
         $this->checkoutSession = $checkoutSession;
         $this->tokenizeModel = $tokenizeModel;
         $this->moduleManager = $moduleManager;
+        $this->localeCurrency = $localeCurrency;
     }
 
     /**
@@ -78,6 +86,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
         $isTokenizeCheckoutAllowed = $this->tokenizeModel->isCustomerUUIDValid($quote);
         $isInContextCheckout = (bool)$this->sezzleConfig->isInContextModeEnabled();
         $allowInContextCheckout = $isInContextCheckout && !$isTokenizeCheckoutAllowed;
+
         return [
             'payment' => [
                 Sezzle::PAYMENT_CODE => [
@@ -87,7 +96,10 @@ class SezzleConfigProvider implements ConfigProviderInterface
                     'inContextTransactionMode' => $this->sezzleConfig->getPaymentMode(),
                     'inContextApiVersion' => 'v2',
                     'isAheadworksCheckoutEnabled' => $this->moduleManager->isEnabled('Aheadworks_OneStepCheckout'),
-                    'installmentWidgetPricePath' => $this->sezzleConfig->getInstallmentWidgetPricePath()
+                    'installmentWidgetPricePath' => $this->sezzleConfig->getInstallmentWidgetPricePath(),
+                    'currencySymbol' => $this->localeCurrency->getCurrency($quote->getBaseCurrencyCode())->getSymbol(),
+                    'gatewayRegion' => $this->sezzleConfig->getGatewayRegion(),
+                    'logo' => $this->sezzleConfig->getLogo(),
                 ]
             ]
         ];

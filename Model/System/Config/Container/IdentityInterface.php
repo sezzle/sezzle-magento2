@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model\System\Config\Container;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\Store;
 
 /**
@@ -22,12 +23,6 @@ interface IdentityInterface
      * @throws NoSuchEntityException
      */
     public function isEnabled();
-
-    /**
-     * Check if InContext Solution is active
-     * @return bool
-     */
-    public function isInContextModeEnabled();
 
     /**
      * Get store

@@ -22,10 +22,10 @@ interface V2Interface
      * Create Sezzle Checkout Session
      *
      * @param string $reference
+     * @param int $storeId
      * @return SessionInterface
-     * @throws LocalizedException
      */
-    public function createSession($reference);
+    public function createSession($reference, $storeId);
 
     /**
      * Capture payment by Order UUID
@@ -34,10 +34,11 @@ interface V2Interface
      * @param string $orderUUID
      * @param int $amount
      * @param bool $isPartialCapture
+     * @param string $currency
+     * @param int $storeId
      * @return string|null
-     * @throws LocalizedException
      */
-    public function capture($url, $orderUUID, $amount, $isPartialCapture);
+    public function capture($url, $orderUUID, $amount, $isPartialCapture, $currency, $storeId);
 
     /**
      * Refund payment by Order uuid
@@ -45,30 +46,33 @@ interface V2Interface
      * @param string $url
      * @param string $orderUUID
      * @param int $amount
+     * @param string $currency
+     * @param int $storeId
      * @return string|null
-     * @throws LocalizedException
      */
-    public function refund($url, $orderUUID, $amount);
+    public function refund($url, $orderUUID, $amount, $currency, $storeId);
 
     /**
      * Get Order by Order UUID
      *
      * @param string $url
      * @param string $orderUUID
+     * @param int $storeId
      * @return OrderInterface
      * @throws LocalizedException
      */
-    public function getOrder($url, $orderUUID);
+    public function getOrder($url, $orderUUID, $storeId);
 
     /**
      * Get Customer by Customer UUID
      *
      * @param string $url
      * @param string $customerUUID
+     * @param int $storeId
      * @return CustomerInterface
      * @throws LocalizedException
      */
-    public function getCustomer($url, $customerUUID);
+    public function getCustomer($url, $customerUUID, $storeId);
 
     /**
      * Authorize Payment by Customer UUID
@@ -76,20 +80,22 @@ interface V2Interface
      * @param string $url
      * @param string $customerUUID
      * @param int $amount
+     * @param string $currency
+     * @param int $storeId
      * @return AuthorizationInterface
-     * @throws LocalizedException
      */
-    public function createOrderByCustomerUUID($url, $customerUUID, $amount);
+    public function createOrderByCustomerUUID($url, $customerUUID, $amount, $currency, $storeId);
 
     /**
      * Get Customer UUID by Session token
      *
      * @param string $url
      * @param string $token
+     * @param int $storeId
      * @return TokenizeCustomerInterface
      * @throws LocalizedException
      */
-    public function getTokenDetails($url, $token);
+    public function getTokenDetails($url, $token, $storeId);
 
     /**
      * Release payment by Order UUID
@@ -97,9 +103,11 @@ interface V2Interface
      * @param string $url
      * @param string $orderUUID
      * @param int $amount
+     * @param string $currency
+     * @param int $storeId
      * @return bool
      */
-    public function release($url, $orderUUID, $amount);
+    public function release($url, $orderUUID, $amount, $currency, $storeId);
 
     /**
      * Get Settlement Report Summaries
@@ -107,9 +115,6 @@ interface V2Interface
      * @param string|null $from
      * @param string|null $to
      * @return mixed
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     * @throws Exception
      */
     public function getSettlementSummaries($from = null, $to = null);
 
@@ -118,8 +123,6 @@ interface V2Interface
      *
      * @param string $payoutUUID
      * @return mixed
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function getSettlementDetails($payoutUUID);
 
@@ -129,8 +132,9 @@ interface V2Interface
      * @param string $url
      * @param string $orderUUID
      * @param int $amount
+     * @param string $currency
+     * @param int $storeId
      * @return AuthorizationInterface
-     * @throws LocalizedException
      */
-    public function reauthorizeOrder($url, $orderUUID, $amount);
+    public function reauthorizeOrder($url, $orderUUID, $amount, $currency, $storeId);
 }

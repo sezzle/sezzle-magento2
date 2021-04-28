@@ -8,7 +8,6 @@
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Checkout\Api\GuestPaymentInformationManagementInterface;
-use Magento\Customer\Api\Data\GroupInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
@@ -17,9 +16,7 @@ use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Model\QuoteManagement;
 use Sezzle\Sezzlepay\Api\GuestOrderManagementInterface;
 use Sezzle\Sezzlepay\Model\Order\SaveHandler;
 

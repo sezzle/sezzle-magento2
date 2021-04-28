@@ -17,16 +17,16 @@ define([
     });
 
     return Component.extend({
-        merchant_uuid: null,
         is_cart: false,
         widget_type: "standard",
+        widget_url: null,
 
         initialize: function () {
             this._super();
             switch (this.widget_type) {
                 case "standard":
-                    if (this.merchant_uuid === null || this.merchant_uuid === 0) {
-                        console.warn('Sezzle: merchant uuid not set, cannot render widget');
+                    if (!!!this.widget_url) {
+                        console.warn('Sezzle: widget url not set, cannot render widget');
                         break;
                     }
                     this.processLegacySezzleWidget();
@@ -43,6 +43,25 @@ define([
                     break;
             }
         },
+
+        // get currency symbol
+        getCurrencySymbol: function (priceText) {
+            if (window.checkoutConfig.payment.sezzlepay.currencySymbol) {
+                return window.checkoutConfig.payment.sezzlepay.currencySymbol;
+            }
+            for (var i = 0; i < priceText.length; i++) {
+                if (/[$|€||£|₤|₹]/.test(priceText[i])) {
+                    return priceText[i];
+                }
+                // use this instead if on ISO-8859-1, expanding to include any applicable currencies
+                // https://html-css-js.com/html/character-codes/currency/
+                // if(priceText[i] == String.fromCharCode(8364)){ //€ = 8364, 128 = , 163 = £, 8377 = ₹
+                // 	currency = String.fromCharCode(8364)
+                // }
+            }
+            return '$';
+        },
+
 
         // checks if price is comma (fr) format or period (en)
         commaDelimited: function (priceText) {
@@ -90,7 +109,7 @@ define([
 
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = 'https://widget.sezzle.com/v1/javascript/price-widget?uuid=' + this.merchant_uuid;
+            script.src = this.widget_url;
             $("head").append(script);
 
             console.log("dom loaded");
@@ -115,6 +134,7 @@ define([
                 }
                 $.cookieStorage.set('sezzle-total', currentTotal);
                 var priceElements = installmentPriceElement.children,
+                    currencySymbol = this.getCurrencySymbol(currentTotal),
                     includeComma = this.commaDelimited(currentTotal),
                     price = this.parsePriceString(currentTotal, includeComma),
                     installmentAmount = (price / 4).toFixed(2);
@@ -122,7 +142,7 @@ define([
                     if (i === priceElements.length - 1) {
                         installmentAmount = (price - installmentAmount * 3).toFixed(2);
                     }
-                    priceElements[i].innerText = '$' + (includeComma ? installmentAmount.replace('.', ',') : installmentAmount);
+                    priceElements[i].innerText = currencySymbol + (includeComma ? installmentAmount.replace('.', ',') : installmentAmount);
                 }
             }, 250)
 
