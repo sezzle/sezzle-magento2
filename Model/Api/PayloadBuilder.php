@@ -8,6 +8,7 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Locale\Resolver;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
@@ -34,21 +35,28 @@ class PayloadBuilder
      * @var Data
      */
     private $sezzleHelper;
+    /**
+     * @var Resolver
+     */
+    private $localeResolver;
 
     /**
      * PayloadBuilder constructor.
      * @param StoreManagerInterface $storeManager
      * @param SezzleConfigInterface $sezzleConfig
      * @param Data $sezzleHelper
+     * @param Resolver $localeResolver
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         SezzleConfigInterface $sezzleConfig,
-        Data $sezzleHelper
+        Data $sezzleHelper,
+        Resolver $localeResolver
     ) {
         $this->storeManager = $storeManager;
         $this->sezzleConfig = $sezzleConfig;
         $this->sezzleHelper = $sezzleHelper;
+        $this->localeResolver = $localeResolver;
     }
 
     /**
@@ -109,6 +117,7 @@ class PayloadBuilder
                 $quote->getBaseCurrencyCode()
             ),
             "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal(), $quote->getBaseCurrencyCode()),
+            "locale" => $this->localeResolver->getLocale(),
         ];
         if ($this->sezzleConfig->isInContextCheckout()) {
             return array_merge($orderPayload, ['checkout_mode' => $this->sezzleConfig->getInContextMode()]);
