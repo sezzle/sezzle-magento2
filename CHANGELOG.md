@@ -8,7 +8,7 @@
 
 ## Version 5.5.2
 
-_Mon 3rd May 2021_
+_Mon 6th May 2021_
 
 ### Supported Editions & Versions
 
@@ -20,7 +20,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- Default configs for magento version 2.
+- Default widget configs for magento version 2.
 
 ## Version 5.5.1
 

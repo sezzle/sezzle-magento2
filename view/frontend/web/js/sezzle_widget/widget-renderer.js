@@ -102,8 +102,10 @@ define([
             }
             return parseFloat(formattedPrice);
         },
+                // default widget config for sezzle
                     addDefaultConfig: function () {
-                        document.sezzleConfig = {
+               console.log("Sezzle widget config");
+ document.sezzleConfig = {
       "configGroups": [
               {
                       "targetXPath": ".product-info-main/.price-wrapper/.price",
@@ -130,12 +132,11 @@ define([
         // process sezzle widget from sezzle server
         processLegacySezzleWidget: function () {
             console.log("Sezzle widget rendering started from Sezzle end");
-            addDefaultConfig();
+            this.addDefaultConfig();
             var script = document.createElement('script');
             script.type = 'text/javascript';
             script.src = this.widget_url;
             $("head").append(script);
-
             console.log("dom loaded");
         },
 

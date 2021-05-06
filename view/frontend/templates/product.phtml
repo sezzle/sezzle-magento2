@@ -22,37 +22,4 @@ use Sezzle\Sezzlepay\Block\Widget\PDP;
         }
     }
 </script>
-<script type='text/javascript'>
-                    Sezzle = {}
-                    Sezzle.render = function () {
-                        document.sezzleConfig = {
-      "configGroups": [
-              {
-                      "targetXPath": ".product-info-main/.price-wrapper/.price",
-                      "renderToPath": "../../../..",
-                      "relatedElementActions": [
-                              {
-                                      "relatedPath": ".",
-                                      "initialAction": function(r,w){
-                                              if(getComputedStyle(r).textDecoration.indexOf("line-through") > -1){
-                                                      w.style.display = "none"
-                                              }
-                                      }
-                              }
-                      ]
-              },
-              {
-                      "targetXPath": ".amount/STRONG-0/.price",
-                      "renderToPath": "../../../../..",
-                      "urlMatch": "cart"
-              }
-      ]
-}
-                        var script = document.createElement('script');
-                        script.type = 'text/javascript';
-                        script.src = '<?php echo $block->getWidgetUrl(); ?>';
-                        document.head.appendChild(script);
-                    };
-                    Sezzle.render();
-                </script>
 <?php endif; ?>
