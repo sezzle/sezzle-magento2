@@ -107,18 +107,9 @@ define([
             document.sezzleConfig = {
                "configGroups": [
               {
-                "targetXPath": ".product-info-main/.price-wrapper/.price",
-                "renderToPath": "../../../..",
-                "relatedElementActions": [
-                 {
-                   "relatedPath": ".",
-                   "initialAction": function(r,w){
-                      if(getComputedStyle(r).textDecoration.indexOf("line-through") > -1){
-                          w.style.display = "none"
-                       }
-                   }
-                 }
-                ]
+                "targetXPath": ".price",
+                "renderToPath": "..",
+                
               },
               {
                 "targetXPath": ".amount/STRONG-0/.price",
