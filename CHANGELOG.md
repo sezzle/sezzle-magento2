@@ -20,7 +20,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- Default widget configs for magento version 2.
+- Default widget configs
 
 ## Version 5.5.1
 
