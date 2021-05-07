@@ -8,7 +8,7 @@
 
 ## Version 5.5.2
 
-_Fri 10th May 2021_
+_Mon 10th May 2021_
 
 ### Supported Editions & Versions
 
