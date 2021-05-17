@@ -105,18 +105,18 @@ define([
                 // default widget config for sezzle
         addDefaultConfig: function () {
             document.sezzleConfig = {
-               "configGroups": [
-              {
-                "targetXPath": ".price",
-                "renderToPath": ".."
-              },
-              {
-                "targetXPath": ".amount/STRONG-0/.price",
-                "renderToPath": "../../../../..",
-                "urlMatch": "cart"
+                "configGroups": [
+                  {
+                  "targetXPath": ".normal-price/.tax/.price-wrapper/.price",
+                  "renderToPath": "../.."
+                  },{
+                    "targetXPath": ".amount/STRONG-0",
+                    "renderToPath": "../../../../..",                      
+                    "urlMatch": "cart"
+          
+                  }
+                ]
               }
-              ]
-            }
         },
         // process sezzle widget from sezzle server
         processLegacySezzleWidget: function () {
