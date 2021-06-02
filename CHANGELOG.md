@@ -6,25 +6,9 @@
 
 # Sezzle Magento 2 Extension Changelog
 
-## Version 5.5.2
-
-_Mon 17th May 2021_
-
-### Supported Editions & Versions
-
-Tested and verified in clean installations of Magento 2:
-
-- Magento Open Source Edition (CE) version 2.0 and later.
-- Magento Commerce On Prem Edition (EE) version 2.0 and later.
-- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
-
-### Highlights
-
-- Default widget configs.
-
 ## Version 5.5.1
 
-_Fri 30 April 2021_
+_Wed 2 Jun 2021_
 
 ### Supported Editions & Versions
 
@@ -37,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Allow store language settings to determine Sezzle-Checkout language.
+- Default widget configs.
 
 
 ## Version 5.5.0
