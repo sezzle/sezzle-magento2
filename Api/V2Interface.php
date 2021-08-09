@@ -115,6 +115,7 @@ interface V2Interface
      * @param string|null $from
      * @param string|null $to
      * @return mixed
+     * @throws LocalizedException
      */
     public function getSettlementSummaries($from = null, $to = null);
 
@@ -123,6 +124,7 @@ interface V2Interface
      *
      * @param string $payoutUUID
      * @return mixed
+     * @throws LocalizedException
      */
     public function getSettlementDetails($payoutUUID);
 
