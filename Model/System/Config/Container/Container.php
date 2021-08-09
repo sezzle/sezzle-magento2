@@ -125,7 +125,8 @@ abstract class Container implements IdentityInterface
         AuthInterfaceFactory $authFactory,
         JsonHelper $jsonHelper,
         DataObjectHelper $dataObjectHelper
-    ) {
+    )
+    {
         $this->urlBuilder = $urlBuilder;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
@@ -192,7 +193,7 @@ abstract class Container implements IdentityInterface
      */
     protected function validateAPIKeys($region = false, $scope = ScopeInterface::SCOPE_STORE, $storeId = false)
     {
-        $gatewayUrl = $this->getGatewayUrl('v2', $region, $scope, $storeId);
+        $gatewayUrl = $this->getGatewayUrl(SezzleIdentity::API_VERSION_V2, $region, $scope, $storeId);
         $url = "$gatewayUrl/authentication";
         try {
             $authModel = $this->authFactory->create();

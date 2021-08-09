@@ -30,6 +30,7 @@ use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Helper\Util;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 
 /**
  * Class Sezzle
@@ -44,7 +45,6 @@ class Sezzle extends AbstractMethod
     const SEZZLE_AUTH_EXPIRY = 'sezzle_auth_expiry';
     const SEZZLE_CAPTURE_EXPIRY = 'sezzle_capture_expiry';
     const SEZZLE_ORDER_TYPE = 'sezzle_order_type';
-    const API_V2 = 'v2';
 
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1 = 'sezzle_order_id';
 
@@ -268,7 +268,7 @@ class Sezzle extends AbstractMethod
         }
         $payment->setAdditionalInformation(array_merge(
             $additionalInformation,
-            [self::SEZZLE_ORDER_TYPE => self::API_V2]
+            [self::SEZZLE_ORDER_TYPE => SezzleIdentity::API_VERSION_V2]
         ));
         $this->quoteRepository->save($quote);
         $this->sezzleHelper->logSezzleActions("Checkout URL : $redirectURL");
@@ -419,7 +419,7 @@ class Sezzle extends AbstractMethod
         $sezzleOrderType = $payment->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
         $this->sezzleHelper->logSezzleActions("Sezzle Order Type : $sezzleOrderType");
         switch ($sezzleOrderType) {
-            case self::API_V2:
+            case SezzleIdentity::API_VERSION_V2:
                 $captureTxnID = $this->handleV2Capture($sezzleOrderUUID, $payment, $amount);
                 break;
             default:
@@ -498,7 +498,7 @@ class Sezzle extends AbstractMethod
         $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
         $amountInCents = Util::formatToCents($amount);
         $sezzleOrderType = $payment->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
-        if ($sezzleOrderType == self::API_V2) {
+        if ($sezzleOrderType == SezzleIdentity::API_VERSION_V2) {
             if (!$txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId()) {
                 throw new LocalizedException(__('Failed to refund the payment. Parent Transaction ID is missing.'));
             } elseif (!$sezzleOrderUUID = $payment->getAdditionalInformation($txnUUID)) {
@@ -527,7 +527,7 @@ class Sezzle extends AbstractMethod
             $this->sezzleHelper->logSezzleActions("Refund failed at Sezzle.");
             throw new LocalizedException(__('Failed to refund the payment.'));
         }
-        if ($sezzleOrderType == self::API_V2) {
+        if ($sezzleOrderType == SezzleIdentity::API_VERSION_V2) {
             $refundedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT);
             $refundedAmount += $amount;
             $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT, $refundedAmount);
@@ -671,7 +671,7 @@ class Sezzle extends AbstractMethod
             && $paymentType === self::ACTION_AUTHORIZE) {
             $sezzleOrderType = $order->getPayment()->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
             $currentTimestamp = $this->dateTime->timestamp('now');
-            if ($sezzleOrderType == Sezzle::API_V2) {
+            if ($sezzleOrderType == SezzleIdentity::API_VERSION_V2) {
                 $authExpiry = $order->getPayment()->getAdditionalInformation(self::SEZZLE_AUTH_EXPIRY);
                 $expirationTimestamp = $this->dateTime->timestamp($authExpiry);
             } else {
