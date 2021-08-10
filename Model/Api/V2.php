@@ -607,7 +607,7 @@ class V2 implements V2Interface
      */
     public function getSettlementSummaries($from = null, $to = null)
     {
-        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
         $range = $this->sezzleConfig->getSettlementReportsRange();
         $interval = sprintf("P%sD", $range);
         $currentDate = $this->timezone->date();
@@ -615,7 +615,7 @@ class V2 implements V2Interface
         $startDate = $from ?: $currentDate->sub(new DateInterval($interval))->format('Y-m-d');
         $endDate = $to ?: $endDate->format('Y-m-d');
         $url = $url . "?start-date=" . $startDate . "&end-date=" . $endDate;
-        $auth = $this->authenticate($storeId);
+        $auth = $this->authenticate(false);
         try {
             $response = $this->apiProcessor->call(
                 $url,
@@ -638,8 +638,8 @@ class V2 implements V2Interface
     public function getSettlementDetails($payoutUUID)
     {
         $settlementDetailsEndpoint = sprintf(self::SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT, $payoutUUID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $settlementDetailsEndpoint;
-        $auth = $this->authenticate($storeId);
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . $settlementDetailsEndpoint;
+        $auth = $this->authenticate(false);
         try {
             return $this->apiProcessor->call(
                 $url,
