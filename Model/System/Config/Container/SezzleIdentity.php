@@ -25,6 +25,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const INCONTEXT_MODE_IFRAME = 'iframe';
     const INCONTEXT_MODE_POPUP = 'popup';
 
+    const API_VERSION_V1 = 'v1';
+    const API_VERSION_V2 = 'v2';
+
     const XML_PATH_PUBLIC_KEY = 'payment/sezzlepay/public_key';
     const XML_PATH_PAYMENT_ACTIVE = 'payment/sezzlepay/active';
     const XML_PATH_PAYMENT_MODE = 'payment/sezzlepay/payment_mode';
@@ -126,10 +129,10 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     /**
      * @inheritdoc
      */
-    public function getSezzleBaseUrl($storeId = false, $scope = ScopeInterface::SCOPE_STORE)
+    public function getSezzleBaseUrl($storeId = false, $apiVersion = SezzleIdentity::API_VERSION_V2, $scope = ScopeInterface::SCOPE_STORE)
     {
         $gatewayRegion = $this->getGatewayRegion($scope, $storeId) ?: $this->defaultRegion();
-        return $this->getGatewayUrl('v2', $gatewayRegion, $scope, $storeId);
+        return $this->getGatewayUrl($apiVersion, $gatewayRegion, $scope, $storeId);
     }
 
     /**
@@ -362,7 +365,8 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
         $gatewayRegion = '',
         $scope = ScopeInterface::SCOPE_STORE,
         $storeId = false
-    ) {
+    )
+    {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
         $env = $this->getPaymentMode($storeId, $scope) === self::SANDBOX_MODE ? 'sandbox.' : '';
         return sprintf(self::GATEWAY_URL, $env, $sezzleDomain, $apiVersion);

@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Plugin\Sales\Model;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 
 class OrderPlugin
 {
@@ -41,7 +42,7 @@ class OrderPlugin
         }
         $order = $this->orderRepository->get($orderId);
         $sezzleOrderType = $order->getPayment()->getAdditionalInformation(Sezzle::SEZZLE_ORDER_TYPE);
-        if ($sezzleOrderType != Sezzle::API_V2) {
+        if ($sezzleOrderType != SezzleIdentity::API_VERSION_V2) {
             return false;
         } elseif ($order->hasInvoices()) {
             return false;

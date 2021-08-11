@@ -9,9 +9,12 @@
 ?>
 
 <?php
-/** @var \Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info $block */
 
+use Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info;
 use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
+
+/** @var Info $block */
 
 $order = $block->getOrder();
 
@@ -111,7 +114,7 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                         <td><?= $block->escapeHtml($order->getBaseToOrderRate()) ?></td>
                     </tr>
                 <?php endif; ?>
-                <?php if ($block->getSezzleOrderType() != Sezzle::API_V2
+                <?php if ($block->getSezzleOrderType() != SezzleIdentity::API_VERSION_V2
                     && $block->getSezzleCaptureExpiry()
                     && $order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE) : ?>
                     <tr>
@@ -180,7 +183,7 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
 </section>
 
 <?php if (($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE)
-        && $block->getSezzleOrderType() == Sezzle::API_V2) : ?>
+        && $block->getSezzleOrderType() == SezzleIdentity::API_VERSION_V2) : ?>
     <section class="admin__page-section order-view-account-information sezzle">
         <div class="admin__page-section-title">
             <span class="title"><?= $block->escapeHtml(__('Sezzle Information')) ?></span>

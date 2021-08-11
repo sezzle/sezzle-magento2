@@ -23,6 +23,7 @@ use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 
 /**
  * Class V1
@@ -30,11 +31,11 @@ use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
  */
 class V1 implements V1Interface
 {
-    const SEZZLE_AUTH_ENDPOINT = "/v1/authentication";
-    const SEZZLE_LOGGER_ENDPOINT = "/v1/logs/%s";
-    const SEZZLE_CAPTURE_ENDPOINT = "/v1/checkouts/%s/complete";
-    const SEZZLE_REFUND_ENDPOINT = "/v1/orders/%s/refund";
-    const SEZZLE_GET_ORDER_ENDPOINT = "/v1/orders/%s";
+    const SEZZLE_AUTH_ENDPOINT = "/authentication";
+    const SEZZLE_LOGGER_ENDPOINT = "/logs/%s";
+    const SEZZLE_CAPTURE_ENDPOINT = "/checkouts/%s/complete";
+    const SEZZLE_REFUND_ENDPOINT = "/orders/%s/refund";
+    const SEZZLE_GET_ORDER_ENDPOINT = "/orders/%s";
     const LOG_POST_SUCCESS_MESSAGE = "File uploaded successfully";
 
     /**
@@ -117,7 +118,7 @@ class V1 implements V1Interface
      */
     private function authenticate($storeId)
     {
-        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . self::SEZZLE_AUTH_ENDPOINT;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId, SezzleIdentity::API_VERSION_V1) . self::SEZZLE_AUTH_ENDPOINT;
         $publicKey = $this->sezzleConfig->getPublicKey($storeId);
         $privateKey = $this->sezzleConfig->getPrivateKey($storeId);
         try {
@@ -154,7 +155,7 @@ class V1 implements V1Interface
     public function capture($orderReferenceID, $storeId)
     {
         $captureEndpoint = sprintf(self::SEZZLE_CAPTURE_ENDPOINT, $orderReferenceID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $captureEndpoint;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId, SezzleIdentity::API_VERSION_V1) . $captureEndpoint;
         try {
             $auth = $this->authenticate($storeId);
             $response = $this->apiProcessor->call(
@@ -179,7 +180,7 @@ class V1 implements V1Interface
     public function refund($orderReferenceID, $amount, $currency, $storeId)
     {
         $refundEndpoint = sprintf(self::SEZZLE_REFUND_ENDPOINT, $orderReferenceID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $refundEndpoint;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId, SezzleIdentity::API_VERSION_V1) . $refundEndpoint;
         $payload = [
             "amount" => [
                 "amount_in_cents" => $amount,
@@ -210,7 +211,7 @@ class V1 implements V1Interface
     public function getOrder($orderReferenceID, $storeId)
     {
         $orderEndpoint = sprintf(self::SEZZLE_GET_ORDER_ENDPOINT, $orderReferenceID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $orderEndpoint;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId, SezzleIdentity::API_VERSION_V1) . $orderEndpoint;
         try {
             $auth = $this->authenticate($storeId);
             $response = $this->apiProcessor->call(
@@ -241,7 +242,7 @@ class V1 implements V1Interface
     public function sendLogsToSezzle($merchantUUID, $log, $storeId)
     {
         $logEndpoint = sprintf(self::SEZZLE_LOGGER_ENDPOINT, $merchantUUID);
-        $url = $this->sezzleConfig->getSezzleBaseUrl() . $logEndpoint;
+        $url = $this->sezzleConfig->getSezzleBaseUrl($storeId, SezzleIdentity::API_VERSION_V1) . $logEndpoint;
         $currentTime = $this->dateTime->date();
         $body = [
             'start_time' => $currentTime,

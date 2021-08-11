@@ -50,11 +50,12 @@ interface SezzleConfigInterface extends IdentityInterface
 
     /**
      * Get Sezzle base url
-     * @param string $scope
      * @param bool|string $storeId
+     * @param string $apiVersion
+     * @param string $scope
      * @return string|null
      */
-    public function getSezzleBaseUrl($storeId = false, $scope = ScopeInterface::SCOPE_STORE);
+    public function getSezzleBaseUrl($storeId = false, $apiVersion = SezzleIdentity::API_VERSION_V2, $scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Get log tracker status
