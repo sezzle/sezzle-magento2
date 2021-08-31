@@ -9,6 +9,7 @@ namespace Sezzle\Sezzlepay\Model;
 
 use Exception;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\ExtensionAttributesFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -31,6 +32,7 @@ use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Helper\Util;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
+use Magento\Quote\Api\CartRepositoryInterface;
 
 /**
  * Class Sezzle
@@ -144,6 +146,14 @@ class Sezzle extends AbstractMethod
      * @var DateTime
      */
     private $dateTime;
+    /**
+     * @var CartRepositoryInterface
+     */
+    private $cartRepository;
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
 
     /**
      * Sezzle constructor.
@@ -178,7 +188,9 @@ class Sezzle extends AbstractMethod
         CustomerSession $customerSession,
         Tokenize $tokenizeModel,
         V1Interface $v1,
-        DateTime $dateTime
+        DateTime $dateTime,
+        CartRepositoryInterface $cartRepository,
+        CheckoutSession $checkoutSession
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
@@ -188,6 +200,8 @@ class Sezzle extends AbstractMethod
         $this->tokenizeModel = $tokenizeModel;
         $this->v1 = $v1;
         $this->dateTime = $dateTime;
+        $this->cartRepository = $cartRepository;
+        $this->checkoutSession = $checkoutSession;
         parent::__construct(
             $context,
             $registry,
@@ -270,7 +284,8 @@ class Sezzle extends AbstractMethod
             $additionalInformation,
             [self::SEZZLE_ORDER_TYPE => SezzleIdentity::API_VERSION_V2]
         ));
-        $this->quoteRepository->save($quote);
+        $this->cartRepository->save($quote);
+        $this->checkoutSession->replaceQuote($quote);
         $this->sezzleHelper->logSezzleActions("Checkout URL : $redirectURL");
         return $redirectURL;
     }

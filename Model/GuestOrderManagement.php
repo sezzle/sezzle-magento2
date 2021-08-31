@@ -62,7 +62,6 @@ class GuestOrderManagement implements GuestOrderManagementInterface
     public function createCheckout(
         $cartId,
         $email,
-        $createSezzleCheckout,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
     ) {
@@ -75,7 +74,7 @@ class GuestOrderManagement implements GuestOrderManagementInterface
             )) {
                 throw new NotFoundException(__("Unable to save payment information."));
             }
-            return $this->getSaveHandler()->createCheckout($createSezzleCheckout);
+            return $this->getSaveHandler()->createCheckout();
         } catch (NoSuchEntityException $e) {
             throw new CouldNotSaveException(
                 __($e->getMessage()),
