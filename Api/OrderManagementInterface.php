@@ -20,14 +20,12 @@ interface OrderManagementInterface
      * Create Checkout
      *
      * @param int $cartId
-     * @param bool $createSezzleCheckout
      * @param PaymentInterface $paymentMethod
      * @param AddressInterface|null $billingAddress
      * @return string
      */
     public function createCheckout(
         $cartId,
-        $createSezzleCheckout,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
     );

@@ -23,8 +23,7 @@ define([
         payload = {
             cartId: quote.getQuoteId(),
             billingAddress: quote.billingAddress(),
-            paymentMethod: paymentData,
-            createSezzleCheckout: true
+            paymentMethod: paymentData
         };
 
         if (customer.isLoggedIn()) {
