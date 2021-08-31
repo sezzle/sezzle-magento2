@@ -56,7 +56,6 @@ class OrderManagement implements OrderManagementInterface
      */
     public function createCheckout(
         $cartId,
-        $createSezzleCheckout,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
     ) {
@@ -69,7 +68,7 @@ class OrderManagement implements OrderManagementInterface
                 throw new NotFoundException(__("Unable to save payment information."));
             }
 
-            return $this->getSaveHandler()->createCheckout($createSezzleCheckout);
+            return $this->getSaveHandler()->createCheckout();
         } catch (NoSuchEntityException $e) {
             throw new CouldNotSaveException(
                 __($e->getMessage()),

@@ -25,7 +25,6 @@ interface GuestOrderManagementInterface
      *
      * @param string $cartId
      * @param string $email
-     * @param bool $createSezzleCheckout
      * @param PaymentInterface $paymentMethod
      * @param AddressInterface|null $billingAddress
      * @return string
@@ -34,7 +33,6 @@ interface GuestOrderManagementInterface
     public function createCheckout(
         $cartId,
         $email,
-        $createSezzleCheckout,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
     );
