@@ -26,12 +26,6 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/sezzlepay/active</config_path>
                     </field>
-                    <!-- merchant country -->
-                    <field id="merchant_country" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Merchant Country</label>
-                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\MerchantCountry</source_model>
-                        <config_path>payment/sezzlepay/merchant_country</config_path>
-                    </field>
                     <!-- title -->
                     <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Title</label>
