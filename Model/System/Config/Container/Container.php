@@ -25,7 +25,6 @@ use Sezzle\Sezzlepay\Api\Data\AuthInterfaceFactory;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Api\ApiParamsInterface;
 use Sezzle\Sezzlepay\Model\System\Config\Config;
-use Sezzle\Sezzlepay\Model\System\Config\Source\Payment\GatewayRegion;
 
 /**
  * Class Container
@@ -68,14 +67,6 @@ abstract class Container implements IdentityInterface
      */
     protected $httpHeader;
     /**
-     * @var Config
-     */
-    protected $config;
-    /**
-     * @var GatewayRegion
-     */
-    protected $gatewayRegion;
-    /**
      * @var Data
      */
     protected $sezzleHelper;
@@ -105,7 +96,6 @@ abstract class Container implements IdentityInterface
      * @param ScopeConfigInterface $scopeConfig
      * @param StoreManagerInterface $storeManager
      * @param Header $httpHeader
-     * @param Config $config
      * @param Data $sezzleHelper
      * @param ResourceConfig $resourceConfig
      * @param Curl $curl
@@ -118,20 +108,17 @@ abstract class Container implements IdentityInterface
         ScopeConfigInterface $scopeConfig,
         StoreManagerInterface $storeManager,
         Header $httpHeader,
-        Config $config,
         Data $sezzleHelper,
         ResourceConfig $resourceConfig,
         Curl $curl,
         AuthInterfaceFactory $authFactory,
         JsonHelper $jsonHelper,
         DataObjectHelper $dataObjectHelper
-    )
-    {
+    ) {
         $this->urlBuilder = $urlBuilder;
         $this->scopeConfig = $scopeConfig;
         $this->storeManager = $storeManager;
         $this->httpHeader = $httpHeader;
-        $this->config = $config;
         $this->sezzleHelper = $sezzleHelper;
         $this->resourceConfig = $resourceConfig;
         $this->curl = $curl;

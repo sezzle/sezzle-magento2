@@ -55,15 +55,6 @@ class Config
     private $registerUrl = "https://dashboard.sezzle.com/merchant/signup";
 
     /**
-     * @var string[]
-     */
-    private $supportedCountryCodes = [
-        'US',
-        'CA',
-        'DE'
-    ];
-
-    /**
      * Config constructor.
      * @param ScopeConfigInterface $scopeConfig
      * @param Http $request
@@ -136,7 +127,7 @@ class Config
      */
     public function getCountry()
     {
-        $co = $this->getConfig('payment/sezzlepay/merchant_country');
+        $co = $this->getConfig('paypal/general/merchant_country');
         return $co ? $co : 'US';
     }
 
@@ -149,14 +140,5 @@ class Config
             'co' => $this->getCountry(),
             'sezzleUrl' => $this->getSezzleRegisterUrl()
         ];
-    }
-
-    /**
-     * Return array of supported merchant country codes.
-     * @return array
-     */
-    public function getSupportedMerchantCountryCodes()
-    {
-        return $this->supportedCountryCodes;
     }
 }

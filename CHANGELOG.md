@@ -6,6 +6,54 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 5.5.4
+
+_Mon 20 Sep 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- Removing Merchant Country field from settings.
+
+## Version 5.5.3
+
+_Tue 31 Aug 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- FIX: The requested qty is not available even though qty is available.
+
+## Version 5.5.2
+
+_Wed 11 Aug 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- Gateway V1 URL fix.
+
 ## Version 5.5.1
 
 _Wed 2 Jun 2021_
