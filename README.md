@@ -80,11 +80,11 @@ You can now directly navigate from the Configuration Page to get signed up for `
 * Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
 * Set the `Merchant UUID`, `Public Key` and `Private Key`.
 * Set `Payment Action` as `Authorize only` for doing payment authorization only and `Authorize and Capture` for doing instant capture.
-* Set the `Merchant Country` as per the origin.
 * Set `Min Checkout Amount` to restrict Sezzle payment method below that amount.
 * Set `Payment from Applicable Countries` to `Specific Countries`.
 * Set `Payment from Specific Countries` to `United States` or `Canada` as Sezzle is currently available for US and Canada only.
 * Set `Enable Customer Tokenization` to `Yes` for allowing Sezzle to tokenize the customer account if they approve it. If customer wish to tokenize their account, next time, they don't have to redirect to Sezzle Checkout for completing the purchase, rather it will happen in your website.
+* Set `Sort Order` to manage the position of Sezzle in the checkout payment options list.
 * Save the configuration and clear the cache.
 
 ### In-Context Configuration
