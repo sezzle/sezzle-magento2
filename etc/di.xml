@@ -36,4 +36,18 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Sezzle\Sezzlepay\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Sezzle\Sezzlepay\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">sezzle</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Sezzle\Sezzlepay\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

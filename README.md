@@ -75,6 +75,7 @@ You can now directly navigate from the Configuration Page to get signed up for `
 
 ### Payment Configuration
 
+* Set `Enabled` as `Yes` to activate Sezzle as a payment option.
 * Make sure you have the `Merchant UUID` and the `API Keys` from the [`Sezzle Merchant Dashboard`](https://dashboard.sezzle.com/merchant/). Sign Up if you have not signed up to get the necessities.
 * Navigate to `Stores > Configuration > Sales > Payment Methods > Sezzle > Payment Settings` in your `Magento` admin.
 * Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
