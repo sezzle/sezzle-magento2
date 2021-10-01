@@ -14,9 +14,8 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Sezzle\Sezzlepay\Logger\Logger;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
-use Zend\Log\Logger;
-use Zend\Log\Writer\Stream;
 use Zend_Http_UserAgent_Mobile;
 
 /**
@@ -41,6 +40,10 @@ class Data extends AbstractHelper
      * @var StoreManagerInterface
      */
     private $storeManager;
+    /**
+     * @var Logger
+     */
+    private $logger;
 
     /**
      * Initialize dependencies.
@@ -49,23 +52,26 @@ class Data extends AbstractHelper
      * @param File $file
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
      * @param StoreManagerInterface $storeManager
+     * @param Logger $logger
      */
     public function __construct(
         Context $context,
         File $file,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Logger $logger
     ) {
         $this->file = $file;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;
+        $this->logger = $logger;
         parent::__construct($context);
     }
 
     /**
      * Dump Sezzle log actions
      *
-     * @param string|null $data
+     * @param string|array|null $data
      * @return void
      */
     public function logSezzleActions($data = null)
@@ -76,12 +82,14 @@ class Data extends AbstractHelper
                 ScopeInterface::SCOPE_STORE,
                 $this->storeManager->getStore()->getId()
             );
-            if ($logTrackerEnabled) {
-                $writer = new Stream(BP . self::SEZZLE_LOG_FILE_PATH);
-                $logger = new Logger();
-                $logger->addWriter($writer);
-                $logger->info($data);
+            if (!$logTrackerEnabled) {
+                return;
             }
+
+            if (is_array($data)) {
+                $data = $this->jsonHelper->jsonEncode($data);
+            }
+            $this->logger->info($data);
         } catch (NoSuchEntityException $e) {
         }
     }
