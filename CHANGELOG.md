@@ -20,7 +20,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- FIX: Sezzle Logging.
+- FIX: Sezzle Checkout and Logging.
 
 ## Version 5.5.4
 
