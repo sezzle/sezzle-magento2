@@ -9,6 +9,7 @@ namespace Sezzle\Sezzlepay\Model\Order;
 
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -59,6 +60,10 @@ class SaveHandler
      * @var CartManagementInterface
      */
     private $cartManagement;
+    /**
+     * @var ProductMetadataInterface
+     */
+    private ProductMetadataInterface $productMetadata;
 
     /**
      * SaveHandler constructor.
@@ -70,6 +75,7 @@ class SaveHandler
      * @param UrlInterface $url
      * @param CheckoutValidator $checkoutValidator
      * @param CartManagementInterface $cartManagement
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         CustomerSession $customerSession,
@@ -79,9 +85,9 @@ class SaveHandler
         Data $jsonHelper,
         UrlInterface $url,
         CheckoutValidator $checkoutValidator,
-        CartManagementInterface $cartManagement
-    )
-    {
+        CartManagementInterface $cartManagement,
+        ProductMetadataInterface $productMetadata
+    ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
@@ -90,6 +96,7 @@ class SaveHandler
         $this->url = $url;
         $this->checkoutValidator = $checkoutValidator;
         $this->cartManagement = $cartManagement;
+        $this->productMetadata = $productMetadata;
     }
 
     /**
@@ -102,6 +109,9 @@ class SaveHandler
     public function createCheckout()
     {
         $quote = $this->checkoutSession->getQuote();
+        $magentoVersion = $this->productMetadata->getEdition() . " " . $this->productMetadata->getVersion();
+        $sezzleVersion = $this->sezzleHelper->getVersion();
+        $this->sezzleHelper->logSezzleActions(sprintf("Magento Version : %s | Sezzle Version : %s", $magentoVersion, $sezzleVersion));
         $this->sezzleHelper->logSezzleActions("****Starting Sezzle Checkout****");
         $this->sezzleHelper->logSezzleActions("Quote Id : " . $quote->getId());
         $this->sezzleHelper->logSezzleActions("Customer Id : " . $quote->getCustomer()->getId());
