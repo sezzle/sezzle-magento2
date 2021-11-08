@@ -6,7 +6,23 @@
 
 # Sezzle Magento 2 Extension Changelog
 
-## Version 5.5.6
+
+## Version 5.5.8
+
+_Mon 8 Nov 2021_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- adding Italian to the instalment widget.
+## Version 5.5.7
 
 _Tue 19 Oct 2021_
 
