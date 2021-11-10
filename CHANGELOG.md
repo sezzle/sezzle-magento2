@@ -9,7 +9,7 @@
 
 ## Version 5.5.8
 
-_Mon 8 Nov 2021_
+_Wed 10 Nov 2021_
 
 ### Supported Editions & Versions
 
@@ -21,7 +21,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- adding Italian to the instalment widget.
+- Adding Italian to the instalment widget.
 ## Version 5.5.7
 
 _Tue 19 Oct 2021_
