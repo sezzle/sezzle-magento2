@@ -7,9 +7,9 @@
 # Sezzle Magento 2 Extension Changelog
 
 
-## Version 5.5.8
+## Version 5.5.6
 
-_Wed 10 Nov 2021_
+_Wed 15 Nov 2021_
 
 ### Supported Editions & Versions
 
@@ -22,20 +22,6 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Adding Italian to the instalment widget.
-## Version 5.5.7
-
-_Tue 19 Oct 2021_
-
-### Supported Editions & Versions
-
-Tested and verified in clean installations of Magento 2:
-
-- Magento Open Source Edition (CE) version 2.0 and later.
-- Magento Commerce On Prem Edition (EE) version 2.0 and later.
-- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
-
-### Highlights
-
 - Adding Customer Session Id, Magento and Sezzle version to the log records.
 
 ## Version 5.5.5
