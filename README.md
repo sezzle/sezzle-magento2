@@ -141,6 +141,7 @@ _**Note** : Automatic Syncing requires cron to be enabled._
 
 * Go to `Sales > Orders` in the `Magento` admin.
 * Select the order for which you want to refund the payment.
+* Go to Invoices and select the invoice for which you to refund.
 * Click on `Credit Memo` and verify your input in the `Create Credit Memo` page.
 * Save it and the refunded will be initiated in `Sezzle`.
 * In `Sezzle Merchant Dashboard`, `Order Status` as `Refunded` means payment has been fully refunded and `Order Status` as `Partially Refunded` means payment has been partially refunded.

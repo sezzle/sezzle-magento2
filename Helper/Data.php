@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Helper;
 
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\Exception\FileSystemException;
@@ -44,6 +45,10 @@ class Data extends AbstractHelper
      * @var Logger
      */
     private $logger;
+    /**
+     * @var CustomerSession
+     */
+    private $customerSession;
 
     /**
      * Initialize dependencies.
@@ -53,18 +58,21 @@ class Data extends AbstractHelper
      * @param \Magento\Framework\Json\Helper\Data $jsonHelper
      * @param StoreManagerInterface $storeManager
      * @param Logger $logger
+     * @param CustomerSession $customerSession
      */
     public function __construct(
         Context $context,
         File $file,
         \Magento\Framework\Json\Helper\Data $jsonHelper,
         StoreManagerInterface $storeManager,
-        Logger $logger
+        Logger $logger,
+        CustomerSession $customerSession
     ) {
         $this->file = $file;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;
         $this->logger = $logger;
+        $this->customerSession = $customerSession;
         parent::__construct($context);
     }
 
@@ -89,7 +97,10 @@ class Data extends AbstractHelper
             if (is_array($data)) {
                 $data = $this->jsonHelper->jsonEncode($data);
             }
-            $this->logger->info($data);
+
+            $customerSessionId = $this->customerSession->getSessionId();
+            $logData = $customerSessionId . " " . $data;
+            $this->logger->info($logData);
         } catch (NoSuchEntityException $e) {
         }
     }
