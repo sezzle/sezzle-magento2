@@ -54,13 +54,14 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_SETTLEMENT_REPORTS_RANGE = 'payment/sezzlepay/settlement_reports_range';
 
     const GATEWAY_URL = "https://%sgateway.%s/%s";
-    const SEZZLE_DOMAIN = "%ssezzle.com";
+    const SEZZLE_DOMAIN = "%ssezzle.%s";
 
     const WIDGET_URL = "https://widget.%s/%s";
 
     private static $supportedGatewayRegions = [
         'US' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
-        'EU' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png'
+        'EU' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png',
+        'IN' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png'
     ];
 
     /**
@@ -353,8 +354,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     private function getSezzleDomain($gatewayRegion = '')
     {
-        $region = $gatewayRegion === $this->defaultRegion() ? '' : "$gatewayRegion.";
-        return sprintf(self::SEZZLE_DOMAIN, strtolower($region));
+        $region = $gatewayRegion === $this->defaultRegion() || $gatewayRegion === 'IN' ? '' : "$gatewayRegion.";
+        $region_tld = $gatewayRegion === 'IN' ? 'in' : 'com';
+        return sprintf(self::SEZZLE_DOMAIN, strtolower($region), $region_tld);
     }
 
     /**
@@ -392,6 +394,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $storeId,
             $scope
         );
+        // $this->sezzleHelper->logSezzleActions("Gateway Region : ".$region);
         return $region ?: $this->defaultRegion();
     }
 
