@@ -63,7 +63,7 @@ class SaveHandler
     /**
      * @var ProductMetadataInterface
      */
-    private ProductMetadataInterface $productMetadata;
+    private $productMetadata;
 
     /**
      * SaveHandler constructor.
