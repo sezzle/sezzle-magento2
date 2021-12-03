@@ -95,6 +95,18 @@ class PayloadBuilder
      */
     private function buildOrderPayload($quote, $reference)
     {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+        $szlquote=$cart->getQuote();
+        $grandTotal = $szlquote->getGrandTotal();
+        $baseGrandTotal = $szlquote->getBaseGrandTotal();
+        $subTotal = $szlquote->getSubtotal();
+        $baseSubTotal = $szlquote->getBaseSubtotal();
+        $subtotalWithDiscount = $szlquote->getSubtotalWithDiscount();
+        $baseSubtotalWithDiscount = $szlquote->getBaseSubtotalWithDiscount();
+
+        $this->sezzleHelper->logSezzleActions("Test Surendhar : grandTotal = " . $grandTotal . " : baseGrandTotal = ". $baseGrandTotal . " : subTotal = ". $subTotal . " : baseSubTotal = ". $baseSubTotal . " : subtotalWithDiscount = ". $subtotalWithDiscount . " : baseSubtotalWithDiscount = ". $baseSubtotalWithDiscount);
+
         $this->sezzleHelper->logSezzleActions("Order Total : " . $quote->getBaseGrandTotal());
         $orderPayload = [
             "intent" => "AUTH",
@@ -116,7 +128,7 @@ class PayloadBuilder
                 $quote->getShippingAddress()->getBaseTaxAmount(),
                 $quote->getBaseCurrencyCode()
             ),
-            "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal(), $quote->getBaseCurrencyCode()),
+            "order_amount" => $this->getPriceObject($baseGrandTotal, $quote->getBaseCurrencyCode()),
             "locale" => $this->localeResolver->getLocale(),
         ];
         if ($this->sezzleConfig->isInContextCheckout()) {
