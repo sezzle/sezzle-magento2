@@ -9,6 +9,7 @@
                 <value id="sandbox-sezzle-sdk-eu" type="host">sandbox.checkout-sdk.eu.sezzle.com</value>
                 <value id="sezzle-widget" type="host">widget.sezzle.com</value>
                 <value id="sezzle-widget-eu" type="host">widget.eu.sezzle.com</value>
+                <value id="sezzle-widget-in" type="host">widget.sezzle.in</value>
             </values>
         </policy>
         <policy id="frame-src">
