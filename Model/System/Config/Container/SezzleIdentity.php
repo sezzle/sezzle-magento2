@@ -450,6 +450,11 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     private function defaultRegion()
     {
-        return array_key_first(self::$supportedGatewayRegions);
+        if (function_exists('array_key_first')){
+            return array_key_first(self::$supportedGatewayRegions);
+        }else{
+            reset(self::$supportedGatewayRegions);
+            return key(self::$supportedGatewayRegions);
+        }
     }
 }
