@@ -365,8 +365,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
         $gatewayRegion = '',
         $scope = ScopeInterface::SCOPE_STORE,
         $storeId = false
-    )
-    {
+    ) {
         $sezzleDomain = $this->getSezzleDomain($gatewayRegion);
         $env = $this->getPaymentMode($storeId, $scope) === self::SANDBOX_MODE ? 'sandbox.' : '';
         return sprintf(self::GATEWAY_URL, $env, $sezzleDomain, $apiVersion);
@@ -447,6 +446,14 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
      */
     private function defaultRegion()
     {
-        return array_key_first(self::$supportedGatewayRegions);
+        if (function_exists('array_key_first')) {
+            return array_key_first(self::$supportedGatewayRegions);
+        }
+
+        foreach (self::$supportedGatewayRegions as $key => $value) {
+            return $key;
+        }
+
+        return 'US';
     }
 }
