@@ -394,7 +394,6 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
             $storeId,
             $scope
         );
-        // $this->sezzleHelper->logSezzleActions("Gateway Region : ".$region);
         return $region ?: $this->defaultRegion();
     }
 
