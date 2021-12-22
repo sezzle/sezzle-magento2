@@ -215,6 +215,14 @@
                         <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\DeveloperLogs</frontend_model>
                     </field>
                 </group>
+                <group id="widget_request" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[Widget Support]]></label>
+                    <field id="widget_queue" translate="label comment" type="button" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\WidgetQueue</frontend_model>
+                        <label>Widget Support Request</label>
+                        <comment>Submit a request to get help on your widget configuration. Our team will work on quickly resolving the issue.</comment>
+                    </field>
+                </group>
             </group>
         </section>
     </system>

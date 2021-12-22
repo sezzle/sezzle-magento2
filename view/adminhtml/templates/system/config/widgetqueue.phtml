@@ -1,0 +1,36 @@
+<?php /* @var $block \Sezzle\Sezzlepay\Block\System\Config\WidgetQueue */ ?>
+
+<script>
+    require([
+        'jquery',
+        'prototype'
+    ], function(jQuery){
+
+        var collectSpan = jQuery('#collect_span');
+
+        jQuery('#widget_queue').click(function () {
+            new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
+                loaderArea:     false,
+                asynchronous:   true,
+                onSuccess: function(response) {
+                    var resultText = '';
+                    if (response.status > 200) {
+                        resultText = response.statusText;
+                    } else {
+                        resultText = 'Your request for help was successfully submitted. Please allow 1-2 business days for a response.';
+                    }
+                    jQuery('#message_span').text(resultText);
+                }
+            });
+        });
+
+    });
+</script>
+
+<?php echo $block->getButtonHtml() ?>
+<div>
+    <span class="collect-indicator" id="collect_span">
+        <span id="message_span"></span>
+    </span>
+</div>
+
