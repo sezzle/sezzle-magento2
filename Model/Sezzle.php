@@ -592,6 +592,19 @@ class Sezzle extends AbstractMethod
     }
 
     /**
+     * Check void availability.
+     *
+     * @return bool
+     * @internal param \Magento\Framework\DataObject $payment
+     * @api
+     * @deprecated 100.2.0
+     */
+    public function canVoid()
+    {
+        return $this->sezzleConfig->getGatewayRegion() == 'IN' ? false : $this->_canVoid;
+    }
+
+    /**
      * Check whether payment method can be used
      *
      * @param CartInterface|null $quote
