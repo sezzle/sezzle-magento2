@@ -583,25 +583,22 @@ class Sezzle extends AbstractMethod
      * Check partial capture availability
      *
      * @return bool
-     * @api
-     * @deprecated 100.2.0
+     * 
      */
     public function canCapturePartial()
     {
-        return $this->sezzleConfig->getGatewayRegion() == 'IN' ? false : $this->_canCapturePartial;
+        return $this->sezzleConfig->getGatewayRegion() === 'IN' ? false : $this->_canCapturePartial;
     }
 
     /**
      * Check void availability.
      *
      * @return bool
-     * @internal param \Magento\Framework\DataObject $payment
-     * @api
-     * @deprecated 100.2.0
+     * 
      */
     public function canVoid()
     {
-        return $this->sezzleConfig->getGatewayRegion() == 'IN' ? false : $this->_canVoid;
+        return $this->sezzleConfig->getGatewayRegion() === 'IN' ? false : $this->_canVoid;
     }
 
     /**

@@ -355,8 +355,8 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     private function getSezzleDomain($gatewayRegion = '')
     {
         $region = $gatewayRegion === $this->defaultRegion() || $gatewayRegion === 'IN' ? '' : "$gatewayRegion.";
-        $region_tld = $gatewayRegion === 'IN' ? 'in' : 'com';
-        return sprintf(self::SEZZLE_DOMAIN, strtolower($region), $region_tld);
+        $regionTld = $gatewayRegion === 'IN' ? 'in' : 'com';
+        return sprintf(self::SEZZLE_DOMAIN, strtolower($region), $regionTld);
     }
 
     /**
