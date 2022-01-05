@@ -5,12 +5,9 @@ namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
-use Magento\Store\Model\Store;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
-
-
 
 class WidgetQueue extends Field
 {
@@ -41,15 +38,6 @@ class WidgetQueue extends Field
     protected function _getElementHtml(AbstractElement $element)
     {
         return $this->_toHtml();
-    }
-
-    public function getStore()
-    {
-        //current store
-        if ($this->store instanceof Store) {
-            return $this->store;
-        }
-        return $this->storeManager->getStore();
     }
 
     public function getAjaxUrl()

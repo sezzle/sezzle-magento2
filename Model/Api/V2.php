@@ -15,7 +15,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterface;
 use Sezzle\Sezzlepay\Api\Data\AmountInterfaceFactory;
@@ -57,6 +56,7 @@ class V2 implements V2Interface
     const SEZZLE_REAUTHORIZE_ORDER_UUID_ENDPOINT = "/order/%s/reauthorize";
     const SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT = "/customer/%s/order";
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/token/%s/session";
+    const SEZZLE_WIDGET_QUEUE_ENDPOINT = "/widget/queue";
 
     const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
     const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
@@ -707,6 +707,34 @@ class V2 implements V2Interface
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Capturing expired auth error : %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addToWidgetQueue()
+    {
+        $url = $this->sezzleConfig->getSezzleBaseUrl() . self::SEZZLE_WIDGET_QUEUE_ENDPOINT;
+        $auth = $this->authenticate(false);
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $auth->getToken(),
+                null,
+                ZendClient::POST,
+                true
+            );
+
+            if (isset($response["status_code"]) && $response["status_code"] != 204) {
+                throw new Exception(__("Invalid status code: " . $response["status_code"]));
+            }
+            return true;
+        } catch (Exception $e) {
+            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            throw new LocalizedException(
+                __('Queuing widget request error : %1', $e->getMessage())
             );
         }
     }

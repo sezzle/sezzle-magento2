@@ -139,4 +139,12 @@ interface V2Interface
      * @return AuthorizationInterface
      */
     public function reauthorizeOrder($url, $orderUUID, $amount, $currency, $storeId);
+
+    /**
+     * Add request to widget queue
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function addToWidgetQueue();
 }
