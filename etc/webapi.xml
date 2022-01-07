@@ -28,12 +28,4 @@
         </resources>
     </route>
 
-    <!-- Add to widget queue -->
-    <route url="/V1/sezzle/widget/queue" method="POST">
-        <service class="Sezzle\Sezzlepay\Api\WidgetInterface" method="addToWidgetQueue"/>
-        <resources>
-            <resource ref="Magento_Backend::admin" />
-        </resources>
-    </route>
-
 </routes>

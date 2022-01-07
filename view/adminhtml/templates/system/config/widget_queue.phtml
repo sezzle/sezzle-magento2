@@ -1,0 +1,64 @@
+<?php
+
+use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\WidgetQueue;
+
+/* @var $block WidgetQueue */
+?>
+
+<script>
+    require([
+        'jquery',
+        'mage/translate',
+        'Magento_Ui/js/modal/alert'
+    ], function ($, $t, alert) {
+        var canAddToWidgetQueue = '<?php echo $block->canAddToWidgetQueue() ?>',
+            widgetQueueElement = $('#widget_queue');
+        if (!canAddToWidgetQueue) {
+            widgetQueueElement.attr('disabled', true);
+        }
+
+        widgetQueueElement.click(function () {
+            $(this).text($t("Adding to widget queue...")).attr('disabled', true);
+            var self = this;
+            new Ajax.Request('<?php echo $block->getWidgetQueueUrl(); ?>', {
+                loaderArea: false,
+                asynchronous: true,
+                onSuccess: function () {
+                    console.log("Sezzle: Request successfully added to widget queue");
+                    $(self).text($t("Request"));
+                    alert({
+                        title: $t('Sezzle Widget Queue Request'),
+                        content: $t('Your request has been successfully registered. Please give us 7 days of time to resolve your issue.')
+                    });
+                },
+                onError: function () {
+                    console.log("Sezzle: Request failed to get added to widget queue");
+                    $(self).text($t("Request")).attr('disabled', false);
+                    alert({
+                        title: $t('Sezzle Widget Queue Request'),
+                        content: $t('Your request has failed to get registered. Please try again.')
+                    });
+                }
+            });
+        });
+
+        $('#enable_widget_request').click(function () {
+            new Ajax.Request('<?php echo $block->getWidgetQueueUrl(true); ?>', {
+                loaderArea: true,
+                asynchronous: true,
+                onSuccess: function () {
+                    console.log("Sezzle: Request successfully resolved");
+                    widgetQueueElement.attr('disabled', false);
+                    $("#check_issue_status").empty();
+                },
+                onError: function () {
+                    console.log("Sezzle: Request failed to get resolved");
+                }
+            });
+        });
+    });
+
+
+</script>
+
+<?php echo $block->getButtonHtml() ?>
