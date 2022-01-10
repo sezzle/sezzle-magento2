@@ -20,7 +20,7 @@ use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
  */
 class WidgetQueue extends Field
 {
-    const SEZZLE_WIDGET_QUEUE_ROUTE = "sezzle//widget/queue";
+    const SEZZLE_WIDGET_QUEUE_ROUTE = "sezzle/widget/queue";
     const WIDGET_QUEUE_SLA = " +7 days";
 
     protected $_template = 'Sezzle_Sezzlepay::system/config/widget_queue.phtml';
@@ -73,8 +73,8 @@ class WidgetQueue extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $fieldCommentHtml = "<div>Submit a request to get help on your widget configuration. Our team will work on quickly resolving the issue.</div>";
-        $checkIssueStatusHtml = "<div id=\"check_issue_status\"><a id=\"enable_widget_request\">Click here</a> if the the issue resolved.</div>";
+        $fieldCommentHtml = "<div>Widgets not visible after enabling? Submit a request to be added to the Sezzle widget configuration queue. Our team will configure widgets on your behalf..</div>";
+        $checkIssueStatusHtml = "<div id=\"check_issue_status\"><a id=\"enable_widget_request\">Click here</a> if widgets are now visible on your site.</div>";
         $html = $this->_toHtml() . "<br>";
         if (!$this->canAddToWidgetQueue()) {
             $html .= "<br>" . $checkIssueStatusHtml;
