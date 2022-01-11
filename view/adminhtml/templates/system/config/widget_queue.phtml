@@ -28,7 +28,7 @@ use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\WidgetQueue;
                     $(self).text($t("Request"));
                     alert({
                         title: $t('Sezzle Widget Queue Request'),
-                        content: $t('Your site has been added to the queue. Please allow up to 7 days for Sezzle to configure your widgets.')
+                        content: $t('Your request for help was successfully submitted.  Please allow 2 business days for a response.')
                     });
                 },
                 onError: function () {
@@ -36,23 +36,8 @@ use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\WidgetQueue;
                     $(self).text($t("Request")).attr('disabled', false);
                     alert({
                         title: $t('Sezzle Widget Queue Request'),
-                        content: $t('Failed to add request to queue. Please try again.')
+                        content: $t('There was an error submitting your request. Please try again.')
                     });
-                }
-            });
-        });
-
-        $('#enable_widget_request').click(function () {
-            new Ajax.Request('<?php echo $block->getWidgetQueueUrl(true); ?>', {
-                loaderArea: true,
-                asynchronous: true,
-                onSuccess: function () {
-                    console.log("Sezzle: Request successfully resolved");
-                    widgetQueueElement.attr('disabled', false);
-                    $("#check_issue_status").empty();
-                },
-                onError: function () {
-                    console.log("Sezzle: Request failed to get resolved");
                 }
             });
         });

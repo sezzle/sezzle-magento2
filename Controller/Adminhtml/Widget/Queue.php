@@ -9,6 +9,8 @@ namespace Sezzle\Sezzlepay\Controller\Adminhtml\Widget;
 
 use Magento\Backend\App\Action;
 use Magento\Config\Model\ResourceModel\Config as ResourceConfig;
+use Magento\Framework\App\Cache\Frontend\Pool;
+use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\Response\Http;
 use Magento\Framework\Controller\Result\Raw;
@@ -56,6 +58,14 @@ class Queue extends Action
      * @var DateTime
      */
     private $dateTime;
+    /**
+     * @var TypeListInterface
+     */
+    private TypeListInterface $cacheTypeList;
+    /**
+     * @var Pool
+     */
+    private Pool $cacheFrontendPool;
 
     /**
      * Queue constructor.
@@ -67,6 +77,8 @@ class Queue extends Action
      * @param WriterInterface $configWriter
      * @param ResourceConfig $resourceConfig
      * @param DateTime $dateTime
+     * @param TypeListInterface $cacheTypeList
+     * @param Pool $cacheFrontendPool
      */
     public function __construct(
         Action\Context $context,
@@ -76,7 +88,9 @@ class Queue extends Action
         V2Interface $v2,
         WriterInterface $configWriter,
         ResourceConfig $resourceConfig,
-        DateTime $dateTime
+        DateTime $dateTime,
+        TypeListInterface $cacheTypeList,
+        Pool $cacheFrontendPool
     ) {
         parent::__construct($context);
         $this->config = $config;
@@ -86,6 +100,8 @@ class Queue extends Action
         $this->configWriter = $configWriter;
         $this->resourceConfig = $resourceConfig;
         $this->dateTime = $dateTime;
+        $this->cacheTypeList = $cacheTypeList;
+        $this->cacheFrontendPool = $cacheFrontendPool;
     }
 
     /**
@@ -110,16 +126,15 @@ class Queue extends Action
         }
 
         try {
-            $isIssueResolved = $this->getRequest()->getParam("isResolved");
-            if ($isIssueResolved) {
-                $this->configWriter->save(SezzleIdentity::XML_PATH_WIDGET_TICKET_CREATED_AT, null);
-                $response->setHttpResponseCode(Http::STATUS_CODE_204);
-                return $response;
-            }
-
             $this->v2->addToWidgetQueue();
             $currentTimestamp = $this->dateTime->date();
             $this->configWriter->save(SezzleIdentity::XML_PATH_WIDGET_TICKET_CREATED_AT, $currentTimestamp);
+
+            $this->cacheTypeList->cleanType('config');
+            foreach ($this->cacheFrontendPool as $cacheFrontend) {
+                $cacheFrontend->getBackend()->clean();
+            }
+
             $response->setHttpResponseCode(Http::STATUS_CODE_204);
         } catch (LocalizedException $e) {
             $response->setHttpResponseCode(Http::STATUS_CODE_500);

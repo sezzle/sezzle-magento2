@@ -187,7 +187,14 @@
                         <config_path>payment/sezzlepay/widget_installment_price_path</config_path>
                     </field>
                 </group>
-                <group id="sezzle_developer" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="widget_request" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label><![CDATA[Widget Support]]></label>
+                    <field id="widget_queue" translate="label comment" type="button" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\WidgetQueue</frontend_model>
+                        <label>Add To Queue</label>
+                    </field>
+                </group>
+                <group id="sezzle_developer" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Developer Settings]]></label>
                     <!-- log tracker -->
                     <field id="log_tracker" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -213,13 +220,6 @@
                             <field id="log_tracker">1</field>
                         </depends>
                         <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\DeveloperLogs</frontend_model>
-                    </field>
-                </group>
-                <group id="widget_request" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label><![CDATA[Widget Support]]></label>
-                    <field id="widget_queue" translate="label comment" type="button" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\WidgetQueue</frontend_model>
-                        <label>Add To Queue</label>
                     </field>
                 </group>
             </group>

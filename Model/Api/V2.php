@@ -730,7 +730,6 @@ class V2 implements V2Interface
             if (isset($response["status_code"]) && $response["status_code"] != 204) {
                 throw new Exception(__("Invalid status code: " . $response["status_code"]));
             }
-            return true;
         } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(

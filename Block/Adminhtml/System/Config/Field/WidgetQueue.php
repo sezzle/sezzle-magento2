@@ -62,7 +62,12 @@ class WidgetQueue extends Field
     public function render(AbstractElement $element)
     {
         $element->unsScope()->unsCanUseWebsiteValue()->unsCanUseDefaultValue();
-        return parent::render($element);
+        $t = parent::render($element);
+        $output = '<div class="deprecated-message">';
+        $output .= '<div class="comment">';
+        $output .= __("Submit a request to get help on your widget configuration. Our team will work on quickly resolving the issue.");
+        $output .= "</div></div>";
+        return $output . $t;
     }
 
     /**
@@ -73,28 +78,17 @@ class WidgetQueue extends Field
      */
     protected function _getElementHtml(AbstractElement $element)
     {
-        $fieldCommentHtml = "<div>Widgets not visible after enabling? Submit a request to be added to the Sezzle widget configuration queue. Our team will configure widgets on your behalf..</div>";
-        $checkIssueStatusHtml = "<div id=\"check_issue_status\"><a id=\"enable_widget_request\">Click here</a> if widgets are now visible on your site.</div>";
-        $html = $this->_toHtml() . "<br>";
-        if (!$this->canAddToWidgetQueue()) {
-            $html .= "<br>" . $checkIssueStatusHtml;
-        }
-
-        $html .= "<br>" . $fieldCommentHtml;
-        return $html;
+        return $this->_toHtml();
     }
 
     /**
      * Get Widget Queue URL
      *
-     * @param bool $isResolved
      * @return string
      */
-    public function getWidgetQueueUrl($isResolved = false)
+    public function getWidgetQueueUrl()
     {
-        $isResolvedParam = $isResolved ? '?isResolved=true' : '';
-        $route = self::SEZZLE_WIDGET_QUEUE_ROUTE . $isResolvedParam;
-        return $this->getUrl($route);
+        return $this->getUrl(self::SEZZLE_WIDGET_QUEUE_ROUTE);
     }
 
     /**

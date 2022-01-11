@@ -143,7 +143,6 @@ interface V2Interface
     /**
      * Add request to widget queue
      *
-     * @return bool
      * @throws LocalizedException
      */
     public function addToWidgetQueue();
