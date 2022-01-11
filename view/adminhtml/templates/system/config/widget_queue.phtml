@@ -14,7 +14,7 @@ use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\WidgetQueue;
         var canAddToWidgetQueue = '<?php echo $block->canAddToWidgetQueue() ?>',
             widgetQueueElement = $('#widget_queue');
         if (!canAddToWidgetQueue) {
-            widgetQueueElement.attr('disabled', true);
+            widgetQueueElement.text($t("Request Submitted")).attr('disabled', true);
         }
 
         widgetQueueElement.click(function () {
@@ -25,7 +25,7 @@ use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\WidgetQueue;
                 asynchronous: true,
                 onSuccess: function () {
                     console.log("Sezzle: Request successfully added to widget queue");
-                    $(self).text($t("Request"));
+                    $(self).text($t("Request Submitted"));
                     alert({
                         title: $t('Sezzle Widget Queue Request'),
                         content: $t('Your request for help was successfully submitted.  Please allow 2 business days for a response.')
