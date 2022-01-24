@@ -168,6 +168,13 @@ interface SezzleConfigInterface extends IdentityInterface
     public function getInContextMode($scope = ScopeInterface::SCOPE_STORE);
 
     /**
+     * Get Widget Ticket Created At
+     * @param string $scope
+     * @return string
+     */
+    public function getWidgetTicketCreatedAt($scope = ScopeInterface::SCOPE_STORE);
+
+    /**
      * Check if current checkout is in context
      *
      * @param string $scope
