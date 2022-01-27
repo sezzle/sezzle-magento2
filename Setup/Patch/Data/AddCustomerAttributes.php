@@ -4,24 +4,31 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
+declare(strict_types=1);
 
-namespace Sezzle\Sezzlepay\Setup;
+namespace Sezzle\Sezzlepay\Setup\Patch\Data;
 
 use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
-use Magento\Eav\Model\Entity\Attribute\Set as AttributeSet;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
-use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
-use Magento\Framework\Setup\UpgradeDataInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchVersionInterface;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\Tokenize;
+use Zend_Validate_Exception;
 
 /**
- * @codeCoverageIgnore
- */
-class UpgradeData implements UpgradeDataInterface
+* Patch is mechanism, that allows to do atomic upgrade data changes
+*/
+class AddCustomerAttributes implements DataPatchInterface, PatchVersionInterface
 {
+    /**
+     * @var ModuleDataSetupInterface $moduleDataSetup
+     */
+    private $moduleDataSetup;
 
     /**
      * @var CustomerSetupFactory
@@ -34,17 +41,8 @@ class UpgradeData implements UpgradeDataInterface
     private $attributeSetFactory;
 
     /**
-     * @param CustomerSetupFactory $customerSetupFactory
-     * @param AttributeSetFactory $attributeSetFactory
+     * @var string[]
      */
-    public function __construct(
-        CustomerSetupFactory $customerSetupFactory,
-        AttributeSetFactory $attributeSetFactory
-    ) {
-        $this->customerSetupFactory = $customerSetupFactory;
-        $this->attributeSetFactory = $attributeSetFactory;
-    }
-
     protected $sezzleCustomerAttributes = [
         Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => [
             'input' => 'text',
@@ -69,33 +67,49 @@ class UpgradeData implements UpgradeDataInterface
     ];
 
     /**
-     * @param ModuleDataSetupInterface $setup
-     * @param ModuleContextInterface $context
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param CustomerSetupFactory $customerSetupFactory
+     * @param AttributeSetFactory $attributeSetFactory
      */
-    public function upgrade(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+    public function __construct(
+        ModuleDataSetupInterface $moduleDataSetup,
+        CustomerSetupFactory $customerSetupFactory,
+        AttributeSetFactory $attributeSetFactory
+    ) {
+        $this->moduleDataSetup = $moduleDataSetup;
+        $this->customerSetupFactory = $customerSetupFactory;
+        $this->attributeSetFactory = $attributeSetFactory;
+    }
+
+    /**
+     * Do Upgrade
+     *
+     * @return void
+     * @throws LocalizedException
+     * @throws Zend_Validate_Exception
+     */
+    public function apply()
     {
-        if (version_compare($context->getVersion(), '2.0.0', '<')) {
-            foreach ($this->sezzleCustomerAttributes as $attributeCode => $attribute) {
-                $this->addCustomerAttribute($setup, $attributeCode, $attribute['input'], $attribute['label']);
-            }
+        foreach ($this->sezzleCustomerAttributes as $attributeCode => $attribute) {
+            $this->addCustomerAttribute($attributeCode, $attribute['input'], $attribute['label']);
         }
     }
 
     /**
-     * @param ModuleDataSetupInterface $setup
      * @param string $attributeCode
      * @param string $input
      * @param string $attributeLabel
+     * @throws LocalizedException
+     * @throws Zend_Validate_Exception
      */
-    private function addCustomerAttribute(ModuleDataSetupInterface $setup, $attributeCode, $input, $attributeLabel)
+    private function addCustomerAttribute($attributeCode, $input, $attributeLabel)
     {
         /** @var CustomerSetup $customerSetup */
-        $customerSetup = $this->customerSetupFactory->create(['setup' => $setup]);
+        $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
 
         $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
         $attributeSetId = $customerEntity->getDefaultAttributeSetId();
 
-        /** @var $attributeSet AttributeSet */
         $attributeSet = $this->attributeSetFactory->create();
         $attributeGroupId = $attributeSet->getDefaultGroupId($attributeSetId);
 
@@ -114,8 +128,32 @@ class UpgradeData implements UpgradeDataInterface
             ->addData([
                 'attribute_set_id' => $attributeSetId,
                 'attribute_group_id' => $attributeGroupId
-                ]);
+            ]);
 
         $attribute->save();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getVersion()
+    {
+        return '2.0.0';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAliases()
+    {
+        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getDependencies()
+    {
+        return [];
     }
 }
