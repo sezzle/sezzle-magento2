@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+  <table name="sezzle_settlement_reports" resource="default" engine="innodb" comment="Sezzle Settlement Reports">
+    <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+    <column xsi:type="varchar" name="uuid" nullable="true" length="255" comment="Payout UUID"/>
+    <column xsi:type="varchar" name="payout_currency" nullable="true" length="255" comment="Payout Currency"/>
+    <column xsi:type="timestamp" name="payout_date" on_update="false" nullable="true" comment="Payout Date"/>
+    <column xsi:type="int" name="net_settlement_amount" padding="11" unsigned="false" nullable="true" identity="false" comment="Net Settlement Amount"/>
+    <column xsi:type="int" name="forex_fees" padding="11" unsigned="false" nullable="true" identity="false" comment="Forex Fees"/>
+    <column xsi:type="varchar" name="status" nullable="true" length="255" comment="Status"/>
+    <constraint xsi:type="primary" referenceId="PRIMARY">
+      <column name="entity_id"/>
+    </constraint>
+  </table>
+</schema>
