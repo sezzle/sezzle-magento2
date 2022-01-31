@@ -15,15 +15,14 @@ use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
-use Magento\Framework\Setup\Patch\PatchVersionInterface;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\Tokenize;
 use Zend_Validate_Exception;
 
 /**
-* Patch is mechanism, that allows to do atomic upgrade data changes
-*/
-class AddCustomerAttributes implements DataPatchInterface, PatchVersionInterface
+ * Patch is mechanism, that allows to do atomic upgrade data changes
+ */
+class AddCustomerAttributes implements DataPatchInterface
 {
     /**
      * @var ModuleDataSetupInterface $moduleDataSetup
@@ -120,7 +119,7 @@ class AddCustomerAttributes implements DataPatchInterface, PatchVersionInterface
             'required' => false,
             'visible' => false,
             'user_defined' => false,
-            'position' =>999,
+            'position' => 999,
             'system' => 0,
         ]);
 
@@ -131,14 +130,6 @@ class AddCustomerAttributes implements DataPatchInterface, PatchVersionInterface
             ]);
 
         $attribute->save();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getVersion()
-    {
-        return '2.0.0';
     }
 
     /**
