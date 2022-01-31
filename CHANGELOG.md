@@ -21,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Added a button in Sezzle configuration section for creating widget request in case of any issue related to widget.
+- Migrated install/upgrade scripts to declarative schema.
 
 ## Version 5.5.7
 
