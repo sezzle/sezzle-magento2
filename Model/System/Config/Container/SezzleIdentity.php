@@ -38,6 +38,7 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const XML_PATH_MIN_CHECKOUT_AMOUNT = 'payment/sezzlepay/min_checkout_amount';
     const XML_PATH_WIDGET_PDP = 'payment/sezzlepay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/sezzlepay/widget_cart';
+    const XML_PATH_WIDGET_TICKET_CREATED_AT = 'payment/sezzlepay/widget_ticket_created_at';
 
     const XML_PATH_WIDGET_INSTALLMENT = 'payment/sezzlepay/widget_installment';
     const XML_PATH_WIDGET_INSTALLMENT_PRICE = 'payment/sezzlepay/widget_installment_price_path';
@@ -297,6 +298,18 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_INCONTEXT_MODE,
+            $this->getStore()->getStoreId(),
+            $scope
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getWidgetTicketCreatedAt($scope = StoreScopeInterface::SCOPE_STORE)
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_WIDGET_TICKET_CREATED_AT,
             $this->getStore()->getStoreId(),
             $scope
         );

@@ -1,0 +1,49 @@
+<?php
+
+use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\WidgetQueue;
+
+/* @var $block WidgetQueue */
+?>
+
+<script>
+    require([
+        'jquery',
+        'mage/translate',
+        'Magento_Ui/js/modal/alert'
+    ], function ($, $t, alert) {
+        var canAddToWidgetQueue = '<?php echo $block->canAddToWidgetQueue() ?>',
+            widgetQueueElement = $('#widget_queue');
+        if (!canAddToWidgetQueue) {
+            widgetQueueElement.text($t("Request Submitted")).attr('disabled', true);
+        }
+
+        widgetQueueElement.click(function () {
+            $(this).text($t("Adding to widget queue...")).attr('disabled', true);
+            var self = this;
+            new Ajax.Request('<?php echo $block->getWidgetQueueUrl(); ?>', {
+                loaderArea: false,
+                asynchronous: true,
+                onSuccess: function () {
+                    console.log("Sezzle: Request successfully added to widget queue");
+                    $(self).text($t("Request Submitted"));
+                    alert({
+                        title: $t('Sezzle Widget Queue Request'),
+                        content: $t('Your request for help was successfully submitted.  Please allow 2 business days for a response.')
+                    });
+                },
+                onError: function () {
+                    console.log("Sezzle: Request failed to get added to widget queue");
+                    $(self).text($t("Request")).attr('disabled', false);
+                    alert({
+                        title: $t('Sezzle Widget Queue Request'),
+                        content: $t('There was an error submitting your request. Please try again.')
+                    });
+                }
+            });
+        });
+    });
+
+
+</script>
+
+<?php echo $block->getButtonHtml() ?>

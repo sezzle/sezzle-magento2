@@ -6,6 +6,22 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 5.5.8
+
+_Tue 25 Jan 2022_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.0 and later.
+- Magento Commerce On Prem Edition (EE) version 2.0 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+
+### Highlights
+
+- Added a button in Sezzle configuration section for creating widget request in case of any issue related to widget.
+- Migrated install/upgrade scripts to declarative schema.
 
 ## Version 5.5.8
 

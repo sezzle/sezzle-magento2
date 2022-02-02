@@ -1,0 +1,16 @@
+{
+    "sezzle_settlement_reports": {
+        "column": {
+            "entity_id": true,
+            "uuid": true,
+            "payout_currency": true,
+            "payout_date": true,
+            "net_settlement_amount": true,
+            "forex_fees": true,
+            "status": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}
