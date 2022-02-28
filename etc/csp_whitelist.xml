@@ -22,5 +22,10 @@
                 <value id="sezzle-tracking-eu" type="host">tracking.eu.sezzle.com</value>
             </values>
         </policy>
+        <policy id="img-src">
+            <values>
+                <value id="sezzle-cdn" type="host">media.sezzle.com</value>
+            </values>
+        </policy>
     </policies>
 </csp_whitelist>

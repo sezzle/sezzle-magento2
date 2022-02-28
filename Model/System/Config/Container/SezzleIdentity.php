@@ -60,9 +60,9 @@ class SezzleIdentity extends Container implements SezzleConfigInterface
     const WIDGET_URL = "https://widget.%s/%s";
 
     private static $supportedGatewayRegions = [
-        'US' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
+        'US' => 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
         'EU' => 'https://media.eu.sezzle.com/payment-method/assets/sezzle.png',
-        'IN' => 'https://d34uoa9py2cgca.cloudfront.net/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png'
+        'IN' => 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png'
     ];
 
     /**
