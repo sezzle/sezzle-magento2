@@ -51,11 +51,11 @@ class Queue extends Action
     /**
      * @var TypeListInterface
      */
-    private TypeListInterface $cacheTypeList;
+    private $cacheTypeList;
     /**
      * @var Pool
      */
-    private Pool $cacheFrontendPool;
+    private $cacheFrontendPool;
 
     /**
      * Queue constructor.
