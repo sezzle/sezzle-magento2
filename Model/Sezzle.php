@@ -32,7 +32,7 @@ use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Helper\Util;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
-use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\ResourceModel\Quote as QuoteResourceModel;
 
 /**
  * Class Sezzle
@@ -147,13 +147,13 @@ class Sezzle extends AbstractMethod
      */
     private $dateTime;
     /**
-     * @var CartRepositoryInterface
-     */
-    private $cartRepository;
-    /**
      * @var CheckoutSession
      */
     private $checkoutSession;
+    /**
+     * @var QuoteResourceModel
+     */
+    private $quoteResourceModel;
 
     /**
      * Sezzle constructor.
@@ -172,6 +172,8 @@ class Sezzle extends AbstractMethod
      * @param Tokenize $tokenizeModel
      * @param V1Interface $v1
      * @param DateTime $dateTime
+     * @param CheckoutSession $checkoutSession
+     * @param QuoteResourceModel $quoteResourceModel
      */
     public function __construct(
         Context $context,
@@ -189,8 +191,8 @@ class Sezzle extends AbstractMethod
         Tokenize $tokenizeModel,
         V1Interface $v1,
         DateTime $dateTime,
-        CartRepositoryInterface $cartRepository,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        QuoteResourceModel $quoteResourceModel
     ) {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
@@ -200,8 +202,8 @@ class Sezzle extends AbstractMethod
         $this->tokenizeModel = $tokenizeModel;
         $this->v1 = $v1;
         $this->dateTime = $dateTime;
-        $this->cartRepository = $cartRepository;
         $this->checkoutSession = $checkoutSession;
+        $this->quoteResourceModel = $quoteResourceModel;
         parent::__construct(
             $context,
             $registry,
@@ -284,7 +286,7 @@ class Sezzle extends AbstractMethod
             $additionalInformation,
             [self::SEZZLE_ORDER_TYPE => SezzleIdentity::API_VERSION_V2]
         ));
-        $this->cartRepository->save($quote);
+        $this->quoteResourceModel->save($quote->collectTotals());
         $this->checkoutSession->replaceQuote($quote);
         $this->sezzleHelper->logSezzleActions("Checkout URL : $redirectURL");
         return $redirectURL;
