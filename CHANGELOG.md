@@ -8,7 +8,7 @@
 
 ## Version 6.0.0
 
-_Tue 03 Mar 2022_
+_Fri 04 Mar 2022_
 
 ### Supported Editions & Versions
 
