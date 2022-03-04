@@ -14,13 +14,28 @@ _Fri 04 Mar 2022_
 
 Tested and verified in clean installations of Magento 2:
 
-- Magento Open Source Edition (CE) version 2.0 and later.
-- Magento Commerce On Prem Edition (EE) version 2.0 and later.
-- Magento Commerce Cloud Edition (ECE) version 2.0 and later.
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
 
 ### Highlights
 
 - Support for Sezzle India
+## Version 5.5.10
+
+_Fri 04 Mar 2022_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- FIX: The requested qty is not available error while checking out with Sezzle for configurable child product's quantity equals to 1.
 
 ## Version 5.5.9
 
