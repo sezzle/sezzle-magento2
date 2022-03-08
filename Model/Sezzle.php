@@ -582,6 +582,28 @@ class Sezzle extends AbstractMethod
     }
 
     /**
+     * Check partial capture availability
+     *
+     * @return bool
+     * 
+     */
+    public function canCapturePartial()
+    {
+        return $this->sezzleConfig->getGatewayRegion() === 'IN' ? false : $this->_canCapturePartial;
+    }
+
+    /**
+     * Check void availability.
+     *
+     * @return bool
+     * 
+     */
+    public function canVoid()
+    {
+        return $this->sezzleConfig->getGatewayRegion() === 'IN' ? false : $this->_canVoid;
+    }
+
+    /**
      * Check whether payment method can be used
      *
      * @param CartInterface|null $quote
