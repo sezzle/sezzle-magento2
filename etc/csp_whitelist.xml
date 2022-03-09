@@ -9,6 +9,7 @@
                 <value id="sandbox-sezzle-sdk-eu" type="host">sandbox.checkout-sdk.eu.sezzle.com</value>
                 <value id="sezzle-widget" type="host">widget.sezzle.com</value>
                 <value id="sezzle-widget-eu" type="host">widget.eu.sezzle.com</value>
+                <value id="sezzle-widget-in" type="host">widget.sezzle.in</value>
             </values>
         </policy>
         <policy id="frame-src">
@@ -19,6 +20,11 @@
                 <value id="sandbox-sezzle-incontext-checkout-eu" type="host">sandbox.checkout.eu.sezzle.com</value>
                 <value id="sezzle-tracking" type="host">tracking.sezzle.com</value>
                 <value id="sezzle-tracking-eu" type="host">tracking.eu.sezzle.com</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="sezzle-cdn" type="host">media.sezzle.com</value>
             </values>
         </policy>
     </policies>
