@@ -78,16 +78,17 @@ class Processor implements ProcessorInterface
     /**
      * @inheritDoc
      */
-    public function call($url, $authToken = null, $body = false, $method = ZendClient::GET, $getResponseStatusCode = false)
+    public function call($url, $authToken = null, $body = false, $method = ZendClient::GET, $headers = [], $getResponseStatusCode = false)
     {
         try {
             if ($authToken) {
                 $this->curl->addHeader("Authorization", "Bearer $authToken");
             }
-            if (strpos("reauthorize", $url) !== false) {
-                $platformKey = base64_encode($this->jsonHelper->jsonEncode(["id" => "magento:" . $this->sezzleConfig->getMerchantUUID()]));
-                $this->curl->addHeader("Sezzle-Platform", $platformKey);
+
+            if (count($headers) > 0) {
+                $this->curl->setHeaders($headers);
             }
+
             $this->sezzleHelper->logSezzleActions("Auth token : $authToken");
             $this->sezzleHelper->logSezzleActions("****Request Info****");
             $requestLog = [
