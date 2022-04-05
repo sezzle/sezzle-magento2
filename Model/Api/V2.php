@@ -230,18 +230,15 @@ class V2 implements V2Interface
                 "private_key" => $privateKey
             ];
 
-            $encodedPlatformDetails = base64_encode($this->jsonHelper->jsonEncode([
-                "id" => "Magento",
-                "version" => $this->productMetadata->getEdition() . " " . $this->productMetadata->getVersion(),
-                "plugin_version" => $this->sezzleHelper->getVersion()
-            ]));
+            $encodedPlatformDetails = $this->sezzleHelper->getEncodedPlatformDetails();
+            $headers = $encodedPlatformDetails ? ["Sezzle-Platform" => $encodedPlatformDetails] : [];
 
             $response = $this->apiProcessor->call(
                 $url,
                 null,
                 $body,
                 ZendClient::POST,
-                ["Sezzle-Platform" => $encodedPlatformDetails]
+                $headers
             );
             $body = $this->jsonHelper->jsonDecode($response);
             $this->dataObjectHelper->populateWithArray(
