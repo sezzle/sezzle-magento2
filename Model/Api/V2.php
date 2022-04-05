@@ -11,6 +11,7 @@ use DateInterval;
 use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
@@ -137,6 +138,10 @@ class V2 implements V2Interface
      * @var TimezoneInterface
      */
     private $timezone;
+    /**
+     * @var ProductMetadataInterface
+     */
+    private $productMetadata;
 
     /**
      * V2 constructor.
@@ -159,6 +164,7 @@ class V2 implements V2Interface
      * @param LinkInterfaceFactory $linkInterfaceFactory
      * @param CustomerInterfaceFactory $customerInterfaceFactory
      * @param TimezoneInterface $timezone
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         AuthInterfaceFactory $authFactory,
@@ -179,7 +185,8 @@ class V2 implements V2Interface
         TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
         LinkInterfaceFactory $linkInterfaceFactory,
         CustomerInterfaceFactory $customerInterfaceFactory,
-        TimezoneInterface $timezone
+        TimezoneInterface $timezone,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
@@ -201,6 +208,7 @@ class V2 implements V2Interface
         $this->linkInterfaceFactory = $linkInterfaceFactory;
         $this->customerInterfaceFactory = $customerInterfaceFactory;
         $this->timezone = $timezone;
+        $this->productMetadata = $productMetadata;
     }
 
     /**
@@ -222,11 +230,15 @@ class V2 implements V2Interface
                 "private_key" => $privateKey
             ];
 
+            $encodedPlatformDetails = $this->sezzleHelper->getEncodedPlatformDetails();
+            $headers = $encodedPlatformDetails ? ["Sezzle-Platform" => $encodedPlatformDetails] : [];
+
             $response = $this->apiProcessor->call(
                 $url,
                 null,
                 $body,
-                ZendClient::POST
+                ZendClient::POST,
+                $headers
             );
             $body = $this->jsonHelper->jsonDecode($response);
             $this->dataObjectHelper->populateWithArray(
@@ -675,6 +687,7 @@ class V2 implements V2Interface
                 $auth->getToken(),
                 $payload,
                 ZendClient::POST,
+                [],
                 true
             );
             $body = $this->jsonHelper->jsonDecode($response["body"]);
@@ -724,6 +737,7 @@ class V2 implements V2Interface
                 $auth->getToken(),
                 null,
                 ZendClient::POST,
+                [],
                 true
             );
 

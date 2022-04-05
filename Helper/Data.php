@@ -7,9 +7,11 @@
 
 namespace Sezzle\Sezzlepay\Helper;
 
+use Exception;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
@@ -18,6 +20,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Logger\Logger;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 use Zend_Http_UserAgent_Mobile;
+use Magento\Framework\Json\Helper\Data as JsonHelper;
 
 /**
  * Sezzle Helper
@@ -34,7 +37,7 @@ class Data extends AbstractHelper
      */
     private $file;
     /**
-     * @var \Magento\Framework\Json\Helper\Data
+     * @var JsonHelper
      */
     private $jsonHelper;
     /**
@@ -49,30 +52,37 @@ class Data extends AbstractHelper
      * @var CustomerSession
      */
     private $customerSession;
+    /**
+     * @var ProductMetadataInterface
+     */
+    private $productMetadata;
 
     /**
      * Initialize dependencies.
      *
      * @param Context $context
      * @param File $file
-     * @param \Magento\Framework\Json\Helper\Data $jsonHelper
+     * @param JsonHelper $jsonHelper
      * @param StoreManagerInterface $storeManager
      * @param Logger $logger
      * @param CustomerSession $customerSession
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         Context $context,
         File $file,
-        \Magento\Framework\Json\Helper\Data $jsonHelper,
+        JsonHelper $jsonHelper,
         StoreManagerInterface $storeManager,
         Logger $logger,
-        CustomerSession $customerSession
+        CustomerSession $customerSession,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->file = $file;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;
         $this->logger = $logger;
         $this->customerSession = $customerSession;
+        $this->productMetadata = $productMetadata;
         parent::__construct($context);
     }
 
@@ -194,5 +204,26 @@ class Data extends AbstractHelper
             $amount * 100,
             self::PRECISION
         ));
+    }
+
+    /**
+     * Get encoded platform details
+     *
+     * @return string
+     */
+    public function getEncodedPlatformDetails()
+    {
+        try {
+            $encodedDetails = "";
+            $platformDetails = [
+                "id" => "Magento",
+                "version" => $this->productMetadata->getEdition() . " " . $this->productMetadata->getVersion(),
+                "plugin_version" => $this->getVersion()
+            ];
+            $encodedDetails = base64_encode($this->jsonHelper->jsonEncode($platformDetails));
+        } catch (Exception $e) {
+            $this->logSezzleActions("Error getting platform details: " . $e->getMessage());
+        }
+        return $encodedDetails;
     }
 }
