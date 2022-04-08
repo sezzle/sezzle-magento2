@@ -23,15 +23,16 @@ interface ProcessorInterface
      * @param string $authToken
      * @param bool|array $body
      * @param string $method
+     * @param array $headers
      * @param bool $getResponseStatusCode
      * @return array|string
-     * @throws LocalizedException
      */
     public function call(
         $url,
         $authToken = null,
         $body = false,
         $method = ZendClient::GET,
+        $headers = [],
         $getResponseStatusCode = false
     );
 }
