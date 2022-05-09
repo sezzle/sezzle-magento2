@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Customer:etc/sections.xsd">
+    <action name="sezzle/payment/complete">
+        <section name="cart"/>
+        <section name="checkout-data"/>
+        <section name="last-ordered-items"/>
+    </action>
+    <action name="rest/*/V1/sezzle/carts/*/checkout">
+        <section name="cart"/>
+        <section name="checkout-data"/>
+        <section name="last-ordered-items"/>
+    </action>
+    <action name="rest/*/V1/sezzle/guest-carts/*/checkout">
+        <section name="cart"/>
+        <section name="checkout-data"/>
+        <section name="last-ordered-items"/>
+    </action>
+    <action name="rest/*/V1/carts/*/order">
+        <section name="cart"/>
+        <section name="checkout-data"/>
+        <section name="last-ordered-items"/>
+    </action>
+    <action name="rest/*/V1/guest-carts/*/order">
+        <section name="cart"/>
+        <section name="checkout-data"/>
+        <section name="last-ordered-items"/>
+    </action>
+</config>
