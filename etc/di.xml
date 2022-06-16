@@ -50,4 +50,56 @@
             </argument>
         </arguments>
     </type>
+
+    <!--    Payment configs-->
+    <virtualType name="SezzleFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">Sezzle\Sezzlepay\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Magento\Payment\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">SezzleValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">SezzleValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">SezzleCommandPool</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SezzleConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <!--    Value handlers-->
+    <virtualType name="SezzleValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">SezzleConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SezzleCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SezzleCurrencyValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <!--    Validators-->
+    <virtualType name="SezzleValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="currency" xsi:type="string">SezzleCurrencyValidator</item>
+                <item name="country" xsi:type="string">SezzleCountryValidator</item>
+                <item name="availability" xsi:type="string">Sezzle\Sezzlepay\Gateway\Validator\AvailabilityValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+
 </config>
