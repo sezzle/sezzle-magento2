@@ -19,13 +19,13 @@ class AuthorizationValidator extends AbstractValidator {
         $response = SubjectReader::readResponse($validationSubject);
         $amount = SubjectReader::readAmount($validationSubject);
 
-        $errorMessages = [];
+        $fails = [];
         $isValid = true;
         if ($this->validateTotalAmount($response, $amount)) {
             $isValid = false;
-            $errorMessages = [__("Amount cannot be less than or equal to 0.")];
+            $fails[] = __("Amount cannot be less than or equal to 0.");
         }
 
-        return $this->createResult($isValid, $errorMessages);
+        return $this->createResult($isValid, $fails);
     }
 }

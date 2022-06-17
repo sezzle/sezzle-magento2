@@ -38,7 +38,7 @@ class AuthorizationHandler implements HandlerInterface {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
         $amount = SubjectReader::readAmount($handlingSubject);
 
-        /** @var Payment $orderPayment */
+        /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
         $sezzleOrderUUID = $payment->getAdditionalInformation(self::KEY_ORIGINAL_ORDER_UUID);
