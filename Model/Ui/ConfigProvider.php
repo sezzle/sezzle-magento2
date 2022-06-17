@@ -1,11 +1,6 @@
 <?php
-/*
- * @category    Sezzle
- * @package     Sezzle_Sezzlepay
- * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
- */
 
-namespace Sezzle\Sezzlepay\Model;
+namespace Sezzle\Sezzlepay\Model\Ui;
 
 use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
@@ -14,25 +9,22 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\CurrencyInterface;
 use Magento\Framework\Module\Manager;
-use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
-// TODO: Need to remove this file as Model/Ui/ConfigProvider exists
 /**
- * Class SezzleConfigProvider
- * @package Sezzle\Sezzlepay\Model
+ * ConfigProvider
  */
-class SezzleConfigProvider implements ConfigProviderInterface
+class ConfigProvider implements ConfigProviderInterface
 {
+
+    const CODE = "sezzlepay";
 
     /**
      * @var SezzleConfigInterface
      */
     private $sezzleConfig;
-    /**
-     * @var Data
-     */
-    private $sezzleHelper;
 
     /**
      * @var Session
@@ -52,9 +44,8 @@ class SezzleConfigProvider implements ConfigProviderInterface
     private $localeCurrency;
 
     /**
-     * SezzleConfigProvider constructor.
+     * ConfigProvider constructor.
      * @param SezzleConfigInterface $sezzleConfig
-     * @param Data $sezzleHelper
      * @param Session $checkoutSession
      * @param Tokenize $tokenizeModel
      * @param Manager $moduleManager
@@ -62,13 +53,11 @@ class SezzleConfigProvider implements ConfigProviderInterface
      */
     public function __construct(
         SezzleConfigInterface $sezzleConfig,
-        Data $sezzleHelper,
         Session $checkoutSession,
         Tokenize $tokenizeModel,
         Manager $moduleManager,
         CurrencyInterface $localeCurrency
     ) {
-        $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
         $this->checkoutSession = $checkoutSession;
         $this->tokenizeModel = $tokenizeModel;
@@ -81,7 +70,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
      * @throws NoSuchEntityException|LocalizedException
      * @throws Exception
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         $quote = $this->checkoutSession->getQuote();
         $isTokenizeCheckoutAllowed = $this->tokenizeModel->isCustomerUUIDValid($quote);
@@ -90,7 +79,7 @@ class SezzleConfigProvider implements ConfigProviderInterface
 
         return [
             'payment' => [
-                Sezzle::PAYMENT_CODE => [
+                self::CODE => [
                     'methodCode' => Sezzle::PAYMENT_CODE,
                     'allowInContextCheckout' => $allowInContextCheckout,
                     'inContextMode' => $this->sezzleConfig->getInContextMode(),
