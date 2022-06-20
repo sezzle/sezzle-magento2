@@ -21,7 +21,7 @@ class AuthorizationValidator extends AbstractValidator {
 
         $fails = [];
         $isValid = true;
-        if ($this->validateTotalAmount($response, $amount)) {
+        if (!$this->validateTotalAmount($response, $amount)) {
             $isValid = false;
             $fails[] = __("Amount cannot be less than or equal to 0.");
         }
