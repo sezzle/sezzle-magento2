@@ -101,5 +101,20 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="SezzleCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">SezzleAuthorizeCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SezzleAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler</argument>
+            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\AuthorizationValidator</argument>
+        </arguments>
+    </virtualType>
+
 
 </config>
