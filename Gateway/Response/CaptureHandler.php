@@ -13,7 +13,6 @@ class CaptureHandler implements HandlerInterface
 {
 
     /**
-     * AuthorizationHandler constructor
      * @param array $handlingSubject
      * @param array $response
      * @return void
