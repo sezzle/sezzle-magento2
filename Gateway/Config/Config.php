@@ -39,6 +39,11 @@ class Config extends PaymentConfig
     const KEY_SETTLEMENT_REPORTS = 'settlement_reports';
     const KEY_SETTLEMENT_REPORTS_RANGE = 'settlement_reports_range';
 
+    const PAYMENT_MODE_SANDBOX = "sandbox";
+    const PAYMENT_MODE_LIVE = "live";
+
+    const GATEWAY_URL = "https://%sgateway.sezzle.com/";
+
     /**
      * @var StoreConfigResolver
      */
@@ -52,11 +57,12 @@ class Config extends PaymentConfig
      * @param string $pathPattern
      */
     public function __construct(
-        StoreConfigResolver $storeConfigResolver,
+        StoreConfigResolver  $storeConfigResolver,
         ScopeConfigInterface $scopeConfig,
-        $methodCode = null,
-        $pathPattern = self::DEFAULT_PATH_PATTERN
-    ) {
+                             $methodCode = null,
+                             $pathPattern = self::DEFAULT_PATH_PATTERN
+    )
+    {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
         $this->storeConfigResolver = $storeConfigResolver;
     }
@@ -69,7 +75,7 @@ class Config extends PaymentConfig
      */
     public function isEnabled(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_ACTIVE,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -167,7 +173,7 @@ class Config extends PaymentConfig
      */
     public function isTokenizationEnabled(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_TOKENIZE,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -181,7 +187,7 @@ class Config extends PaymentConfig
      */
     public function isWidgetEnabledForPDP(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_WIDGET_PDP,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -195,7 +201,7 @@ class Config extends PaymentConfig
      */
     public function isWidgetEnabledForCart(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_WIDGET_CART,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -223,7 +229,7 @@ class Config extends PaymentConfig
      */
     public function isInstallmentWidgetEnabled(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_WIDGET_INSTALLMENT,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -252,7 +258,7 @@ class Config extends PaymentConfig
      */
     public function isLogTrackerEnabled(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_LOG_TRACKER,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -266,7 +272,7 @@ class Config extends PaymentConfig
      */
     public function isLogsSendingToSezzleAllowed(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_CRON_LOGS,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -280,7 +286,7 @@ class Config extends PaymentConfig
      */
     public function isSettlementReportsEnabled(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_SETTLEMENT_REPORTS,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -294,7 +300,7 @@ class Config extends PaymentConfig
      */
     public function getSettlementReportsRange(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_SETTLEMENT_REPORTS_RANGE,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -308,7 +314,7 @@ class Config extends PaymentConfig
      */
     public function isInContextModeActive(int $storeId = null): bool
     {
-        return (bool) $this->getValue(
+        return (bool)$this->getValue(
             self::KEY_INCONTEXT_ACTIVE,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
@@ -326,5 +332,19 @@ class Config extends PaymentConfig
             self::KEY_INCONTEXT_MODE,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
+    }
+
+    /**
+     * Get API endpoint
+     *
+     * @param int|null $storeId
+     * @return string
+     * @throws InputException
+     * @throws NoSuchEntityException
+     */
+    public function getGatewayURL(int $storeId = null): string
+    {
+        $replaceValue = $this->getPaymentMode($storeId) === self::PAYMENT_MODE_SANDBOX ? self::PAYMENT_MODE_SANDBOX . "." : "";
+        return sprintf(self::GATEWAY_URL, $replaceValue);
     }
 }

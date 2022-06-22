@@ -2,6 +2,7 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Response;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Model\Order\Payment;
@@ -10,7 +11,8 @@ use Magento\Payment\Model\Method\Adapter;
 /**
  * AuthorizationHandler
  */
-class AuthorizationHandler implements HandlerInterface {
+class AuthorizationHandler implements HandlerInterface
+{
 
     const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
     const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
@@ -23,7 +25,8 @@ class AuthorizationHandler implements HandlerInterface {
     /**
      * @param Adapter $adapter
      */
-    public function __construct(Adapter $adapter) {
+    public function __construct(Adapter $adapter)
+    {
         $this->adapter = $adapter;
     }
 
@@ -32,6 +35,7 @@ class AuthorizationHandler implements HandlerInterface {
      * @param array $handlingSubject
      * @param array $response
      * @return void
+     * @throws LocalizedException
      */
     public function handle(array $handlingSubject, array $response): void
     {
@@ -43,8 +47,8 @@ class AuthorizationHandler implements HandlerInterface {
 
         $sezzleOrderUUID = $payment->getAdditionalInformation(self::KEY_ORIGINAL_ORDER_UUID);
 
-        $payment->setAdditionalInformation(self::KEY_AUTH_AMOUNT, $amount);
-        $payment->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction());
-        $payment->setTransactionId($sezzleOrderUUID)->setIsTransactionClosed(false);
+        $payment->setAdditionalInformation(self::KEY_AUTH_AMOUNT, $amount)
+            ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
+            ->setTransactionId($sezzleOrderUUID)->setIsTransactionClosed(false);
     }
 }
