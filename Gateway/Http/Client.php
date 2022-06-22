@@ -1,6 +1,6 @@
 <?php
 
-namespace Sezzle\Sezzlepay\Gateway\Http\Client;
+namespace Sezzle\Sezzlepay\Gateway\Http;
 
 use Exception;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -43,22 +43,30 @@ class Client implements ClientInterface
     private $json;
 
     /**
+     * @var AuthTokenService
+     */
+    private $authTokenService;
+
+    /**
      * Client constructor.
      *
      * @param ZendClientFactory $httpClientFactory
      * @param PaymentLogger $paymentLogger
+     * @param AuthTokenService $authTokenService
      * @param LoggerInterface $logger
      * @param Json $json
      */
     public function __construct(
         ZendClientFactory $httpClientFactory,
         PaymentLogger     $paymentLogger,
+        AuthTokenService  $authTokenService,
         LoggerInterface   $logger,
         Json              $json
     )
     {
         $this->httpClientFactory = $httpClientFactory;
         $this->paymentLogger = $paymentLogger;
+        $this->authTokenService = $authTokenService;
         $this->logger = $logger;
         $this->json = $json;
     }
@@ -78,8 +86,8 @@ class Client implements ClientInterface
         $client = $this->httpClientFactory->create();
 
         $clientConfig = $transferObject->getClientConfig();
-        $storeId = $clientConfig['__store'] ?? null;
-        unset($clientConfig['__store']);
+        $storeId = $clientConfig['__storeId'];
+        unset($clientConfig['__storeId']);
 
         try {
             //            $client->setConfig(['maxredirects' => 0, 'timeout' => 10]);
@@ -87,7 +95,7 @@ class Client implements ClientInterface
                 ->setMethod($transferObject->getMethod())
                 ->setHeaders([
                     'Content-Type: application/json',
-                    'Authorization: Bearer ' . $this->tokenService->getToken($storeId) // TODO: Need to add a token service
+                    'Authorization: Bearer ' . $this->authTokenService->getToken($storeId)
                 ]);
 
             $request = $transferObject->getBody();

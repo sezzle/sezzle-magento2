@@ -80,6 +80,7 @@ class TransferFactory implements TransferFactoryInterface
 
         $args = $this->removeAndReturnArgs($request);
         return $this->transferBuilder
+            ->setClientConfig(['__storeId' => $storeId])
             ->setMethod($this->method)
             ->setHeaders(['Content-Type' => 'application/json'])
             ->setBody($request)

@@ -129,7 +129,7 @@
         <arguments>
             <argument name="requestBuilder" xsi:type="object">Sezzle\Sezzlepay\Gateway\Request\CaptureRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\CaptureTransferFactory</argument>
-            <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client\Client</argument>
+            <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
             <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\CaptureHandler</argument>
             <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\CaptureValidator</argument>
         </arguments>

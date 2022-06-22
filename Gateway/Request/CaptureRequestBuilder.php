@@ -10,7 +10,6 @@ use Sezzle\Sezzlepay\Helper\Util;
 /*
  * CaptureRequestBuilder
  */
-
 class CaptureRequestBuilder implements BuilderInterface
 {
 
@@ -19,6 +18,9 @@ class CaptureRequestBuilder implements BuilderInterface
     const CURRENCY = "currency";
 
     const ROUTE_PARAMS = "route_params";
+
+    const ORDER_UUID = "order_uuid";
+    const __STORE_ID = "__storeId";
 
 
     /**
@@ -33,9 +35,9 @@ class CaptureRequestBuilder implements BuilderInterface
         $amount = SubjectReader::readAmount($buildSubject);
 
         return [
-            "__store" => $payment->getOrder()->getStoreId(),
+            self::__STORE_ID => $payment->getOrder()->getStoreId(),
             self::ROUTE_PARAMS => [
-                "order_uuid" => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
+                self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
             ],
             self::GROUP => [
                 self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
