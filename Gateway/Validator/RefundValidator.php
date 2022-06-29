@@ -6,9 +6,9 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 
 /**
- * AuthorizationValidator
+ * RefundValidator
  */
-class AuthorizationValidator extends AbstractValidator
+class RefundValidator extends AbstractValidator
 {
 
     /**
@@ -18,10 +18,9 @@ class AuthorizationValidator extends AbstractValidator
     public function validate(array $validationSubject): ResultInterface
     {
         $response = SubjectReader::readResponse($validationSubject);
-        $amount = SubjectReader::readAmount($validationSubject);
 
-        if (!$this->validateTotalAmount($response, $amount)) {
-            return $this->createResult(false, [__("Amount cannot be less than or equal to 0.")]);
+        if (!isset($response["uuid"]) || !$response["uuid"]) {
+            return $this->createResult(false, [__("Unable to refund the amount.")]);
         }
 
         return $this->createResult(true);

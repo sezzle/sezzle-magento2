@@ -114,6 +114,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="authorize" xsi:type="string">SezzleAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">SezzleCaptureCommand</item>
+                <item name="refund" xsi:type="string">SezzleRefundCommand</item>
             </argument>
         </arguments>
     </virtualType>
@@ -135,10 +136,28 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="SezzleRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">Sezzle\Sezzlepay\Gateway\Request\RefundRequestBuilder</argument>
+            <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\RefundTransferFactory</argument>
+            <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\RefundHandler</argument>
+            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\RefundValidator</argument>
+        </arguments>
+    </virtualType>
+
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\CaptureTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="method" xsi:type="string">Sezzle\Sezzlepay\Gateway\Http\Client\Client::HTTP_POST</argument>
             <argument name="uriPath" xsi:type="string">v2/order/{order_uuid}/capture</argument>
+            <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Sezzle\Sezzlepay\Gateway\Http\RefundTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
+        <arguments>
+            <argument name="method" xsi:type="string">Sezzle\Sezzlepay\Gateway\Http\Client\Client::HTTP_POST</argument>
+            <argument name="uriPath" xsi:type="string">v2/order/{order_uuid}/refund</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>

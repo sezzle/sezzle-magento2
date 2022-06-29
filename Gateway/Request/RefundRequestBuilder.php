@@ -9,13 +9,11 @@ use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
 use Sezzle\Sezzlepay\Helper\Util;
 
 /*
- * CaptureRequestBuilder
+ * RefundRequestBuilder
  */
-
-class CaptureRequestBuilder implements BuilderInterface
+class RefundRequestBuilder implements BuilderInterface
 {
 
-    const GROUP = "capture_amount";
     const AMOUNT_IN_CENTS = "amount_in_cents";
     const CURRENCY = "currency";
 
@@ -42,10 +40,8 @@ class CaptureRequestBuilder implements BuilderInterface
             self::ROUTE_PARAMS => [
                 self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
             ],
-            self::GROUP => [
-                self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
-                self::CURRENCY => $paymentDO->getOrder()->getBaseCurrencyCode()
-            ]
+            self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
+            self::CURRENCY => $paymentDO->getOrder()->getBaseCurrencyCode()
         ];
     }
 }
