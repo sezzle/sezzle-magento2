@@ -8,7 +8,8 @@ use Magento\Payment\Gateway\Validator\ResultInterface;
 /**
  * AuthorizationValidator
  */
-class AuthorizationValidator extends AbstractValidator {
+class AuthorizationValidator extends AbstractValidator
+{
 
     /**
      * @param array $validationSubject
@@ -19,13 +20,10 @@ class AuthorizationValidator extends AbstractValidator {
         $response = SubjectReader::readResponse($validationSubject);
         $amount = SubjectReader::readAmount($validationSubject);
 
-        $fails = [];
-        $isValid = true;
         if (!$this->validateTotalAmount($response, $amount)) {
-            $isValid = false;
-            $fails[] = __("Amount cannot be less than or equal to 0.");
+            return $this->createResult(false, [__("Amount cannot be less than or equal to 0.")]);
         }
 
-        return $this->createResult($isValid, $fails);
+        return $this->createResult(true);
     }
 }

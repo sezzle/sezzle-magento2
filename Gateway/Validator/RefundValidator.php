@@ -8,7 +8,8 @@ use Magento\Payment\Gateway\Validator\ResultInterface;
 /**
  * RefundValidator
  */
-class RefundValidator extends AbstractValidator {
+class RefundValidator extends AbstractValidator
+{
 
     /**
      * @param array $validationSubject
@@ -19,9 +20,9 @@ class RefundValidator extends AbstractValidator {
         $response = SubjectReader::readResponse($validationSubject);
 
         if (!isset($response["uuid"]) || !$response["uuid"]) {
-            return $this->createResult(false, $__("Unable to refund the amount."));
+            return $this->createResult(false, [__("Unable to refund the amount.")]);
         }
 
-        return $this->createResult(true, []);
+        return $this->createResult(true);
     }
 }
