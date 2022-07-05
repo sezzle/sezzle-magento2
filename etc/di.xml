@@ -112,11 +112,18 @@
     <virtualType name="SezzleCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">Sezzle\Sezzlepay\Gateway\Command\InitializeCommand</item>
                 <item name="authorize" xsi:type="string">SezzleAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">SezzleCaptureCommand</item>
                 <item name="refund" xsi:type="string">SezzleRefundCommand</item>
                 <item name="void" xsi:type="string">SezzleReleaseCommand</item>
             </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SezzleInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\InitializeHandler</argument>
         </arguments>
     </virtualType>
 
