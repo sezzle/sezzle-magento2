@@ -200,7 +200,6 @@
             <argument name="requestBuilder" xsi:type="object">Sezzle\Sezzlepay\Gateway\Request\OrderRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\OrderTransferFactory</argument>
             <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
-<!--            <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\OrderDetailsHandler</argument>-->
             <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\OrderValidator</argument>
         </arguments>
     </virtualType>
