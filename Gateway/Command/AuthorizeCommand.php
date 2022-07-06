@@ -2,76 +2,58 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Command;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
-use Magento\Payment\Gateway\Http\ClientInterface;
-use Magento\Payment\Gateway\Http\TransferFactoryInterface;
-use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Payment\Gateway\Validator\ValidatorInterface;
-use Magento\Payment\Gateway\Command\GatewayCommand;
-use Psr\Log\LoggerInterface;
-use Sezzle\Sezzlepay\Gateway\Validator\OrderValidator;
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Sales\Model\Order\Payment;
+use Magento\Payment\Model\Method\Adapter;
 
-class AuthorizeCommand extends GatewayCommand
+/**
+ * AuthorizeCommand
+ */
+class AuthorizeCommand implements CommandInterface
 {
 
+    const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
+    const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
+
     /**
-     * @var OrderValidator
+     * @var Adapter
      */
-    private $orderValidator;
-    private $command;
+    private $adapter;
 
     /**
      * AuthorizeCommand constructor.
      *
-     * @param OrderValidator $orderValidator
-     * @param BuilderInterface $requestBuilder
-     * @param TransferFactoryInterface $transferFactory
-     * @param ClientInterface $client
-     * @param LoggerInterface $logger
-     * @param HandlerInterface|null $handler
-     * @param ValidatorInterface|null $validator
+     * @param Adapter $adapter
      */
-    public function __construct(
-        OrderValidator           $orderValidator,
-        CommandInterface $command,
-        BuilderInterface         $requestBuilder,
-        TransferFactoryInterface $transferFactory,
-        ClientInterface          $client,
-        LoggerInterface          $logger,
-        HandlerInterface         $handler = null,
-        ValidatorInterface       $validator = null
-    )
+    public function __construct(Adapter $adapter)
     {
-        parent::__construct(
-            $requestBuilder,
-            $transferFactory,
-            $client,
-            $logger,
-            $handler,
-            $validator
-        );
-
-        $this->command = $command;
-        $this->orderValidator = $orderValidator;
+        $this->adapter = $adapter;
     }
 
     /**
      * @inheritdoc
+     * @return void
+     * @throws LocalizedException
      */
-    public function execute(array $commandSubject)
+    public function execute(array $commandSubject): void
     {
-        $this->command->execute([]);
-        $result = $this->orderValidator->validate($commandSubject);
-        if (!$result->isValid()) {
-            throw new CommandException(
-                $result->getFailsDescription()
-                    ? __(implode(', ', $result->getFailsDescription()))
-                    : __('Unable to validate the order.')
-            );
+        $amount = SubjectReader::readAmount($commandSubject);
+        if ($amount <= 0) {
+            throw new CommandException(__('Invalid amount for authorize.'));
         }
 
-        parent::execute($commandSubject);
+        $paymentDO = SubjectReader::readPayment($commandSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO->getPayment();
+
+        $orderUUID = $payment->getAdditionalInformation(self::KEY_ORIGINAL_ORDER_UUID);
+
+        $payment->setAdditionalInformation(self::KEY_AUTH_AMOUNT, $amount)
+            ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
+            ->setTransactionId($orderUUID)->setIsTransactionClosed(false);
     }
 }
