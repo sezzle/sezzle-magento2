@@ -26,6 +26,8 @@ class CustomerOrderRequestBuilder implements BuilderInterface
     const CUSTOMER_UUID = "customer_uuid";
     const __STORE_ID = "__storeId";
 
+    const KEY_CUSTOMER_UUID = "sezzle_customer_uuid";
+
 
     /**
      * @param array $buildSubject
@@ -42,7 +44,7 @@ class CustomerOrderRequestBuilder implements BuilderInterface
         return [
             self::__STORE_ID => $payment->getOrder()->getStoreId(),
             self::ROUTE_PARAMS => [
-                self::CUSTOMER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
+                self::CUSTOMER_UUID => $payment->getAdditionalInformation(self::KEY_CUSTOMER_UUID)
             ],
             self::GROUP => [
                 self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
