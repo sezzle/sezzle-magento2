@@ -5,29 +5,16 @@ namespace Sezzle\Sezzlepay\Gateway\Response;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Payment\Model\Method\Adapter;
 use Magento\Sales\Model\Order\Payment;
+use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
- * CaptureHandler
+ * CustomerOrderHandler
  */
-class CaptureHandler implements HandlerInterface
+class CustomerOrderHandler implements HandlerInterface
 {
 
-    /**
-     * @var Adapter
-     */
-    private $adapter;
-
-    /**
-     * CaptureHandler constructor
-     *
-     * @param Adapter $adapter
-     */
-    public function __construct(Adapter $adapter)
-    {
-        $this->adapter = $adapter;
-    }
+    const KEY_GET_ORDER_LINK = 'sezzle_get_order_link';
 
     /**
      * @param array $handlingSubject
@@ -43,8 +30,15 @@ class CaptureHandler implements HandlerInterface
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        $payment->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
-            ->setTransactionId($response['uuid'])
-            ->setIsTransactionClosed(true);
+        $payment->setAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID, $response['uuid']);
+
+        $hateOSLinks = $response['links'];
+        foreach ($hateOSLinks as $link) {
+            $rel = "sezzle_" . $link['rel'] . "_link";
+            if ($link['method'] == 'GET' && strpos($rel, "self") !== false) {
+                $rel = self::KEY_GET_ORDER_LINK;
+            }
+            $payment->setAdditionalInformation($rel, $link['href']);
+        }
     }
 }
