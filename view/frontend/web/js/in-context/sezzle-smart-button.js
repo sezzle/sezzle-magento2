@@ -6,7 +6,8 @@
 define([
     'jquery',
     'Magento_Checkout/js/model/error-processor',
-    'Magento_Checkout/js/model/full-screen-loader'
+    'Magento_Checkout/js/model/full-screen-loader',
+    'checkoutSDK'
 ], function ($, errorProcessor, fullScreenLoader) {
     'use strict';
 
