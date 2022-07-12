@@ -53,7 +53,7 @@ class ViewPlugin
         } catch (Exception $e) {
             //Early exit, this exception will be thrown later in the request and exit before any of this
             //plugin's modifications are required
-            return;
+            return null;
         }
 
         $order->setActionFlag(
@@ -61,5 +61,6 @@ class ViewPlugin
             $this->sezzleModel->canInvoice($order)
             || $this->sezzleConfig->isTokenizationAllowed()
         );
+        return null;
     }
 }
