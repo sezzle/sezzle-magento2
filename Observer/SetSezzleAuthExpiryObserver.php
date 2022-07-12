@@ -73,7 +73,7 @@ class SetSezzleAuthExpiryObserver implements ObserverInterface
             $paymentAction = $order->getPayment()->getAdditionalInformation('payment_type');
             $this->sezzleHelper->logSezzleActions("Payment Type : $paymentAction");
             switch ($paymentAction) {
-                case Sezzle::ACTION_AUTHORIZE:
+                case 'authorize':
                     $this->sezzleModel->setSezzleAuthExpiry($order);
                     $this->sezzleHelper->logSezzleActions('****Sezzle capture time setting end****');
                     break;

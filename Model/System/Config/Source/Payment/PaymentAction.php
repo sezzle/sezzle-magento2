@@ -23,11 +23,11 @@ class PaymentAction implements ArrayInterface
     {
         return [
             [
-                'value' => Sezzle::ACTION_AUTHORIZE,
+                'value' => 'authorize',
                 'label' => __('Authorize Only'),
             ],
             [
-                'value' => Sezzle::ACTION_AUTHORIZE_CAPTURE,
+                'value' => 'authorize_capture',
                 'label' => __('Authorize and Capture')
             ]
         ];

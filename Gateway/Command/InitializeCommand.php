@@ -23,6 +23,8 @@ class InitializeCommand implements CommandInterface
      */
     public function execute(array $commandSubject): void
     {
+        echo 1234;
+        die();
         $paymentAction = $commandSubject['paymentAction'];
         $stateObject = SubjectReader::readStateObject($commandSubject);
         $paymentDO = SubjectReader::readPayment($commandSubject);
