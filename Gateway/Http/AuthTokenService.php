@@ -108,52 +108,6 @@ class AuthTokenService
         }
 
         return $response['token'];
-
-//        $log = [
-//            'request' => $data
-//        ];
-
-//        $client = $this->clientFactory->create();
-//
-//        try {
-//            $client
-//                ->setConfig(['timeout' => 5])
-//                ->setUri($this->config->getGatewayURL($storeId))
-//                ->setMethod(Client::HTTP_POST)
-//                ->setHeaders('Content-type', 'application/json')
-//                ->setRawData($this->jsonSerializer->serialize($data));
-//
-//            $response = $client->request();
-////            $log['response'] = $response->getBody();
-//
-//            if ($response->getStatus() != 201 || empty($response->getBody())) {
-//                throw new LocalizedException(__('Auth token unavailable.'));
-//            }
-//
-//            $result = $response->getBody();
-//            $result = $this->jsonSerializer->unserialize($result);
-//
-//            if (!isset($result['token'])) {
-//                throw new LocalizedException(__('Auth token unavailable.'));
-//            }
-//
-//            // TODO: Need to figure out later on
-////            if (isset($result['expires_in']) && $result['expires_in'] > 300) {
-////                $this->saveCacheToken($websiteId, $token, $result['expires_in'] - 300);
-////            }
-//
-//            return $result['token'];
-//        } catch (LocalizedException $e) {
-////            $log['error'] = $e->getMessage();
-//            throw $e;
-//        } catch (Exception $e) {
-////            $log['error'] = $e->getMessage();
-//            throw new LocalizedException(__($e->getMessage()));
-//        }
-////        finally {
-////            $log['log_origin'] = __METHOD__;
-////            $this->logger->debug($log);
-////        }
     }
 
     /**

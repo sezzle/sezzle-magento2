@@ -2,6 +2,7 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
@@ -80,16 +81,10 @@ class Client implements ClientInterface
     /**
      * @param TransferInterface $transferObject
      * @return array
-     * @throws ClientException
+     * @throws ClientException|LocalizedException
      */
     public function placeRequest(TransferInterface $transferObject): array
     {
-//        $log = [
-//            'request' => [
-//                'uri' => $transferObject->getUri()
-//            ],
-//        ];
-
         $clientConfig = $transferObject->getClientConfig();
         $storeId = $clientConfig['__storeId'];
         unset($clientConfig['__storeId']);
@@ -106,7 +101,7 @@ class Client implements ClientInterface
             case 'POST':
                 $this->curl->post($transferObject->getUri(), $this->jsonSerializer->serialize($transferObject->getBody()));
                 break;
-            case 'get':
+            case 'GET':
                 $this->curl->get($transferObject->getUri());
                 break;
         }
@@ -115,43 +110,5 @@ class Client implements ClientInterface
         $responseJSON = $this->curl->getBody();
 
         return $this->jsonSerializer->unserialize($responseJSON);
-
-//        try {
-//            //            $client->setConfig(['maxredirects' => 0, 'timeout' => 10]);
-//            $client->setUri($transferObject->getUri())
-//                ->setMethod($transferObject->getMethod())
-//                ->setHeaders([
-//                    'Content-Type: application/json',
-//                    'Authorization: Bearer ' . $this->authTokenService->getToken($storeId)
-//                ]);
-//
-//            $request = $transferObject->getBody();
-//            if (!empty($request)) {
-//                $client->setRawData($this->json->serialize($request), 'application/json');
-////                $log['request']['body'] = $request;
-//            }
-//
-//            $response = $client->request();
-////            $log['response'] = $response->getBody();
-//
-//            if (!$response->isSuccessful()) {
-//                throw new ClientException(
-//                    __($response->getBody())
-//                );
-//            }
-//
-//            return $this->json->unserialize($response->getBody());
-//        } catch (Exception $e) {
-//            $this->logger->critical($e);
-////            $log['error'] = $e->getMessage();
-//
-//            throw new ClientException(
-//                __('Something went wrong in the payment gateway.')
-//            );
-//        }
-////        finally {
-////            $log['log_origin'] = __METHOD__;
-////            $this->paymentLogger->debug($log);
-////        }
     }
 }

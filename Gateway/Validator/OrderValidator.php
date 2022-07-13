@@ -41,7 +41,7 @@ class OrderValidator extends AbstractValidator
         ];
 
         foreach ($statements as $statementResult) {
-            if (!$statementResult[0]) {
+            if ($statementResult[0]) {
                 $isValid = false;
                 $fails[] = $statementResult[1];
             }
