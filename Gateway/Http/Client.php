@@ -2,7 +2,6 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
-use Exception;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
@@ -10,6 +9,8 @@ use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger as PaymentLogger;
 use Magento\Framework\HTTP\ZendClientFactory;
 use Psr\Log\LoggerInterface;
+use Magento\Framework\HTTP\Client\Curl;
+use Sezzle\Sezzlepay\Model\Api\ApiParamsInterface;
 
 /**
  * Client
@@ -17,10 +18,10 @@ use Psr\Log\LoggerInterface;
 class Client implements ClientInterface
 {
 
-    const HTTP_GET = "get";
-    const HTTP_POST = "post";
-    const HTTP_PUT = "put";
-    const HTTP_PATCH = "patch";
+    const HTTP_GET = 'GET';
+    const HTTP_POST = 'POST';
+    const HTTP_PUT = 'PUT';
+    const HTTP_PATCH = "PATCH";
 
     /**
      * @var ZendClientFactory
@@ -40,7 +41,7 @@ class Client implements ClientInterface
     /**
      * @var Json
      */
-    private $json;
+    private $jsonSerializer;
 
     /**
      * @var AuthTokenService
@@ -48,27 +49,32 @@ class Client implements ClientInterface
     private $authTokenService;
 
     /**
+     * @var Curl
+     */
+    private $curl;
+
+    /**
      * Client constructor.
      *
-     * @param ZendClientFactory $httpClientFactory
      * @param PaymentLogger $paymentLogger
      * @param AuthTokenService $authTokenService
      * @param LoggerInterface $logger
-     * @param Json $json
+     * @param Json $jsonSerializer
+     * @param Curl $curl
      */
     public function __construct(
-        ZendClientFactory $httpClientFactory,
-        PaymentLogger     $paymentLogger,
-        AuthTokenService  $authTokenService,
-        LoggerInterface   $logger,
-        Json              $json
+        PaymentLogger    $paymentLogger,
+        AuthTokenService $authTokenService,
+        LoggerInterface  $logger,
+        Json   $jsonSerializer,
+        Curl             $curl
     )
     {
-        $this->httpClientFactory = $httpClientFactory;
         $this->paymentLogger = $paymentLogger;
         $this->authTokenService = $authTokenService;
         $this->logger = $logger;
-        $this->json = $json;
+        $this->jsonSerializer = $jsonSerializer;
+        $this->curl = $curl;
     }
 
     /**
@@ -83,48 +89,69 @@ class Client implements ClientInterface
 //                'uri' => $transferObject->getUri()
 //            ],
 //        ];
-        $client = $this->httpClientFactory->create();
 
         $clientConfig = $transferObject->getClientConfig();
         $storeId = $clientConfig['__storeId'];
         unset($clientConfig['__storeId']);
 
-        try {
-            //            $client->setConfig(['maxredirects' => 0, 'timeout' => 10]);
-            $client->setUri($transferObject->getUri())
-                ->setMethod($transferObject->getMethod())
-                ->setHeaders([
-                    'Content-Type: application/json',
-                    'Authorization: Bearer ' . $this->authTokenService->getToken($storeId)
-                ]);
+        $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
+        $this->curl->addHeader("Content-Type", ApiParamsInterface::CONTENT_TYPE_JSON);
 
-            $request = $transferObject->getBody();
-            if (!empty($request)) {
-                $client->setRawData($this->json->serialize($request), 'application/json');
-//                $log['request']['body'] = $request;
-            }
+        $this->curl->setHeaders([
+            'Content-Type' => ApiParamsInterface::CONTENT_TYPE_JSON,
+            'Authorization' => 'Bearer ' . $this->authTokenService->getToken($storeId)
+        ]);
 
-            $response = $client->request();
-//            $log['response'] = $response->getBody();
-
-            if (!$response->isSuccessful()) {
-                throw new ClientException(
-                    __($response->getBody())
-                );
-            }
-
-            return $this->json->unserialize($response->getBody());
-        } catch (Exception $e) {
-            $this->logger->critical($e);
-//            $log['error'] = $e->getMessage();
-
-            throw new ClientException(
-                __('Something went wrong in the payment gateway.')
-            );
+        switch ($transferObject->getMethod()) {
+            case 'POST':
+                $this->curl->post($transferObject->getUri(), $this->jsonSerializer->serialize($transferObject->getBody()));
+                break;
+            case 'get':
+                $this->curl->get($transferObject->getUri());
+                break;
         }
-//        finally {
-//            $log['log_origin'] = __METHOD__;
-//            $this->paymentLogger->debug($log);
+
+
+        $responseJSON = $this->curl->getBody();
+
+        return $this->jsonSerializer->unserialize($responseJSON);
+
+//        try {
+//            //            $client->setConfig(['maxredirects' => 0, 'timeout' => 10]);
+//            $client->setUri($transferObject->getUri())
+//                ->setMethod($transferObject->getMethod())
+//                ->setHeaders([
+//                    'Content-Type: application/json',
+//                    'Authorization: Bearer ' . $this->authTokenService->getToken($storeId)
+//                ]);
+//
+//            $request = $transferObject->getBody();
+//            if (!empty($request)) {
+//                $client->setRawData($this->json->serialize($request), 'application/json');
+////                $log['request']['body'] = $request;
+//            }
+//
+//            $response = $client->request();
+////            $log['response'] = $response->getBody();
+//
+//            if (!$response->isSuccessful()) {
+//                throw new ClientException(
+//                    __($response->getBody())
+//                );
+//            }
+//
+//            return $this->json->unserialize($response->getBody());
+//        } catch (Exception $e) {
+//            $this->logger->critical($e);
+////            $log['error'] = $e->getMessage();
+//
+//            throw new ClientException(
+//                __('Something went wrong in the payment gateway.')
+//            );
 //        }
+////        finally {
+////            $log['log_origin'] = __METHOD__;
+////            $this->paymentLogger->debug($log);
+////        }
     }
 }

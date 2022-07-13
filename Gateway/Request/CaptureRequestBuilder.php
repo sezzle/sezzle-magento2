@@ -15,14 +15,14 @@ use Sezzle\Sezzlepay\Helper\Util;
 class CaptureRequestBuilder implements BuilderInterface
 {
 
-    const GROUP = "capture_amount";
-    const AMOUNT_IN_CENTS = "amount_in_cents";
-    const CURRENCY = "currency";
+    const GROUP = 'capture_amount';
+    const AMOUNT_IN_CENTS = 'amount_in_cents';
+    const CURRENCY = 'currency';
 
-    const ROUTE_PARAMS = "route_params";
+    const ROUTE_PARAMS = 'route_params';
 
-    const ORDER_UUID = "order_uuid";
-    const __STORE_ID = "__storeId";
+    const ORDER_UUID = 'order_uuid';
+    const __STORE_ID = '__storeId';
 
 
     /**

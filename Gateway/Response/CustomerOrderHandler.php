@@ -34,8 +34,8 @@ class CustomerOrderHandler implements HandlerInterface
 
         $hateOSLinks = $response['links'];
         foreach ($hateOSLinks as $link) {
-            $rel = "sezzle_" . $link['rel'] . "_link";
-            if ($link['method'] == 'GET' && strpos($rel, "self") !== false) {
+            $rel = 'sezzle_' . $link['rel'] . '_link';
+            if ($link['method'] == 'GET' && strpos($rel, 'self') !== false) {
                 $rel = self::KEY_GET_ORDER_LINK;
             }
             $payment->setAdditionalInformation($rel, $link['href']);

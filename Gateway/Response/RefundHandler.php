@@ -32,6 +32,6 @@ class RefundHandler implements HandlerInterface
 
         $refundedAmount = $payment->getAdditionalInformation(self::KEY_REFUND_AMOUNT) + $amount;
         $payment->setAdditionalInformation(self::KEY_REFUND_AMOUNT, $refundedAmount);
-        $payment->setTransactionId($response["uuid"])->setIsTransactionClosed(true);
+        $payment->setTransactionId($response['uuid'])->setIsTransactionClosed(true);
     }
 }

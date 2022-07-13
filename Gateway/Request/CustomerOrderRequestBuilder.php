@@ -15,13 +15,13 @@ use Sezzle\Sezzlepay\Helper\Util;
 class CustomerOrderRequestBuilder implements BuilderInterface
 {
 
-    const GROUP = "order_amount";
-    const AMOUNT_IN_CENTS = "amount_in_cents";
-    const CURRENCY = "currency";
-    const INTENT = "intent";
-    const REFERENCE_ID = "reference_id";
+    const GROUP = 'order_amount';
+    const AMOUNT_IN_CENTS = 'amount_in_cents';
+    const CURRENCY = 'currency';
+    const INTENT = 'intent';
+    const REFERENCE_ID = 'reference_id';
 
-    const ROUTE_PARAMS = "route_params";
+    const ROUTE_PARAMS = 'route_params';
 
     const CUSTOMER_UUID = "customer_uuid";
     const __STORE_ID = "__storeId";

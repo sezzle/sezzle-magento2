@@ -96,6 +96,11 @@ abstract class Sezzle extends Action
     protected $quoteIdToMaskedQuoteIdInterface;
 
     /**
+     * @var \Sezzle\Sezzlepay\Api\CartManagementInterface
+     */
+    protected $sezzleCartManagement;
+
+    /**
      * Payment constructor.
      * @param Context $context
      * @param CustomerRepositoryInterface $customerRepository
@@ -130,7 +135,8 @@ abstract class Sezzle extends Action
         CartRepositoryInterface $cartRepository,
         CartManagementInterface $cartManagement,
         GuestCartManagementInterface $guestCartManagement,
-        QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
+        QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface,
+        \Sezzle\Sezzlepay\Api\CartManagementInterface $sezzleCartManagement
     ) {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
@@ -147,6 +153,7 @@ abstract class Sezzle extends Action
         $this->cartManagement = $cartManagement;
         $this->guestCartManagement = $guestCartManagement;
         $this->quoteIdToMaskedQuoteIdInterface = $quoteIdToMaskedQuoteIdInterface;
+        $this->sezzleCartManagement = $sezzleCartManagement;
         parent::__construct($context);
     }
 

@@ -19,7 +19,7 @@ class CaptureValidator extends AbstractValidator
     {
         $response = SubjectReader::readResponse($validationSubject);
 
-        if (!isset($response["uuid"]) || !$response["uuid"]) {
+        if (!isset($response['uuid']) || !$response["uuid"]) {
             return $this->createResult(false, [__("Unable to capture the amount.")]);
         }
 

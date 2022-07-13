@@ -14,10 +14,10 @@ use Sezzle\Sezzlepay\Model\StoreConfigResolver;
 class Config extends PaymentConfig
 {
 
-    const KEY_ACTIVE = "active";
-    const KEY_PUBLIC_KEY = "public_key";
-    const KEY_PRIVATE_KEY = "private_key";
-    const KEY_PAYMENT_MODE = "payment_mode";
+    const KEY_ACTIVE = 'active';
+    const KEY_PUBLIC_KEY = 'public_key';
+    const KEY_PRIVATE_KEY = 'private_key';
+    const KEY_PAYMENT_MODE = 'payment_mode';
     const KEY_MERCHANT_ID = "merchant_id";
     const KEY_PAYMENT_ACTION = "payment_action";
     const KEY_GATEWAY_REGION = "gateway_region";

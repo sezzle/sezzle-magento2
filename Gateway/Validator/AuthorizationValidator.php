@@ -21,7 +21,7 @@ class AuthorizationValidator extends AbstractValidator
         $amount = SubjectReader::readAmount($validationSubject);
 
         if (!$this->validateTotalAmount($response, $amount)) {
-            return $this->createResult(false, [__("Amount cannot be less than or equal to 0.")]);
+            return $this->createResult(false, [__('Amount cannot be less than or equal to 0.')]);
         }
 
         return $this->createResult(true);
