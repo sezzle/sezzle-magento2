@@ -44,7 +44,7 @@ class CaptureRequestBuilder implements BuilderInterface
             ],
             self::GROUP => [
                 self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
-                self::CURRENCY => $paymentDO->getOrder()->getBaseCurrencyCode()
+                self::CURRENCY => $payment->getOrder()->getBaseCurrencyCode()
             ]
         ];
     }

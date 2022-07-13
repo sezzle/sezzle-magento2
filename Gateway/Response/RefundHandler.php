@@ -25,7 +25,6 @@ class RefundHandler implements HandlerInterface
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
         $amount = SubjectReader::readAmount($handlingSubject);
-        $response = SubjectReader::readResponse($handlingSubject);
 
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();

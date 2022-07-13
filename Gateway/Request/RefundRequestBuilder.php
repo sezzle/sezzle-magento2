@@ -11,6 +11,7 @@ use Sezzle\Sezzlepay\Helper\Util;
 /*
  * RefundRequestBuilder
  */
+
 class RefundRequestBuilder implements BuilderInterface
 {
 
@@ -41,7 +42,7 @@ class RefundRequestBuilder implements BuilderInterface
                 self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
             ],
             self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
-            self::CURRENCY => $paymentDO->getOrder()->getBaseCurrencyCode()
+            self::CURRENCY => $payment->getOrder()->getBaseCurrencyCode()
         ];
     }
 }

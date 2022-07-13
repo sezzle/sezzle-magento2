@@ -158,6 +158,12 @@
         </arguments>
     </virtualType>
 
+    <type name="Sezzle\Sezzlepay\Gateway\Response\CaptureHandler">
+        <arguments>
+            <argument name="adapter" xsi:type="object">SezzleFacade</argument>
+        </arguments>
+    </type>
+
     <virtualType name="SezzleRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">Sezzle\Sezzlepay\Gateway\Request\RefundRequestBuilder</argument>
