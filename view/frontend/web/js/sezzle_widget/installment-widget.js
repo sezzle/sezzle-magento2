@@ -3,7 +3,9 @@ document.addEventListener('readystatechange', function () {
         if (!window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath) {
             return;
         }
-        let checkoutTotal = document.querySelector(window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath), // WooCommerce
+        init();
+
+        let checkoutTotal = document.querySelector(window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath),
             installmentBox = document.querySelector('#sezzle-installment-widget-box');
         if (document.querySelector('.totals.charge')) {
             checkoutTotal = document.querySelector('.totals.charge>.amount');
@@ -18,8 +20,8 @@ document.addEventListener('readystatechange', function () {
         }
 
         let merchantLocale = window.checkoutConfig.payment.sezzlepay.gatewayRegion
-            || document.querySelector('html').lang.split('-')[1]
-            || 'US',
+                || document.querySelector('html').lang.split('-')[1]
+                || 'US',
             currency = window.checkoutConfig.payment.sezzlepay.currencySymbol,
             biWeeklyLocales = ['US', 'CA', 'IN', 'GU', 'PR', 'VI', 'AS', 'MP'],
             interval = biWeeklyLocales.indexOf(merchantLocale) > -1 ? 14 : 30;
@@ -394,12 +396,55 @@ document.addEventListener('readystatechange', function () {
         installmentPriceContainer.className = 'sezzle-payment-schedule-prices';
         installmentContainer.appendChild(installmentPriceContainer);
 
+        // init widget processing
+        function init() {
+            let pricePath = window.checkoutConfig.payment.sezzlepay.installmentWidgetPricePath;
+            addInstallmentWidgetContainer(pricePath);
+            let priceElement = document.querySelector(pricePath),
+                installmentPriceElement = document.getElementsByClassName("sezzle-payment-schedule-prices")[0];
+            if (!priceElement || !priceElement.innerText) {
+                priceElement = document.querySelector(".estimated-price");
+            }
+            if (!priceElement || !installmentPriceElement) {
+                return;
+            }
+            let currentTotal = priceElement.innerText,
+                storedTotal = sessionStorage.getItem("sezzle-total");
+            if (storedTotal.localeCompare(currentTotal) === 0) {
+                return;
+            }
+            sessionStorage.setItem("sezzle-total", currentTotal);
+            let priceElements = installmentPriceElement.children,
+                currencySymbol = getCurrencySymbol(window.checkoutConfig.payment.sezzlepay.currencySymbol, currentTotal),
+                includeComma = commaDelimited(currentTotal),
+                price = parsePriceString(currentTotal, includeComma),
+                installmentAmount = (price / 4).toFixed(2);
+            for (let i = 0; i < priceElements.length; i++) {
+                if (i === priceElements.length - 1) {
+                    installmentAmount = (price - installmentAmount * 3).toFixed(2);
+                }
+                priceElements[i].innerText = currencySymbol + (includeComma ? installmentAmount.replace('.', ',') : installmentAmount);
+            }
+        }
+
+        // add installment widget container
+        function addInstallmentWidgetContainer(pricePath) {
+            let sezzlePaymentLine = document.querySelector('#sezzle-method');
+            if (!document.getElementById('sezzle-installment-widget-box') && sezzlePaymentLine) {
+                sessionStorage.setItem("sezzle-total", document.querySelector(pricePath).innerText);
+                sezzlePaymentLine = sezzlePaymentLine.getElementsByClassName("payment-method-content")[0];
+                let sezzleCheckoutWidget = document.createElement('div');
+                sezzleCheckoutWidget.id = 'sezzle-installment-widget-box';
+                sezzlePaymentLine.insertBefore(sezzleCheckoutWidget, sezzlePaymentLine.lastElementChild);
+            }
+        }
+
         // checks if character is numeric
         function isNumeric(n) {
             return !isNaN(parseFloat(n)) && isFinite(n);
         }
 
-        function getCurrencySymbol(priceText) {
+        function getCurrencySymbol(currency, priceText) {
             if (currency) {
                 return currency;
             }
@@ -463,7 +508,7 @@ document.addEventListener('readystatechange', function () {
 
         // calculates installment price from total price element content
         let totalPriceText = checkoutTotal.innerText;
-        let currencySymbol = getCurrencySymbol(totalPriceText);
+        let currencySymbol = getCurrencySymbol(currency, totalPriceText);
         let includeComma = commaDelimited(totalPriceText);
         let price = parsePriceString(totalPriceText, includeComma);
         let installmentAmount = (price / 4).toFixed(2);

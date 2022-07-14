@@ -6,6 +6,39 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 6.0.4
+
+_Tue 12 July 2022_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- FIX: Sezzle showing up inconsistently in Amasty's OSC when Amasty's JS bundling is enabled.
+- FIX: Installment Plan not showing up in Amasty's OSC.
+
+## Version 6.0.3
+
+_Wed 06 July 2022_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- FIX: Admin order view plugin blocking other plugins to execute.
+
 ## Version 6.0.2
 
 _Mon 09 May 2022_

@@ -6,8 +6,7 @@
 define(
     [
         'uiComponent',
-        'Magento_Checkout/js/model/payment/renderer-list',
-        'sezzleInContextCheckout'
+        'Magento_Checkout/js/model/payment/renderer-list'
     ],
     function (
         Component,
