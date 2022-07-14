@@ -80,22 +80,16 @@ class CaptureCommand extends GatewayCommand
     public function execute(array $commandSubject): void
     {
         $paymentDO = SubjectReader::readPayment($commandSubject);
-        $amount = SubjectReader::readAmount($commandSubject);
 
-        $authValidatorResult = $this->authValidator->validate(['payment' => $paymentDO]);
+        $authValidatorResult = $this->authValidator->validate($commandSubject);
 
         if (!$authValidatorResult->isValid()) {
-            if ($this->config->isTokenizationEnabled($paymentDO->getOrder()->getStoreId())) {
+            if (!$this->config->isTokenizationEnabled($paymentDO->getPayment()->getOrder()->getStoreId())) {
                 throw new LocalizedException(__('Invoice operation is not permitted. Requires a tokenized customer.'));
             }
 
             try {
-                $this->reauthOrderCommand->execute(
-                    [
-                        'payment' => $paymentDO->getPayment(),
-                        'amount' => $amount
-                    ]
-                );
+                $this->reauthOrderCommand->execute($commandSubject);
             } catch (CommandException $e) {
                 throw new LocalizedException(__('Reauthorization failed at Sezzle.'));
             }
