@@ -10,13 +10,9 @@ use Sezzle\Sezzlepay\Block\Widget\Installment;
 /** @var $block Installment */
 ?>
 <?php if ($block->isInstallmentWidgetEnabled()) : ?>
-<script type="text/x-magento-init">
-    {
-        "*": {
-            "widgetRenderer": {
-                "widget_type" : "installment"
-            }
-        }
-    }
+<script type="text/javascript">
+    require(['installmentWidget'], function() {
+        console.log("sezzle installment widget rendered");
+    });
 </script>
 <?php endif; ?>
