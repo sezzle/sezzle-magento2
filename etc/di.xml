@@ -221,7 +221,7 @@
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\CustomerOrderTransferFactory</argument>
             <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
             <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\CustomerOrderHandler</argument>
-            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\OrderValidator</argument>
+            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\CustomerOrderValidator</argument>
         </arguments>
     </virtualType>
 
@@ -238,7 +238,7 @@
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\ReauthorizeOrderTransferFactory</argument>
             <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
             <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\ReauthorizeOrderHandler</argument>
-            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\OrderValidator</argument>
+            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\CustomerOrderValidator</argument>
         </arguments>
     </virtualType>
 

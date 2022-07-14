@@ -26,8 +26,7 @@ class OrderValidator extends AbstractValidator
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDO->getPayment();
 
-        $orderUUID = $payment->getAdditionalInformation(ReauthorizeOrderHandler::KEY_EXTENDED_ORDER_UUID)
-            ?: $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
+        $orderUUID = $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
 
         $isValid = true;
         $fails = [];
