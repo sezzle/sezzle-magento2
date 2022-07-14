@@ -41,16 +41,12 @@ class Complete extends Sezzle
                 $quoteId = $this->quoteIdToMaskedQuoteIdInterface->execute($quoteId);
             }
 
-            $orderId = $this->sezzleCartManagement->placeOrder($quoteId);
+            $orderId = $this->$cartManager->placeOrder($quoteId);
             if (!$orderId) {
                 throw new CouldNotSaveException(__("Unable to place the order."));
             }
             $redirect = 'checkout/onepage/success';
-        } catch (CouldNotSaveException $e) {
-            $this->handleException($e);
-        } catch (NoSuchEntityException $e) {
-            $this->handleException($e);
-        } catch (LocalizedException $e) {
+        } catch (CouldNotSaveException|NoSuchEntityException|LocalizedException $e) {
             $this->handleException($e);
         }
         return $this->_redirect($redirect);

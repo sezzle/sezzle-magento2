@@ -5,7 +5,6 @@ namespace Sezzle\Sezzlepay\Gateway\Request;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
-use Magento\Quote\Model\Quote\Payment;
 use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
 
 /*

@@ -15,7 +15,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Json\Helper\Data;
 use Magento\Framework\UrlInterface;
-use Magento\Quote\Api\CartManagementInterface;
+use Sezzle\Sezzlepay\Api\CartManagementInterface;
 use Sezzle\Sezzlepay\Model\CheckoutValidator;
 use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\Tokenize;

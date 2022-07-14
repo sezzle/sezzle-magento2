@@ -28,4 +28,23 @@
         </resources>
     </route>
 
+    <!-- Place Sezzle Order -->
+    <route url="/V1/sezzle/carts/mine/order" method="PUT">
+        <service class="Sezzle\Sezzlepay\Api\CartManagementInterface" method="placeOrder"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+
+    <!-- Place Guest Sezzle Order -->
+    <route url="/V1/sezzle/guest-carts/:cartId/order" method="PUT">
+        <service class="Sezzle\Sezzlepay\Api\GuestCartManagementInterface" method="placeOrder"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
 </routes>

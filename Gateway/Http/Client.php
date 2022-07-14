@@ -67,7 +67,7 @@ class Client implements ClientInterface
         PaymentLogger    $paymentLogger,
         AuthTokenService $authTokenService,
         LoggerInterface  $logger,
-        Json   $jsonSerializer,
+        Json             $jsonSerializer,
         Curl             $curl
     )
     {
@@ -98,10 +98,10 @@ class Client implements ClientInterface
         ]);
 
         switch ($transferObject->getMethod()) {
-            case 'POST':
+            case self::HTTP_POST:
                 $this->curl->post($transferObject->getUri(), $this->jsonSerializer->serialize($transferObject->getBody()));
                 break;
-            case 'GET':
+            case self::HTTP_GET:
                 $this->curl->get($transferObject->getUri());
                 break;
         }
