@@ -7,10 +7,9 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
 
-/*
+/**
  * OrderRequestBuilder
  */
-
 class OrderRequestBuilder implements BuilderInterface
 {
     const ROUTE_PARAMS = 'route_params';

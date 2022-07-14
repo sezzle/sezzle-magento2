@@ -5,7 +5,9 @@ namespace Sezzle\Sezzlepay\Gateway\Validator;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
+use Sezzle\Sezzlepay\Gateway\Response\ReauthorizeOrderHandler;
 
 /**
  * OrderValidator
@@ -13,8 +15,6 @@ use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
 class OrderValidator extends AbstractValidator
 {
     /**
-     * Validate secret in url
-     *
      * @param array $validationSubject
      * @return ResultInterface
      */
@@ -23,7 +23,11 @@ class OrderValidator extends AbstractValidator
         $response = SubjectReader::readResponse($validationSubject);
         $paymentDO = SubjectReader::readPayment($validationSubject);
 
-        $orderUUID = $paymentDO->getPayment()->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
+        /** @var OrderPaymentInterface $payment */
+        $payment = $paymentDO->getPayment();
+
+        $orderUUID = $payment->getAdditionalInformation(ReauthorizeOrderHandler::KEY_EXTENDED_ORDER_UUID)
+            ?: $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
 
         $isValid = true;
         $fails = [];
@@ -35,7 +39,7 @@ class OrderValidator extends AbstractValidator
             ],
             [
                 !isset($response['authorization']) || !is_array($response['authorization']),
-                __('Checkout is not authorized.'
+                __('Order is not authorized.'
                 )
             ]
         ];

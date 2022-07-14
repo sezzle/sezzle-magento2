@@ -100,17 +100,10 @@
         </arguments>
     </virtualType>
 
-<!--    <virtualType name="SezzleCurrencyValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">-->
-<!--        <arguments>-->
-<!--            <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>-->
-<!--        </arguments>-->
-<!--    </virtualType>-->
-
     <!--    Validators-->
     <virtualType name="SezzleValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
         <arguments>
             <argument name="validators" xsi:type="array">
-<!--                <item name="currency" xsi:type="string">SezzleCurrencyValidator</item>-->
                 <item name="country" xsi:type="string">SezzleCountryValidator</item>
                 <item name="availability" xsi:type="string">Sezzle\Sezzlepay\Gateway\Validator\AvailabilityValidator</item>
             </argument>
@@ -135,19 +128,6 @@
             <argument name="adapter" xsi:type="object">SezzleFacade</argument>
         </arguments>
     </type>
-
-<!--    <virtualType name="SezzleInitializeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">-->
-<!--        <arguments>-->
-<!--            <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\InitializeHandler</argument>-->
-<!--        </arguments>-->
-<!--    </virtualType>-->
-
-<!--    <virtualType name="SezzleAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">-->
-<!--        <arguments>-->
-<!--            <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler</argument>-->
-<!--            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\AuthorizationValidator</argument>-->
-<!--        </arguments>-->
-<!--    </virtualType>-->
 
     <virtualType name="SezzleCaptureCommand" type="Sezzle\Sezzlepay\Gateway\Command\CaptureCommand">
         <arguments>
@@ -241,7 +221,7 @@
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\CustomerOrderTransferFactory</argument>
             <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
             <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\CustomerOrderHandler</argument>
-            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\CustomerOrderValidator</argument>
+            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\OrderValidator</argument>
         </arguments>
     </virtualType>
 
@@ -258,7 +238,7 @@
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\ReauthorizeOrderTransferFactory</argument>
             <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
             <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\ReauthorizeOrderHandler</argument>
-            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\ReauthorizeOrderValidator</argument>
+            <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\OrderValidator</argument>
         </arguments>
     </virtualType>
 

@@ -45,6 +45,14 @@ class QuoteManagement implements CartManagementInterface
      */
     private $customerOrderCommand;
 
+    /**
+     * QuoteManagement constructor
+     * @param BaseCartManagementInterface $cartManagement
+     * @param CommandInterface $validateOrderCommand
+     * @param CommandInterface $customerOrderCommand
+     * @param PaymentDataObjectFactory $paymentDataObjectFactory
+     * @param CartRepositoryInterface $cartRepository
+     */
     public function __construct(
         BaseCartManagementInterface $cartManagement,
         CommandInterface            $validateOrderCommand,

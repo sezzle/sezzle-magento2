@@ -8,7 +8,7 @@ use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Quote\Model\Quote;
-use Sezzle\Sezzlepay\Gateway\Config\Config as SezzleConfig;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * AvailabilityValidator
@@ -17,20 +17,21 @@ class AvailabilityValidator extends AbstractValidator
 {
 
     /**
-     * @var SezzleConfig
+     * @var Config
      */
-    private $sezzleConfig;
+    private $config;
 
     /**
      * AvailabilityValidator constructor
      * @param ResultInterfaceFactory $resultFactory
-     * @param SezzleConfig $sezzleConfig
+     * @param Config $config
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        SezzleConfig           $sezzleConfig)
+        Config                 $config
+    )
     {
-        $this->sezzleConfig = $sezzleConfig;
+        $this->config = $config;
         parent::__construct($resultFactory);
     }
 
@@ -47,10 +48,10 @@ class AvailabilityValidator extends AbstractValidator
         /** @var Quote $quote */
         $quote = $validationSubject['quote'];
 
-        $merchantID = $this->sezzleConfig->getMerchantID();
-        $publicKey = $this->sezzleConfig->getPublicKey();
-        $privateKey = $this->sezzleConfig->getPrivateKey();
-        $minCheckoutAmount = $this->sezzleConfig->getMinCheckoutAmount();
+        $merchantID = $this->config->getMerchantID();
+        $publicKey = $this->config->getPublicKey();
+        $privateKey = $this->config->getPrivateKey();
+        $minCheckoutAmount = $this->config->getMinCheckoutAmount();
 
         switch (true) {
             case (!$merchantID || !$publicKey || !$privateKey):

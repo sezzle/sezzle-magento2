@@ -2,6 +2,7 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Command;
 
+use InvalidArgumentException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
@@ -23,6 +24,9 @@ class InitializeCommand implements CommandInterface
      */
     public function execute(array $commandSubject): void
     {
+        if (!isset($commandSubject['paymentAction']) || !is_string($commandSubject['paymentAction'])) {
+            throw new InvalidArgumentException('Payment action does not exist');
+        }
         $paymentAction = $commandSubject['paymentAction'];
         $stateObject = SubjectReader::readStateObject($commandSubject);
         $paymentDO = SubjectReader::readPayment($commandSubject);

@@ -90,7 +90,6 @@ class Client implements ClientInterface
         unset($clientConfig['__storeId']);
 
         $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
-        $this->curl->addHeader("Content-Type", ApiParamsInterface::CONTENT_TYPE_JSON);
 
         $this->curl->setHeaders([
             'Content-Type' => ApiParamsInterface::CONTENT_TYPE_JSON,

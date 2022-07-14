@@ -51,7 +51,7 @@ class CaptureHandler implements HandlerInterface
         $payment->unsAdditionalInformation(ReauthorizeOrderHandler::KEY_EXTENDED_ORDER_UUID);
 
         $capturedAmount = $payment->getAdditionalInformation(self::KEY_CAPTURE_AMOUNT) + $amount;
-        if (!$payment->getAdditionalInformation(AuthorizationHandler::KEY_AUTH_AMOUNT)) {
+        if (!$payment->hasAdditionalInformation(AuthorizationHandler::KEY_AUTH_AMOUNT)) {
             $payment->setAdditionalInformation(AuthorizationHandler::KEY_AUTH_AMOUNT, $capturedAmount);
         }
 

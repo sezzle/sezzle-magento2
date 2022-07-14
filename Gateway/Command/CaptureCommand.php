@@ -79,10 +79,16 @@ class CaptureCommand extends GatewayCommand
      */
     public function execute(array $commandSubject): void
     {
+        $amount = SubjectReader::readAmount($commandSubject);
+        if ($amount <= 0) {
+            throw new CommandException(__('Invalid amount for capture.'));
+        }
+
         $paymentDO = SubjectReader::readPayment($commandSubject);
 
         $authValidatorResult = $this->authValidator->validate($commandSubject);
 
+        // reauthorize if auth is expired and has a valid customer UUID
         if (!$authValidatorResult->isValid()) {
             if (!$this->config->isTokenizationEnabled($paymentDO->getPayment()->getOrder()->getStoreId())) {
                 throw new LocalizedException(__('Invoice operation is not permitted. Requires a tokenized customer.'));
