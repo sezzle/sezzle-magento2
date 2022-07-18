@@ -31,7 +31,7 @@ interface GuestCheckoutManagementInterface
      * @throws NotFoundException
      */
     public function createCheckout(
-        int              $cartId,
+        string           $cartId,
         string           $email,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null

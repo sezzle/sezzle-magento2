@@ -16,13 +16,16 @@ use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Sezzle;
 
+/**
+ * Checkout
+ */
 class Checkout implements CheckoutInterface
 {
 
     /**
      * @var array
      */
-    private array $additionalInformation;
+    private array $additionalInformation = [];
 
     /**
      * @var CheckoutValidator

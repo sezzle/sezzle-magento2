@@ -53,7 +53,7 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
      * @inheritDoc
      */
     public function createCheckout(
-        int              $cartId,
+        string           $cartId,
         string           $email,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null): string

@@ -70,13 +70,14 @@ class Customer implements CustomerInterface
     {
         $quote = $this->checkout->initQuote();
         if (!$quote->getCustomer() || !$this->tokenize->isCustomerUUIDValid($quote)) {
-            throw new Exception(__('error'));
+            throw new Exception(__('Invalid customer.'));
         }
 
         $quote->getPayment()->setAdditionalInformation([
             Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue(),
             Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION => $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION)->getValue(),
             Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => $quote->getCustomer()->getCustomAttribute(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK)->getValue(),
+            Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID => uniqid() . "-" . $quote->getReservedOrderId()
         ]);
 
         $this->quoteResourceModel->save($quote->collectTotals());

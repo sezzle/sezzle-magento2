@@ -56,10 +56,16 @@
         </arguments>
     </type>
 
-    <type name="Sezzle\Sezzlepay\Model\QuoteManagement">
+    <type name="Sezzle\Sezzlepay\Model\Quote\QuoteManagement">
         <arguments>
             <argument name="validateOrderCommand" xsi:type="object">Sezzle\Sezzlepay\Gateway\Command\ValidateOrderCommand</argument>
             <argument name="customerOrderCommand" xsi:type="object">Sezzle\Sezzlepay\Gateway\Command\CustomerOrderCommand</argument>
+        </arguments>
+    </type>
+
+    <type name="Sezzle\Sezzlepay\Model\Quote\GuestCartManagement">
+        <arguments>
+            <argument name="validateOrderCommand" xsi:type="object">Sezzle\Sezzlepay\Gateway\Command\ValidateOrderCommand</argument>
         </arguments>
     </type>
 

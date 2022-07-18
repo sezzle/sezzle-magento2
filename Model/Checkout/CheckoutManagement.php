@@ -11,6 +11,9 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
 use Sezzle\Sezzlepay\Api\CheckoutManagementInterface;
 
+/**
+ * CheckoutManagement
+ */
 class CheckoutManagement implements CheckoutManagementInterface
 {
 

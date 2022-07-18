@@ -182,8 +182,7 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
     </div>
 </section>
 
-<?php if (($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE)
-        && $block->getSezzleOrderType() == SezzleIdentity::API_VERSION_V2) : ?>
+<?php if ($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE) : ?>
     <section class="admin__page-section order-view-account-information sezzle">
         <div class="admin__page-section-title">
             <span class="title"><?= $block->escapeHtml(__('Sezzle Information')) ?></span>
