@@ -21,12 +21,12 @@
     </route>
 
     <!-- Create Guest Sezzle Checkout -->
-<!--    <route url="/V1/sezzle/guest-carts/:cartId/checkout" method="POST">-->
-<!--        <service class="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" method="createCheckout"/>-->
-<!--        <resources>-->
-<!--            <resource ref="anonymous" />-->
-<!--        </resources>-->
-<!--    </route>-->
+    <route url="/V1/sezzle/guest-carts/:cartId/checkout" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" method="createCheckout"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 
     <!-- Create Sezzle Customer Order -->
     <route url="/V1/sezzle/carts/mine/customer-order" method="POST">

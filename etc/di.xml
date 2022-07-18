@@ -31,7 +31,7 @@
     <preference for="Sezzle\Sezzlepay\Api\CartManagementInterface" type="Sezzle\Sezzlepay\Model\Quote\QuoteManagement"/>
     <preference for="Sezzle\Sezzlepay\Api\GuestCartManagementInterface" type="Sezzle\Sezzlepay\Model\Quote\GuestCartManagement"/>
     <preference for="Sezzle\Sezzlepay\Api\CheckoutManagementInterface" type="Sezzle\Sezzlepay\Model\Checkout\CheckoutManagement"/>
-<!--    <preference for="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" type="Sezzle\Sezzlepay\Model\Checkout\GuestCheckoutManagement"/>-->
+    <preference for="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" type="Sezzle\Sezzlepay\Model\Checkout\GuestCheckoutManagement"/>
     <preference for="Sezzle\Sezzlepay\Api\CustomerManagementInterface" type="Sezzle\Sezzlepay\Model\Tokenize\CustomerManagement"/>
 
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
