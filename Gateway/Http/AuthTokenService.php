@@ -95,7 +95,7 @@ class AuthTokenService
         ];
 
         $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
-        $this->curl->addHeader("Content-Type", ApiParamsInterface::CONTENT_TYPE_JSON);
+        $this->curl->addHeader('Content-Type', ApiParamsInterface::CONTENT_TYPE_JSON);
 
         $url = $this->config->getGatewayURL($storeId) . 'v2/authentication';
         $this->curl->post($url, $this->jsonSerializer->serialize($data));

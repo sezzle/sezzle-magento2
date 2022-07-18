@@ -7,10 +7,9 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Sezzle\Sezzlepay\Helper\Util;
 
-/*
+/**
  * CustomerOrderRequestBuilder
  */
-
 class CustomerOrderRequestBuilder implements BuilderInterface
 {
 
