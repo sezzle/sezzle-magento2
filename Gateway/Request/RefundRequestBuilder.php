@@ -11,16 +11,17 @@ use Sezzle\Sezzlepay\Helper\Util;
 /*
  * RefundRequestBuilder
  */
+
 class RefundRequestBuilder implements BuilderInterface
 {
 
-    const AMOUNT_IN_CENTS = "amount_in_cents";
-    const CURRENCY = "currency";
+    const AMOUNT_IN_CENTS = 'amount_in_cents';
+    const CURRENCY = 'currency';
 
-    const ROUTE_PARAMS = "route_params";
+    const ROUTE_PARAMS = 'route_params';
 
-    const ORDER_UUID = "order_uuid";
-    const __STORE_ID = "__storeId";
+    const ORDER_UUID = 'order_uuid';
+    const __STORE_ID = '__storeId';
 
 
     /**
@@ -35,13 +36,24 @@ class RefundRequestBuilder implements BuilderInterface
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
+//        if (!$txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId()) {
+//            throw new LocalizedException(__('Failed to refund the payment. Parent Transaction ID is missing.'));
+//        } elseif (!$sezzleOrderUUID = $payment->getAdditionalInformation($txnUUID)) {
+//            throw new LocalizedException(__('Failed to refund the payment. Order UUID is missing.'));
+//        }
+
+
+        $txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId();
+        $orderUUID = $payment->getAdditionalInformation($txnUUID);
+
+
         return [
             self::__STORE_ID => $payment->getOrder()->getStoreId(),
             self::ROUTE_PARAMS => [
-                self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
+                self::ORDER_UUID => $orderUUID
             ],
             self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
-            self::CURRENCY => $paymentDO->getOrder()->getBaseCurrencyCode()
+            self::CURRENCY => $payment->getOrder()->getBaseCurrencyCode()
         ];
     }
 }

@@ -4,20 +4,18 @@ namespace Sezzle\Sezzlepay\Gateway\Request;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
-use Magento\Sales\Model\Order\Payment;
+use Magento\Quote\Api\Data\PaymentInterface;
 use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
-use Sezzle\Sezzlepay\Helper\Util;
 
-/*
- * OrderDetailsRequestBuilder
+/**
+ * OrderRequestBuilder
  */
-
-class OrderDetailsRequestBuilder implements BuilderInterface
+class OrderRequestBuilder implements BuilderInterface
 {
-    const ROUTE_PARAMS = "route_params";
+    const ROUTE_PARAMS = 'route_params';
 
-    const ORDER_UUID = "order_uuid";
-    const __STORE_ID = "__storeId";
+    const ORDER_UUID = 'order_uuid';
+    const __STORE_ID = '__storeId';
 
 
     /**
@@ -28,11 +26,11 @@ class OrderDetailsRequestBuilder implements BuilderInterface
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
 
-        /** @var Payment $payment */
+        /** @var PaymentInterface $payment */
         $payment = $paymentDO->getPayment();
 
         return [
-            self::__STORE_ID => $payment->getOrder()->getStoreId(),
+            self::__STORE_ID => $payment->getQuote()->getStoreId(),
             self::ROUTE_PARAMS => [
                 self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
             ]

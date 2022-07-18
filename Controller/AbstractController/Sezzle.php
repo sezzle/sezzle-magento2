@@ -14,15 +14,15 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Json\Helper\Data;
-use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
-use Magento\Quote\Api\GuestCartManagementInterface;
 use Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
 use Sezzle\Sezzlepay\Model\Tokenize;
+use Sezzle\Sezzlepay\Api\CartManagementInterface;
+use Sezzle\Sezzlepay\Api\GuestCartManagementInterface;
 
 /**
  * Class Sezzle
@@ -96,6 +96,11 @@ abstract class Sezzle extends Action
     protected $quoteIdToMaskedQuoteIdInterface;
 
     /**
+     * @var CartManagementInterface
+     */
+    protected $sezzleCartManagement;
+
+    /**
      * Payment constructor.
      * @param Context $context
      * @param CustomerRepositoryInterface $customerRepository
@@ -115,23 +120,24 @@ abstract class Sezzle extends Action
      * @param QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
      */
     public function __construct(
-        Context $context,
-        CustomerRepositoryInterface $customerRepository,
-        CustomerSession $customerSession,
-        CheckoutSession $checkoutSession,
-        OrderFactory $orderFactory,
-        \Sezzle\Sezzlepay\Model\Sezzle $sezzleModel,
-        \Sezzle\Sezzlepay\Helper\Data $sezzleHelper,
-        JsonFactory $resultJsonFactory,
-        Data $jsonHelper,
-        QuoteManagement $quoteManagement,
-        OrderSender $orderSender,
-        Tokenize $tokenize,
-        CartRepositoryInterface $cartRepository,
-        CartManagementInterface $cartManagement,
-        GuestCartManagementInterface $guestCartManagement,
-        QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
-    ) {
+        Context                                            $context,
+        CustomerRepositoryInterface                        $customerRepository,
+        CustomerSession                                    $customerSession,
+        CheckoutSession                                    $checkoutSession,
+        OrderFactory                                       $orderFactory,
+        \Sezzle\Sezzlepay\Model\Sezzle                     $sezzleModel,
+        \Sezzle\Sezzlepay\Helper\Data   $sezzleHelper,
+        JsonFactory                     $resultJsonFactory,
+        Data                            $jsonHelper,
+        QuoteManagement                 $quoteManagement,
+        OrderSender                     $orderSender,
+        Tokenize                        $tokenize,
+        CartRepositoryInterface         $cartRepository,
+        QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface,
+        CartManagementInterface         $cartManagement,
+        GuestCartManagementInterface    $guestCartManagement
+    )
+    {
         $this->customerSession = $customerSession;
         $this->sezzleHelper = $sezzleHelper;
         $this->jsonHelper = $jsonHelper;
@@ -144,9 +150,9 @@ abstract class Sezzle extends Action
         $this->resultJsonFactory = $resultJsonFactory;
         $this->tokenize = $tokenize;
         $this->cartRepository = $cartRepository;
+        $this->quoteIdToMaskedQuoteIdInterface = $quoteIdToMaskedQuoteIdInterface;
         $this->cartManagement = $cartManagement;
         $this->guestCartManagement = $guestCartManagement;
-        $this->quoteIdToMaskedQuoteIdInterface = $quoteIdToMaskedQuoteIdInterface;
         parent::__construct($context);
     }
 

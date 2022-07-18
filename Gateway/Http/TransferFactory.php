@@ -15,7 +15,7 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class TransferFactory implements TransferFactoryInterface
 {
-    const ROUTE_PARAMS = ["order_uuid", "customer_uuid"];
+    const ROUTE_PARAMS = ['order_uuid', 'customer_uuid'];
 
     /**
      * @var TransferBuilder
@@ -113,11 +113,11 @@ class TransferFactory implements TransferFactoryInterface
     {
         $argsToReturn = [];
         foreach (static::ROUTE_PARAMS as $arg) {
-            if (isset($request["route_params"][$arg])) {
-                $argsToReturn[$arg] = $request[$arg];
+            if (isset($request['route_params'][$arg])) {
+                $argsToReturn[$arg] = $request['route_params'][$arg];
             }
         }
-        unset($request["route_params"]);
+        unset($request['route_params']);
         return $argsToReturn;
     }
 }

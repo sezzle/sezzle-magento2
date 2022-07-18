@@ -21,6 +21,7 @@
                 <allowspecific>1</allowspecific>
                 <specificcountry>US,CA</specificcountry>
                 <defer_funds_capture>0</defer_funds_capture>
+                <can_initialize>1</can_initialize>
                 <can_authorize>1</can_authorize>
                 <can_capture>1</can_capture>
                 <can_cancel>1</can_cancel>

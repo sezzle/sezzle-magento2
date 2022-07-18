@@ -14,13 +14,13 @@ use Sezzle\Sezzlepay\Helper\Util;
 class ReleaseRequestBuilder implements BuilderInterface
 {
 
-    const AMOUNT_IN_CENTS = "amount_in_cents";
-    const CURRENCY = "currency";
+    const AMOUNT_IN_CENTS = 'amount_in_cents';
+    const CURRENCY = 'currency';
 
-    const ROUTE_PARAMS = "route_params";
+    const ROUTE_PARAMS = 'route_params';
 
-    const ORDER_UUID = "order_uuid";
-    const __STORE_ID = "__storeId";
+    const ORDER_UUID = 'order_uuid';
+    const __STORE_ID = '__storeId';
 
 
     /**
@@ -30,7 +30,6 @@ class ReleaseRequestBuilder implements BuilderInterface
     public function build(array $buildSubject): array
     {
         $paymentDO = SubjectReader::readPayment($buildSubject);
-        $amount = SubjectReader::readAmount($buildSubject);
 
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
@@ -40,8 +39,8 @@ class ReleaseRequestBuilder implements BuilderInterface
             self::ROUTE_PARAMS => [
                 self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
             ],
-            self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
-            self::CURRENCY => $paymentDO->getOrder()->getBaseCurrencyCode()
+            self::AMOUNT_IN_CENTS => Util::formatToCents($payment->getOrder()->getBaseGrandTotal()),
+            self::CURRENCY => $payment->getOrder()->getBaseCurrencyCode()
         ];
     }
 }

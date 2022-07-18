@@ -24,7 +24,6 @@ class ReauthorizeOrderHandler implements HandlerInterface
     public function handle(array $handlingSubject, array $response): void
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
-        $response = SubjectReader::readResponse($handlingSubject);
 
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();

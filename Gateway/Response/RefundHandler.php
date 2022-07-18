@@ -25,13 +25,12 @@ class RefundHandler implements HandlerInterface
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
         $amount = SubjectReader::readAmount($handlingSubject);
-        $response = SubjectReader::readResponse($handlingSubject);
 
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
         $refundedAmount = $payment->getAdditionalInformation(self::KEY_REFUND_AMOUNT) + $amount;
         $payment->setAdditionalInformation(self::KEY_REFUND_AMOUNT, $refundedAmount);
-        $payment->setTransactionId($response["uuid"])->setIsTransactionClosed(true);
+        $payment->setTransactionId($response['uuid'])->setIsTransactionClosed(true);
     }
 }

@@ -38,7 +38,7 @@ use Magento\Quote\Model\ResourceModel\Quote as QuoteResourceModel;
  * Class Sezzle
  * @package Sezzle\Sezzlepay\Model
  */
-class Sezzle extends AbstractMethod
+class Sezzle
 {
     const PAYMENT_CODE = 'sezzlepay';
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'sezzle_reference_id';
@@ -53,7 +53,7 @@ class Sezzle extends AbstractMethod
     const ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
     const ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT = 'sezzle_capture_amount';
     const ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT = 'sezzle_refund_amount';
-    const ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT = 'sezzle_order_amount';
+    const ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT = 'sezzle_release_amount';
 
     const ADDITIONAL_INFORMATION_KEY_GET_ORDER_LINK = 'sezzle_get_order_link';
     const ADDITIONAL_INFORMATION_KEY_CAPTURE_LINK = 'sezzle_capture_link';
@@ -70,19 +70,7 @@ class Sezzle extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_isGateway = true;
-    /**
-     * @var bool
-     */
-    protected $_isInitializeNeeded = true;
-    /**
-     * @var bool
-     */
     protected $_canOrder = true;
-    /**
-     * @var bool
-     */
-    protected $_canAuthorize = true;
     /**
      * @var bool
      */
@@ -95,23 +83,11 @@ class Sezzle extends AbstractMethod
     /**
      * @var bool
      */
-    protected $_canRefund = true;
-    /**
-     * @var bool
-     */
     protected $_canVoid = true;
     /**
      * @var bool
      */
-    protected $_canRefundInvoicePartial = true;
-    /**
-     * @var bool
-     */
     protected $_canUseInternal = false;
-    /**
-     * @var bool
-     */
-    protected $_canFetchTransactionInfo = true;
 
     /**
      * @var Data
@@ -157,15 +133,8 @@ class Sezzle extends AbstractMethod
 
     /**
      * Sezzle constructor.
-     * @param Context $context
      * @param System\Config\Container\SezzleConfigInterface $sezzleConfig
      * @param Data $sezzleHelper
-     * @param Registry $registry
-     * @param ExtensionAttributesFactory $extensionFactory
-     * @param AttributeValueFactory $customAttributeFactory
-     * @param \Magento\Payment\Helper\Data $paymentData
-     * @param ScopeConfigInterface $scopeConfig
-     * @param Logger $mageLogger
      * @param QuoteRepository $quoteRepository
      * @param V2Interface $v2
      * @param CustomerSession $customerSession
@@ -176,24 +145,18 @@ class Sezzle extends AbstractMethod
      * @param QuoteResourceModel $quoteResourceModel
      */
     public function __construct(
-        Context $context,
         System\Config\Container\SezzleConfigInterface $sezzleConfig,
-        Data $sezzleHelper,
-        Registry $registry,
-        ExtensionAttributesFactory $extensionFactory,
-        AttributeValueFactory $customAttributeFactory,
-        \Magento\Payment\Helper\Data $paymentData,
-        ScopeConfigInterface $scopeConfig,
-        Logger $mageLogger,
-        QuoteRepository $quoteRepository,
-        V2Interface $v2,
-        CustomerSession $customerSession,
-        Tokenize $tokenizeModel,
-        V1Interface $v1,
-        DateTime $dateTime,
-        CheckoutSession $checkoutSession,
-        QuoteResourceModel $quoteResourceModel
-    ) {
+        Data                                          $sezzleHelper,
+        QuoteRepository                               $quoteRepository,
+        V2Interface                                   $v2,
+        CustomerSession                               $customerSession,
+        Tokenize                                      $tokenizeModel,
+        V1Interface                                   $v1,
+        DateTime                                      $dateTime,
+        CheckoutSession                               $checkoutSession,
+        QuoteResourceModel                            $quoteResourceModel
+    )
+    {
         $this->sezzleHelper = $sezzleHelper;
         $this->sezzleConfig = $sezzleConfig;
         $this->quoteRepository = $quoteRepository;
@@ -204,15 +167,6 @@ class Sezzle extends AbstractMethod
         $this->dateTime = $dateTime;
         $this->checkoutSession = $checkoutSession;
         $this->quoteResourceModel = $quoteResourceModel;
-        parent::__construct(
-            $context,
-            $registry,
-            $extensionFactory,
-            $customAttributeFactory,
-            $paymentData,
-            $scopeConfig,
-            $mageLogger
-        );
     }
 
     /**
@@ -228,7 +182,7 @@ class Sezzle extends AbstractMethod
         $payment = $quote->getPayment();
         $referenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         $this->sezzleHelper->logSezzleActions("Reference Id : $referenceID");
-        $this->sezzleHelper->logSezzleActions("Payment Type : " . $this->getConfigPaymentAction());
+        $this->sezzleHelper->logSezzleActions("Payment Type : " . 'authorize');
         $additionalInformation[self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
         $redirectURL = '';
         if ($quote->getCustomer()
@@ -293,270 +247,6 @@ class Sezzle extends AbstractMethod
     }
 
     /**
-     * @param string $paymentAction
-     * @param object $stateObject
-     * @return Sezzle|void
-     * @throws LocalizedException
-     */
-    public function initialize($paymentAction, $stateObject)
-    {
-        switch ($paymentAction) {
-            case self::ACTION_AUTHORIZE:
-                $payment = $this->getInfoInstance();
-                /** @var Order $order */
-                $order = $payment->getOrder();
-                $order->setCanSendNewEmailFlag(false);
-                $payment->authorize(true, $order->getBaseTotalDue()); // base amount will be set inside
-                $payment->setAmountAuthorized($order->getTotalDue());
-                $orderStatus = $order->getConfig()->getStateDefaultStatus(Order::STATE_NEW);
-                $order->setCustomerNote("Payment authorized by Sezzle.");
-                $stateObject->setState(Order::STATE_NEW);
-                $stateObject->setStatus($orderStatus);
-                $stateObject->setIsNotified(true);
-                break;
-            case self::ACTION_AUTHORIZE_CAPTURE:
-                $payment = $this->getInfoInstance();
-                /** @var Order $order */
-                $order = $payment->getOrder();
-                $order->setCanSendNewEmailFlag(false);
-                $payment->capture(null);
-                $orderStatus = $order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING);
-                $order->setCustomerNote("Payment captured by Sezzle.");
-                $stateObject->setState(Order::STATE_PROCESSING);
-                $stateObject->setStatus($orderStatus);
-                $stateObject->setIsNotified(true);
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Send authorize request to gateway
-     *
-     * @param DataObject|InfoInterface $payment
-     * @param float $amount
-     * @return Sezzle
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @throws LocalizedException
-     */
-    public function authorize(InfoInterface $payment, $amount)
-    {
-        if (!$this->canAuthorize()) {
-            throw new LocalizedException(__('The authorize action is not available.'));
-        } elseif ($amount <= 0) {
-            throw new LocalizedException(__('Invalid amount for authorize.'));
-        }
-        $this->sezzleHelper->logSezzleActions("****Authorization start****");
-        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
-
-        $this->sezzleHelper->logSezzleActions("Incoming amount from Magento : $amount");
-        $amountInCents = Util::formatToCents($amount);
-        $this->sezzleHelper->logSezzleActions("Amount In Cents : $amountInCents");
-        $this->trackCartItemInformation($payment);
-
-        $this->sezzleHelper->logSezzleActions("Sezzle Reference ID : $reference");
-        if (!$sezzleOrderUUID && ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID))) {
-            $this->tokenizeModel->createOrder($payment, $amountInCents);
-            $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
-        }
-        if (!$this->validateOrder($payment)) {
-            throw new LocalizedException(__('Unable to validate the order.'));
-        }
-        $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $this->sezzleHelper->logSezzleActions("Order UUID : $sezzleOrderUUID");
-        $authorizedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT);
-        $authorizedAmount += $amount;
-        $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT, $authorizedAmount);
-        $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
-        $payment->setTransactionId($sezzleOrderUUID)->setIsTransactionClosed(false);
-        $this->sezzleHelper->logSezzleActions("Transaction ID : $sezzleOrderUUID");
-        $this->sezzleHelper->logSezzleActions("Authorization successful");
-        $this->sezzleHelper->logSezzleActions("Authorization end");
-        return $this;
-    }
-
-    /**
-     * Capture at Magento
-     *
-     * @param InfoInterface $payment
-     * @param float $amount
-     * @return Sezzle
-     * @throws LocalizedException
-     */
-    public function capture(InfoInterface $payment, $amount)
-    {
-        $this->sezzleHelper->logSezzleActions("****Capture at Magento start****");
-        if (!$this->canCapture()) {
-            throw new LocalizedException(__('The capture action is not available.'));
-        } elseif ($amount <= 0) {
-            throw new LocalizedException(__('Invalid amount for capture.'));
-        }
-        $this->sezzleHelper->logSezzleActions("Incoming amount from Magento : $amount");
-        $amountInCents = Util::formatToCents($amount);
-        $this->sezzleHelper->logSezzleActions("Amount In Cents : $amountInCents");
-        $this->trackCartItemInformation($payment);
-
-        $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
-        $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
-        if (!$sezzleOrderUUID && ($sezzleCustomerUUID = $payment->getAdditionalInformation(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID))) {
-            $this->tokenizeModel->createOrder($payment, $amountInCents);
-            $sezzleOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
-        }
-        if (!$this->canInvoice($payment->getOrder())) {
-            if (!$isTokenizedAllowed = $this->sezzleConfig->isTokenizationAllowed()) {
-                throw new LocalizedException(__('Invoice operation is not permitted. Requires a tokenized customer.'));
-            }
-            $response = $this->v2->reauthorizeOrder(
-                "",
-                $sezzleOrderUUID,
-                $amountInCents,
-                $payment->getOrder()->getBaseCurrencyCode(),
-                $payment->getOrder()->getStoreId()
-            );
-            if (!$response->getApproved()) {
-                throw new LocalizedException(__('ReAuthorization is not approved by Sezzle.'));
-            }
-            if ($sezzleOrderUUID = $response->getUuid()) {
-                $payment->setAdditionalInformation(
-                    Sezzle::ADDITIONAL_INFORMATION_KEY_EXTENDED_ORDER_UUID,
-                    $sezzleOrderUUID
-                );
-            }
-        }
-        if (!$this->validateOrder($payment, $this->canInvoice($payment->getOrder()))) {
-            throw new LocalizedException(__('Unable to validate the order.'));
-        }
-        if ($payment->hasAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_EXTENDED_ORDER_UUID)) {
-            $payment->unsAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_EXTENDED_ORDER_UUID);
-        }
-        $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $this->sezzleHelper->logSezzleActions("Order UUID : $sezzleOrderUUID");
-        $sezzleOrderType = $payment->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
-        $this->sezzleHelper->logSezzleActions("Sezzle Order Type : $sezzleOrderType");
-        switch ($sezzleOrderType) {
-            case SezzleIdentity::API_VERSION_V2:
-                $captureTxnID = $this->handleV2Capture($sezzleOrderUUID, $payment, $amount);
-                break;
-            default:
-                $captureTxnID = $this->handleV1Capture($payment, $amount);
-                break;
-        }
-        if (!$captureTxnID) {
-            $this->sezzleHelper->logSezzleActions("Capture failed at Sezzle.");
-            throw new LocalizedException(__('Unable to capture the amount.'));
-        }
-        $payment->setTransactionId($captureTxnID)->setIsTransactionClosed(true);
-        $this->sezzleHelper->logSezzleActions("Transaction ID : $captureTxnID");
-        $this->sezzleHelper->logSezzleActions("****Capture at Magento end****");
-        return $this;
-    }
-
-    /**
-     * @param InfoInterface $payment
-     * @return $this|Sezzle
-     * @throws LocalizedException
-     */
-    public function void(InfoInterface $payment)
-    {
-        $this->sezzleHelper->logSezzleActions("****Release Started****");
-        if (!$this->canVoid()) {
-            throw new LocalizedException(__('The void action is not available.'));
-        } elseif (!$this->validateOrder($payment)) {
-            throw new LocalizedException(__('Unable to validate the order.'));
-        } elseif (!$orderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID)) {
-            throw new LocalizedException(__('Failed to void the payment.'));
-        }
-        $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $amountInCents = Util::formatToCents($payment->getOrder()->getBaseGrandTotal());
-
-        $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_LINK);
-        if (!$isReleased = $this->v2->release(
-            $url,
-            $orderUUID,
-            $amountInCents,
-            $payment->getOrder()->getBaseCurrencyCode(),
-            $payment->getOrder()->getStoreId()
-        )) {
-            $this->sezzleHelper->logSezzleActions("Release failed at Sezzle.");
-            throw new LocalizedException(__('Failed to void the payment.'));
-        }
-        $payment->setAdditionalInformation(
-            self::ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT,
-            $payment->getOrder()->getBaseGrandTotal()
-        );
-        $payment->getOrder()->setState(Order::STATE_CLOSED)
-            ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
-        $this->sezzleHelper->logSezzleActions("Released payment successfully");
-        $this->sezzleHelper->logSezzleActions("****Release end****");
-
-        return $this;
-    }
-
-    /**
-     * Refund payment
-     *
-     * @param InfoInterface $payment
-     * @param float $amount
-     * @return $this|Sezzle
-     * @throws LocalizedException
-     */
-    public function refund(InfoInterface $payment, $amount)
-    {
-        $this->sezzleHelper->logSezzleActions("****Refund Started****");
-        if (!$this->canRefund()) {
-            throw new LocalizedException(__('The refund action is not available.'));
-        } elseif ($amount <= 0) {
-            throw new LocalizedException(__('Invalid amount for refund.'));
-        } elseif (!$this->validateOrder($payment)) {
-            throw new LocalizedException(__('Unable to validate the order.'));
-        }
-        $this->sezzleHelper->logSezzleActions("Order validated at Sezzle");
-        $amountInCents = Util::formatToCents($amount);
-        $sezzleOrderType = $payment->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
-        if ($sezzleOrderType == SezzleIdentity::API_VERSION_V2) {
-            if (!$txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId()) {
-                throw new LocalizedException(__('Failed to refund the payment. Parent Transaction ID is missing.'));
-            } elseif (!$sezzleOrderUUID = $payment->getAdditionalInformation($txnUUID)) {
-                throw new LocalizedException(__('Failed to refund the payment. Order UUID is missing.'));
-            }
-            $refundTxnUUID = $this->v2->refund(
-                "",
-                $sezzleOrderUUID,
-                $amountInCents,
-                $payment->getOrder()->getBaseCurrencyCode(),
-                $payment->getOrder()->getStoreId()
-            );
-        } else {
-            $orderReferenceID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1);
-            if (!$orderReferenceID) {
-                throw new LocalizedException(__('Failed to refund the payment. Order Reference ID is missing.'));
-            }
-            $refundTxnUUID = $this->v1->refund(
-                $orderReferenceID,
-                $amountInCents,
-                $payment->getOrder()->getBaseCurrencyCode(),
-                $payment->getOrder()->getStoreId()
-            );
-        }
-        if (!$refundTxnUUID) {
-            $this->sezzleHelper->logSezzleActions("Refund failed at Sezzle.");
-            throw new LocalizedException(__('Failed to refund the payment.'));
-        }
-        if ($sezzleOrderType == SezzleIdentity::API_VERSION_V2) {
-            $refundedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT);
-            $refundedAmount += $amount;
-            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT, $refundedAmount);
-        }
-        $payment->setTransactionId($refundTxnUUID)->setIsTransactionClosed(true);
-        $this->sezzleHelper->logSezzleActions("Refunded payment successfully");
-        $this->sezzleHelper->logSezzleActions("****Refund end****");
-
-        return $this;
-    }
-
-    /**
      * Track Cart Item Information
      *
      * @param InfoInterface $payment
@@ -585,7 +275,7 @@ class Sezzle extends AbstractMethod
      * Check partial capture availability
      *
      * @return bool
-     * 
+     *
      */
     public function canCapturePartial()
     {
@@ -596,7 +286,7 @@ class Sezzle extends AbstractMethod
      * Check void availability.
      *
      * @return bool
-     * 
+     *
      */
     public function canVoid()
     {
@@ -707,7 +397,7 @@ class Sezzle extends AbstractMethod
     {
         $paymentType = $order->getPayment()->getAdditionalInformation('payment_type');
         if ($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE
-            && $paymentType === self::ACTION_AUTHORIZE) {
+            && $paymentType === 'authorize') {
             $sezzleOrderType = $order->getPayment()->getAdditionalInformation(self::SEZZLE_ORDER_TYPE);
             $currentTimestamp = $this->dateTime->timestamp('now');
             if ($sezzleOrderType == SezzleIdentity::API_VERSION_V2) {

@@ -34,8 +34,9 @@ class AuthorizeCommand implements CommandInterface
     }
 
     /**
-     * @inheritdoc
+     * @param array $commandSubject
      * @return void
+     * @throws CommandException
      * @throws LocalizedException
      */
     public function execute(array $commandSubject): void

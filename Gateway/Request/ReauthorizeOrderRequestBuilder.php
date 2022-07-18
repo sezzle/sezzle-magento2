@@ -15,13 +15,13 @@ use Sezzle\Sezzlepay\Helper\Util;
 class ReauthorizeOrderRequestBuilder implements BuilderInterface
 {
 
-    const AMOUNT_IN_CENTS = "amount_in_cents";
-    const CURRENCY = "currency";
+    const AMOUNT_IN_CENTS = 'amount_in_cents';
+    const CURRENCY = 'currency';
 
-    const ROUTE_PARAMS = "route_params";
+    const ROUTE_PARAMS = 'route_params';
 
-    const ORDER_UUID = "order_uuid";
-    const __STORE_ID = "__storeId";
+    const ORDER_UUID = 'order_uuid';
+    const __STORE_ID = '__storeId';
 
 
     /**
@@ -42,7 +42,7 @@ class ReauthorizeOrderRequestBuilder implements BuilderInterface
                 self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
             ],
             self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
-            self::CURRENCY => $paymentDO->getOrder()->getBaseCurrencyCode()
+            self::CURRENCY => $payment->getOrder()->getBaseCurrencyCode()
         ];
     }
 }

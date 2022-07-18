@@ -2,14 +2,14 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
-use Exception;
-use Magento\Framework\HTTP\ZendClientFactory;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Magento\Framework\HTTP\Client\Curl;
+use Sezzle\Sezzlepay\Model\Api\ApiParamsInterface;
 
 /**
  * AuthTokenService
@@ -17,11 +17,6 @@ use Sezzle\Sezzlepay\Gateway\Config\Config;
 class AuthTokenService
 {
     const TOKEN_CACHE_PREFIX = 'SEZZLE_AUTH_TOKEN';
-
-    /**
-     * @var ZendClientFactory
-     */
-    private $clientFactory;
 
     /**
      * @var StoreManagerInterface
@@ -49,29 +44,34 @@ class AuthTokenService
     private $jsonSerializer;
 
     /**
+     * @var Curl
+     */
+    private $curl;
+
+    /**
      * AuthTokenService constructor.
-     * @param ZendClientFactory $clientFactory
      * @param StoreManagerInterface $storeManager
      * @param Config $config
      * @param CacheInterface $cache
      * @param Logger $logger
      * @param Json $jsonSerializer
+     * @param Curl $curl
      */
     public function __construct(
-        ZendClientFactory     $clientFactory,
         StoreManagerInterface $storeManager,
         Config                $config,
         CacheInterface        $cache,
         Logger                $logger,
-        Json                  $jsonSerializer
+        Json                  $jsonSerializer,
+        Curl                  $curl
     )
     {
-        $this->clientFactory = $clientFactory;
         $this->storeManager = $storeManager;
         $this->config = $config;
         $this->cache = $cache;
         $this->logger = $logger;
         $this->jsonSerializer = $jsonSerializer;
+        $this->curl = $curl;
     }
 
     /**
@@ -94,51 +94,20 @@ class AuthTokenService
             'private_key' => $this->config->getPrivateKey($storeId)
         ];
 
-//        $log = [
-//            'request' => $data
-//        ];
+        $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
+        $this->curl->addHeader('Content-Type', ApiParamsInterface::CONTENT_TYPE_JSON);
 
-        $client = $this->clientFactory->create();
+        $url = $this->config->getGatewayURL($storeId) . 'v2/authentication';
+        $this->curl->post($url, $this->jsonSerializer->serialize($data));
 
-        try {
-            $client
-                ->setConfig(['timeout' => 5])
-                ->setUri($this->config->getGatewayURL($storeId))
-                ->setMethod(Client::HTTP_POST)
-                ->setHeaders('Content-type', 'application/json')
-                ->setRawData($this->jsonSerializer->serialize($data));
+        $responseJSON = $this->curl->getBody();
+        $response = $this->jsonSerializer->unserialize($responseJSON);
 
-            $response = $client->request();
-//            $log['response'] = $response->getBody();
-
-            if ($response->getStatus() != 201 || empty($response->getBody())) {
-                throw new LocalizedException(__('Auth token unavailable.'));
-            }
-
-            $result = $response->getBody();
-            $result = $this->jsonSerializer->unserialize($result);
-
-            if (!isset($result['token'])) {
-                throw new LocalizedException(__('Auth token unavailable.'));
-            }
-
-            // TODO: Need to figure out later on
-//            if (isset($result['expires_in']) && $result['expires_in'] > 300) {
-//                $this->saveCacheToken($websiteId, $token, $result['expires_in'] - 300);
-//            }
-
-            return $result['token'];
-        } catch (LocalizedException $e) {
-//            $log['error'] = $e->getMessage();
-            throw $e;
-        } catch (Exception $e) {
-//            $log['error'] = $e->getMessage();
-            throw new LocalizedException(__($e->getMessage()));
+        if (!isset($response['token'])) {
+            throw new LocalizedException(__('Auth token unavailable.'));
         }
-//        finally {
-//            $log['log_origin'] = __METHOD__;
-//            $this->logger->debug($log);
-//        }
+
+        return $response['token'];
     }
 
     /**

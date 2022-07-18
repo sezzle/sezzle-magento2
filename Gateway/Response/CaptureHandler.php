@@ -14,6 +14,8 @@ use Magento\Sales\Model\Order\Payment;
 class CaptureHandler implements HandlerInterface
 {
 
+    const KEY_CAPTURE_AMOUNT = 'sezzle_capture_amount';
+
     /**
      * @var Adapter
      */
@@ -38,12 +40,24 @@ class CaptureHandler implements HandlerInterface
     public function handle(array $handlingSubject, array $response): void
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
-        $response = SubjectReader::readResponse($handlingSubject);
+        $amount = SubjectReader::readAmount($handlingSubject);
 
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        $payment->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
+        $orderUUID = $payment->getAdditionalInformation(ReauthorizeOrderHandler::KEY_EXTENDED_ORDER_UUID)
+            ?: $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
+
+        $payment->unsAdditionalInformation(ReauthorizeOrderHandler::KEY_EXTENDED_ORDER_UUID);
+
+        $capturedAmount = $payment->getAdditionalInformation(self::KEY_CAPTURE_AMOUNT) + $amount;
+        if (!$payment->hasAdditionalInformation(AuthorizationHandler::KEY_AUTH_AMOUNT)) {
+            $payment->setAdditionalInformation(AuthorizationHandler::KEY_AUTH_AMOUNT, $capturedAmount);
+        }
+
+        $payment->setAdditionalInformation(self::KEY_CAPTURE_AMOUNT, $capturedAmount)
+            ->setAdditionalInformation($response['uuid'], $orderUUID)
+            ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
             ->setTransactionId($response['uuid'])
             ->setIsTransactionClosed(true);
     }
