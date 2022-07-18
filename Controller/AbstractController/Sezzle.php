@@ -133,8 +133,6 @@ abstract class Sezzle extends Action
         OrderSender                     $orderSender,
         Tokenize                        $tokenize,
         CartRepositoryInterface         $cartRepository,
-//        CartManagementInterface $cartManagement,
-//        GuestCartManagementInterface $guestCartManagement,
         QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface,
         CartManagementInterface         $cartManagement,
         GuestCartManagementInterface    $guestCartManagement
@@ -152,8 +150,6 @@ abstract class Sezzle extends Action
         $this->resultJsonFactory = $resultJsonFactory;
         $this->tokenize = $tokenize;
         $this->cartRepository = $cartRepository;
-//        $this->cartManagement = $cartManagement;
-//        $this->guestCartManagement = $guestCartManagement;
         $this->quoteIdToMaskedQuoteIdInterface = $quoteIdToMaskedQuoteIdInterface;
         $this->cartManagement = $cartManagement;
         $this->guestCartManagement = $guestCartManagement;

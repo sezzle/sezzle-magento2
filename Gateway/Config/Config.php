@@ -18,14 +18,14 @@ class Config extends PaymentConfig
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_PRIVATE_KEY = 'private_key';
     const KEY_PAYMENT_MODE = 'payment_mode';
-    const KEY_MERCHANT_ID = "merchant_id";
-    const KEY_PAYMENT_ACTION = "payment_action";
-    const KEY_GATEWAY_REGION = "gateway_region";
-    const KEY_MIN_CHECKOUT_AMOUNT = "min_checkout_amount";
+    const KEY_MERCHANT_ID = 'merchant_id';
+    const KEY_PAYMENT_ACTION = 'payment_action';
+    const KEY_GATEWAY_REGION = 'gateway_region';
+    const KEY_MIN_CHECKOUT_AMOUNT = 'min_checkout_amount';
     const KEY_TOKENIZE = 'tokenize';
 
-    const KEY_WIDGET_PDP = "widget_pdp";
-    const KEY_WIDGET_CART = "widget_cart";
+    const KEY_WIDGET_PDP = 'widget_pdp';
+    const KEY_WIDGET_CART = 'widget_cart';
     const KEY_WIDGET_TICKET_CREATED_AT = 'widget_ticket_created_at';
     const KEY_WIDGET_INSTALLMENT = 'widget_installment';
     const KEY_WIDGET_INSTALLMENT_PRICE = 'widget_installment_price_path';
@@ -39,10 +39,10 @@ class Config extends PaymentConfig
     const KEY_SETTLEMENT_REPORTS = 'settlement_reports';
     const KEY_SETTLEMENT_REPORTS_RANGE = 'settlement_reports_range';
 
-    const PAYMENT_MODE_SANDBOX = "sandbox";
-    const PAYMENT_MODE_LIVE = "live";
+    const PAYMENT_MODE_SANDBOX = 'sandbox';
+    const PAYMENT_MODE_LIVE = 'live';
 
-    const GATEWAY_URL = "https://%sgateway.sezzle.com/";
+    const GATEWAY_URL = 'https://%sgateway.sezzle.com/';
 
     /**
      * @var StoreConfigResolver
@@ -243,7 +243,7 @@ class Config extends PaymentConfig
      */
     public function getInstallmentWidgetPricePath(int $storeId = null): string
     {
-        return !$this->isInstallmentWidgetEnabled() ? "" :
+        return !$this->isInstallmentWidgetEnabled() ? '' :
             $this->getValue(
                 self::KEY_WIDGET_INSTALLMENT_PRICE,
                 $storeId ?? $this->storeConfigResolver->getStoreId()
@@ -344,7 +344,7 @@ class Config extends PaymentConfig
      */
     public function getGatewayURL(int $storeId = null): string
     {
-        $replaceValue = $this->getPaymentMode($storeId) === self::PAYMENT_MODE_SANDBOX ? self::PAYMENT_MODE_SANDBOX . "." : "";
+        $replaceValue = $this->getPaymentMode($storeId) === self::PAYMENT_MODE_SANDBOX ? self::PAYMENT_MODE_SANDBOX . '.' : '';
         return sprintf(self::GATEWAY_URL, $replaceValue);
     }
 }

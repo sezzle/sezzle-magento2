@@ -22,10 +22,10 @@ class CustomerOrderRequestBuilder implements BuilderInterface
 
     const ROUTE_PARAMS = 'route_params';
 
-    const CUSTOMER_UUID = "customer_uuid";
-    const __STORE_ID = "__storeId";
+    const CUSTOMER_UUID = 'customer_uuid';
+    const __STORE_ID = '__storeId';
 
-    const KEY_CUSTOMER_UUID = "sezzle_customer_uuid";
+    const KEY_CUSTOMER_UUID = 'sezzle_customer_uuid';
     const KEY_REFERENCE_ID = 'sezzle_reference_id';
 
 
