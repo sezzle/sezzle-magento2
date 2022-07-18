@@ -1,6 +1,6 @@
 <?php
 
-namespace Sezzle\Sezzlepay\Model\GuestCart;
+namespace Sezzle\Sezzlepay\Model\Quote;
 
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\PaymentInterface;

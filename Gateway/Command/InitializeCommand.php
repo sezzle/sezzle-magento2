@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Model\Order;
 
 /**
@@ -14,13 +15,8 @@ use Magento\Sales\Model\Order;
 class InitializeCommand implements CommandInterface
 {
 
-    const ACTION_AUTHORIZE = 'authorize';
-    const ACTION_AUTHORIZE_CAPTURE = 'authorize_capture';
-
     /**
-     * @param array $commandSubject
-     * @return void
-     * @throws LocalizedException
+     * @inerhitDoc
      */
     public function execute(array $commandSubject): void
     {
@@ -37,7 +33,7 @@ class InitializeCommand implements CommandInterface
         $order = $payment->getOrder();
 
         switch ($paymentAction) {
-            case self::ACTION_AUTHORIZE:
+            case MethodInterface::ACTION_AUTHORIZE:
                 $order->setCanSendNewEmailFlag(false);
                 $payment->authorize(true, $order->getBaseTotalDue()); // base amount will be set inside
                 $payment->setAmountAuthorized($order->getTotalDue());
@@ -48,7 +44,7 @@ class InitializeCommand implements CommandInterface
                     $order->getConfig()->getStateDefaultStatus(Order::STATE_NEW)
                 );
                 break;
-            case self::ACTION_AUTHORIZE_CAPTURE:
+            case MethodInterface::ACTION_AUTHORIZE_CAPTURE:
                 $order->setCanSendNewEmailFlag(false);
                 $payment->capture();
                 $order->setCustomerNote(__('Payment captured by Sezzle.'));

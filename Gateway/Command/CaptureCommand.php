@@ -22,9 +22,6 @@ use Psr\Log\LoggerInterface;
 class CaptureCommand extends GatewayCommand
 {
 
-    const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
-    const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
-
     /**
      * @var CommandInterface
      */
@@ -72,8 +69,7 @@ class CaptureCommand extends GatewayCommand
     }
 
     /**
-     * @param array $commandSubject
-     * @return void
+     * @inerhitDoc
      * @throws CommandException
      * @throws LocalizedException
      */

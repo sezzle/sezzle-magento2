@@ -26,10 +26,13 @@
     <preference for="Sezzle\Sezzlepay\Api\V2Interface" type="Sezzle\Sezzlepay\Model\Api\V2"/>
     <preference for="Sezzle\Sezzlepay\Api\SettlementReportsRepositoryInterface" type="Sezzle\Sezzlepay\Model\SettlementReportsRepository"/>
     <preference for="Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface" type="Sezzle\Sezzlepay\Model\SettlementReportsManagement"/>
-    <preference for="Sezzle\Sezzlepay\Api\OrderManagementInterface" type="Sezzle\Sezzlepay\Model\OrderManagement"/>
-    <preference for="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" type="Sezzle\Sezzlepay\Model\GuestOrderManagement"/>
-    <preference for="Sezzle\Sezzlepay\Api\CartManagementInterface" type="Sezzle\Sezzlepay\Model\QuoteManagement"/>
-    <preference for="Sezzle\Sezzlepay\Api\GuestCartManagementInterface" type="Sezzle\Sezzlepay\Model\GuestCart\GuestCartManagement"/>
+    <preference for="Sezzle\Sezzlepay\Api\CheckoutInterface" type="Sezzle\Sezzlepay\Model\Checkout\Checkout"/>
+    <preference for="Sezzle\Sezzlepay\Api\CustomerInterface" type="Sezzle\Sezzlepay\Model\Tokenize\Customer"/>
+    <preference for="Sezzle\Sezzlepay\Api\CartManagementInterface" type="Sezzle\Sezzlepay\Model\Quote\QuoteManagement"/>
+    <preference for="Sezzle\Sezzlepay\Api\GuestCartManagementInterface" type="Sezzle\Sezzlepay\Model\Quote\GuestCartManagement"/>
+    <preference for="Sezzle\Sezzlepay\Api\CheckoutManagementInterface" type="Sezzle\Sezzlepay\Model\Checkout\CheckoutManagement"/>
+<!--    <preference for="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" type="Sezzle\Sezzlepay\Model\Checkout\GuestCheckoutManagement"/>-->
+    <preference for="Sezzle\Sezzlepay\Api\CustomerManagementInterface" type="Sezzle\Sezzlepay\Model\Tokenize\CustomerManagement"/>
 
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>

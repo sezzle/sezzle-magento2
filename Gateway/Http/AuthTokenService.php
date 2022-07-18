@@ -127,8 +127,9 @@ class AuthTokenService
      * @param int $websiteId
      * @param string $token
      * @param int $lifetime
+     * @return void
      */
-    private function saveCacheToken(int $websiteId, string $token, int $lifetime)
+    private function saveCacheToken(int $websiteId, string $token, int $lifetime): void
     {
         $this->cache->save($token, self::TOKEN_CACHE_PREFIX . $websiteId, [], $lifetime);
     }

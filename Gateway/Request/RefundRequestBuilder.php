@@ -25,8 +25,7 @@ class RefundRequestBuilder implements BuilderInterface
 
 
     /**
-     * @param array $buildSubject
-     * @return array
+     * @inerhitDoc
      */
     public function build(array $buildSubject): array
     {

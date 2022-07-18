@@ -1,6 +1,6 @@
 <?php
 
-namespace Sezzle\Sezzlepay\Model;
+namespace Sezzle\Sezzlepay\Model\Quote;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandException;

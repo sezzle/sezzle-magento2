@@ -5,7 +5,7 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
-namespace Sezzle\Sezzlepay\Model;
+namespace Sezzle\Sezzlepay\Model\Checkout;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;

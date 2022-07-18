@@ -14,24 +14,59 @@ use Sezzle\Sezzlepay\Helper\Util;
 class CustomerOrderRequestBuilder implements BuilderInterface
 {
 
-    const GROUP = 'order_amount';
+    /**
+     * Order amount
+     */
+    const ORDER_AMOUNT = 'order_amount';
+
+    /**
+     * Amount in cents
+     */
     const AMOUNT_IN_CENTS = 'amount_in_cents';
+
+    /**
+     * Currency
+     */
     const CURRENCY = 'currency';
+
+    /**
+     * Intent(AUTH or CAPTURE)
+     */
     const INTENT = 'intent';
+
+    /**
+     * Reference ID
+     */
     const REFERENCE_ID = 'reference_id';
 
+    /**
+     * Route params
+     */
     const ROUTE_PARAMS = 'route_params';
 
+    /**
+     * Customer UUID
+     */
     const CUSTOMER_UUID = "customer_uuid";
+
+    /**
+     * Store ID
+     */
     const __STORE_ID = "__storeId";
 
+    /**
+     * Customer UUID
+     */
     const KEY_CUSTOMER_UUID = "sezzle_customer_uuid";
+
+    /**
+     * Reference ID
+     */
     const KEY_REFERENCE_ID = 'sezzle_reference_id';
 
 
     /**
-     * @param array $buildSubject
-     * @return array
+     * @inerhitDoc
      */
     public function build(array $buildSubject): array
     {
@@ -48,7 +83,7 @@ class CustomerOrderRequestBuilder implements BuilderInterface
             ],
             self::INTENT => 'AUTH',
             self::REFERENCE_ID => $payment->getAdditionalInformation(self::KEY_REFERENCE_ID),
-            self::GROUP => [
+            self::ORDER_AMOUNT => [
                 self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
                 self::CURRENCY => $payment->getQuote()->getBaseCurrencyCode()
             ]

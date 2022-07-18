@@ -11,7 +11,7 @@
 
     <!-- Create Sezzle Checkout -->
     <route url="/V1/sezzle/carts/mine/checkout" method="POST">
-        <service class="Sezzle\Sezzlepay\Api\OrderManagementInterface" method="createCheckout"/>
+        <service class="Sezzle\Sezzlepay\Api\CheckoutManagementInterface" method="createCheckout"/>
         <resources>
             <resource ref="self" />
         </resources>
@@ -21,11 +21,22 @@
     </route>
 
     <!-- Create Guest Sezzle Checkout -->
-    <route url="/V1/sezzle/guest-carts/:cartId/checkout" method="POST">
-        <service class="Sezzle\Sezzlepay\Api\GuestOrderManagementInterface" method="createCheckout"/>
+<!--    <route url="/V1/sezzle/guest-carts/:cartId/checkout" method="POST">-->
+<!--        <service class="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" method="createCheckout"/>-->
+<!--        <resources>-->
+<!--            <resource ref="anonymous" />-->
+<!--        </resources>-->
+<!--    </route>-->
+
+    <!-- Create Sezzle Customer Order -->
+    <route url="/V1/sezzle/carts/mine/customer-order" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\CustomerManagementInterface" method="createOrder"/>
         <resources>
-            <resource ref="anonymous" />
+            <resource ref="self" />
         </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
     </route>
 
     <!-- Place Sezzle Order -->
