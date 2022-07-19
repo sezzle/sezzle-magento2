@@ -16,6 +16,9 @@
     <type name="Magento\Sales\Controller\Adminhtml\Order\Invoice\NewAction">
         <plugin name="check_auth_expiry_2nd_step" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice\NewActionPlugin" sortOrder="10"/>
     </type>
+    <type name="Magento\Sales\Controller\Adminhtml\Order\Invoice\Save">
+        <plugin name="offline_capture_not_allowing" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice\SavePlugin" sortOrder="10"/>
+    </type>
     <type name="Magento\Framework\View\Element\Message\MessageConfigurationsPool">
         <arguments>
             <argument name="configurationsMap" xsi:type="array">
@@ -27,5 +30,8 @@
                 </item>
             </argument>
         </arguments>
+    </type>
+    <type name="Magento\Sales\Block\Adminhtml\Order\View\Info">
+        <plugin name="sezzle_order_info" type="Sezzle\Sezzlepay\Plugin\Sales\Block\Adminhtml\Order\View\InfoPlugin" sortOrder="10" />
     </type>
 </config>
