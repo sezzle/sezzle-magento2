@@ -4,37 +4,34 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
+
 namespace Sezzle\Sezzlepay\Api;
 
 use Magento\Framework\Exception\CouldNotSaveException;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 
 /**
- * Interface GuestOrderManagementInterface
+ * Interface CheckoutManagementInterface
  * @package Sezzle\Sezzlepay\Api
  */
-interface GuestOrderManagementInterface
+interface CheckoutManagementInterface
 {
 
     /**
-     * Create Checkout
+     * Creates checkout session at Sezzle
      *
-     * @param string $cartId
-     * @param string $email
+     * @param int $cartId
      * @param PaymentInterface $paymentMethod
      * @param AddressInterface|null $billingAddress
      * @return string
      * @throws CouldNotSaveException
+     * @throws NotFoundException
      */
     public function createCheckout(
-        $cartId,
-        $email,
+        int              $cartId,
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
-    );
-
+    ): string;
 }

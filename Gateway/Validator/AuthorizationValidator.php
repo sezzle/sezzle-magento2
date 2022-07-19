@@ -6,6 +6,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Payment\Model\MethodInterface;
 
 /**
  * AuthorizationValidator
@@ -47,8 +48,14 @@ class AuthorizationValidator extends AbstractValidator
 //            return $this->createResult(false, [__('Amount cannot be less than or equal to 0.')]);
 //        }
 
+        $payment = $paymentDO->getPayment();
+
+        if ($payment->getAdditionalInformation('payment_type') !== MethodInterface::ACTION_AUTHORIZE) {
+            return $this->createResult(true);
+        }
+
         $currentTimestamp = $this->dateTime->timestamp('now');
-        $authExpiry = $paymentDO->getPayment()->getAdditionalInformation(self::KEY_AUTH_EXPIRY);
+        $authExpiry = $payment->getAdditionalInformation(self::KEY_AUTH_EXPIRY);
         $expirationTimestamp = $this->dateTime->timestamp($authExpiry);
         if ($expirationTimestamp < $currentTimestamp) {
             return $this->createResult(false, [__('Authorization expired.')]);

@@ -15,7 +15,10 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class TransferFactory implements TransferFactoryInterface
 {
-    const ROUTE_PARAMS = ['order_uuid', 'customer_uuid'];
+    /**
+     * @var string[] Allowed route parameters
+     */
+    private static $routeParams = ['order_uuid', 'customer_uuid'];
 
     /**
      * @var TransferBuilder
@@ -68,10 +71,8 @@ class TransferFactory implements TransferFactoryInterface
     /**
      * Builds gateway transfer object
      *
-     * @param array $request
-     * @return TransferInterface
-     * @throws InputException
-     * @throws NoSuchEntityException
+     * @inerhitDoc
+     * @throws NoSuchEntityException|InputException
      */
     public function create(array $request): TransferInterface
     {
@@ -112,7 +113,7 @@ class TransferFactory implements TransferFactoryInterface
     private function removeAndReturnArgs(array &$request): array
     {
         $argsToReturn = [];
-        foreach (static::ROUTE_PARAMS as $arg) {
+        foreach (self::$routeParams as $arg) {
             if (isset($request['route_params'][$arg])) {
                 $argsToReturn[$arg] = $request['route_params'][$arg];
             }

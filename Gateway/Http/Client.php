@@ -4,7 +4,6 @@ namespace Sezzle\Sezzlepay\Gateway\Http;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger as PaymentLogger;
@@ -79,9 +78,8 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param TransferInterface $transferObject
-     * @return array
-     * @throws ClientException|LocalizedException
+     * @inerhitDoc
+     * @throws LocalizedException
      */
     public function placeRequest(TransferInterface $transferObject): array
     {

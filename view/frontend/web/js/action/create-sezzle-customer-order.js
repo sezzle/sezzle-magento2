@@ -26,14 +26,7 @@ define([
             paymentMethod: paymentData
         };
 
-        if (customer.isLoggedIn()) {
-            serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/checkout', {});
-        } else {
-            serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:quoteId/checkout', {
-                quoteId: quote.getQuoteId()
-            });
-            payload.email = quote.guestEmail;
-        }
+        serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/customer-order', {});
 
         return serviceProcessor(serviceUrl, payload, messageContainer);
     };

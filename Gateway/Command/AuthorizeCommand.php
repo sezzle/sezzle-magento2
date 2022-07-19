@@ -15,8 +15,15 @@ use Magento\Payment\Model\Method\Adapter;
 class AuthorizeCommand implements CommandInterface
 {
 
-    const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
-    const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
+    /**
+     * Sezzle Order UUID
+     */
+    const ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
+
+    /**
+     * Authorized amount
+     */
+    const AUTH_AMOUNT = 'sezzle_auth_amount';
 
     /**
      * @var Adapter
@@ -34,9 +41,7 @@ class AuthorizeCommand implements CommandInterface
     }
 
     /**
-     * @param array $commandSubject
-     * @return void
-     * @throws CommandException
+     * @inerhitDoc
      * @throws LocalizedException
      */
     public function execute(array $commandSubject): void
@@ -51,9 +56,9 @@ class AuthorizeCommand implements CommandInterface
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        $orderUUID = $payment->getAdditionalInformation(self::KEY_ORIGINAL_ORDER_UUID);
+        $orderUUID = $payment->getAdditionalInformation(self::ORIGINAL_ORDER_UUID);
 
-        $payment->setAdditionalInformation(self::KEY_AUTH_AMOUNT, $amount)
+        $payment->setAdditionalInformation(self::AUTH_AMOUNT, $amount)
             ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
             ->setTransactionId($orderUUID)->setIsTransactionClosed(false);
     }

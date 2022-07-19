@@ -16,7 +16,7 @@ use Sezzle\Sezzlepay\Helper\Util;
 class CaptureRequestBuilder implements BuilderInterface
 {
 
-    const GROUP = 'capture_amount';
+    const CAPTURE_AMOUNT = 'capture_amount';
     const AMOUNT_IN_CENTS = 'amount_in_cents';
     const CURRENCY = 'currency';
 
@@ -27,8 +27,7 @@ class CaptureRequestBuilder implements BuilderInterface
 
 
     /**
-     * @param array $buildSubject
-     * @return array
+     * @inerhitDoc
      */
     public function build(array $buildSubject): array
     {
@@ -46,7 +45,7 @@ class CaptureRequestBuilder implements BuilderInterface
             self::ROUTE_PARAMS => [
                 self::ORDER_UUID => $orderUUID
             ],
-            self::GROUP => [
+            self::CAPTURE_AMOUNT => [
                 self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
                 self::CURRENCY => $payment->getOrder()->getBaseCurrencyCode()
             ]

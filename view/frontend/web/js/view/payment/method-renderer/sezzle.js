@@ -10,13 +10,17 @@ define(
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Sezzle_Sezzlepay/js/action/create-sezzle-checkout',
+        'Sezzle_Sezzlepay/js/action/create-sezzle-customer-order',
+        'Magento_Checkout/js/action/redirect-on-success',
     ],
     function (
         $,
         customer,
         Component,
         additionalValidators,
-        createSezzleCheckoutAction) {
+        createSezzleCheckoutAction,
+        createSezzleCustomerOrder,
+        redirectOnSuccessAction) {
         'use strict';
 
         return Component.extend({
@@ -71,6 +75,28 @@ define(
 
                 self.isPlaceOrderActionAllowed(false);
 
+                // created order by customer UUID if customer is tokenized
+                if (customer.isLoggedIn() && this.hasCustomerUUID()) {
+                    this.getCreateSezzleCustomerOrderDeferredObject()
+                        .done(
+                            function (response) {
+                                var jsonResponse = $.parseJSON(response);
+                                if (jsonResponse.checkout_url) {
+                                    $.mage.redirect(jsonResponse.checkout_url); // if tokenization fails, we create checkout and return the checkout URL
+                                    return;
+                                }
+
+                                redirectOnSuccessAction.execute(); // successful customer order
+                            }
+                        ).always(
+                        function () {
+                            self.isPlaceOrderActionAllowed(true);
+                        }
+                    );
+                    return;
+                }
+
+                // creates standard checkout
                 this.getCreateSezzleCheckoutDeferredObject()
                     .done(
                         function (response) {
@@ -85,7 +111,18 @@ define(
             },
 
             /**
-             * Get Create Sezzle Checkout Deferred Object
+             * Creates Sezzle order by customer UUID
+             *
+             * @return {*}
+             */
+            getCreateSezzleCustomerOrderDeferredObject: function () {
+                return $.when(
+                    createSezzleCustomerOrder(this.getData(), this.messageContainer)
+                );
+            },
+
+            /**
+             * Creates Sezzle Checkout
              *
              * @return {*}
              */
