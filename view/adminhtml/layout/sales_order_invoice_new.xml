@@ -6,13 +6,11 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 -->
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="order_info">
             <block class="Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info" name="sezzle_order_info"/>
-<!--            <action method="setTemplate">-->
-<!--                <argument name="template" xsi:type="string">Sezzle_Sezzlepay::order/view/info.phtml</argument>-->
-<!--            </action>-->
         </referenceBlock>
     </body>
 </page>
