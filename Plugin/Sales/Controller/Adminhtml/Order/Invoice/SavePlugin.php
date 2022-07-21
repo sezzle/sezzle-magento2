@@ -8,11 +8,13 @@
 namespace Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice;
 
 use Closure;
+use Exception;
 use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Controller\Adminhtml\Order\Invoice\Save;
+use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
@@ -35,20 +37,28 @@ class SavePlugin
     private $resultRedirectFactory;
 
     /**
+     * @var Data
+     */
+    private $sezzleHelper;
+
+    /**
      * SavePlugin constructor.
      * @param OrderRepositoryInterface $orderRepository
      * @param ManagerInterface $messageManager
      * @param RedirectFactory $resultRedirectFactory
+     * @param Data $sezzleHelper
      */
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         ManagerInterface         $messageManager,
-        RedirectFactory          $resultRedirectFactory
+        RedirectFactory          $resultRedirectFactory,
+        Data                     $sezzleHelper
     )
     {
         $this->orderRepository = $orderRepository;
         $this->messageManager = $messageManager;
         $this->resultRedirectFactory = $resultRedirectFactory;
+        $this->sezzleHelper = $sezzleHelper;
     }
 
     /**
@@ -66,13 +76,22 @@ class SavePlugin
         $data = $subject->getRequest()->getPost('invoice');
         $orderId = $subject->getRequest()->getParam('order_id');
 
-        $order = $this->orderRepository->get($orderId);
+        $captureMethod = $data['capture_case'] ?? '';
+
+        $this->sezzleHelper->logSezzleActions('Capture method: ' . $captureMethod);
+
+        try {
+            $order = $this->orderRepository->get($orderId);
+        } catch (Exception $e) {
+            $this->sezzleHelper->logSezzleActions('Unable to get order. Exception: ' . $e->getMessage());
+            return $proceed();
+        }
 
         if ($order->getPayment()->getMethod() !== Sezzle::PAYMENT_CODE) {
             return $proceed();
         }
 
-        if (isset($data['capture_case']) && $data['capture_case'] === 'offline') {
+        if ($captureMethod === 'offline') {
             $this->messageManager
                 ->addErrorMessage(__("'Capture Offline' is not allowed. Please use 'Capture Online' option."));
             return $resultRedirect->setPath('sales/*/new', ['order_id' => $orderId]);
