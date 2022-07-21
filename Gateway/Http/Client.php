@@ -4,6 +4,7 @@ namespace Sezzle\Sezzlepay\Gateway\Http;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Magento\Payment\Model\Method\Logger as PaymentLogger;
@@ -79,33 +80,49 @@ class Client implements ClientInterface
 
     /**
      * @inerhitDoc
-     * @throws LocalizedException
+     * @throws ClientException
      */
     public function placeRequest(TransferInterface $transferObject): array
     {
+        $log = [
+            'request' => [
+                'uri' => $transferObject->getUri(),
+                'body' => $transferObject->getBody()
+            ],
+        ];
         $clientConfig = $transferObject->getClientConfig();
         $storeId = $clientConfig['__storeId'];
         unset($clientConfig['__storeId']);
 
-        $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
+        try {
+            $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
 
-        $this->curl->setHeaders([
-            'Content-Type' => ApiParamsInterface::CONTENT_TYPE_JSON,
-            'Authorization' => 'Bearer ' . $this->authTokenService->getToken($storeId)
-        ]);
+            $this->curl->setHeaders([
+                'Content-Type' => ApiParamsInterface::CONTENT_TYPE_JSON,
+                'Authorization' => 'Bearer ' . $this->authTokenService->getToken($storeId)
+            ]);
 
-        switch ($transferObject->getMethod()) {
-            case self::HTTP_POST:
-                $this->curl->post($transferObject->getUri(), $this->jsonSerializer->serialize($transferObject->getBody()));
-                break;
-            case self::HTTP_GET:
-                $this->curl->get($transferObject->getUri());
-                break;
+            switch ($transferObject->getMethod()) {
+                case self::HTTP_POST:
+                    $this->curl->post($transferObject->getUri(), $this->jsonSerializer->serialize($transferObject->getBody()));
+                    break;
+                case self::HTTP_GET:
+                    $this->curl->get($transferObject->getUri());
+                    break;
+            }
+
+            $responseJSON = $this->curl->getBody();
+            $log['response']['body'] = $responseJSON;
+
+            return $this->jsonSerializer->unserialize($responseJSON);
+        } catch (LocalizedException $e) {
+            $this->logger->critical($e->getMessage());
+
+            throw new ClientException(
+                __('Something went wrong in the payment gateway.')
+            );
+        } finally {
+            $this->paymentLogger->debug($log);
         }
-
-
-        $responseJSON = $this->curl->getBody();
-
-        return $this->jsonSerializer->unserialize($responseJSON);
     }
 }

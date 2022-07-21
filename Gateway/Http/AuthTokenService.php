@@ -2,14 +2,17 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
-use Magento\Payment\Model\Method\Logger;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\HTTP\Client\Curl;
 use Sezzle\Sezzlepay\Model\Api\ApiParamsInterface;
+use Magento\Payment\Model\Method\Logger as PaymentLogger;
 
 /**
  * AuthTokenService
@@ -34,7 +37,7 @@ class AuthTokenService
     private $cache;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -49,11 +52,17 @@ class AuthTokenService
     private $curl;
 
     /**
+     * @var PaymentLogger
+     */
+    private $paymentLogger;
+
+    /**
      * AuthTokenService constructor.
      * @param StoreManagerInterface $storeManager
      * @param Config $config
      * @param CacheInterface $cache
-     * @param Logger $logger
+     * @param LoggerInterface $logger
+     * @param PaymentLogger $paymentLogger
      * @param Json $jsonSerializer
      * @param Curl $curl
      */
@@ -61,7 +70,8 @@ class AuthTokenService
         StoreManagerInterface $storeManager,
         Config                $config,
         CacheInterface        $cache,
-        Logger                $logger,
+        LoggerInterface       $logger,
+        PaymentLogger         $paymentLogger,
         Json                  $jsonSerializer,
         Curl                  $curl
     )
@@ -70,6 +80,7 @@ class AuthTokenService
         $this->config = $config;
         $this->cache = $cache;
         $this->logger = $logger;
+        $this->paymentLogger = $paymentLogger;
         $this->jsonSerializer = $jsonSerializer;
         $this->curl = $curl;
     }
@@ -94,20 +105,36 @@ class AuthTokenService
             'private_key' => $this->config->getPrivateKey($storeId)
         ];
 
-        $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
-        $this->curl->addHeader('Content-Type', ApiParamsInterface::CONTENT_TYPE_JSON);
+        try {
+            $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
+            $this->curl->addHeader('Content-Type', ApiParamsInterface::CONTENT_TYPE_JSON);
 
-        $url = $this->config->getGatewayURL($storeId) . 'v2/authentication';
-        $this->curl->post($url, $this->jsonSerializer->serialize($data));
+            $url = $this->config->getGatewayURL($storeId) . 'v2/authentication';
 
-        $responseJSON = $this->curl->getBody();
-        $response = $this->jsonSerializer->unserialize($responseJSON);
+            $log = [
+                'request' => [
+                    'uri' => $url,
+                    'body' => $data
+                ]
+            ];
 
-        if (!isset($response['token'])) {
-            throw new LocalizedException(__('Auth token unavailable.'));
+            $this->curl->post($url, $this->jsonSerializer->serialize($data));
+
+            $responseJSON = $this->curl->getBody();
+            $response = $this->jsonSerializer->unserialize($responseJSON);
+            $log['response']['body'] = $response;
+
+            if (!isset($response['token'])) {
+                throw new LocalizedException(__('Auth token unavailable.'));
+            }
+
+            return $response['token'];
+        } catch (InputException|NoSuchEntityException|LocalizedException $e) {
+            $this->logger->critical($e->getMessage());
+            throw new LocalizedException(__($e->getMessage()));
+        } finally {
+            $this->paymentLogger->debug($log);
         }
-
-        return $response['token'];
     }
 
     /**
