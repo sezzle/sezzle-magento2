@@ -28,6 +28,11 @@ class Tokenize
     const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
     const ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION = "sezzle_customer_uuid_expiry";
 
+    const KEY_GET_TOKEN_DETAILS_LINK = 'sezzle_token_link';
+
+    const KEY_CREATE_ORDER_LINK = 'sezzle_create_order_link';
+    const KEY_GET_CUSTOMER_LINK = 'sezzle_get_customer_link';
+
     const STATUS_TOKEN_APPROVED = 'Approved';
     const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
 
@@ -44,11 +49,11 @@ class Tokenize
             'input' => 'text',
             'label' => 'Sezzle Customer UUID Expiration'
         ],
-        Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => [
+        self::KEY_CREATE_ORDER_LINK => [
             'input' => 'text',
             'label' => 'Sezzle Order Create Link By Customer UUID',
         ],
-        Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK => [
+        self::KEY_GET_CUSTOMER_LINK => [
             'input' => 'text',
             'label' => 'Sezzle Get Customer Link By Customer UUID',
         ]
@@ -92,13 +97,14 @@ class Tokenize
      * @param V2Interface $v2
      */
     public function __construct(
-        CustomerSession $customerSession,
-        DateTime $dateTime,
+        CustomerSession             $customerSession,
+        DateTime                    $dateTime,
         CustomerRepositoryInterface $customerRepository,
-        AttributeInterfaceFactory $attributeFactory,
-        Data $sezzleHelper,
-        V2Interface $v2
-    ) {
+        AttributeInterfaceFactory   $attributeFactory,
+        Data                        $sezzleHelper,
+        V2Interface                 $v2
+    )
+    {
         $this->customerSession = $customerSession;
         $this->dateTime = $dateTime;
         $this->customerRepository = $customerRepository;
@@ -139,44 +145,6 @@ class Tokenize
         } catch (LocalizedException $e) {
             $this->sezzleHelper->logSezzleActions("Sezzle Tokenize Record Save Error");
             $this->sezzleHelper->logSezzleActions($e->getMessage());
-        }
-    }
-
-    /**
-     * Create Order for tokenized checkout
-     *
-     * @param InfoInterface $payment
-     * @param int $amount
-     * @throws LocalizedException
-     */
-    public function createOrder($payment, $amount)
-    {
-        $url = $payment->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK);
-        $sezzleCustomerUUID = $payment->getAdditionalInformation(self::ATTR_SEZZLE_CUSTOMER_UUID);
-        $response = $this->v2->createOrderByCustomerUUID(
-            $url,
-            $sezzleCustomerUUID,
-            $amount,
-            $payment->getOrder()->getBaseCurrencyCode(),
-            $payment->getOrder()->getStoreId()
-        );
-        if (!$response->getApproved()) {
-            throw new LocalizedException(__('Checkout is not approved by Sezzle.'));
-        }
-        if ($sezzleOrderUUID = $response->getUuid()) {
-            $payment->setAdditionalInformation(
-                Sezzle::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID,
-                $sezzleOrderUUID
-            );
-        }
-        if (is_array($response->getLinks())) {
-            foreach ($response->getLinks() as $link) {
-                $rel = "sezzle_" . $link->getRel() . "_link";
-                if ($link->getMethod() == 'GET' && strpos($rel, "self") !== false) {
-                    $rel = Sezzle::ADDITIONAL_INFORMATION_KEY_GET_ORDER_LINK;
-                }
-                $payment->setAdditionalInformation($rel, $link->getHref());
-            }
         }
     }
 
@@ -236,7 +204,7 @@ class Tokenize
                         if ($link->getMethod() == 'POST') {
                             $createOrderLinkAttribute = [
                                 $this->attributeFactory->create()
-                                    ->setAttributeCode(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK)
+                                    ->setAttributeCode(self::KEY_CREATE_ORDER_LINK)
                                     ->setValue($link->getHref())
                             ];
                             $tokenAttributes = array_merge($tokenAttributes, $createOrderLinkAttribute);
@@ -246,7 +214,7 @@ class Tokenize
                         if ($link->getMethod() == 'GET') {
                             $getCustomerLinkAttribute = [
                                 $this->attributeFactory->create()
-                                    ->setAttributeCode(Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK)
+                                    ->setAttributeCode(self::KEY_GET_CUSTOMER_LINK)
                                     ->setValue($link->getHref())
                             ];
                             $tokenAttributes = array_merge($tokenAttributes, $getCustomerLinkAttribute);
@@ -281,7 +249,7 @@ class Tokenize
         }
 
         $url = $quote->getCustomer()
-            ->getCustomAttribute(Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK)
+            ->getCustomAttribute(self::KEY_GET_CUSTOMER_LINK)
             ->getValue();
         $customer = $this->v2->getCustomer($url, $sezzleCustomerUUID, $quote->getStoreId());
         $currentTimestamp = $this->dateTime->timestamp('now');

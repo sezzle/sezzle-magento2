@@ -6,8 +6,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
-use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
-use Sezzle\Sezzlepay\Gateway\Response\ReauthorizeOrderHandler;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 
 /**
  * OrderValidator
@@ -26,7 +25,7 @@ class OrderValidator extends AbstractValidator
         /** @var OrderPaymentInterface $payment */
         $payment = $paymentDO->getPayment();
 
-        $orderUUID = $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
+        $orderUUID = $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID);
 
         $isValid = true;
         $fails = [];

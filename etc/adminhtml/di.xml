@@ -7,15 +7,6 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-	<type name="Magento\Sales\Controller\Adminhtml\Order\View">
-        <plugin name="check_auth_expiry" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\ViewPlugin" sortOrder="10"/>
-    </type>
-    <type name="Magento\Sales\Model\Order">
-        <plugin name="manipulate_void_action" type="Sezzle\Sezzlepay\Plugin\Sales\Model\OrderPlugin" sortOrder="10"/>
-    </type>
-    <type name="Magento\Sales\Controller\Adminhtml\Order\Invoice\NewAction">
-        <plugin name="check_auth_expiry_2nd_step" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice\NewActionPlugin" sortOrder="10"/>
-    </type>
     <type name="Magento\Sales\Controller\Adminhtml\Order\Invoice\Save">
         <plugin name="offline_capture_not_allowing" type="Sezzle\Sezzlepay\Plugin\Sales\Controller\Adminhtml\Order\Invoice\SavePlugin" sortOrder="10"/>
     </type>

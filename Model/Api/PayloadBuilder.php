@@ -13,7 +13,6 @@ use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Helper\Util;
-use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
@@ -50,9 +49,10 @@ class PayloadBuilder
     public function __construct(
         StoreManagerInterface $storeManager,
         SezzleConfigInterface $sezzleConfig,
-        Data $sezzleHelper,
-        Resolver $localeResolver
-    ) {
+        Data                  $sezzleHelper,
+        Resolver              $localeResolver
+    )
+    {
         $this->storeManager = $storeManager;
         $this->sezzleConfig = $sezzleConfig;
         $this->sezzleHelper = $sezzleHelper;

@@ -7,6 +7,7 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Model\Method\Adapter;
 use Magento\Sales\Model\Order\Payment;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 
 /**
  * CaptureHandler
@@ -46,13 +47,13 @@ class CaptureHandler implements HandlerInterface
         $payment = $paymentDO->getPayment();
 
         $orderUUID = $payment->getAdditionalInformation(ReauthorizeOrderHandler::KEY_EXTENDED_ORDER_UUID)
-            ?: $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
+            ?: $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID);
 
         $payment->unsAdditionalInformation(ReauthorizeOrderHandler::KEY_EXTENDED_ORDER_UUID);
 
         $capturedAmount = $payment->getAdditionalInformation(self::KEY_CAPTURE_AMOUNT) + $amount;
-        if (!$payment->hasAdditionalInformation(AuthorizationHandler::KEY_AUTH_AMOUNT)) {
-            $payment->setAdditionalInformation(AuthorizationHandler::KEY_AUTH_AMOUNT, $capturedAmount);
+        if (!$payment->hasAdditionalInformation(AuthorizeCommand::KEY_AUTH_AMOUNT)) {
+            $payment->setAdditionalInformation(AuthorizeCommand::KEY_AUTH_AMOUNT, $capturedAmount);
         }
 
         $payment->setAdditionalInformation(self::KEY_CAPTURE_AMOUNT, $capturedAmount)

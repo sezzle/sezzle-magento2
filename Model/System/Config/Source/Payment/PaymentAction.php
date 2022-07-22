@@ -8,14 +8,13 @@
 
 namespace Sezzle\Sezzlepay\Model\System\Config\Source\Payment;
 
-use Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 use Magento\Payment\Model\MethodInterface;
-use Sezzle\Sezzlepay\Model\Sezzle;
 
 /**
  * Sezzle Payment Action Dropdown source
  */
-class PaymentAction implements ArrayInterface
+class PaymentAction implements OptionSourceInterface
 {
     /**
      * @inheritdoc

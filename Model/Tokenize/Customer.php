@@ -8,7 +8,7 @@ use Magento\Quote\Model\ResourceModel\Quote;
 use Sezzle\Sezzlepay\Api\CartManagementInterface;
 use Sezzle\Sezzlepay\Api\CustomerInterface;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
 use Sezzle\Sezzlepay\Model\Tokenize;
 
 class Customer implements CustomerInterface
@@ -76,8 +76,8 @@ class Customer implements CustomerInterface
         $quote->getPayment()->setAdditionalInformation([
             Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)->getValue(),
             Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION => $quote->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION)->getValue(),
-            Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => $quote->getCustomer()->getCustomAttribute(Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK)->getValue(),
-            Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID => uniqid() . "-" . $quote->getReservedOrderId()
+            Tokenize::KEY_CREATE_ORDER_LINK => $quote->getCustomer()->getCustomAttribute(Tokenize::KEY_CREATE_ORDER_LINK)->getValue(),
+            CustomerOrderRequestBuilder::KEY_REFERENCE_ID => uniqid() . "-" . $quote->getReservedOrderId()
         ]);
 
         $this->quoteResourceModel->save($quote->collectTotals());

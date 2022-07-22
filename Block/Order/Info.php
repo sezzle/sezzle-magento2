@@ -7,7 +7,8 @@
 
 namespace Sezzle\Sezzlepay\Block\Order;
 
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /**
  * Class Info
@@ -26,7 +27,7 @@ class Info extends \Magento\Sales\Block\Order\Info
      */
     public function getSezzleOrderReferenceID()
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        return $this->getOrder()->getPayment()->getAdditionalInformation(CustomerOrderRequestBuilder::KEY_REFERENCE_ID);
     }
 
     /**
@@ -36,6 +37,6 @@ class Info extends \Magento\Sales\Block\Order\Info
      */
     public function isSezzleOrder()
     {
-        return $this->getOrder()->getPayment()->getMethod() == Sezzle::PAYMENT_CODE;
+        return $this->getOrder()->getPayment()->getMethod() == ConfigProvider::CODE;
     }
 }

@@ -11,7 +11,8 @@
 <?php
 
 use Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /** @var Info $block */
 
@@ -34,7 +35,7 @@ $customerUrl = $block->getCustomerViewUrl();
 $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'];
 ?>
 
-<?php if ($order->getPayment()->getMethod() == Sezzle::PAYMENT_CODE) : ?>
+<?php if ($order->getPayment()->getMethod() === ConfigProvider::CODE) : ?>
     <section class="admin__page-section order-view-account-information sezzle">
         <div class="admin__page-section-title">
             <span class="title"><?= $block->escapeHtml(__('Sezzle Information')) ?></span>

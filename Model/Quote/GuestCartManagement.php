@@ -73,7 +73,7 @@ class GuestCartManagement implements GuestCartManagementInterface
     /**
      * @inheritDoc
      */
-    public function placeOrder($cartId, PaymentInterface $paymentMethod = null): int
+    public function placeOrder(string $cartId, PaymentInterface $paymentMethod = null): int
     {
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
         $quote = $this->cartRepository->get($quoteIdMask->getQuoteId())

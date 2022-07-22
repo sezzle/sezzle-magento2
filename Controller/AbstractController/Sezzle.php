@@ -45,10 +45,6 @@ abstract class Sezzle extends Action
      */
     protected $orderFactory;
     /**
-     * @var \Sezzle\Sezzlepay\Model\Sezzle
-     */
-    protected $sezzleModel;
-    /**
      * @var OrderSender
      */
     protected $orderSender;
@@ -107,7 +103,6 @@ abstract class Sezzle extends Action
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      * @param OrderFactory $orderFactory
-     * @param \Sezzle\Sezzlepay\Model\Sezzle $sezzleModel
      * @param \Sezzle\Sezzlepay\Helper\Data $sezzleHelper
      * @param JsonFactory $resultJsonFactory
      * @param Data $jsonHelper
@@ -120,12 +115,11 @@ abstract class Sezzle extends Action
      * @param QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
      */
     public function __construct(
-        Context                                            $context,
-        CustomerRepositoryInterface                        $customerRepository,
-        CustomerSession                                    $customerSession,
-        CheckoutSession                                    $checkoutSession,
-        OrderFactory                                       $orderFactory,
-        \Sezzle\Sezzlepay\Model\Sezzle                     $sezzleModel,
+        Context                         $context,
+        CustomerRepositoryInterface     $customerRepository,
+        CustomerSession                 $customerSession,
+        CheckoutSession                 $checkoutSession,
+        OrderFactory                    $orderFactory,
         \Sezzle\Sezzlepay\Helper\Data   $sezzleHelper,
         JsonFactory                     $resultJsonFactory,
         Data                            $jsonHelper,
@@ -144,7 +138,6 @@ abstract class Sezzle extends Action
         $this->customerRepository = $customerRepository;
         $this->checkoutSession = $checkoutSession;
         $this->orderFactory = $orderFactory;
-        $this->sezzleModel = $sezzleModel;
         $this->quoteManagement = $quoteManagement;
         $this->orderSender = $orderSender;
         $this->resultJsonFactory = $resultJsonFactory;

@@ -75,18 +75,6 @@ interface V2Interface
     public function getCustomer($url, $customerUUID, $storeId);
 
     /**
-     * Authorize Payment by Customer UUID
-     *
-     * @param string $url
-     * @param string $customerUUID
-     * @param int $amount
-     * @param string $currency
-     * @param int $storeId
-     * @return AuthorizationInterface
-     */
-    public function createOrderByCustomerUUID($url, $customerUUID, $amount, $currency, $storeId);
-
-    /**
      * Get Customer UUID by Session token
      *
      * @param string $url

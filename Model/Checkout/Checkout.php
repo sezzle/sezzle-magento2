@@ -13,8 +13,11 @@ use Magento\Quote\Model\ResourceModel\Quote as QuoteResourceModel;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
 use Sezzle\Sezzlepay\Api\V2Interface;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
+use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
+use Sezzle\Sezzlepay\Gateway\Response\CustomerOrderHandler;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Checkout
@@ -124,7 +127,7 @@ class Checkout implements CheckoutInterface
     private function createSession(CartInterface $quote): SessionInterface
     {
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
-        $this->additionalInformation[Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID] = $referenceID;
+        $this->additionalInformation[CustomerOrderRequestBuilder::KEY_REFERENCE_ID] = $referenceID;
         $session = $this->v2->createSession($referenceID, $quote->getStoreId());
         $order = $session->getOrder();
         if (!$order) {
@@ -133,14 +136,14 @@ class Checkout implements CheckoutInterface
 
         if ($order->getUuid()) {
             $this->additionalInformation = array_merge($this->additionalInformation, [
-                Sezzle::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID => $order->getUuid()
+                AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID => $order->getUuid()
             ]);
         }
         $links = [];
         foreach ($order->getLinks() as $link) {
             $rel = "sezzle_" . $link->getRel() . "_link";
             if ($link->getMethod() == 'GET' && strpos($rel, "self") !== false) {
-                $rel = Sezzle::ADDITIONAL_INFORMATION_KEY_GET_ORDER_LINK;
+                $rel = CustomerOrderHandler::KEY_GET_ORDER_LINK;
             }
             $links[$rel] = $link->getHref();
         }
@@ -164,7 +167,7 @@ class Checkout implements CheckoutInterface
         $this->customerSession->setCustomerSezzleTokenStatus(true);
 
         foreach ($tokenize->getLinks() as $link) {
-            if ($link->getRel() == Sezzle::ADDITIONAL_INFORMATION_KEY_GET_TOKEN_DETAILS_LINK) {
+            if ($link->getRel() == Tokenize::KEY_GET_TOKEN_DETAILS_LINK) {
                 $this->customerSession->setGetTokenDetailsLink($link->getHref());
             }
         }

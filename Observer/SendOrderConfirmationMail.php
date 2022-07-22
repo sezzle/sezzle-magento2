@@ -10,11 +10,10 @@ namespace Sezzle\Sezzlepay\Observer;
 use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 class SendOrderConfirmationMail implements ObserverInterface
 {
@@ -50,7 +49,7 @@ class SendOrderConfirmationMail implements ObserverInterface
         /* @var Order $order */
         $order = $observer->getEvent()->getData('order');
         try {
-            if (!$order || $order->getPayment()->getMethod() !== Sezzle::PAYMENT_CODE) {
+            if (!$order || $order->getPayment()->getMethod() !== ConfigProvider::CODE) {
                 return $this;
             }
             $this->orderSender->send($order);

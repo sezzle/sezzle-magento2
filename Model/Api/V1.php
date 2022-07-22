@@ -10,7 +10,6 @@ namespace Sezzle\Sezzlepay\Model\Api;
 use Exception;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\DateTime;
@@ -21,7 +20,6 @@ use Sezzle\Sezzlepay\Api\Data\OrderInterface;
 use Sezzle\Sezzlepay\Api\Data\OrderInterfaceFactory;
 use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
-use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
 
@@ -88,16 +86,17 @@ class V1 implements V1Interface
      * @param OrderInterfaceFactory $orderInterfaceFactory
      */
     public function __construct(
-        AuthInterfaceFactory $authFactory,
-        DataObjectHelper $dataObjectHelper,
-        ProcessorInterface $apiProcessor,
+        AuthInterfaceFactory  $authFactory,
+        DataObjectHelper      $dataObjectHelper,
+        ProcessorInterface    $apiProcessor,
         SezzleConfigInterface $sezzleConfig,
-        SezzleHelper $sezzleHelper,
-        JsonHelper $jsonHelper,
-        DateTime $dateTime,
+        SezzleHelper          $sezzleHelper,
+        JsonHelper            $jsonHelper,
+        DateTime              $dateTime,
         StoreManagerInterface $storeManager,
         OrderInterfaceFactory $orderInterfaceFactory
-    ) {
+    )
+    {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->apiProcessor = $apiProcessor;

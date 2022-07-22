@@ -6,7 +6,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Sales\Model\Order\Payment;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 
 /**
  * CustomerOrderHandler
@@ -29,7 +29,7 @@ class CustomerOrderHandler implements HandlerInterface
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        $payment->setAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID, $response['uuid']);
+        $payment->setAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, $response['uuid']);
 
         $hateOSLinks = $response['links'];
         foreach ($hateOSLinks as $link) {

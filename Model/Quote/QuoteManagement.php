@@ -11,8 +11,8 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Sezzle\Sezzlepay\Api\CartManagementInterface;
 use Magento\Quote\Api\CartManagementInterface as BaseCartManagementInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
-use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
 
 /**
  * QuoteManagement
@@ -101,7 +101,7 @@ class QuoteManagement implements CartManagementInterface
     {
         $payment = $quote->getPayment();
 
-        $orderUUID = $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID);
+        $orderUUID = $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID);
         $customerUUID = $payment->getAdditionalInformation(CustomerOrderRequestBuilder::KEY_CUSTOMER_UUID);
         if (!$orderUUID && $customerUUID) {
             try {

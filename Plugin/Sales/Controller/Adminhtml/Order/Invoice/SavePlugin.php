@@ -15,7 +15,7 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Controller\Adminhtml\Order\Invoice\Save;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /**
  * Class SavePlugin
@@ -87,7 +87,7 @@ class SavePlugin
             return $proceed();
         }
 
-        if ($order->getPayment()->getMethod() !== Sezzle::PAYMENT_CODE) {
+        if ($order->getPayment()->getMethod() !== ConfigProvider::CODE) {
             return $proceed();
         }
 
