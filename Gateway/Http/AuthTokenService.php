@@ -131,8 +131,11 @@ class AuthTokenService
             return $response['token'];
         } catch (InputException|NoSuchEntityException|LocalizedException $e) {
             $this->logger->critical($e->getMessage());
+            $log['error'] = $e->getMessage();
+
             throw new LocalizedException(__($e->getMessage()));
         } finally {
+            $log['log_origin'] = __METHOD__;
             $this->paymentLogger->debug($log);
         }
     }

@@ -6,6 +6,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Model\Method\Logger as PaymentLogger;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Payment\Model\Method\Adapter;
 
@@ -31,13 +32,23 @@ class AuthorizeCommand implements CommandInterface
     private $adapter;
 
     /**
+     * @var PaymentLogger
+     */
+    private $paymentLogger;
+
+    /**
      * AuthorizeCommand constructor.
      *
      * @param Adapter $adapter
+     * @param PaymentLogger $paymentLogger
      */
-    public function __construct(Adapter $adapter)
+    public function __construct(
+        Adapter       $adapter,
+        PaymentLogger $paymentLogger
+    )
     {
         $this->adapter = $adapter;
+        $this->paymentLogger = $paymentLogger;
     }
 
     /**
@@ -61,5 +72,14 @@ class AuthorizeCommand implements CommandInterface
         $payment->setAdditionalInformation(self::AUTH_AMOUNT, $amount)
             ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
             ->setTransactionId($orderUUID)->setIsTransactionClosed(false);
+
+        $this->paymentLogger->debug(
+            [
+                'authorization' => [
+                    'amount' => $amount,
+                    'order_uuid' => $orderUUID
+                ]
+            ]
+        );
     }
 }

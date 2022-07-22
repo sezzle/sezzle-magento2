@@ -117,11 +117,13 @@ class Client implements ClientInterface
             return $this->jsonSerializer->unserialize($responseJSON);
         } catch (LocalizedException $e) {
             $this->logger->critical($e->getMessage());
+            $log['error'] = $e->getMessage();
 
             throw new ClientException(
                 __('Something went wrong in the payment gateway.')
             );
         } finally {
+            $log['log_origin'] = __METHOD__;
             $this->paymentLogger->debug($log);
         }
     }
