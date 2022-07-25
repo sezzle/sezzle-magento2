@@ -7,7 +7,8 @@ interface CheckoutInterface
     /**
      * Gets the standard checkout URL
      *
+     * @param int $cartId
      * @return string|null
      */
-    public function getCheckoutURL(): ?string;
+    public function getCheckoutURL(int $cartId): ?string;
 }

@@ -14,6 +14,7 @@ interface CustomerInterface
     /**
      * Creates order by customer UUID
      *
+     * @param int $cartId
      * @return void
      * @throws AlreadyExistsException
      * @throws CouldNotSaveException
@@ -21,6 +22,6 @@ interface CustomerInterface
      * @throws NoSuchEntityException
      * @throws Exception
      */
-    public function createOrder(): void;
+    public function createOrder(int $cartId): void;
 
 }

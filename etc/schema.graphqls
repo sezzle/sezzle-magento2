@@ -1,5 +1,6 @@
 type Mutation {
     createSezzleCheckout(input: createSezzleCheckoutInput): createSezzleCheckoutOutput @resolver(class: "\\Sezzle\\Sezzlepay\\Model\\GraphQl\\Resolver\\CreateSezzleCheckout") @doc(description:"Creates a Sezzle Checkout.")
+    createSezzleCustomerOrder(input: createSezzleCheckoutInput): createSezzleCheckoutOutput @resolver(class: "\\Sezzle\\Sezzlepay\\Model\\GraphQl\\Resolver\\CreateSezzleCustomerOrder") @doc(description:"Creates a Sezzle Customer Order.")
 }
 
 input createSezzleCheckoutInput {
@@ -7,5 +8,6 @@ input createSezzleCheckoutInput {
 }
 
 type createSezzleCheckoutOutput {
+    success: Boolean! @doc(description: "Customer order creation status.")
     checkout_url: String! @doc(description: "Sezzle checkout URL to be used to complete payment.")
 }

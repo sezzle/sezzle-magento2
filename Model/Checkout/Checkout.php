@@ -7,6 +7,7 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\ResourceModel\Quote as QuoteResourceModel;
@@ -61,6 +62,11 @@ class Checkout implements CheckoutInterface
     private $quoteResourceModel;
 
     /**
+     * @var CartRepositoryInterface
+     */
+    private $cartRepository;
+
+    /**
      * @param Data $sezzleHelper
      * @param V2Interface $v2
      * @param CustomerSession $customerSession
@@ -69,12 +75,13 @@ class Checkout implements CheckoutInterface
      * @param CheckoutValidator $checkoutValidator
      */
     public function __construct(
-        Data               $sezzleHelper,
-        V2Interface        $v2,
-        CustomerSession    $customerSession,
-        CheckoutSession    $checkoutSession,
-        QuoteResourceModel $quoteResourceModel,
-        CheckoutValidator  $checkoutValidator
+        Data                    $sezzleHelper,
+        V2Interface             $v2,
+        CustomerSession         $customerSession,
+        CheckoutSession         $checkoutSession,
+        QuoteResourceModel      $quoteResourceModel,
+        CheckoutValidator       $checkoutValidator,
+        CartRepositoryInterface $cartRepository
     )
     {
         $this->sezzleHelper = $sezzleHelper;
@@ -83,16 +90,18 @@ class Checkout implements CheckoutInterface
         $this->checkoutSession = $checkoutSession;
         $this->quoteResourceModel = $quoteResourceModel;
         $this->checkoutValidator = $checkoutValidator;
+        $this->cartRepository = $cartRepository;
     }
 
 
     /**
      * @inerhitDoc
      */
-    public function getCheckoutURL(): ?string
+    public function getCheckoutURL(int $cartId): ?string
     {
         try {
-            $quote = $this->initQuote();
+            /** @var Quote $quote */
+            $quote = $this->initQuote($cartId);
             $session = $this->createSession($quote);
             $this->setTokenizeDetailsInSession($session);
 
@@ -107,13 +116,14 @@ class Checkout implements CheckoutInterface
     }
 
     /**
-     * @return Quote
+     * @param int $cartId
+     * @return CartInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function initQuote(): Quote
+    public function initQuote(int $cartId): CartInterface
     {
-        $quote = $this->checkoutSession->getQuote();
+        $quote = $this->cartRepository->getActive($cartId);
         $this->checkoutValidator->validate($quote);
 
         return $quote->reserveOrderId();

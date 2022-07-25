@@ -2,23 +2,28 @@
 
 namespace Sezzle\Sezzlepay\Model\GraphQl\Resolver;
 
+use Exception;
+use Magento\Framework\Exception\AlreadyExistsException;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
-use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Api\CustomerInterface;
 
 /**
- * CreateSezzleCheckout
+ * CreateSezzleCustomerOrder
  */
-class CreateSezzleCheckout implements ResolverInterface
+class CreateSezzleCustomerOrder implements ResolverInterface
 {
 
     /**
-     * @var Config
+     * @var CustomerInterface
      */
-    private $config;
+    private $customer;
 
     /**
      * @var CheckoutInterface
@@ -36,20 +41,20 @@ class CreateSezzleCheckout implements ResolverInterface
     private $getCartForUser;
 
     /**
-     * CreateSezzleCheckout constructor
-     * @param Config $config
+     * CreateSezzleCustomerOrder constructor
+     * @param CustomerInterface $customer
      * @param CheckoutInterface $checkout
      * @param Validator $validator
      * @param GetCartForUser $getCartForUser
      */
     public function __construct(
-        Config            $config,
+        CustomerInterface $customer,
         CheckoutInterface $checkout,
         Validator         $validator,
         GetCartForUser    $getCartForUser
     )
     {
-        $this->config = $config;
+        $this->customer = $customer;
         $this->checkout = $checkout;
         $this->validator = $validator;
         $this->getCartForUser = $getCartForUser;
@@ -64,13 +69,24 @@ class CreateSezzleCheckout implements ResolverInterface
 
         $cart = $this->getCartForUser->getCart($args['input']['cart_id'], $context);
 
-        $checkoutURL = $this->checkout->getCheckoutURL($cart->getId());
-        if (!$checkoutURL) {
-            throw new GraphQlInputException(__('Unable to create Sezzle checkout.'));
+        try {
+            $this->customer->createOrder($cart->getId());
+        } catch (AlreadyExistsException|CouldNotSaveException|NoSuchEntityException|LocalizedException|Exception $e) {
+            // trying to create standard checkout as the tokenized order creation failed
+            $checkoutURL = $this->checkout->getCheckoutURL($cart->getId());
+
+            if (!$checkoutURL) {
+                throw new GraphQlInputException(__('Something went wrong while placing order at Sezzle.'));
+            }
+
+            return [
+                'success' => true,
+                'checkout_url' => $checkoutURL,
+            ];
         }
 
         return [
-            'checkout_url' => $checkoutURL
+            'success' => true
         ];
     }
 }

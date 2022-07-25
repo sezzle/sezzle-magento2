@@ -78,7 +78,7 @@ class CheckoutManagement implements CheckoutManagementInterface
             throw new CouldNotSaveException(__("Unable to save payment information."));
         }
 
-        $checkoutURL = $this->checkout->getCheckoutURL();
+        $checkoutURL = $this->checkout->getCheckoutURL($cartId);
 
         $log['checkout_url'] = $checkoutURL;
 

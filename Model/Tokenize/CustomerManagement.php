@@ -90,10 +90,10 @@ class CustomerManagement implements CustomerManagementInterface
         }
 
         try {
-            $this->customer->createOrder();
+            $this->customer->createOrder($cartId);
         } catch (AlreadyExistsException|CouldNotSaveException|NoSuchEntityException|LocalizedException|Exception $e) {
             // trying to create standard checkout as the tokenized order creation failed
-            $checkoutURL = $this->checkout->getCheckoutURL();
+            $checkoutURL = $this->checkout->getCheckoutURL($cartId);
 
             $log['checkout_url'] = $checkoutURL;
 
