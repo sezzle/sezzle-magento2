@@ -14,7 +14,7 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Validator\ValidatorInterface;
 use Psr\Log\LoggerInterface;
-use Magento\Payment\Model\Method\Logger as PaymentLogger;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * AuthorizeCommand
@@ -33,9 +33,9 @@ class CaptureCommand extends GatewayCommand
     private $authValidator;
 
     /**
-     * @var PaymentLogger
+     * @var Data
      */
-    private $paymentLogger;
+    private $helper;
 
     /**
      * @var LoggerInterface
@@ -49,7 +49,7 @@ class CaptureCommand extends GatewayCommand
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $client
      * @param LoggerInterface $logger
-     * @param PaymentLogger $paymentLogger
+     * @param Data $helper
      * @param HandlerInterface|null $handler
      * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
@@ -61,7 +61,7 @@ class CaptureCommand extends GatewayCommand
         TransferFactoryInterface    $transferFactory,
         ClientInterface             $client,
         LoggerInterface             $logger,
-        PaymentLogger               $paymentLogger,
+        Data                        $helper,
         HandlerInterface            $handler = null,
         ValidatorInterface          $validator = null,
         ErrorMessageMapperInterface $errorMessageMapper = null
@@ -77,7 +77,7 @@ class CaptureCommand extends GatewayCommand
             $errorMessageMapper
         );
         $this->logger = $logger;
-        $this->paymentLogger = $paymentLogger;
+        $this->helper = $helper;
         $this->reauthOrderCommand = $reauthOrderCommand;
         $this->authValidator = $authValidator;
     }
@@ -112,12 +112,12 @@ class CaptureCommand extends GatewayCommand
                 $log['error'] = $e->getMessage();
                 throw new LocalizedException(__('Reauthorization failed at Sezzle.'));
             } finally {
-                $this->paymentLogger->debug($log);
+                $this->helper->logSezzleActions($log);
             }
         }
 
         $log['capture']['auth_valid'] = true;
-        $this->paymentLogger->debug($log);
+        $this->helper->logSezzleActions($log);
 
         parent::execute($commandSubject);
     }

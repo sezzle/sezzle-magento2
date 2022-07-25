@@ -15,6 +15,7 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
 use Sezzle\Sezzlepay\Api\CustomerInterface;
 use Sezzle\Sezzlepay\Api\CustomerManagementInterface;
+use Sezzle\Sezzlepay\Helper\Data;
 
 class CustomerManagement implements CustomerManagementInterface
 {
@@ -40,23 +41,31 @@ class CustomerManagement implements CustomerManagementInterface
     private $customer;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * CustomerManagement constructor.
      * @param PaymentInformationManagementInterface $paymentInformationManagement
      * @param CheckoutInterface $checkout
      * @param Json $jsonSerializer
      * @param CustomerInterface $customer
+     * @param Data $helper
      */
     public function __construct(
         PaymentInformationManagementInterface $paymentInformationManagement,
         CheckoutInterface                     $checkout,
         Json                                  $jsonSerializer,
-        CustomerInterface                     $customer
+        CustomerInterface                     $customer,
+        Data                                  $helper
     )
     {
         $this->paymentInformationManagement = $paymentInformationManagement;
         $this->checkout = $checkout;
         $this->jsonSerializer = $jsonSerializer;
         $this->customer = $customer;
+        $this->helper = $helper;
     }
 
     /**
@@ -67,6 +76,11 @@ class CustomerManagement implements CustomerManagementInterface
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null): string
     {
+        $log = [
+            'quote_id' => $cartId,
+            'log_origin' => __METHOD__
+        ];
+
         if (!$this->paymentInformationManagement->savePaymentInformation(
             $cartId,
             $paymentMethod,
@@ -79,9 +93,17 @@ class CustomerManagement implements CustomerManagementInterface
             $this->customer->createOrder();
         } catch (AlreadyExistsException|CouldNotSaveException|NoSuchEntityException|LocalizedException|Exception $e) {
             // trying to create standard checkout as the tokenized order creation failed
-            if (!$checkoutURL = $this->checkout->getCheckoutURL()) {
+            $checkoutURL = $this->checkout->getCheckoutURL();
+
+            $log['checkout_url'] = $checkoutURL;
+
+            if (!$checkoutURL) {
+                $this->helper->logSezzleActions($log);
+
                 throw new NotFoundException(__('Something went wrong while placing order at Sezzle.'));
             }
+
+            $this->helper->logSezzleActions($log);
 
             return $this->jsonSerializer->serialize(
                 [
@@ -90,6 +112,8 @@ class CustomerManagement implements CustomerManagementInterface
                 ]
             );
         }
+
+        $this->helper->logSezzleActions($log);
 
         return $this->jsonSerializer->serialize(['success' => true]);
     }

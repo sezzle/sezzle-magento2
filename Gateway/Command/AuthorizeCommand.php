@@ -6,9 +6,9 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
-use Magento\Payment\Model\Method\Logger as PaymentLogger;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Payment\Model\Method\Adapter;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * AuthorizeCommand
@@ -32,23 +32,23 @@ class AuthorizeCommand implements CommandInterface
     private $adapter;
 
     /**
-     * @var PaymentLogger
+     * @var Data
      */
-    private $paymentLogger;
+    private $helper;
 
     /**
      * AuthorizeCommand constructor.
      *
      * @param Adapter $adapter
-     * @param PaymentLogger $paymentLogger
+     * @param Data $helper
      */
     public function __construct(
-        Adapter       $adapter,
-        PaymentLogger $paymentLogger
+        Adapter $adapter,
+        Data    $helper
     )
     {
         $this->adapter = $adapter;
-        $this->paymentLogger = $paymentLogger;
+        $this->helper = $helper;
     }
 
     /**
@@ -73,7 +73,7 @@ class AuthorizeCommand implements CommandInterface
             ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
             ->setTransactionId($orderUUID)->setIsTransactionClosed(false);
 
-        $this->paymentLogger->debug(
+        $this->helper->logSezzleActions(
             [
                 'authorization' => [
                     'amount' => $amount,

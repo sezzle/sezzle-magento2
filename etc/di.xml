@@ -280,29 +280,5 @@
         </arguments>
     </virtualType>
 
-    <type name="Sezzle\Sezzlepay\Gateway\Http\Client">
-        <arguments>
-            <argument name="paymentLogger" xsi:type="object">SezzleLogger</argument>
-        </arguments>
-    </type>
-
-    <type name="Sezzle\Sezzlepay\Gateway\Http\AuthTokenService">
-        <arguments>
-            <argument name="paymentLogger" xsi:type="object">SezzleLogger</argument>
-        </arguments>
-    </type>
-
-    <type name="Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand">
-        <arguments>
-            <argument name="paymentLogger" xsi:type="object">SezzleLogger</argument>
-        </arguments>
-    </type>
-
-    <type name="Sezzle\Sezzlepay\Gateway\Command\CaptureCommand">
-        <arguments>
-            <argument name="paymentLogger" xsi:type="object">SezzleLogger</argument>
-        </arguments>
-    </type>
-
 
 </config>

@@ -11,8 +11,8 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\HTTP\Client\Curl;
+use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Api\ApiParamsInterface;
-use Magento\Payment\Model\Method\Logger as PaymentLogger;
 
 /**
  * AuthTokenService
@@ -52,9 +52,9 @@ class AuthTokenService
     private $curl;
 
     /**
-     * @var PaymentLogger
+     * @var Data
      */
-    private $paymentLogger;
+    private $helper;
 
     /**
      * AuthTokenService constructor.
@@ -62,7 +62,7 @@ class AuthTokenService
      * @param Config $config
      * @param CacheInterface $cache
      * @param LoggerInterface $logger
-     * @param PaymentLogger $paymentLogger
+     * @param Data $helper
      * @param Json $jsonSerializer
      * @param Curl $curl
      */
@@ -71,7 +71,7 @@ class AuthTokenService
         Config                $config,
         CacheInterface        $cache,
         LoggerInterface       $logger,
-        PaymentLogger         $paymentLogger,
+        Data                  $helper,
         Json                  $jsonSerializer,
         Curl                  $curl
     )
@@ -80,7 +80,7 @@ class AuthTokenService
         $this->config = $config;
         $this->cache = $cache;
         $this->logger = $logger;
-        $this->paymentLogger = $paymentLogger;
+        $this->helper = $helper;
         $this->jsonSerializer = $jsonSerializer;
         $this->curl = $curl;
     }
@@ -136,7 +136,7 @@ class AuthTokenService
             throw new LocalizedException(__($e->getMessage()));
         } finally {
             $log['log_origin'] = __METHOD__;
-            $this->paymentLogger->debug($log);
+            $this->helper->logSezzleActions($log);
         }
     }
 

@@ -11,6 +11,7 @@ use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Api\CartManagementInterface;
 use Sezzle\Sezzlepay\Api\GuestCartManagementInterface;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * Cart Management class for guest carts.
@@ -46,6 +47,11 @@ class GuestCartManagement implements GuestCartManagementInterface
     private $paymentDataObjectFactory;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * Initialize dependencies.
      *
      * @param CartManagementInterface $quoteManagement
@@ -53,6 +59,7 @@ class GuestCartManagement implements GuestCartManagementInterface
      * @param CartRepositoryInterface $cartRepository
      * @param CommandInterface $validateOrderCommand
      * @param PaymentDataObjectFactory $paymentDataObjectFactory
+     * @param Data $helper
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -60,7 +67,8 @@ class GuestCartManagement implements GuestCartManagementInterface
         QuoteIdMaskFactory       $quoteIdMaskFactory,
         CartRepositoryInterface  $cartRepository,
         CommandInterface         $validateOrderCommand,
-        PaymentDataObjectFactory $paymentDataObjectFactory
+        PaymentDataObjectFactory $paymentDataObjectFactory,
+        Data                     $helper
     )
     {
         $this->quoteManagement = $quoteManagement;
@@ -68,6 +76,7 @@ class GuestCartManagement implements GuestCartManagementInterface
         $this->cartRepository = $cartRepository;
         $this->validateOrderCommand = $validateOrderCommand;
         $this->paymentDataObjectFactory = $paymentDataObjectFactory;
+        $this->helper = $helper;
     }
 
     /**
@@ -75,9 +84,16 @@ class GuestCartManagement implements GuestCartManagementInterface
      */
     public function placeOrder(string $cartId, PaymentInterface $paymentMethod = null): int
     {
+        $log = [
+            'masked_quote_id' => $cartId,
+            'log_origin' => __METHOD__
+        ];
+
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
         $quote = $this->cartRepository->get($quoteIdMask->getQuoteId())
             ->setCheckoutMethod(CartManagementInterface::METHOD_GUEST);
+
+        $log['quote_id'] = $quote->getId();
 
         // validate Order
         try {
@@ -85,7 +101,11 @@ class GuestCartManagement implements GuestCartManagementInterface
                 ['payment' => $this->paymentDataObjectFactory->create($quote->getPayment())]
             );
         } catch (CommandException $e) {
+            $log['error'] = $e->getMessage();
+
             throw new LocalizedException(__('Failed order validation.'));
+        } finally {
+            $this->helper->logSezzleActions($log);
         }
 
         return $this->quoteManagement->placeOrder($quoteIdMask->getQuoteId(), $paymentMethod);
