@@ -7,18 +7,12 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
-use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * CreateSezzleCheckout
  */
 class CreateSezzleCheckout implements ResolverInterface
 {
-
-    /**
-     * @var Config
-     */
-    private $config;
 
     /**
      * @var CheckoutInterface
@@ -37,19 +31,16 @@ class CreateSezzleCheckout implements ResolverInterface
 
     /**
      * CreateSezzleCheckout constructor
-     * @param Config $config
      * @param CheckoutInterface $checkout
      * @param Validator $validator
      * @param GetCartForUser $getCartForUser
      */
     public function __construct(
-        Config            $config,
         CheckoutInterface $checkout,
         Validator         $validator,
         GetCartForUser    $getCartForUser
     )
     {
-        $this->config = $config;
         $this->checkout = $checkout;
         $this->validator = $validator;
         $this->getCartForUser = $getCartForUser;

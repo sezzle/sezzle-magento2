@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alr:test-suite xmlns:alr="urn:model.allure.qatools.yandex.ru" start="1658772829233" stop="1658772829318" version="1.4.0">
+  <name>Sezzle\Sezzlepay\Test\Unit\Model\GraphQl\Resolver\CreateSezzleCheckoutTest</name>
+  <test-cases>
+    <test-case start="1658772829236" stop="1658772829298" status="passed">
+      <name>testSezzleNotEnabled</name>
+    </test-case>
+    <test-case start="1658772829298" stop="1658772829301" status="passed">
+      <name>testCartIdMissing</name>
+    </test-case>
+    <test-case start="1658772829301" stop="1658772829303" status="passed">
+      <name>testCartNotFound</name>
+    </test-case>
+    <test-case start="1658772829304" stop="1658772829317" status="passed">
+      <name>testSezzleCheckoutError</name>
+    </test-case>
+    <test-case start="1658772829317" stop="1658772829318" status="passed">
+      <name>testSezzleCheckoutSuccess</name>
+    </test-case>
+  </test-cases>
+</alr:test-suite>

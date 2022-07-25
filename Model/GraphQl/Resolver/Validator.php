@@ -2,7 +2,7 @@
 
 namespace Sezzle\Sezzlepay\Model\GraphQl\Resolver;
 
-use InvalidArgumentException;
+use Magento\Framework\Exception\InvalidArgumentException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
