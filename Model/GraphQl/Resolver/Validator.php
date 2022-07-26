@@ -9,6 +9,9 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 
+/**
+ * Validator
+ */
 class Validator
 {
 
@@ -18,7 +21,7 @@ class Validator
     private $config;
 
     /**
-     * CreateSezzleCustomerOrder constructor
+     * Validator constructor
      * @param Config $config
      */
     public function __construct(
@@ -29,11 +32,12 @@ class Validator
     }
 
     /**
+     * Validates the GraphQl input args
      * @param ContextInterface $context
      * @return void
      * @throws GraphQlInputException
      * @throws InputException
-     * @throws NoSuchEntityException
+     * @throws NoSuchEntityException|InvalidArgumentException
      */
     public function validateInput(ContextInterface $context)
     {

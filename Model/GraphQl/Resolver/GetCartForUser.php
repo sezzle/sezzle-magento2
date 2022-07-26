@@ -10,6 +10,9 @@ use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Quote\Model\Quote;
 use Magento\QuoteGraphQl\Model\Cart\GetCartForUser as BaseGetCartForUser;
 
+/**
+ * GetCartForUser
+ */
 class GetCartForUser
 {
 
@@ -19,7 +22,7 @@ class GetCartForUser
     private $getCartForUser;
 
     /**
-     * CreateSezzleCustomerOrder constructor
+     * GetCartForUser constructor
      * @param BaseGetCartForUser $getCartForUser
      */
     public function __construct(
@@ -30,6 +33,7 @@ class GetCartForUser
     }
 
     /**
+     * Wrapper for base getCartForUser->execute
      * @throws NoSuchEntityException
      * @throws GraphQlAuthorizationException
      * @throws GraphQlNoSuchEntityException
