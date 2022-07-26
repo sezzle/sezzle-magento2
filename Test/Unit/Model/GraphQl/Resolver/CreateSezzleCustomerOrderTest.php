@@ -2,6 +2,7 @@
 
 namespace Sezzle\Sezzlepay\Test\Unit\Model\GraphQl\Resolver;
 
+use Exception;
 use Magento\Framework\Exception\InvalidArgumentException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
@@ -14,14 +15,15 @@ use Magento\Quote\Model\Quote;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
-use Sezzle\Sezzlepay\Model\GraphQl\Resolver\CreateSezzleCheckout;
+use Sezzle\Sezzlepay\Api\CustomerInterface;
+use Sezzle\Sezzlepay\Model\GraphQl\Resolver\CreateSezzleCustomerOrder;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\GetCartForUser;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\Validator;
 
 /**
- * @covers \Sezzle\Sezzlepay\Model\GraphQl\Resolver\CreateSezzleCheckout
+ * @covers \Sezzle\Sezzlepay\Model\GraphQl\Resolver\CreateSezzleCustomerOrder
  */
-class CreateSezzleCheckoutTest extends TestCase
+class CreateSezzleCustomerOrderTest extends TestCase
 {
     /**
      * @var ContextInterface|MockObject
@@ -37,6 +39,13 @@ class CreateSezzleCheckoutTest extends TestCase
      * @var ResolveInfo|MockObject
      */
     private $resolveInfoMock;
+
+    /**
+     * Mock customer
+     *
+     * @var CustomerInterface|MockObject
+     */
+    private $customer;
 
     /**
      * Mock checkout
@@ -69,7 +78,7 @@ class CreateSezzleCheckoutTest extends TestCase
     /**
      * Object to test
      *
-     * @var CreateSezzleCheckout
+     * @var CreateSezzleCustomerOrder
      */
     private $resolver;
 
@@ -92,12 +101,14 @@ class CreateSezzleCheckoutTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->customer = $this->createMock(CustomerInterface::class);
         $this->checkout = $this->createMock(CheckoutInterface::class);
         $this->validator = $this->createMock(Validator::class);
         $this->getCartForUser = $this->createMock(GetCartForUser::class);
         $this->resolver = $this->objectManager->getObject(
-            CreateSezzleCheckout::class,
+            CreateSezzleCustomerOrder::class,
             [
+                'customer' => $this->customer,
                 'checkout' => $this->checkout,
                 'validator' => $this->validator,
                 'getCartForUser' => $this->getCartForUser,
@@ -167,12 +178,12 @@ class CreateSezzleCheckoutTest extends TestCase
         );
     }
 
-    public function testSezzleCheckoutError()
+    public function testSezzleCustomerOrderAndCheckoutError()
     {
         $cartHash = 'abcd1234';
         $cartId = 1;
         $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlInputException');
-        $this->expectExceptionMessage('Unable to create Sezzle checkout.');
+        $this->expectExceptionMessage('Something went wrong while placing order at Sezzle.');
 
         $this->validator->expects($this->once())
             ->method('validateInput');
@@ -186,9 +197,14 @@ class CreateSezzleCheckoutTest extends TestCase
             ->method('getCart')
             ->willReturn($quoteMock);
 
-        $quoteMock->expects($this->once())
+        $quoteMock->expects($this->atMost(2))
             ->method('getId')
             ->willReturn($cartId);
+
+        $this->customer->expects($this->once())
+            ->method('createOrder')
+            ->with($cartId)
+            ->willThrowException(new Exception(__('Invalid customer.')));
 
         $this->checkout->expects($this->once())
             ->method('getCheckoutURL')
@@ -205,7 +221,7 @@ class CreateSezzleCheckoutTest extends TestCase
         );
     }
 
-    public function testSezzleCheckoutSuccess()
+    public function testSezzleCustomerOrderErrorAndCheckoutSuccess()
     {
         $cartHash = 'abcd1234';
         $cartId = 1;
@@ -223,18 +239,64 @@ class CreateSezzleCheckoutTest extends TestCase
             ->method('getCart')
             ->willReturn($quoteMock);
 
-        $quoteMock->expects($this->once())
+        $quoteMock->expects($this->atMost(2))
             ->method('getId')
             ->willReturn($cartId);
+
+        $this->customer->expects($this->once())
+            ->method('createOrder')
+            ->with($cartId)
+            ->willThrowException(new Exception(__('Invalid customer.')));
 
         $this->checkout->expects($this->once())
             ->method('getCheckoutURL')
             ->with($cartId)
             ->willReturn($checkoutURL);
 
+
         $this->assertEquals(
             [
+                'success' => true,
                 'checkout_url' => $checkoutURL
+            ],
+            $this->resolver->resolve(
+                $this->fieldMock,
+                $this->contextMock,
+                $this->resolveInfoMock,
+                null,
+                ['input' => ['cart_id' => $cartHash]]
+            )
+        );
+    }
+
+    public function testSezzleCustomerOrderSuccess()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+
+        $this->validator->expects($this->once())
+            ->method('validateInput');
+
+        $quoteMock = $this->getMockBuilder(Quote::class)
+            ->setMethods(['getId'])
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        $this->getCartForUser->expects($this->once())
+            ->method('getCart')
+            ->willReturn($quoteMock);
+
+        $quoteMock->expects($this->once())
+            ->method('getId')
+            ->willReturn($cartId);
+
+        $this->customer->expects($this->once())
+            ->method('createOrder')
+            ->with($cartId);
+
+        $this->assertEquals(
+            [
+                'success' => true
             ],
             $this->resolver->resolve(
                 $this->fieldMock,
