@@ -52,7 +52,7 @@ class AuthorizeCommand implements CommandInterface
     }
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      * @throws LocalizedException
      */
     public function execute(array $commandSubject): void

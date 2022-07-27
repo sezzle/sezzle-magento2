@@ -244,7 +244,7 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     /**
      * @return string|null
      */
-    public function getSezleCustomerUUIDExpiration(): ?string
+    public function getSezzleCustomerUUIDExpiration(): ?string
     {
         try {
             $customerUUIExpirationTimestamp = $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);

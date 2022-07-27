@@ -83,7 +83,7 @@ class CaptureCommand extends GatewayCommand
     }
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      * @throws CommandException
      * @throws LocalizedException
      */
@@ -94,29 +94,27 @@ class CaptureCommand extends GatewayCommand
             throw new CommandException(__('Invalid amount for capture.'));
         }
 
+        $authValidatorResult = $this->authValidator->validate($commandSubject);
+        $authValid = $authValidatorResult->isValid();
+
         $log = [
             'capture' => [
-                'auth_valid' => false,
+                'auth_valid' => $authValid,
                 'amount' => $amount
             ]
         ];
 
-        $authValidatorResult = $this->authValidator->validate($commandSubject);
-
         // reauthorize if auth is expired
-        if (!$authValidatorResult->isValid()) {
+        if (!$authValid) {
             try {
                 $this->reauthOrderCommand->execute($commandSubject);
             } catch (CommandException $e) {
-                $this->logger->critical($e->getMessage());
-                $log['error'] = $e->getMessage();
-                throw new LocalizedException(__('Reauthorization failed at Sezzle.'));
-            } finally {
                 $this->helper->logSezzleActions($log);
+
+                throw new LocalizedException(__('Reauthorization failed at Sezzle.'));
             }
         }
 
-        $log['capture']['auth_valid'] = true;
         $this->helper->logSezzleActions($log);
 
         parent::execute($commandSubject);

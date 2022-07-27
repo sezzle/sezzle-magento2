@@ -65,11 +65,6 @@ class CheckoutManagement implements CheckoutManagementInterface
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null): string
     {
-        $log = [
-            'quote_id' => $cartId,
-            'log_origin' => __METHOD__
-        ];
-
         if (!$this->paymentInformationManagement->savePaymentInformation(
             $cartId,
             $paymentMethod,
@@ -80,15 +75,17 @@ class CheckoutManagement implements CheckoutManagementInterface
 
         $checkoutURL = $this->checkout->getCheckoutURL();
 
-        $log['checkout_url'] = $checkoutURL;
-
-        if (!$checkoutURL) {
-            $this->helper->logSezzleActions($log);
-
-            throw new NotFoundException(__('Checkout URL not found.'));
-        }
+        $this->helper->logSezzleActions([
+            'quote_id' => $cartId,
+            'log_origin' => __METHOD__,
+            'checkout_url' => $checkoutURL
+        ]);
 
         $this->helper->logSezzleActions($log);
+
+        if (!$checkoutURL) {
+            throw new NotFoundException(__('Checkout URL not found.'));
+        }
 
         return $this->jsonSerializer->serialize(["checkout_url" => $checkoutURL]);
     }

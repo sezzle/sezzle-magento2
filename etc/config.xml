@@ -12,7 +12,7 @@
             <sezzlepay>
 <!--                Magento 2 standard config-->
 		        <active>0</active>
-                <debug>1</debug>
+                <debug>0</debug>
                 <title>Sezzle</title>
                 <is_gateway>1</is_gateway>
                 <model>SezzleFacade</model>

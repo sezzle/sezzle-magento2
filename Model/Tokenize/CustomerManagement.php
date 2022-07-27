@@ -76,11 +76,6 @@ class CustomerManagement implements CustomerManagementInterface
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null): string
     {
-        $log = [
-            'quote_id' => $cartId,
-            'log_origin' => __METHOD__
-        ];
-
         if (!$this->paymentInformationManagement->savePaymentInformation(
             $cartId,
             $paymentMethod,
@@ -88,6 +83,11 @@ class CustomerManagement implements CustomerManagementInterface
         )) {
             throw new CouldNotSaveException(__("Unable to save payment information."));
         }
+
+        $log = [
+            'quote_id' => $cartId,
+            'log_origin' => __METHOD__
+        ];
 
         try {
             $this->customer->createOrder();
@@ -97,13 +97,11 @@ class CustomerManagement implements CustomerManagementInterface
 
             $log['checkout_url'] = $checkoutURL;
 
-            if (!$checkoutURL) {
-                $this->helper->logSezzleActions($log);
+            $this->helper->logSezzleActions($log);
 
+            if (!$checkoutURL) {
                 throw new NotFoundException(__('Something went wrong while placing order at Sezzle.'));
             }
-
-            $this->helper->logSezzleActions($log);
 
             return $this->jsonSerializer->serialize(
                 [

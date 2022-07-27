@@ -17,7 +17,7 @@ class CaptureRequestBuilder implements BuilderInterface
 {
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      */
     public function build(array $buildSubject): array
     {

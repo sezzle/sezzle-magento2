@@ -23,7 +23,7 @@ class OrderHandler implements HandlerInterface
     private $adapter;
 
     /**
-     * CaptureHandler constructor
+     * OrderHandler constructor
      *
      * @param Adapter $adapter
      */

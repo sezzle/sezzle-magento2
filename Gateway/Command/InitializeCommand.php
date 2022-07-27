@@ -16,7 +16,7 @@ class InitializeCommand implements CommandInterface
 {
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      */
     public function execute(array $commandSubject): void
     {

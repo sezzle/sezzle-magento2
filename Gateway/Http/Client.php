@@ -73,12 +73,13 @@ class Client implements ClientInterface
     }
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      * @throws ClientException
      */
     public function placeRequest(TransferInterface $transferObject): array
     {
         $log = [
+            'log_origin' => __METHOD__,
             'request' => [
                 'uri' => $transferObject->getUri(),
                 'body' => $transferObject->getBody()
@@ -120,7 +121,6 @@ class Client implements ClientInterface
                 __('Something went wrong in the payment gateway.')
             );
         } finally {
-            $log['log_origin'] = __METHOD__;
             $this->helper->logSezzleActions($log);
         }
     }

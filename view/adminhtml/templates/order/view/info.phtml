@@ -11,7 +11,6 @@
 <?php
 
 use Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info;
-use
 use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /** @var Info $block */
@@ -111,7 +110,7 @@ $allowedAddressHtmlTags = ['b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub
                                     <td><?= $block->escapeHtml($sezzleCustomerUUID) ?></td>
                                 </tr>
                             <?php endif; ?>
-                            <?php if ($sezzleCustomerUUIDExpiration = $block->getSezleCustomerUUIDExpiration()) : ?>
+                            <?php if ($sezzleCustomerUUIDExpiration = $block->getSezzleCustomerUUIDExpiration()) : ?>
                                 <tr>
                                     <th><?= $block->escapeHtml(__('Customer UUID Expiration')) ?></th>
                                     <td><?= $block->escapeHtml($sezzleCustomerUUIDExpiration) ?></td>
