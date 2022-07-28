@@ -97,25 +97,21 @@ class CaptureCommand extends GatewayCommand
         $authValidatorResult = $this->authValidator->validate($commandSubject);
         $authValid = $authValidatorResult->isValid();
 
-        $log = [
+        $this->helper->logSezzleActions([
             'capture' => [
                 'auth_valid' => $authValid,
                 'amount' => $amount
             ]
-        ];
+        ]);
 
         // reauthorize if auth is expired
         if (!$authValid) {
             try {
                 $this->reauthOrderCommand->execute($commandSubject);
             } catch (CommandException $e) {
-                $this->helper->logSezzleActions($log);
-
                 throw new LocalizedException(__('Reauthorization failed at Sezzle.'));
             }
         }
-
-        $this->helper->logSezzleActions($log);
 
         parent::execute($commandSubject);
     }

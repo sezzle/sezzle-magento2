@@ -81,8 +81,6 @@ class CheckoutManagement implements CheckoutManagementInterface
             'checkout_url' => $checkoutURL
         ]);
 
-        $this->helper->logSezzleActions($log);
-
         if (!$checkoutURL) {
             throw new NotFoundException(__('Checkout URL not found.'));
         }
