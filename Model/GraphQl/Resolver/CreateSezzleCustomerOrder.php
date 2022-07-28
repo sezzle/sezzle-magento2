@@ -71,7 +71,7 @@ class CreateSezzleCustomerOrder implements ResolverInterface
 
         try {
             $this->customer->createOrder($cart->getId());
-        } catch (AlreadyExistsException|CouldNotSaveException|NoSuchEntityException|LocalizedException|Exception $e) {
+        } catch (Exception $e) {
             // trying to create standard checkout as the tokenized order creation failed
             $checkoutURL = $this->checkout->getCheckoutURL($cart->getId());
 
