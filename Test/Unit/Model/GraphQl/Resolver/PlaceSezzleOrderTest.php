@@ -141,19 +141,6 @@ class PlaceSezzleOrderTest extends TestCase
         );
     }
 
-    /**
-     * @return array
-     */
-    public function dataProviderForTestResolve()
-    {
-        return [
-            'Testcase 1' => [
-                'prerequisites' => ['param' => 1],
-                'expectedResult' => ['param' => 1]
-            ]
-        ];
-    }
-
     public function testSezzleNotEnabled()
     {
         $exceptionMessage = 'Sezzle payment method is not enabled.';
