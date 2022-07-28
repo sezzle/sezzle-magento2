@@ -66,9 +66,10 @@ class Customer implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function createOrder(): void
+    public function createOrder(int $cartId): void
     {
-        $quote = $this->checkout->initQuote();
+        /** @var \Magento\Quote\Model\Quote $quote */
+        $quote = $this->checkout->initQuote($cartId);
         if (!$quote->getCustomer() || !$this->tokenize->isCustomerUUIDValid($quote)) {
             throw new Exception(__('Invalid customer.'));
         }

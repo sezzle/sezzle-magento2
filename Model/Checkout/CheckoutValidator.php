@@ -9,6 +9,7 @@ namespace Sezzle\Sezzlepay\Model\Checkout;
 
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Sezzle\Sezzlepay\Helper\Data;
 
@@ -48,7 +49,7 @@ class CheckoutValidator
     /**
      * Validate Checkout
      *
-     * @param Quote $quote
+     * @param Quote|CartInterface $quote
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */

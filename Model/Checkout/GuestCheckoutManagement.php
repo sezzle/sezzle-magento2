@@ -6,8 +6,10 @@ use Magento\Checkout\Api\GuestPaymentInformationManagementInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
 use Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface;
 use Sezzle\Sezzlepay\Helper\Data;
@@ -39,23 +41,31 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
     private $helper;
 
     /**
+     * @var QuoteIdMaskFactory
+     */
+    private $quoteIdMaskFactory;
+
+    /**
      * GuestCheckoutManagement constructor.
      * @param GuestPaymentInformationManagementInterface $paymentInformationManagement
      * @param CheckoutInterface $checkout
      * @param Json $jsonSerializer
      * @param Data $helper
+     * @param QuoteIdMaskFactory $quoteIdMaskFactory
      */
     public function __construct(
         GuestPaymentInformationManagementInterface $paymentInformationManagement,
         CheckoutInterface                          $checkout,
         Json                                       $jsonSerializer,
-        Data                                       $helper
+        Data                                       $helper,
+        QuoteIdMaskFactory       $quoteIdMaskFactory
     )
     {
         $this->paymentInformationManagement = $paymentInformationManagement;
         $this->checkout = $checkout;
         $this->jsonSerializer = $jsonSerializer;
         $this->helper = $helper;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
     }
 
     /**
@@ -76,7 +86,9 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
             throw new CouldNotSaveException(__("Unable to save payment information."));
         }
 
-        $checkoutURL = $this->checkout->getCheckoutURL();
+        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+
+        $checkoutURL = $this->checkout->getCheckoutURL($quoteIdMask->getQuoteId());
 
         $this->helper->logSezzleActions([
             'quote_id' => $cartId,
