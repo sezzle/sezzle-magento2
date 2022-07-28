@@ -13,8 +13,8 @@ use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Validator\ValidatorInterface;
-use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Psr\Log\LoggerInterface;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * AuthorizeCommand
@@ -33,18 +33,23 @@ class CaptureCommand extends GatewayCommand
     private $authValidator;
 
     /**
-     * @var Config
+     * @var Data
      */
-    private $config;
+    private $helper;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * @param CommandInterface $reauthOrderCommand
      * @param ValidatorInterface $authValidator
-     * @param Config $config
      * @param BuilderInterface $requestBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param ClientInterface $client
      * @param LoggerInterface $logger
+     * @param Data $helper
      * @param HandlerInterface|null $handler
      * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
@@ -52,24 +57,33 @@ class CaptureCommand extends GatewayCommand
     public function __construct(
         CommandInterface            $reauthOrderCommand,
         ValidatorInterface          $authValidator,
-        Config                      $config,
         BuilderInterface            $requestBuilder,
         TransferFactoryInterface    $transferFactory,
         ClientInterface             $client,
         LoggerInterface             $logger,
+        Data                        $helper,
         HandlerInterface            $handler = null,
         ValidatorInterface          $validator = null,
         ErrorMessageMapperInterface $errorMessageMapper = null
     )
     {
-        parent::__construct($requestBuilder, $transferFactory, $client, $logger, $handler, $validator, $errorMessageMapper);
+        parent::__construct(
+            $requestBuilder,
+            $transferFactory,
+            $client,
+            $logger,
+            $handler,
+            $validator,
+            $errorMessageMapper
+        );
+        $this->logger = $logger;
+        $this->helper = $helper;
         $this->reauthOrderCommand = $reauthOrderCommand;
         $this->authValidator = $authValidator;
-        $this->config = $config;
     }
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      * @throws CommandException
      * @throws LocalizedException
      */
@@ -81,9 +95,17 @@ class CaptureCommand extends GatewayCommand
         }
 
         $authValidatorResult = $this->authValidator->validate($commandSubject);
+        $authValid = $authValidatorResult->isValid();
 
-        // reauthorize if auth is expired and has a valid customer UUID
-        if (!$authValidatorResult->isValid()) {
+        $this->helper->logSezzleActions([
+            'capture' => [
+                'auth_valid' => $authValid,
+                'amount' => $amount
+            ]
+        ]);
+
+        // reauthorize if auth is expired
+        if (!$authValid) {
             try {
                 $this->reauthOrderCommand->execute($commandSubject);
             } catch (CommandException $e) {

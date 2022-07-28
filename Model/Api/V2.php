@@ -38,7 +38,6 @@ use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
 use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterfaceFactory;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
-use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
 
 /**
@@ -167,27 +166,28 @@ class V2 implements V2Interface
      * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
-        AuthInterfaceFactory $authFactory,
-        DataObjectHelper $dataObjectHelper,
-        ProcessorInterface $apiProcessor,
-        SezzleHelper $sezzleHelper,
-        JsonHelper $jsonHelper,
-        StoreManagerInterface $storeManager,
-        OrderInterfaceFactory $orderInterfaceFactory,
-        AuthorizationInterfaceFactory $authorizationInterfaceFactory,
-        SessionTokenizeInterfaceFactory $sessionTokenizeInterfaceFactory,
-        CheckoutSession $checkoutSession,
-        PayloadBuilder $apiPayloadBuilder,
-        SessionInterfaceFactory $sessionInterfaceFactory,
-        SezzleConfigInterface $sezzleConfig,
-        SessionOrderInterfaceFactory $sessionOrderInterfaceFactory,
-        AmountInterfaceFactory $amountInterfaceFactory,
+        AuthInterfaceFactory             $authFactory,
+        DataObjectHelper                 $dataObjectHelper,
+        ProcessorInterface               $apiProcessor,
+        SezzleHelper                     $sezzleHelper,
+        JsonHelper                       $jsonHelper,
+        StoreManagerInterface            $storeManager,
+        OrderInterfaceFactory            $orderInterfaceFactory,
+        AuthorizationInterfaceFactory    $authorizationInterfaceFactory,
+        SessionTokenizeInterfaceFactory  $sessionTokenizeInterfaceFactory,
+        CheckoutSession                  $checkoutSession,
+        PayloadBuilder                   $apiPayloadBuilder,
+        SessionInterfaceFactory          $sessionInterfaceFactory,
+        SezzleConfigInterface            $sezzleConfig,
+        SessionOrderInterfaceFactory     $sessionOrderInterfaceFactory,
+        AmountInterfaceFactory           $amountInterfaceFactory,
         TokenizeCustomerInterfaceFactory $tokenizeCustomerInterfaceFactory,
-        LinkInterfaceFactory $linkInterfaceFactory,
-        CustomerInterfaceFactory $customerInterfaceFactory,
-        TimezoneInterface $timezone,
-        ProductMetadataInterface $productMetadata
-    ) {
+        LinkInterfaceFactory             $linkInterfaceFactory,
+        CustomerInterfaceFactory         $customerInterfaceFactory,
+        TimezoneInterface                $timezone,
+        ProductMetadataInterface         $productMetadata
+    )
+    {
         $this->authFactory = $authFactory;
         $this->dataObjectHelper = $dataObjectHelper;
         $this->apiProcessor = $apiProcessor;
@@ -473,63 +473,6 @@ class V2 implements V2Interface
             $this->sezzleHelper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway customer error: %1', $e->getMessage())
-            );
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function createOrderByCustomerUUID($url, $customerUUID, $amount, $currency, $storeId)
-    {
-        $quote = $this->checkoutSession->getQuote();
-        $reference = $quote->getPayment()->getAdditionalInformation(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        if (!$url) {
-            $authorizeEndpoint = sprintf(self::SEZZLE_ORDER_CREATE_BY_CUST_UUID_ENDPOINT, $customerUUID);
-            $url = $this->sezzleConfig->getSezzleBaseUrl($storeId) . $authorizeEndpoint;
-        }
-        $auth = $this->authenticate($storeId);
-        $payload = [
-            "intent" => 'AUTH',
-            "reference_id" => $reference,
-            "order_amount" => [
-                "amount_in_cents" => $amount,
-                "currency" => $currency
-            ]
-        ];
-        try {
-            $response = $this->apiProcessor->call(
-                $url,
-                $auth->getToken(),
-                $payload,
-                ZendClient::POST
-            );
-            $body = $this->jsonHelper->jsonDecode($response);
-            $authorizationModel = $this->authorizationInterfaceFactory->create();
-            $this->dataObjectHelper->populateWithArray(
-                $authorizationModel,
-                $body,
-                AuthorizationInterface::class
-            );
-            $linksArray = [];
-            if (isset($body['links']) && is_array($body['links'])) {
-                foreach ($body['links'] as $link) {
-                    $linksModel = $this->linkInterfaceFactory->create();
-                    $this->dataObjectHelper->populateWithArray(
-                        $linksModel,
-                        $link,
-                        LinkInterface::class
-                    );
-                    $linksArray[] = $linksModel;
-                }
-                $authorizationModel->setLinks($linksArray);
-            }
-            $authorizationModel->setApproved(isset($body['authorization']['approved']));
-            return $authorizationModel;
-        } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('Gateway create order error: %1', $e->getMessage())
             );
         }
     }

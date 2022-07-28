@@ -14,46 +14,6 @@ class CustomerOrderRequestBuilder implements BuilderInterface
 {
 
     /**
-     * Order amount
-     */
-    const ORDER_AMOUNT = 'order_amount';
-
-    /**
-     * Amount in cents
-     */
-    const AMOUNT_IN_CENTS = 'amount_in_cents';
-
-    /**
-     * Currency
-     */
-    const CURRENCY = 'currency';
-
-    /**
-     * Intent(AUTH or CAPTURE)
-     */
-    const INTENT = 'intent';
-
-    /**
-     * Reference ID
-     */
-    const REFERENCE_ID = 'reference_id';
-
-    /**
-     * Route params
-     */
-    const ROUTE_PARAMS = 'route_params';
-
-    /**
-     * Customer UUID
-     */
-    const CUSTOMER_UUID = "customer_uuid";
-
-    /**
-     * Store ID
-     */
-    const __STORE_ID = "__storeId";
-
-    /**
      * Customer UUID
      */
     const KEY_CUSTOMER_UUID = "sezzle_customer_uuid";
@@ -65,7 +25,7 @@ class CustomerOrderRequestBuilder implements BuilderInterface
 
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      */
     public function build(array $buildSubject): array
     {
@@ -76,15 +36,15 @@ class CustomerOrderRequestBuilder implements BuilderInterface
         $payment = $paymentDO->getPayment();
 
         return [
-            self::__STORE_ID => $payment->getQuote()->getStoreId(),
-            self::ROUTE_PARAMS => [
-                self::CUSTOMER_UUID => $payment->getAdditionalInformation(self::KEY_CUSTOMER_UUID)
+            '__storeId' => $payment->getQuote()->getStoreId(),
+            'route_params' => [
+                'customer_uuid' => $payment->getAdditionalInformation(self::KEY_CUSTOMER_UUID)
             ],
-            self::INTENT => 'AUTH',
-            self::REFERENCE_ID => $payment->getAdditionalInformation(self::KEY_REFERENCE_ID),
-            self::ORDER_AMOUNT => [
-                self::AMOUNT_IN_CENTS => Util::formatToCents($amount),
-                self::CURRENCY => $payment->getQuote()->getBaseCurrencyCode()
+            'intent' => 'AUTH',
+            'reference_id' => $payment->getAdditionalInformation(self::KEY_REFERENCE_ID),
+            'order_amount' => [
+                'amount_in_cents' => Util::formatToCents($amount),
+                'currency' => $payment->getQuote()->getBaseCurrencyCode()
             ]
         ];
     }

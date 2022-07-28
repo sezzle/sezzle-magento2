@@ -11,7 +11,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 class OrderStatusChangeOnVoidObserver implements ObserverInterface
 {
@@ -24,7 +24,7 @@ class OrderStatusChangeOnVoidObserver implements ObserverInterface
     {
         /* @var Payment $payment */
         $payment = $observer->getEvent()->getData('payment');
-        if ($payment->getMethod() != Sezzle::PAYMENT_CODE) {
+        if ($payment->getMethod() != ConfigProvider::CODE) {
             return $this;
         }
         $payment->getOrder()->setState(Order::STATE_CANCELED)

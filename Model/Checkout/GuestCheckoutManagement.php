@@ -10,6 +10,7 @@ use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Sezzle\Sezzlepay\Api\CheckoutInterface;
 use Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * GuestCheckoutManagement
@@ -33,20 +34,28 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
     private $jsonSerializer;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * GuestCheckoutManagement constructor.
      * @param GuestPaymentInformationManagementInterface $paymentInformationManagement
      * @param CheckoutInterface $checkout
      * @param Json $jsonSerializer
+     * @param Data $helper
      */
     public function __construct(
         GuestPaymentInformationManagementInterface $paymentInformationManagement,
         CheckoutInterface                          $checkout,
-        Json                                       $jsonSerializer
+        Json                                       $jsonSerializer,
+        Data                                       $helper
     )
     {
         $this->paymentInformationManagement = $paymentInformationManagement;
         $this->checkout = $checkout;
         $this->jsonSerializer = $jsonSerializer;
+        $this->helper = $helper;
     }
 
     /**
@@ -67,7 +76,15 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
             throw new CouldNotSaveException(__("Unable to save payment information."));
         }
 
-        if (!$checkoutURL = $this->checkout->getCheckoutURL()) {
+        $checkoutURL = $this->checkout->getCheckoutURL();
+
+        $this->helper->logSezzleActions([
+            'quote_id' => $cartId,
+            'log_origin' => __METHOD__,
+            'checkout_url' => $checkoutURL
+        ]);
+
+        if (!$checkoutURL) {
             throw new NotFoundException(__('Checkout URL not found.'));
         }
 

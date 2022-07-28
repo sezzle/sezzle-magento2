@@ -8,6 +8,7 @@ use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
 use Magento\Payment\Model\Method\Adapter;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * AuthorizeCommand
@@ -18,12 +19,12 @@ class AuthorizeCommand implements CommandInterface
     /**
      * Sezzle Order UUID
      */
-    const ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
+    const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
 
     /**
      * Authorized amount
      */
-    const AUTH_AMOUNT = 'sezzle_auth_amount';
+    const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
 
     /**
      * @var Adapter
@@ -31,17 +32,27 @@ class AuthorizeCommand implements CommandInterface
     private $adapter;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * AuthorizeCommand constructor.
      *
      * @param Adapter $adapter
+     * @param Data $helper
      */
-    public function __construct(Adapter $adapter)
+    public function __construct(
+        Adapter $adapter,
+        Data    $helper
+    )
     {
         $this->adapter = $adapter;
+        $this->helper = $helper;
     }
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      * @throws LocalizedException
      */
     public function execute(array $commandSubject): void
@@ -56,10 +67,19 @@ class AuthorizeCommand implements CommandInterface
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        $orderUUID = $payment->getAdditionalInformation(self::ORIGINAL_ORDER_UUID);
+        $orderUUID = $payment->getAdditionalInformation(self::KEY_ORIGINAL_ORDER_UUID);
 
-        $payment->setAdditionalInformation(self::AUTH_AMOUNT, $amount)
+        $payment->setAdditionalInformation(self::KEY_AUTH_AMOUNT, $amount)
             ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
             ->setTransactionId($orderUUID)->setIsTransactionClosed(false);
+
+        $this->helper->logSezzleActions(
+            [
+                'authorization' => [
+                    'amount' => $amount,
+                    'order_uuid' => $orderUUID
+                ]
+            ]
+        );
     }
 }

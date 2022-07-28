@@ -56,6 +56,28 @@
         </arguments>
     </type>
 
+    <!-- Logger -->
+    <virtualType name="SezzleLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="logger" xsi:type="object">SezzleVirtualLogger</argument>
+            <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SezzleVirtualDebugHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/sezzlepay.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="SezzleVirtualLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="debug" xsi:type="object">SezzleVirtualDebugHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <type name="Sezzle\Sezzlepay\Model\Quote\QuoteManagement">
         <arguments>
             <argument name="validateOrderCommand" xsi:type="object">Sezzle\Sezzlepay\Gateway\Command\ValidateOrderCommand</argument>
@@ -157,6 +179,12 @@
         </arguments>
     </type>
 
+    <type name="Sezzle\Sezzlepay\Gateway\Response\OrderHandler">
+        <arguments>
+            <argument name="adapter" xsi:type="object">SezzleFacade</argument>
+        </arguments>
+    </type>
+
     <virtualType name="SezzleRefundCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
         <arguments>
             <argument name="requestBuilder" xsi:type="object">Sezzle\Sezzlepay\Gateway\Request\RefundRequestBuilder</argument>
@@ -213,6 +241,7 @@
             <argument name="requestBuilder" xsi:type="object">Sezzle\Sezzlepay\Gateway\Request\OrderRequestBuilder</argument>
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\OrderTransferFactory</argument>
             <argument name="client" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\Client</argument>
+            <argument name="handler" xsi:type="object">Sezzle\Sezzlepay\Gateway\Response\OrderHandler</argument>
             <argument name="validator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\OrderValidator</argument>
         </arguments>
     </virtualType>

@@ -71,7 +71,7 @@ class TransferFactory implements TransferFactoryInterface
     /**
      * Builds gateway transfer object
      *
-     * @inerhitDoc
+     * @inheritDoc
      * @throws NoSuchEntityException|InputException
      */
     public function create(array $request): TransferInterface

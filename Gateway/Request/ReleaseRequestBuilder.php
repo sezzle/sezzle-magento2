@@ -5,26 +5,17 @@ namespace Sezzle\Sezzlepay\Gateway\Request;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order\Payment;
-use Sezzle\Sezzlepay\Gateway\Response\AuthorizationHandler;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 use Sezzle\Sezzlepay\Helper\Util;
 
-/*
+/**
  * ReleaseRequestBuilder
  */
 class ReleaseRequestBuilder implements BuilderInterface
 {
 
-    const AMOUNT_IN_CENTS = 'amount_in_cents';
-    const CURRENCY = 'currency';
-
-    const ROUTE_PARAMS = 'route_params';
-
-    const ORDER_UUID = 'order_uuid';
-    const __STORE_ID = '__storeId';
-
-
     /**
-     * @inerhitDoc
+     * @inheritDoc
      */
     public function build(array $buildSubject): array
     {
@@ -34,12 +25,12 @@ class ReleaseRequestBuilder implements BuilderInterface
         $payment = $paymentDO->getPayment();
 
         return [
-            self::__STORE_ID => $payment->getOrder()->getStoreId(),
-            self::ROUTE_PARAMS => [
-                self::ORDER_UUID => $payment->getAdditionalInformation(AuthorizationHandler::KEY_ORIGINAL_ORDER_UUID)
+            '__storeId' => $payment->getOrder()->getStoreId(),
+            'route_params' => [
+                'order_uuid' => $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID)
             ],
-            self::AMOUNT_IN_CENTS => Util::formatToCents($payment->getOrder()->getBaseGrandTotal()),
-            self::CURRENCY => $payment->getOrder()->getBaseCurrencyCode()
+            'amount_in_cents' => Util::formatToCents($payment->getOrder()->getBaseGrandTotal()),
+            'currency' => $payment->getOrder()->getBaseCurrencyCode()
         ];
     }
 }

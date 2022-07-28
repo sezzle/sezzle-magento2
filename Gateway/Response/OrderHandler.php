@@ -5,17 +5,17 @@ namespace Sezzle\Sezzlepay\Gateway\Response;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Sales\Model\Order\Payment;
 use Magento\Payment\Model\Method\Adapter;
+use Magento\Payment\Model\MethodInterface;
+use Magento\Sales\Model\Order\Payment;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
+use Sezzle\Sezzlepay\Gateway\Validator\AuthorizationValidator;
 
 /**
- * AuthorizationHandler
+ * OrderHandler
  */
-class AuthorizationHandler implements HandlerInterface
+class OrderHandler implements HandlerInterface
 {
-
-    const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
-    const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
 
     /**
      * @var Adapter
@@ -23,6 +23,8 @@ class AuthorizationHandler implements HandlerInterface
     private $adapter;
 
     /**
+     * OrderHandler constructor
+     *
      * @param Adapter $adapter
      */
     public function __construct(Adapter $adapter)
@@ -31,7 +33,6 @@ class AuthorizationHandler implements HandlerInterface
     }
 
     /**
-     * AuthorizationHandler constructor
      * @param array $handlingSubject
      * @param array $response
      * @return void
@@ -40,15 +41,12 @@ class AuthorizationHandler implements HandlerInterface
     public function handle(array $handlingSubject, array $response): void
     {
         $paymentDO = SubjectReader::readPayment($handlingSubject);
-        $amount = SubjectReader::readAmount($handlingSubject);
 
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        $sezzleOrderUUID = $payment->getAdditionalInformation(self::KEY_ORIGINAL_ORDER_UUID);
-
-        $payment->setAdditionalInformation(self::KEY_AUTH_AMOUNT, $amount)
-            ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
-            ->setTransactionId($sezzleOrderUUID)->setIsTransactionClosed(false);
+        if ($this->adapter->getConfigPaymentAction() === MethodInterface::ACTION_AUTHORIZE) {
+            $payment->setAdditionalInformation(AuthorizationValidator::KEY_AUTH_EXPIRY, $response['authorization']['expiration']);
+        }
     }
 }
