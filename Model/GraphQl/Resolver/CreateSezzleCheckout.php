@@ -51,7 +51,7 @@ class CreateSezzleCheckout implements ResolverInterface
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
-        $this->validator->validateInput($context);
+        $this->validator->validateInput($context, $args);
 
         $cart = $this->getCartForUser->getCart($args['input']['cart_id'], $context);
 

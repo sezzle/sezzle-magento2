@@ -34,12 +34,14 @@ class Validator
     /**
      * Validates the GraphQl input args
      * @param ContextInterface $context
+     * @param array|null $args
      * @return void
      * @throws GraphQlInputException
      * @throws InputException
-     * @throws NoSuchEntityException|InvalidArgumentException
+     * @throws InvalidArgumentException
+     * @throws NoSuchEntityException
      */
-    public function validateInput(ContextInterface $context)
+    public function validateInput(ContextInterface $context, array $args = null)
     {
         $storeId = (int)$context->getExtensionAttributes()->getStore()->getId();
 
