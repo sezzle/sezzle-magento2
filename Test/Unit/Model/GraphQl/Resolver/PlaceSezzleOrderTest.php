@@ -141,42 +141,6 @@ class PlaceSezzleOrderTest extends TestCase
         );
     }
 
-    public function testSezzleNotEnabled()
-    {
-        $exceptionMessage = 'Sezzle payment method is not enabled.';
-        $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlInputException');
-        $this->expectExceptionMessage($exceptionMessage);
-
-        $this->validator->expects($this->once())
-            ->method('validateInput')
-            ->willThrowException(new GraphQlInputException(__($exceptionMessage)));
-
-
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock
-        );
-    }
-
-    public function testCartIdMissing()
-    {
-        $exceptionMessage = 'Required parameter "cart_id" is missing.';
-        $this->expectException('Magento\Framework\Exception\InvalidArgumentException');
-        $this->expectExceptionMessage($exceptionMessage);
-
-        $this->validator->expects($this->once())
-            ->method('validateInput')
-            ->willThrowException(new InvalidArgumentException(__($exceptionMessage)));
-
-
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock
-        );
-    }
-
     public function testCartNotFound()
     {
         $cartHash = 'abcd1234';

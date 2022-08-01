@@ -280,5 +280,11 @@
         </arguments>
     </virtualType>
 
+    <type name="Sezzle\Sezzlepay\Block\Adminhtml\Order\View\Info">
+        <arguments>
+            <argument name="authValidator" xsi:type="object">Sezzle\Sezzlepay\Gateway\Validator\AuthorizationValidator</argument>
+        </arguments>
+    </type>
+
 
 </config>

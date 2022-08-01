@@ -10,7 +10,7 @@
 <?php if ($block->isSezzleOrder()) : ?>
     <div class="order-date">
         <span class="text-label">Sezzle Order Reference ID:</span>
-        <date><strong><?= $block->escapeHtml($block->getSezzleOrderReferenceID()) ?></strong></date>
+        <date><strong><?= $block->escapeHtml($block->getOrderReferenceID()) ?></strong></date>
     </div>
     <br>
 <?php endif; ?>

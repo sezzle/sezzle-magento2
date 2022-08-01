@@ -5,6 +5,7 @@ namespace Sezzle\Sezzlepay\Gateway\Request;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Model\Order\Payment;
+use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Helper\Util;
 
 /**
@@ -14,6 +15,19 @@ class RefundRequestBuilder implements BuilderInterface
 {
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
+     * @param Data $helper
+     */
+    public function __construct(Data $helper)
+    {
+        $this->helper = $helper;
+    }
+
+    /**
      * @inheritDoc
      */
     public function build(array $buildSubject): array
@@ -21,15 +35,13 @@ class RefundRequestBuilder implements BuilderInterface
         $paymentDO = SubjectReader::readPayment($buildSubject);
         $amount = SubjectReader::readAmount($buildSubject);
 
+        $this->helper->logSezzleActions([
+            'log_origin' => __METHOD__,
+            'amount' => $amount
+        ]);
+
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
-
-//        if (!$txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId()) {
-//            throw new LocalizedException(__('Failed to refund the payment. Parent Transaction ID is missing.'));
-//        } elseif (!$sezzleOrderUUID = $payment->getAdditionalInformation($txnUUID)) {
-//            throw new LocalizedException(__('Failed to refund the payment. Order UUID is missing.'));
-//        }
-
 
         $txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId();
         $orderUUID = $payment->getAdditionalInformation($txnUUID);

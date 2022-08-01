@@ -33,7 +33,6 @@
 
 <!--                Sezzle specific config-->
                 <payment_mode>sandbox</payment_mode>
-                <private_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <log_tracker>1</log_tracker>
                 <active_in_context>0</active_in_context>
                 <tokenize>1</tokenize>
