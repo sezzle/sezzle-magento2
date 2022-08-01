@@ -21,11 +21,11 @@ class Info extends \Magento\Sales\Block\Order\Info
     protected $_template = 'Sezzle_Sezzlepay::order/sezzle_order_reference.phtml';
 
     /**
-     * Get Sezzle Order Reference ID
+     * Get Order Reference ID
      *
      * @return string[]
      */
-    public function getSezzleOrderReferenceID()
+    public function getOrderReferenceID(): ?string
     {
         return $this->getOrder()->getPayment()->getAdditionalInformation(CustomerOrderRequestBuilder::KEY_REFERENCE_ID);
     }
@@ -35,8 +35,8 @@ class Info extends \Magento\Sales\Block\Order\Info
      *
      * @return bool
      */
-    public function isSezzleOrder()
+    public function isSezzleOrder(): bool
     {
-        return $this->getOrder()->getPayment()->getMethod() == ConfigProvider::CODE;
+        return $this->getOrder()->getPayment()->getMethod() === ConfigProvider::CODE;
     }
 }

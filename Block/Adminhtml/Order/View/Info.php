@@ -26,6 +26,7 @@ use Sezzle\Sezzlepay\Gateway\Response\ReleaseHandler;
 use Sezzle\Sezzlepay\Gateway\Validator\AuthorizationValidator;
 use Sezzle\Sezzlepay\Model\Tokenize;
 use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /**
  * @api
@@ -86,6 +87,17 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Check if current order is Sezzle Order
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function isSezzleOrder(): bool
+    {
+        return $this->getOrder()->getPayment()->getMethod() == ConfigProvider::CODE;
+    }
+
+    /**
      * Get value from payment additional info
      *
      * @param string $key
@@ -101,11 +113,11 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * Get Sezzle Auth Amount
+     * Get Authorized Amount
      *
      * @return string|null
      */
-    public function getSezzleAuthAmount(): ?string
+    public function getAuthorizedAmount(): ?string
     {
         try {
             return $this->getOrder()
@@ -117,11 +129,11 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * Get Sezzle Refund Amount
+     * Get Refunded Amount
      *
      * @return string|null
      */
-    public function getSezzleRefundAmount(): ?string
+    public function getRefundedAmount(): ?string
     {
         try {
             return $this->getOrder()
@@ -133,11 +145,11 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * Get Sezzle Capture Amount
+     * Get Captured Amount
      *
      * @return string|null
      */
-    public function getSezzleCaptureAmount(): ?string
+    public function getCapturedAmount(): ?string
     {
         try {
             return $this->getOrder()
@@ -149,11 +161,11 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * Get Sezzle Release Amount
+     * Get Released Amount
      *
      * @return string|null
      */
-    public function getSezzleReleaseAmount(): ?string
+    public function getReleasedAmount(): ?string
     {
         try {
             return $this->getOrder()
@@ -165,21 +177,21 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * Get Sezzle Order Reference ID
+     * Get Order Reference ID
      *
      * @return mixed
      */
-    public function getSezzleOrderReferenceID(): ?string
+    public function getOrderReferenceID(): ?string
     {
         return $this->getValue(CustomerOrderRequestBuilder::KEY_REFERENCE_ID);
     }
 
     /**
-     * Get Sezzle Customer UUID
+     * Get Customer UUID
      *
      * @return mixed
      */
-    public function getSezzleCustomerUUID(): ?string
+    public function getCustomerUUID(): ?string
     {
         return $this->getValue(CustomerOrderRequestBuilder::KEY_CUSTOMER_UUID);
     }
@@ -191,15 +203,15 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      */
     public function isTokenizedDataAvailable(): bool
     {
-        return $this->getSezzleCustomerUUID() && $this->getSezleCustomerUUIDExpiration();
+        return $this->getCustomerUUID() && $this->getCustomerUUIDExpiration();
     }
 
     /**
-     * Get Sezzle Auth Expiry
+     * Get Auth Expiry
      *
      * @return string|null
      */
-    public function getSezzleAuthExpiry(): ?string
+    public function getAuthExpiry(): ?string
     {
         try {
             $authExpiry = $this->getValue(AuthorizationValidator::KEY_AUTH_EXPIRY);
@@ -244,12 +256,12 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     /**
      * @return string|null
      */
-    public function getSezzleCustomerUUIDExpiration(): ?string
+    public function getCustomerUUIDExpiration(): ?string
     {
         try {
-            $customerUUIExpirationTimestamp = $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
-            return $customerUUIExpirationTimestamp ? $this->formatDate(
-                $customerUUIExpirationTimestamp,
+            $customerUUIDExpirationTimestamp = $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
+            return $customerUUIDExpirationTimestamp ? $this->formatDate(
+                $customerUUIDExpirationTimestamp,
                 IntlDateFormatter::MEDIUM,
                 true,
                 $this->getTimezoneForStore($this->getOrder()->getStore())

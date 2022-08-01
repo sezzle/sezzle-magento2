@@ -8,12 +8,26 @@ use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Model\Order;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * InitializeCommand
  */
 class InitializeCommand implements CommandInterface
 {
+
+    /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
+     * @param Data $helper
+     */
+    public function __construct(Data $helper)
+    {
+        $this->helper = $helper;
+    }
 
     /**
      * @inheritDoc
@@ -31,6 +45,11 @@ class InitializeCommand implements CommandInterface
         $payment = $paymentDO->getPayment();
 
         $order = $payment->getOrder();
+
+        $this->helper->logSezzleActions([
+            'log_origin' => __METHOD__,
+            'payment_action' => $paymentAction
+        ]);
 
         switch ($paymentAction) {
             case MethodInterface::ACTION_AUTHORIZE:
