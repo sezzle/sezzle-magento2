@@ -89,9 +89,9 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      * Get value from payment additional info
      *
      * @param string $key
-     * @return mixed
+     * @return array|null|mixed
      */
-    private function getValue(string $key): ?array
+    private function getValue(string $key): ?string
     {
         try {
             return $this->getOrder()->getPayment()->getAdditionalInformation($key);

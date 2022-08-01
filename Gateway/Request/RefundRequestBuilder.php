@@ -24,13 +24,6 @@ class RefundRequestBuilder implements BuilderInterface
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-//        if (!$txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId()) {
-//            throw new LocalizedException(__('Failed to refund the payment. Parent Transaction ID is missing.'));
-//        } elseif (!$sezzleOrderUUID = $payment->getAdditionalInformation($txnUUID)) {
-//            throw new LocalizedException(__('Failed to refund the payment. Order UUID is missing.'));
-//        }
-
-
         $txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId();
         $orderUUID = $payment->getAdditionalInformation($txnUUID);
 
