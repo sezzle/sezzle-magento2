@@ -56,21 +56,22 @@ class PDP extends View
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        EncoderInterface $urlEncoder,
+        Context                                  $context,
+        EncoderInterface                         $urlEncoder,
         \Magento\Framework\Json\EncoderInterface $jsonEncoder,
-        StringUtils $string,
-        Product $productHelper,
-        ConfigInterface $productTypeConfig,
-        FormatInterface $localeFormat,
-        Session $customerSession,
-        ProductRepositoryInterface $productRepository,
-        PriceCurrencyInterface $priceCurrency,
-        SezzleConfigInterface $sezzleConfig,
-        Data $pricingHelper,
-        SezzleHelper $sezzleHelper,
-        array $data = []
-    ) {
+        StringUtils                              $string,
+        Product                                  $productHelper,
+        ConfigInterface                          $productTypeConfig,
+        FormatInterface                          $localeFormat,
+        Session                                  $customerSession,
+        ProductRepositoryInterface               $productRepository,
+        PriceCurrencyInterface                   $priceCurrency,
+        SezzleConfigInterface                    $sezzleConfig,
+        Data                                     $pricingHelper,
+        SezzleHelper                             $sezzleHelper,
+        array                                    $data = []
+    )
+    {
         $this->sezzleConfig = $sezzleConfig;
         $this->pricingHelper = $pricingHelper;
         $this->sezzleHelper = $sezzleHelper;
@@ -96,21 +97,7 @@ class PDP extends View
      */
     public function getMerchantUUID()
     {
-        try {
-            return $this->sezzleConfig->getMerchantUUID();
-        } catch (NoSuchEntityException $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Get Widget Type
-     *
-     * @return string
-     */
-    public function getWidgetType()
-    {
-        return "standard";
+        return $this->sezzleConfig->getMerchantUUID();
     }
 
     /**

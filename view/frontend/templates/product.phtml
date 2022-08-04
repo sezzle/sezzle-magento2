@@ -6,20 +6,22 @@
  */
 ?>
 <?php
+
 use Sezzle\Sezzlepay\Block\Widget\PDP;
+
 /** @var $block PDP */
 ?>
 <?php if ($block->isWidgetEnabledForPDP()) : ?>
-<script type="text/x-magento-init">
+    <script type="text/x-magento-init">
     {
         "*": {
             "widgetRenderer": {
                 "price" : "<?php echo $block->getItemPrice() ?>",
                 "alignment" : "<?php echo $block->getAlignment() ?>",
-                "widget_type" : "<?php echo $block->getWidgetType(); ?>",
                 "widget_url" : "<?php echo $block->getWidgetUrl(); ?>"
             }
         }
     }
-</script>
+
+    </script>
 <?php endif; ?>

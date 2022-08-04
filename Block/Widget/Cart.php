@@ -50,17 +50,18 @@ class Cart extends \Magento\Checkout\Block\Cart
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        CustomerSession $customerSession,
-        CheckoutSession $checkoutSession,
-        Url $catalogUrlBuilder,
-        \Magento\Checkout\Helper\Cart $cartHelper,
+        Context                             $context,
+        CustomerSession                     $customerSession,
+        CheckoutSession                     $checkoutSession,
+        Url                                 $catalogUrlBuilder,
+        \Magento\Checkout\Helper\Cart       $cartHelper,
         \Magento\Framework\App\Http\Context $httpContext,
-        SezzleConfigInterface $sezzleConfig,
-        Data $pricingHelper,
-        SezzleHelper $sezzleHelper,
-        array $data = []
-    ) {
+        SezzleConfigInterface               $sezzleConfig,
+        Data                                $pricingHelper,
+        SezzleHelper                        $sezzleHelper,
+        array                               $data = []
+    )
+    {
         $this->sezzleConfig = $sezzleConfig;
         $this->pricingHelper = $pricingHelper;
         $this->sezzleHelper = $sezzleHelper;
@@ -82,21 +83,7 @@ class Cart extends \Magento\Checkout\Block\Cart
      */
     public function getMerchantUUID()
     {
-        try {
-            return $this->sezzleConfig->getMerchantUUID();
-        } catch (NoSuchEntityException $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Get Widget Type
-     *
-     * @return string
-     */
-    public function getWidgetType()
-    {
-        return "standard";
+        return $this->sezzleConfig->getMerchantUUID();
     }
 
     /**
