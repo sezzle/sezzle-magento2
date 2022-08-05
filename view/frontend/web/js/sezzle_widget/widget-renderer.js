@@ -27,17 +27,24 @@ define([
         // default widget config for sezzle
         addDefaultConfig: function () {
             document.sezzleConfig = {
-                "configGroups": [
-                    {
-                        "targetXPath": ".normal-price/.tax/.price-wrapper/.price",
-                        "renderToPath": "../.."
-                    }, {
-                        "targetXPath": ".amount/STRONG-0",
-                        "renderToPath": "../../../../..",
-                        "urlMatch": "cart"
-
-                    }
-                ]
+                "configGroups": [{
+                    "targetXPath": ".product-info-main/.price-final_price/.price",
+                    "renderToPath": "../../../..",
+                    "relatedElementActions": [
+                        {
+                            "relatedPath": "..",
+                            "initialAction": function (r, w) {
+                                if (r.dataset.priceType === 'oldPrice') {
+                                    w.style.display = "none"
+                                }
+                            }
+                        }
+                    ]
+                }, {
+                    "targetXPath": ".amount/STRONG-0/.price",
+                    "renderToPath": "../../../../..",
+                    "urlMatch": "cart"
+                }]
             }
         },
 
