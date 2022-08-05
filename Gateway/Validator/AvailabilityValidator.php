@@ -48,13 +48,13 @@ class AvailabilityValidator extends AbstractValidator
         /** @var Quote $quote */
         $quote = $validationSubject['quote'];
 
-        $merchantID = $this->config->getMerchantID();
+        $merchantUUID = $this->config->getMerchantUUID();
         $publicKey = $this->config->getPublicKey();
         $privateKey = $this->config->getPrivateKey();
         $minCheckoutAmount = $this->config->getMinCheckoutAmount();
 
         switch (true) {
-            case (!$merchantID || !$publicKey || !$privateKey):
+            case (!$merchantUUID || !$publicKey || !$privateKey):
                 return $this->createResult(false, [__('Sezzle API Keys are required.')]);
             case ($quote && ($quote->getBaseGrandTotal() < $minCheckoutAmount)):
                 return $this->createResult(false, [__(sprintf('Minimum order amount is %d.', $minCheckoutAmount))]);

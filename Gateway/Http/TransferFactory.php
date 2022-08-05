@@ -3,7 +3,9 @@
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
 use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\TransferBuilder;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
@@ -38,7 +40,7 @@ class TransferFactory implements TransferFactoryInterface
     /**
      * @var string
      */
-    private string $uriPath;
+    private $uriPath;
 
     /**
      * @var StoreManagerInterface
@@ -46,10 +48,16 @@ class TransferFactory implements TransferFactoryInterface
     private $storeManager;
 
     /**
+     * @var AuthTokenService
+     */
+    private $authTokenService;
+
+    /**
      * TransferFactory constructor
      * @param TransferBuilder $transferBuilder
      * @param SezzleConfig $sezzleConfig
      * @param StoreManagerInterface $storeManager
+     * @param AuthTokenService $authTokenService
      * @param string|null $method
      * @param string|null $uriPath
      */
@@ -57,6 +65,7 @@ class TransferFactory implements TransferFactoryInterface
         TransferBuilder       $transferBuilder,
         SezzleConfig          $sezzleConfig,
         StoreManagerInterface $storeManager,
+        AuthTokenService      $authTokenService,
         string                $method = null,
         string                $uriPath = null
     )
@@ -64,6 +73,7 @@ class TransferFactory implements TransferFactoryInterface
         $this->transferBuilder = $transferBuilder;
         $this->config = $sezzleConfig;
         $this->storeManager = $storeManager;
+        $this->authTokenService = $authTokenService;
         $this->method = $method;
         $this->uriPath = $uriPath;
     }
@@ -73,19 +83,34 @@ class TransferFactory implements TransferFactoryInterface
      *
      * @inheritDoc
      * @throws NoSuchEntityException|InputException
+     * @throws ClientException
      */
     public function create(array $request): TransferInterface
     {
-        $storeId = (int)$request['__storeId'] ?? $this->storeManager->getStore()->getId();
-        unset($request['__storeId']);
+        try {
+            $storeId = (int)$request['__storeId'] ?? $this->storeManager->getStore()->getId();
+            $token = $this->authTokenService->getToken($storeId);
+        } catch (LocalizedException $e) {
+            throw new ClientException(
+                __('Something went wrong while authenticating.')
+            );
+        }
+
+        $method = $request['method'] ?? $this->method;
 
         $args = $this->removeAndReturnArgs($request);
+        $uri = $request['uri'] ?? $this->getURI($args, $storeId);
+        unset($request['uri']);
+
         return $this->transferBuilder
-            ->setClientConfig(['__storeId' => $storeId])
-            ->setMethod($this->method)
-            ->setHeaders(['Content-Type' => 'application/json'])
+            ->setMethod($method)
+            ->setHeaders(
+                [
+                    'Content-Type' => Client::CONTENT_TYPE_JSON,
+                    'Authorization' => 'Bearer ' . $token
+                ])
             ->setBody($request)
-            ->setUri($this->getAPIUrl($args, $storeId))
+            ->setUri($uri)
             ->build();
     }
 
@@ -95,7 +120,7 @@ class TransferFactory implements TransferFactoryInterface
      * @throws NoSuchEntityException
      * @throws InputException
      */
-    private function getAPIUrl(array $args, int $storeId): string
+    private function getURI(array $args, int $storeId): string
     {
         foreach ($args as $argKey => $argVal) {
             $this->uriPath = str_replace('{' . $argKey . '}', (string)$argVal, $this->uriPath);
@@ -118,7 +143,8 @@ class TransferFactory implements TransferFactoryInterface
                 $argsToReturn[$arg] = $request['route_params'][$arg];
             }
         }
-        unset($request['route_params']);
+
+        unset($request['route_params'], $request['method'], $request['__storeId']);
         return $argsToReturn;
     }
 }

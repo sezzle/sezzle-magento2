@@ -5,6 +5,7 @@ namespace Sezzle\Sezzlepay\Gateway\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
 use Sezzle\Sezzlepay\Model\StoreConfigResolver;
 
@@ -18,9 +19,8 @@ class Config extends PaymentConfig
     const KEY_PUBLIC_KEY = 'public_key';
     const KEY_PRIVATE_KEY = 'private_key';
     const KEY_PAYMENT_MODE = 'payment_mode';
-    const KEY_MERCHANT_ID = 'merchant_id';
+    const KEY_MERCHANT_UUID = 'merchant_id';
     const KEY_PAYMENT_ACTION = 'payment_action';
-    const KEY_GATEWAY_REGION = 'gateway_region';
     const KEY_MIN_CHECKOUT_AMOUNT = 'min_checkout_amount';
     const KEY_TOKENIZE = 'tokenize';
 
@@ -42,7 +42,15 @@ class Config extends PaymentConfig
     const PAYMENT_MODE_SANDBOX = 'sandbox';
     const PAYMENT_MODE_LIVE = 'live';
 
-    const GATEWAY_URL = 'https://%sgateway.sezzle.com/';
+    const INCONTEXT_MODE_IFRAME = 'iframe';
+    const INCONTEXT_MODE_POPUP = 'popup';
+
+    const API_VERSION_V1 = 'v1';
+    const API_VERSION_V2 = 'v2';
+
+    const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s/';
+    const WIDGET_URL = 'https://widget.sezzle.com/%s';
+    const IMAGE_SRC = 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
 
     /**
      * @var StoreConfigResolver
@@ -50,21 +58,29 @@ class Config extends PaymentConfig
     private $storeConfigResolver;
 
     /**
+     * @var UrlInterface
+     */
+    private $urlBuilder;
+
+    /**
      * Config constructor.
      * @param StoreConfigResolver $storeConfigResolver
      * @param ScopeConfigInterface $scopeConfig
+     * @param UrlInterface $urlBuilder
      * @param null $methodCode
      * @param string $pathPattern
      */
     public function __construct(
         StoreConfigResolver  $storeConfigResolver,
         ScopeConfigInterface $scopeConfig,
+        UrlInterface         $urlBuilder,
                              $methodCode = null,
-                             $pathPattern = self::DEFAULT_PATH_PATTERN
+        string               $pathPattern = self::DEFAULT_PATH_PATTERN
     )
     {
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
         $this->storeConfigResolver = $storeConfigResolver;
+        $this->urlBuilder = $urlBuilder;
     }
 
     /**
@@ -83,11 +99,11 @@ class Config extends PaymentConfig
 
     /**
      * @param int|null $storeId
-     * @return string
+     * @return string|null
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getPublicKey(int $storeId = null): string
+    public function getPublicKey(int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_PUBLIC_KEY,
@@ -97,11 +113,11 @@ class Config extends PaymentConfig
 
     /**
      * @param int|null $storeId
-     * @return string
+     * @return string|null
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getPrivateKey(int $storeId = null): string
+    public function getPrivateKey(int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_PRIVATE_KEY,
@@ -111,14 +127,14 @@ class Config extends PaymentConfig
 
     /**
      * @param int|null $storeId
-     * @return string
+     * @return string|null
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getMerchantID(int $storeId = null): string
+    public function getMerchantUUID(int $storeId = null): ?string
     {
         return $this->getValue(
-            self::KEY_MERCHANT_ID,
+            self::KEY_MERCHANT_UUID,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
     }
@@ -209,11 +225,11 @@ class Config extends PaymentConfig
 
     /**
      * @param int|null $storeId
-     * @return string
+     * @return string|null
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getWidgetTicketCreatedAt(int $storeId = null): string
+    public function getWidgetTicketCreatedAt(int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_WIDGET_TICKET_CREATED_AT,
@@ -241,7 +257,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getInstallmentWidgetPricePath(int $storeId = null): string
+    public function getInstallmentWidgetPricePath(int $storeId = null): ?string
     {
         return !$this->isInstallmentWidgetEnabled() ? '' :
             $this->getValue(
@@ -326,7 +342,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getInContextMode(int $storeId = null): string
+    public function getInContextMode(int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_INCONTEXT_MODE,
@@ -342,9 +358,50 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getGatewayURL(int $storeId = null): string
+    public function getGatewayURL(int $storeId = null, string $version = self::API_VERSION_V2): string
     {
         $replaceValue = $this->getPaymentMode($storeId) === self::PAYMENT_MODE_SANDBOX ? self::PAYMENT_MODE_SANDBOX . '.' : '';
-        return sprintf(self::GATEWAY_URL, $replaceValue);
+        return sprintf(self::GATEWAY_URL, $replaceValue, $version);
+    }
+
+    /**
+     * Get widget URL
+     *
+     * @param string $apiVersion
+     * @return string
+     */
+    public function getWidgetURL(string $apiVersion): string
+    {
+        return sprintf(self::WIDGET_URL, $apiVersion);
+    }
+
+    /**
+     * Get image source
+     *
+     * @return string
+     */
+    public function getImageSrc(): string
+    {
+        return self::IMAGE_SRC;
+    }
+
+    /**
+     * Get complete payment URL
+     *
+     * @return string
+     */
+    public function getCompleteURL(): string
+    {
+        return $this->urlBuilder->getUrl("sezzle/payment/complete/", ['_secure' => true]);
+    }
+
+    /**
+     * Get cancel payment URL
+     *
+     * @return string
+     */
+    public function getCancelURL(): string
+    {
+        return $this->urlBuilder->getUrl("sezzle/payment/cancel/", ['_secure' => true]);
     }
 }

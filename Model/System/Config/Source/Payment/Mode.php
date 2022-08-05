@@ -7,28 +7,28 @@
 
 namespace Sezzle\Sezzlepay\Model\System\Config\Source\Payment;
 
-use Magento\Framework\Option\ArrayInterface;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
+use Magento\Framework\Data\OptionSourceInterface;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * Class Mode
  * @package Sezzle\Sezzlepay\Model\System\Config\Source\Payment
  */
-class Mode implements ArrayInterface
+class Mode implements OptionSourceInterface
 {
 
     /**
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return [
             [
-                'value' => SezzleIdentity::PROD_MODE,
+                'value' => Config::PAYMENT_MODE_LIVE,
                 'label' => 'Live',
             ],
             [
-                'value' => SezzleIdentity::SANDBOX_MODE,
+                'value' => Config::PAYMENT_MODE_SANDBOX,
                 'label' => 'Sandbox',
             ]
         ];

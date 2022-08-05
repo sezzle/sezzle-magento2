@@ -10,9 +10,11 @@ namespace Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * Class WidgetQueue
@@ -26,9 +28,9 @@ class WidgetQueue extends Field
     protected $_template = 'Sezzle_Sezzlepay::system/config/widget_queue.phtml';
 
     /**
-     * @var SezzleConfigInterface
+     * @var Config
      */
-    private $sezzleConfig;
+    private $config;
 
     /**
      * @var DateTime
@@ -38,17 +40,18 @@ class WidgetQueue extends Field
     /**
      * WidgetQueue constructor.
      * @param Context $context
-     * @param SezzleConfigInterface $sezzleConfig
+     * @param Config $config
      * @param DateTime $dateTime
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        SezzleConfigInterface $sezzleConfig,
+        Context  $context,
+        Config   $config,
         DateTime $dateTime,
-        array $data = []
-    ) {
-        $this->sezzleConfig = $sezzleConfig;
+        array    $data = []
+    )
+    {
+        $this->config = $config;
         $this->dateTime = $dateTime;
         parent::__construct($context, $data);
     }
@@ -98,11 +101,16 @@ class WidgetQueue extends Field
      */
     public function canAddToWidgetQueue()
     {
-        if (!$this->sezzleConfig->getWidgetTicketCreatedAt()) {
+        try {
+            if (!$widgetTicketCreatedAt = $this->config->getWidgetTicketCreatedAt()) {
+                return true;
+            }
+        } catch (InputException|NoSuchEntityException $e) {
             return true;
         }
+
         $currentTimestamp = $this->dateTime->timestamp('now');
-        $widgetTicketCreatedAtTimestamp = $this->dateTime->timestamp($this->sezzleConfig->getWidgetTicketCreatedAt() . self::WIDGET_QUEUE_SLA);
+        $widgetTicketCreatedAtTimestamp = $this->dateTime->timestamp($widgetTicketCreatedAt . self::WIDGET_QUEUE_SLA);
         return $currentTimestamp > $widgetTicketCreatedAtTimestamp;
     }
 

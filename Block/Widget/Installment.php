@@ -7,9 +7,10 @@
 
 namespace Sezzle\Sezzlepay\Block\Widget;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Template;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * Class Installment
@@ -19,22 +20,23 @@ class Installment extends Template
 {
 
     /**
-     * @var SezzleConfigInterface
+     * @var Config
      */
-    private $sezzleConfig;
+    private $config;
 
     /**
      * Installment constructor.
      * @param Template\Context $context
-     * @param SezzleConfigInterface $sezzleConfig
+     * @param Config $config
      * @param array $data
      */
     public function __construct(
         Template\Context $context,
-        SezzleConfigInterface $sezzleConfig,
-        array $data = []
-    ) {
-        $this->sezzleConfig = $sezzleConfig;
+        Config           $config,
+        array            $data = []
+    )
+    {
+        $this->config = $config;
         parent::__construct($context, $data);
     }
 
@@ -46,9 +48,8 @@ class Installment extends Template
     public function isInstallmentWidgetEnabled()
     {
         try {
-            return $this->sezzleConfig->isInstallmentWidgetEnabled()
-                && $this->sezzleConfig->isEnabled();
-        } catch (NoSuchEntityException $e) {
+            return $this->config->isEnabled() && $this->config->isInstallmentWidgetEnabled();
+        } catch (NoSuchEntityException|InputException $e) {
             return false;
         }
     }

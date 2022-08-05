@@ -20,7 +20,7 @@ class OrderStatusChangeOnVoidObserver implements ObserverInterface
      * @param Observer $observer
      * @return OrderStatusChangeOnVoidObserver
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): OrderStatusChangeOnVoidObserver
     {
         /* @var Payment $payment */
         $payment = $observer->getEvent()->getData('payment');

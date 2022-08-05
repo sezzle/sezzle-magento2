@@ -91,7 +91,7 @@ class CheckoutValidator
             $this->sezzleHelper->logSezzleActions(sprintf('Invalid Billing Address : %s', $billingAddressMissingFields));
             throw new LocalizedException(__(sprintf("Please check the billing address on this input fields : %s", rtrim($billingAddressMissingFields, ","))));
         }
-        $this->sezzleHelper->logSezzleActions("Address Validated!");
+        $this->sezzleHelper->logSezzleActions("Address Validated");
     }
 
     /**

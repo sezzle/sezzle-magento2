@@ -106,12 +106,13 @@ class AuthTokenService
         ];
 
         try {
-            $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
-            $this->curl->addHeader('Content-Type', ApiParamsInterface::CONTENT_TYPE_JSON);
+            $this->curl->setTimeout(Client::TIMEOUT);
+            $this->curl->addHeader('Content-Type', Client::CONTENT_TYPE_JSON);
 
-            $url = $this->config->getGatewayURL($storeId) . 'v2/authentication';
+            $url = $this->config->getGatewayURL($storeId) . 'authentication';
 
             $log = [
+                'log_origin' => __METHOD__,
                 'request' => [
                     'uri' => $url,
                     'body' => $data

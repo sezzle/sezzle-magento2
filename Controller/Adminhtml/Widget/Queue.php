@@ -7,18 +7,18 @@
 
 namespace Sezzle\Sezzlepay\Controller\Adminhtml\Widget;
 
+use Laminas\Http\Response;
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Cache\Frontend\Pool;
 use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\App\Response\Http;
 use Magento\Framework\Controller\Result\Raw;
 use Magento\Framework\Controller\Result\RawFactory;
 use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Sezzle\Sezzlepay\Api\V2Interface;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * Class Queue
@@ -69,15 +69,16 @@ class Queue extends Action
      * @param Pool $cacheFrontendPool
      */
     public function __construct(
-        Action\Context $context,
-        FormKeyValidator $formKeyValidator,
-        RawFactory $rawResultFactory,
-        V2Interface $v2,
-        WriterInterface $configWriter,
-        DateTime $dateTime,
+        Action\Context    $context,
+        FormKeyValidator  $formKeyValidator,
+        RawFactory        $rawResultFactory,
+        V2Interface       $v2,
+        WriterInterface   $configWriter,
+        DateTime          $dateTime,
         TypeListInterface $cacheTypeList,
-        Pool $cacheFrontendPool
-    ) {
+        Pool              $cacheFrontendPool
+    )
+    {
         parent::__construct($context);
         $this->formKeyValidator = $formKeyValidator;
         $this->rawResultFactory = $rawResultFactory;
@@ -93,7 +94,7 @@ class Queue extends Action
      *
      * @return bool
      */
-    private function isRequestAllowed()
+    private function isRequestAllowed(): bool
     {
         return $this->getRequest()->isAjax() && $this->getRequest()->isPost();
     }
@@ -105,23 +106,23 @@ class Queue extends Action
     {
         $response = $this->rawResultFactory->create();
         if (!$this->isRequestAllowed() || !$this->formKeyValidator->validate($this->getRequest())) {
-            $response->setHttpResponseCode(Http::STATUS_CODE_404);
+            $response->setHttpResponseCode(Response::STATUS_CODE_404);
             return $response;
         }
 
         try {
             $this->v2->addToWidgetQueue();
             $currentTimestamp = $this->dateTime->date();
-            $this->configWriter->save(SezzleIdentity::XML_PATH_WIDGET_TICKET_CREATED_AT, $currentTimestamp);
+            $this->configWriter->save(Config::KEY_WIDGET_TICKET_CREATED_AT, $currentTimestamp);
 
             $this->cacheTypeList->cleanType('config');
             foreach ($this->cacheFrontendPool as $cacheFrontend) {
                 $cacheFrontend->getBackend()->clean();
             }
 
-            $response->setHttpResponseCode(Http::STATUS_CODE_204);
+            $response->setHttpResponseCode(Response::STATUS_CODE_204);
         } catch (LocalizedException $e) {
-            $response->setHttpResponseCode(Http::STATUS_CODE_500);
+            $response->setHttpResponseCode(Response::STATUS_CODE_500);
         }
 
         return $response;

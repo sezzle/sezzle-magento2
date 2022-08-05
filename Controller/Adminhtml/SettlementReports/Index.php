@@ -40,7 +40,7 @@ class Index extends Action
      *
      * @return Page
      */
-    public function execute()
+    public function execute(): Page
     {
 
         $resultPage = $this->resultPageFactory->create();

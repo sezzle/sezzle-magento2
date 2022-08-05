@@ -25,26 +25,27 @@ class SendOrderConfirmationMail implements ObserverInterface
     /**
      * @var Data
      */
-    private $sezzleHelper;
+    private $helper;
 
     /**
      * SendOrderConfirmationMail constructor.
      * @param OrderSender $orderSender
-     * @param Data $sezzleHelper
+     * @param Data $helper
      */
     public function __construct(
         OrderSender $orderSender,
-        Data $sezzleHelper
-    ) {
+        Data        $helper
+    )
+    {
         $this->orderSender = $orderSender;
-        $this->sezzleHelper = $sezzleHelper;
+        $this->helper = $helper;
     }
 
     /**
      * @param Observer $observer
      * @return SendOrderConfirmationMail
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): SendOrderConfirmationMail
     {
         /* @var Order $order */
         $order = $observer->getEvent()->getData('order');
@@ -54,7 +55,7 @@ class SendOrderConfirmationMail implements ObserverInterface
             }
             $this->orderSender->send($order);
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions(
+            $this->helper->logSezzleActions(
                 "Sezzle Order Confirmation Mail Sending Error: " .
                 $e->getMessage()
             );

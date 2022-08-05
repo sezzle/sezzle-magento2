@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Controller\Adminhtml\Download;
 
+use Exception;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Controller\Adminhtml\System;
 use Magento\Framework\App\Response\Http\FileFactory;
@@ -32,9 +33,10 @@ class SezzleLog extends System
      * @param FileFactory $fileFactory
      */
     public function __construct(
-        Context $context,
+        Context     $context,
         FileFactory $fileFactory
-    ) {
+    )
+    {
         $this->fileFactory = $fileFactory;
 
         parent::__construct($context);
@@ -48,7 +50,7 @@ class SezzleLog extends System
     {
         $filePath = $this->getFilePath();
 
-        $fileName = basename((string)$filePath);
+        $fileName = basename($filePath);
 
         try {
             return $this->fileFactory->create(
@@ -58,7 +60,7 @@ class SezzleLog extends System
                     'value' => $filePath
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new NotFoundException(__($e->getMessage()));
         }
     }
@@ -66,7 +68,7 @@ class SezzleLog extends System
     /**
      * @return string
      */
-    private function getFilePath()
+    private function getFilePath(): string
     {
         return Data::SEZZLE_LOG_FILE_PATH;
     }

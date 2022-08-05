@@ -68,7 +68,7 @@ class SavePlugin
      * @param Closure $proceed
      * @return Redirect|null
      */
-    public function aroundExecute(Save $subject, Closure $proceed)
+    public function aroundExecute(Save $subject, Closure $proceed): ?Redirect
     {
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();

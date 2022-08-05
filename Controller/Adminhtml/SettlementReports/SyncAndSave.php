@@ -54,7 +54,7 @@ class SyncAndSave extends Action
      * @return Redirect
      * @throws Exception
      */
-    public function execute()
+    public function execute(): Redirect
     {
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

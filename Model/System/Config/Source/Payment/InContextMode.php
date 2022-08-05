@@ -7,28 +7,28 @@
 
 namespace Sezzle\Sezzlepay\Model\System\Config\Source\Payment;
 
-use Magento\Framework\Option\ArrayInterface;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
+use Magento\Framework\Data\OptionSourceInterface;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * Class InContextMode
  * @package Sezzle\Sezzlepay\Model\System\Config\Source\Payment
  */
-class InContextMode implements ArrayInterface
+class InContextMode implements OptionSourceInterface
 {
 
     /**
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return [
             [
-                'value' => SezzleIdentity::INCONTEXT_MODE_IFRAME,
+                'value' => Config::INCONTEXT_MODE_IFRAME,
                 'label' => 'IFrame',
             ],
             [
-                'value' => SezzleIdentity::INCONTEXT_MODE_POPUP,
+                'value' => Config::INCONTEXT_MODE_POPUP,
                 'label' => 'Pop Up',
             ]
         ];
