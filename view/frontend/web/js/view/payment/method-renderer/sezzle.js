@@ -64,10 +64,11 @@ define(
              * @returns string
              */
             getSezzleImgSrc: function () {
-                return window.checkoutConfig.payment.sezzlepay.logo;
+                return window.checkoutConfig.payment.sezzlepay.img_src;
             },
 
             /**
+             *
              * Handle redirection
              */
             handleRedirectAction: function () {

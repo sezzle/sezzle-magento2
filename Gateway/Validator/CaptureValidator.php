@@ -4,6 +4,7 @@ namespace Sezzle\Sezzlepay\Gateway\Validator;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Gateway\Validator\AbstractValidator;
 
 /**
  * CaptureValidator

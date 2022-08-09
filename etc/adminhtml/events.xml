@@ -11,7 +11,4 @@
     <event name="sales_order_payment_void">
         <observer name="sezzle_sales_order_payment_void" instance="Sezzle\Sezzlepay\Observer\OrderStatusChangeOnVoidObserver" />
     </event>
-    <event name="admin_system_config_changed_section_payment">
-        <observer name="add_gateway_region" instance="Sezzle\Sezzlepay\Observer\AddGatewayRegionObserver" />
-    </event>
 </config>

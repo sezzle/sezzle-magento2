@@ -29,7 +29,7 @@ class Checkout implements CheckoutInterface
     /**
      * @var array
      */
-    private array $additionalInformation = [];
+    private $additionalInformation = [];
 
     /**
      * @var CheckoutValidator
@@ -177,7 +177,7 @@ class Checkout implements CheckoutInterface
         $this->customerSession->setCustomerSezzleTokenStatus(true);
 
         foreach ($tokenize->getLinks() as $link) {
-            if ($link->getRel() == Tokenize::KEY_GET_TOKEN_DETAILS_LINK) {
+            if ($link->getRel() === 'session') {
                 $this->customerSession->setGetTokenDetailsLink($link->getHref());
             }
         }

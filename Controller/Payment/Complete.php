@@ -10,7 +10,6 @@ namespace Sezzle\Sezzlepay\Controller\Payment;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Quote\Model\QuoteIdMask;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
 
 /**
@@ -24,15 +23,15 @@ class Complete extends Sezzle
      */
     public function execute()
     {
-        $redirect = 'checkout/cart';
+        $redirectPath = 'checkout/cart';
         try {
             $quote = $this->checkoutSession->getQuote();
-            $this->sezzleHelper->logSezzleActions("Returned from Sezzle.");
-            if ($customerUUID = $this->getRequest()->getParam('customer-uuid')) {
-                $this->sezzleHelper->logSezzleActions("****Start Tokenize record save****");
-                $this->sezzleHelper->logSezzleActions("Customer UUID : $customerUUID");
+            $this->helper->logSezzleActions("Returned from Sezzle.");
+            if ($customerUUID = $this->request->getParam('customer-uuid')) {
+                $this->helper->logSezzleActions("****Start Tokenize record save****");
+                $this->helper->logSezzleActions("Customer UUID : $customerUUID");
                 $this->tokenize->saveTokenizeRecord($quote);
-                $this->sezzleHelper->logSezzleActions("****Start Tokenize record end****");
+                $this->helper->logSezzleActions("****Start Tokenize record end****");
             }
 
             $cartManager = $this->customerSession->isLoggedIn() ? self::CART_MANAGER : self::GUEST_CART_MANAGER;
@@ -45,11 +44,12 @@ class Complete extends Sezzle
             if (!$orderId) {
                 throw new CouldNotSaveException(__("Unable to place the order."));
             }
-            $redirect = 'checkout/onepage/success';
+            $redirectPath = 'checkout/onepage/success';
         } catch (CouldNotSaveException|NoSuchEntityException|LocalizedException $e) {
             $this->handleException($e);
         }
-        return $this->_redirect($redirect);
+
+        return $this->resultRedirectFactory->create()->setPath($redirectPath);
     }
 
     /**
@@ -59,7 +59,7 @@ class Complete extends Sezzle
      */
     private function handleException($exc)
     {
-        $this->sezzleHelper->logSezzleActions("Sezzle Transaction Exception: " . $exc->getMessage());
+        $this->helper->logSezzleActions("Sezzle Transaction Exception: " . $exc->getMessage());
         $this->messageManager->addErrorMessage(
             $exc->getMessage()
         );

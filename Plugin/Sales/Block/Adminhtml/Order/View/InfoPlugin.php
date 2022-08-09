@@ -12,17 +12,14 @@ class InfoPlugin
      *
      * @return string
      */
-    public function afterToHtml(
-        Info   $subject,
-        string $result
-    )
+    public function afterToHtml(Info $subject, string $result): string
     {
         $sezzleOrderInfoBlock = $subject->getChildBlock('sezzle_order_info');
-        if ($sezzleOrderInfoBlock && $subject->getNameInLayout() === 'order_info') {
-            $sezzleOrderInfoBlock->setTemplate('Sezzle_Sezzlepay::order/view/info.phtml');
-            $result = $result . $sezzleOrderInfoBlock->toHtml();
+        if (!$sezzleOrderInfoBlock || $subject->getNameInLayout() !== 'order_info') {
+            return $result;
         }
 
-        return $result;
+        $sezzleOrderInfoBlock->setTemplate('Sezzle_Sezzlepay::order/view/info.phtml');
+        return $result . $sezzleOrderInfoBlock->toHtml();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
+use InvalidArgumentException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Http\ClientException;
@@ -22,6 +23,9 @@ class Client implements ClientInterface
     const HTTP_POST = 'POST';
     const HTTP_PUT = 'PUT';
     const HTTP_PATCH = 'PATCH';
+
+    const TIMEOUT = 80;
+    const CONTENT_TYPE_JSON = "application/json";
 
     /**
      * @var LoggerInterface
@@ -74,9 +78,8 @@ class Client implements ClientInterface
 
     /**
      * @inheritDoc
-     * @throws ClientException
      */
-    public function placeRequest(TransferInterface $transferObject): array
+    public function placeRequest(TransferInterface $transferObject)
     {
         $log = [
             'log_origin' => __METHOD__,
@@ -85,43 +88,33 @@ class Client implements ClientInterface
                 'body' => $transferObject->getBody()
             ],
         ];
-        $clientConfig = $transferObject->getClientConfig();
-        $storeId = $clientConfig['__storeId'];
-        unset($clientConfig['__storeId']);
+
+
+        $this->curl->setTimeout(self::TIMEOUT);
+
+        $this->curl->setHeaders($transferObject->getHeaders());
+
+        switch ($transferObject->getMethod()) {
+            case self::HTTP_POST:
+                $this->curl->post($transferObject->getUri(), $this->jsonSerializer->serialize($transferObject->getBody()));
+                break;
+            case self::HTTP_GET:
+                $this->curl->get($transferObject->getUri());
+                break;
+        }
+
+        $response = $this->curl->getBody();
+        $log['response'] = [
+            'status' => $this->curl->getStatus(),
+            'body' => $response
+        ];
+
+        $this->helper->logSezzleActions($log);
 
         try {
-            $this->curl->setTimeout(ApiParamsInterface::TIMEOUT);
-
-            $this->curl->setHeaders([
-                'Content-Type' => ApiParamsInterface::CONTENT_TYPE_JSON,
-                'Authorization' => 'Bearer ' . $this->authTokenService->getToken($storeId)
-            ]);
-
-            switch ($transferObject->getMethod()) {
-                case self::HTTP_POST:
-                    $this->curl->post($transferObject->getUri(), $this->jsonSerializer->serialize($transferObject->getBody()));
-                    break;
-                case self::HTTP_GET:
-                    $this->curl->get($transferObject->getUri());
-                    break;
-            }
-
-            $responseJSON = $this->curl->getBody();
-            $log['response'] = [
-                'status' => $this->curl->getStatus(),
-                'body' => $responseJSON
-            ];
-
-            return $this->jsonSerializer->unserialize($responseJSON);
-        } catch (LocalizedException $e) {
-            $this->logger->critical($e->getMessage());
-            $log['error'] = $e->getMessage();
-
-            throw new ClientException(
-                __('Something went wrong in the payment gateway.')
-            );
-        } finally {
-            $this->helper->logSezzleActions($log);
+            return $this->jsonSerializer->unserialize($response);
+        } catch (InvalidArgumentException $e) {
+            return $response; // settlement details endpoint return CSV, so it will fail in above JSON unserializer
         }
     }
 }

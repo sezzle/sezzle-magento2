@@ -4,6 +4,7 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
+
 namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Framework\Api\DataObjectHelper;
@@ -65,14 +66,15 @@ class SettlementReportsManagement implements SettlementReportsManagementInterfac
      * @param V2Interface $v2
      */
     public function __construct(
-        SettlementReportsFactory $settlementReportsFactory,
-        DataObjectHelper $dataObjectHelper,
-        Filesystem $filesystem,
-        Data $sezzleHelper,
-        FileFactory $fileFactory,
+        SettlementReportsFactory             $settlementReportsFactory,
+        DataObjectHelper                     $dataObjectHelper,
+        Filesystem                           $filesystem,
+        Data                                 $sezzleHelper,
+        FileFactory                          $fileFactory,
         SettlementReportsRepositoryInterface $settlementReportsRepository,
-        V2Interface $v2
-    ) {
+        V2Interface                          $v2
+    )
+    {
         $this->sezzleHelper = $sezzleHelper;
         $this->settlementReportsFactory = $settlementReportsFactory;
         $this->filesystem = $filesystem;
@@ -114,7 +116,7 @@ class SettlementReportsManagement implements SettlementReportsManagementInterfac
     {
         $details = $this->v2->getSettlementDetails($payoutUUID);
 
-        if (is_array($details) && $details['status'] == '404') {
+        if (!$details) {
             throw new LocalizedException(
                 __('Invalid Payout UUID is provided.')
             );

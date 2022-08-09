@@ -77,7 +77,7 @@ define(
 
                     this.$form = new Element('form', {
                         method: 'post',
-                        action: this.sezzleUrl,
+                        action: this.merchant_signup_url,
                         id: 'sezzle_config_form',
                         target: 'config',
                         novalidate: 'novalidate',

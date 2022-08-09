@@ -12,8 +12,7 @@ use Magento\Framework\Filesystem\Driver\File;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * Class SezzleLog
@@ -26,18 +25,22 @@ class SezzleLog
      * @var V1Interface
      */
     private $v1;
+
     /**
-     * @var SezzleConfigInterface
+     * @var Config
      */
-    private $sezzleConfig;
+    private $config;
+
     /**
      * @var File
      */
     private $file;
+
     /**
      * @var Data
      */
-    private $sezzleHelper;
+    private $helper;
+
     /**
      * @var StoreRepositoryInterface
      */
@@ -45,23 +48,24 @@ class SezzleLog
 
     /**
      * SezzleLog constructor.
-     * @param SezzleConfigInterface $sezzleConfig
+     * @param Config $config
      * @param File $file
      * @param V1Interface $v1
-     * @param Data $sezzleHelper
+     * @param Data $helper
      * @param StoreRepositoryInterface $storeRepository
      */
     public function __construct(
-        SezzleConfigInterface $sezzleConfig,
-        File $file,
-        V1Interface $v1,
-        Data $sezzleHelper,
+        Config                   $config,
+        File                     $file,
+        V1Interface              $v1,
+        Data                     $helper,
         StoreRepositoryInterface $storeRepository
-    ) {
-        $this->sezzleConfig = $sezzleConfig;
+    )
+    {
+        $this->config = $config;
         $this->file = $file;
         $this->v1 = $v1;
-        $this->sezzleHelper = $sezzleHelper;
+        $this->helper = $helper;
         $this->storeRepository = $storeRepository;
     }
 
@@ -72,16 +76,19 @@ class SezzleLog
     public function execute()
     {
         foreach ($this->storeRepository->getList() as $store) {
-            $isLogsSendingToSezzleAllowed = $this->sezzleConfig->isLogsSendingToSezzleAllowed($store->getId());
-            $isProductionMode = $this->sezzleConfig->getPaymentMode($store->getId()) == SezzleIdentity::PROD_MODE;
-            if ($isLogsSendingToSezzleAllowed && $isProductionMode) {
-                $this->sezzleHelper->logSezzleActions("****Cron started****");
-                $merchantUUID = $this->sezzleConfig->getMerchantUUID();
-                $this->sezzleHelper->logSezzleActions("Merchant UUID : $merchantUUID");
-                $logContents = $this->file->fileGetContents(BP . Data::SEZZLE_LOG_FILE_PATH);
-                $this->v1->sendLogsToSezzle($merchantUUID, $logContents, $store->getId());
-                $this->sezzleHelper->logSezzleActions("****Cron end****");
+            $isLogsSendingToSezzleAllowed = $this->config->isLogsSendingToSezzleAllowed($store->getId());
+            $isProductionMode = $this->config->getPaymentMode($store->getId()) === Config::PAYMENT_MODE_LIVE;
+            if ($isLogsSendingToSezzleAllowed || $isProductionMode) {
+                return;
             }
+
+            $this->helper->logSezzleActions("****Cron started****");
+            $merchantUUID = $this->config->getMerchantUUID();
+            $this->helper->logSezzleActions("Merchant UUID : $merchantUUID");
+            $logContents = $this->file->fileGetContents(BP . Data::SEZZLE_LOG_FILE_PATH);
+            $this->v1->sendLogsToSezzle($merchantUUID, $logContents, $store->getId());
+            $this->helper->logSezzleActions("****Cron end****");
+
         }
     }
 }

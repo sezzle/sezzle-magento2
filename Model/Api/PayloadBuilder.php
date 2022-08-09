@@ -7,13 +7,14 @@
 
 namespace Sezzle\Sezzlepay\Model\Api;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\Resolver;
 use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Helper\Util;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
  * Class PayloadBuilder
@@ -23,9 +24,9 @@ class PayloadBuilder
 {
 
     /**
-     * @var SezzleConfigInterface
+     * @var Config
      */
-    private $sezzleConfig;
+    private $config;
     /**
      * @var StoreManagerInterface
      */
@@ -42,19 +43,19 @@ class PayloadBuilder
     /**
      * PayloadBuilder constructor.
      * @param StoreManagerInterface $storeManager
-     * @param SezzleConfigInterface $sezzleConfig
+     * @param Config $config
      * @param Data $sezzleHelper
      * @param Resolver $localeResolver
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        SezzleConfigInterface $sezzleConfig,
+        Config                $config,
         Data                  $sezzleHelper,
         Resolver              $localeResolver
     )
     {
         $this->storeManager = $storeManager;
-        $this->sezzleConfig = $sezzleConfig;
+        $this->config = $config;
         $this->sezzleHelper = $sezzleHelper;
         $this->localeResolver = $localeResolver;
     }
@@ -72,10 +73,10 @@ class PayloadBuilder
         $orderPayload['order'] = $this->buildOrderPayload($quote, $reference);
         $customerPayload['customer'] = $this->buildCustomerPayload($quote);
         $completeURL['complete_url'] = [
-            "href" => $this->sezzleConfig->getCompleteUrl()
+            "href" => $this->config->getCompleteURL()
         ];
         $cancelURL['cancel_url'] = [
-            "href" => $this->sezzleConfig->getCancelUrl()
+            "href" => $this->config->getCancelURL()
         ];
         return array_merge(
             $completeURL,
@@ -92,6 +93,7 @@ class PayloadBuilder
      * @param string $reference
      * @return array
      * @throws NoSuchEntityException
+     * @throws InputException
      */
     private function buildOrderPayload($quote, $reference)
     {
@@ -119,8 +121,8 @@ class PayloadBuilder
             "order_amount" => $this->getPriceObject($quote->getBaseGrandTotal(), $quote->getBaseCurrencyCode()),
             "locale" => $this->localeResolver->getLocale(),
         ];
-        if ($this->sezzleConfig->isInContextCheckout()) {
-            return array_merge($orderPayload, ['checkout_mode' => $this->sezzleConfig->getInContextMode()]);
+        if ($this->config->isInContextModeActive()) {
+            return array_merge($orderPayload, ['checkout_mode' => $this->config->getInContextMode()]);
         }
         return $orderPayload;
     }
@@ -148,9 +150,12 @@ class PayloadBuilder
     private function buildCustomerPayload($quote)
     {
         $billingAddress = $quote->getBillingAddress();
-        $tokenize = $this->sezzleConfig->isInContextCheckout()
-            ? false
-            : $this->sezzleConfig->isTokenizationAllowed();
+        try {
+            $tokenize = !$this->config->isInContextModeActive() && $this->config->isTokenizationEnabled();
+        } catch (InputException|NoSuchEntityException $e) {
+            $tokenize = false;
+        }
+
         return [
             "tokenize" => $tokenize,
             "email" => $quote->getCustomerEmail(),
@@ -228,7 +233,7 @@ class PayloadBuilder
                     "currency" => $quote->getBaseCurrencyCode()
                 ]
             ];
-            array_push($itemPayload, $itemData);
+            $itemPayload[] = $itemData;
         }
         return $itemPayload;
     }

@@ -43,6 +43,7 @@ class CheckoutManagement implements CheckoutManagementInterface
      * @param PaymentInformationManagementInterface $paymentInformationManagement
      * @param CheckoutInterface $checkout
      * @param Json $jsonSerializer
+     * @param Data $helper
      */
     public function __construct(
         PaymentInformationManagementInterface $paymentInformationManagement,

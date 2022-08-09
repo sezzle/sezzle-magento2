@@ -7,6 +7,7 @@ use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Payment\Model\MethodInterface;
+use Magento\Payment\Gateway\Validator\AbstractValidator;
 
 /**
  * AuthorizationValidator
@@ -40,13 +41,7 @@ class AuthorizationValidator extends AbstractValidator
      */
     public function validate(array $validationSubject): ResultInterface
     {
-//        $response = SubjectReader::readResponse($validationSubject);
-//        $amount = SubjectReader::readAmount($validationSubject);
         $paymentDO = SubjectReader::readPayment($validationSubject);
-
-//        if (!$this->validateTotalAmount($response, $amount)) {
-//            return $this->createResult(false, [__('Amount cannot be less than or equal to 0.')]);
-//        }
 
         $payment = $paymentDO->getPayment();
 

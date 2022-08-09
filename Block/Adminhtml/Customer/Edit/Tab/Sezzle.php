@@ -7,6 +7,9 @@
 
 namespace Sezzle\Sezzlepay\Block\Adminhtml\Customer\Edit\Tab;
 
+use DateTimeZone;
+use Exception;
+use IntlDateFormatter;
 use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Customer\Api\CustomerRepositoryInterface;
@@ -49,11 +52,12 @@ class Sezzle extends Template implements TabInterface
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        Registry $registry,
+        Context                     $context,
+        Registry                    $registry,
         CustomerRepositoryInterface $customerRepository,
-        array $data = []
-    ) {
+        array                       $data = []
+    )
+    {
         $this->coreRegistry = $registry;
         $this->customerRepository = $customerRepository;
         parent::__construct($context, $data);
@@ -64,7 +68,7 @@ class Sezzle extends Template implements TabInterface
      *
      * @return string|null
      */
-    public function getCustomerId()
+    public function getCustomerId(): ?string
     {
         return $this->coreRegistry->registry(RegistryConstants::CURRENT_CUSTOMER_ID);
     }
@@ -74,13 +78,11 @@ class Sezzle extends Template implements TabInterface
      *
      * @return CustomerInterface|null
      */
-    public function getCustomer()
+    public function getCustomer(): ?CustomerInterface
     {
         try {
             return $this->customerRepository->getById($this->getCustomerId());
-        } catch (NoSuchEntityException $e) {
-            return null;
-        } catch (LocalizedException $e) {
+        } catch (NoSuchEntityException|LocalizedException $e) {
             return null;
         }
     }
@@ -90,13 +92,13 @@ class Sezzle extends Template implements TabInterface
      *
      * @return string|null
      */
-    public function getToken()
+    public function getToken(): ?string
     {
         if ($this->getCustomer()
             && $tokenAttr = $this->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID)) {
             return $tokenAttr->getValue();
         }
-        return  null;
+        return null;
     }
 
     /**
@@ -105,7 +107,7 @@ class Sezzle extends Template implements TabInterface
      * @param $dateTime
      * @return string
      */
-    private function getFriendlyTokenExpiration($dateTime)
+    private function getFriendlyTokenExpiration($dateTime): string
     {
         $values = explode('.', $dateTime);
         return $values[0];
@@ -115,21 +117,21 @@ class Sezzle extends Template implements TabInterface
      * Get Sezzle Token Expiration
      *
      * @return string|null
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getTokenExpiration()
+    public function getTokenExpiration(): ?string
     {
         if ($this->getCustomer()
             && $tokenExpirationAttr = $this->getCustomer()
                 ->getCustomAttribute(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION)) {
             return $this->formatDate(
                 $this->getFriendlyTokenExpiration($tokenExpirationAttr->getValue()),
-                \IntlDateFormatter::MEDIUM,
+                IntlDateFormatter::MEDIUM,
                 true,
-                new \DateTimeZone('UTC')
+                new DateTimeZone('UTC')
             );
         }
-        return  null;
+        return null;
     }
 
     /**
@@ -137,13 +139,13 @@ class Sezzle extends Template implements TabInterface
      *
      * @return string|null
      */
-    public function getTokenStatus()
+    public function getTokenStatus(): ?string
     {
         if ($this->getCustomer()
             && $tokenStatusAttr = $this->getCustomer()->getCustomAttribute(Tokenize::ATTR_SEZZLE_TOKEN_STATUS)) {
             return $tokenStatusAttr->getValue() ? Tokenize::STATUS_TOKEN_APPROVED : Tokenize::STATUS_TOKEN_NOT_APPROVED;
         }
-        return  null;
+        return null;
     }
 
     /**
@@ -151,7 +153,7 @@ class Sezzle extends Template implements TabInterface
      *
      * @return Phrase
      */
-    public function getTabLabel()
+    public function getTabLabel(): Phrase
     {
         return __('Sezzle');
     }
@@ -161,7 +163,7 @@ class Sezzle extends Template implements TabInterface
      *
      * @return Phrase
      */
-    public function getTabTitle()
+    public function getTabTitle(): Phrase
     {
         return __('Sezzle');
     }
@@ -170,26 +172,22 @@ class Sezzle extends Template implements TabInterface
      * Can Show Tab or Not
      *
      * @return bool
+     * @throws Exception
      */
-    public function canShowTab()
+    public function canShowTab(): bool
     {
-        if ($this->getToken() && $this->getTokenExpiration() && $this->getTokenStatus()) {
-            return true;
-        }
-        return false;
+        return $this->getToken() && $this->getTokenExpiration() && $this->getTokenStatus();
     }
 
     /**
      * Is Tab Hidden
      *
      * @return bool
+     * @throws Exception
      */
-    public function isHidden()
+    public function isHidden(): bool
     {
-        if ($this->getToken() && $this->getTokenExpiration() && $this->getTokenStatus()) {
-            return false;
-        }
-        return true;
+        return !($this->getToken() && $this->getTokenExpiration() && $this->getTokenStatus());
     }
 
     /**
@@ -197,7 +195,7 @@ class Sezzle extends Template implements TabInterface
      *
      * @return string
      */
-    public function getTabClass()
+    public function getTabClass(): string
     {
         return '';
     }
@@ -207,7 +205,7 @@ class Sezzle extends Template implements TabInterface
      *
      * @return string
      */
-    public function getTabUrl()
+    public function getTabUrl(): string
     {
         return '';
     }
@@ -217,7 +215,7 @@ class Sezzle extends Template implements TabInterface
      *
      * @return bool
      */
-    public function isAjaxLoaded()
+    public function isAjaxLoaded(): bool
     {
         return false;
     }
