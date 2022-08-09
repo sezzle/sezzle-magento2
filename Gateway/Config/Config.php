@@ -338,7 +338,7 @@ class Config extends PaymentConfig
 
     /**
      * @param int|null $storeId
-     * @return string
+     * @return string|null
      * @throws InputException
      * @throws NoSuchEntityException
      */

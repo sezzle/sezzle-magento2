@@ -54,16 +54,8 @@ class SyncSettlementReports
             $this->helper->logSezzleActions("****Reports syncing started****");
             $this->settlementReportsManagement->syncAndSave();
             $this->helper->logSezzleActions("****Reports syncing ended****");
-        } catch (InputException $e) {
-            $this->helper->logSezzleActions("Report sync error(InputException) - " . $e->getMessage());
-        } catch (NoSuchEntityException $e) {
-            $this->helper->logSezzleActions("Report sync error(NoSuchEntityException) - " . $e->getMessage());
-        } catch (NotFoundException $e) {
-            $this->helper->logSezzleActions("Report sync error(NotFoundException) - " . $e->getMessage());
-        } catch (LocalizedException $e) {
-            $this->helper->logSezzleActions("Report sync error(LocalizedException) - " . $e->getMessage());
         } catch (Exception $e) {
-            $this->helper->logSezzleActions("Report sync error(Exception) - " . $e->getMessage());
+            $this->helper->logSezzleActions(sprintf('Report sync error(%s): %s', get_class($e), $e->getMessage()));
         }
     }
 }

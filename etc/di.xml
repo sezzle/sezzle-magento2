@@ -282,8 +282,20 @@
         </arguments>
     </type>
 
+    <virtualType name="SezzleSessionRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="complete_url" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CompleteUrlRequestBuilder</item>
+                <item name="cancel_url" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CancelUrlRequestBuilder</item>
+                <item name="order" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\OrderRequestBuilder</item>
+                <item name="customer" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CustomerRequestBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <type name="Sezzle\Sezzlepay\Model\Api\V2">
         <arguments>
+            <argument name="requestBuilder" xsi:type="object">SezzleSessionRequest</argument>
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\V2TransferFactory</argument>
         </arguments>
     </type>
