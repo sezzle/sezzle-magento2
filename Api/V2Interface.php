@@ -21,11 +21,11 @@ interface V2Interface
     /**
      * Create Sezzle Checkout Session
      *
-     * @param string $reference
+     * @param string $referenceId
      * @param int $storeId
      * @return SessionInterface
      */
-    public function createSession(string $reference, int $storeId): SessionInterface;
+    public function createSession(string $referenceId, int $storeId): SessionInterface;
 
     /**
      * Get Customer by Customer UUID

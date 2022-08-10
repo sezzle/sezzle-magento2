@@ -15,6 +15,7 @@ class CustomerOrderHandler implements HandlerInterface
 {
 
     const KEY_GET_ORDER_LINK = 'sezzle_get_order_link';
+    const KEY_PATCH_ORDER_LINK = 'sezzle_patch_order_link';
 
     /**
      * @param array $handlingSubject

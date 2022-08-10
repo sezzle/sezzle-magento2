@@ -48,7 +48,7 @@ class Config extends PaymentConfig
     const API_VERSION_V1 = 'v1';
     const API_VERSION_V2 = 'v2';
 
-    const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s/';
+    const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
     const WIDGET_URL = 'https://widget.sezzle.com/%s';
     const IMAGE_SRC = 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
 
@@ -338,7 +338,7 @@ class Config extends PaymentConfig
 
     /**
      * @param int|null $storeId
-     * @return string
+     * @return string|null
      * @throws InputException
      * @throws NoSuchEntityException
      */
@@ -354,6 +354,7 @@ class Config extends PaymentConfig
      * Get API endpoint
      *
      * @param int|null $storeId
+     * @param string $version
      * @return string
      * @throws InputException
      * @throws NoSuchEntityException

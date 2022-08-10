@@ -48,8 +48,8 @@ class RefundRequestBuilder implements BuilderInterface
 
 
         return [
-            '__storeId' => $payment->getOrder()->getStoreId(),
-            'route_params' => [
+            '__store_id' => $payment->getOrder()->getStoreId(),
+            '__route_params' => [
                 'order_uuid' => $orderUUID
             ],
             'amount_in_cents' => Util::formatToCents($amount),

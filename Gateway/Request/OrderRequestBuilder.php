@@ -24,8 +24,8 @@ class OrderRequestBuilder implements BuilderInterface
         $payment = $paymentDO->getPayment();
 
         return [
-            '__storeId' => $payment->getQuote()->getStoreId(),
-            'route_params' => [
+            '__store_id' => $payment->getQuote()->getStoreId(),
+            '__route_params' => [
                 'order_uuid' => $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID)
             ]
         ];

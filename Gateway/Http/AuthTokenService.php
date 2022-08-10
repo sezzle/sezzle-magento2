@@ -109,7 +109,7 @@ class AuthTokenService
             $this->curl->setTimeout(Client::TIMEOUT);
             $this->curl->addHeader('Content-Type', Client::CONTENT_TYPE_JSON);
 
-            $url = $this->config->getGatewayURL($storeId) . 'authentication';
+            $url = $this->config->getGatewayURL($storeId) . '/authentication';
 
             $log = [
                 'log_origin' => __METHOD__,

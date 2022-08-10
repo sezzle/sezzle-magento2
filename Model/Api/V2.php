@@ -14,6 +14,7 @@ use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
+use Magento\Payment\Gateway\Request\BuilderInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\LinkInterface;
@@ -53,7 +54,7 @@ class V2 implements V2Interface
     /**
      * @var SezzleHelper
      */
-    private $sezzleHelper;
+    private $helper;
 
     /**
      * @var DataObjectHelper
@@ -69,11 +70,6 @@ class V2 implements V2Interface
      * @var CheckoutSession
      */
     private $checkoutSession;
-
-    /**
-     * @var PayloadBuilder
-     */
-    private $apiPayloadBuilder;
 
     /**
      * @var SessionInterfaceFactory
@@ -116,12 +112,16 @@ class V2 implements V2Interface
     private $client;
 
     /**
+     * @var BuilderInterface
+     */
+    private $requestBuilder;
+
+    /**
      * V2 constructor.
      * @param DataObjectHelper $dataObjectHelper
      * @param SezzleHelper $sezzleHelper
      * @param SessionTokenizeInterfaceFactory $sessionTokenizeInterfaceFactory
      * @param CheckoutSession $checkoutSession
-     * @param PayloadBuilder $apiPayloadBuilder
      * @param SessionInterfaceFactory $sessionInterfaceFactory
      * @param Config $config
      * @param SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
@@ -129,6 +129,7 @@ class V2 implements V2Interface
      * @param LinkInterfaceFactory $linkInterfaceFactory
      * @param CustomerInterfaceFactory $customerInterfaceFactory
      * @param TimezoneInterface $timezone
+     * @param BuilderInterface $requestBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param Client $client
      */
@@ -137,7 +138,6 @@ class V2 implements V2Interface
         SezzleHelper                     $sezzleHelper,
         SessionTokenizeInterfaceFactory  $sessionTokenizeInterfaceFactory,
         CheckoutSession                  $checkoutSession,
-        PayloadBuilder                   $apiPayloadBuilder,
         SessionInterfaceFactory          $sessionInterfaceFactory,
         Config                           $config,
         SessionOrderInterfaceFactory     $sessionOrderInterfaceFactory,
@@ -145,22 +145,23 @@ class V2 implements V2Interface
         LinkInterfaceFactory             $linkInterfaceFactory,
         CustomerInterfaceFactory         $customerInterfaceFactory,
         TimezoneInterface                $timezone,
+        BuilderInterface                 $requestBuilder,
         TransferFactoryInterface         $transferFactory,
         Client                           $client
     )
     {
         $this->dataObjectHelper = $dataObjectHelper;
         $this->config = $config;
-        $this->sezzleHelper = $sezzleHelper;
+        $this->helper = $sezzleHelper;
         $this->sessionTokenizeInterfaceFactory = $sessionTokenizeInterfaceFactory;
         $this->checkoutSession = $checkoutSession;
-        $this->apiPayloadBuilder = $apiPayloadBuilder;
         $this->sessionInterfaceFactory = $sessionInterfaceFactory;
         $this->sessionOrderInterfaceFactory = $sessionOrderInterfaceFactory;
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
         $this->linkInterfaceFactory = $linkInterfaceFactory;
         $this->customerInterfaceFactory = $customerInterfaceFactory;
         $this->timezone = $timezone;
+        $this->requestBuilder = $requestBuilder;
         $this->transferFactory = $transferFactory;
         $this->client = $client;
     }
@@ -168,20 +169,18 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function createSession(string $reference, int $storeId): SessionInterface
+    public function createSession(string $referenceId, int $storeId): SessionInterface
     {
         $quote = $this->checkoutSession->getQuote();
-        $request = $this->apiPayloadBuilder->buildSezzleCheckoutPayload($quote, $reference);
         $sessionModel = $this->sessionInterfaceFactory->create();
         try {
             $transferO = $this->transferFactory->create(array_merge([
-                    '__storeId' => $storeId,
-                    'method' => Client::HTTP_POST,
-                    'uri' => $this->config->getGatewayURL($storeId) . self::SEZZLE_CREATE_SESSION_ENDPOINT
-                ], $request)
+                    '__store_id' => $storeId,
+                    '__method' => Client::HTTP_POST,
+                    '__uri' => $this->config->getGatewayURL($storeId) . self::SEZZLE_CREATE_SESSION_ENDPOINT
+                ], $this->requestBuilder->build(['quote' => $quote, 'reference_id' => $referenceId]))
             );
             $response = $this->client->placeRequest($transferO);
-            $this->sezzleHelper->logSezzleActions($response);
             if (isset($response['order']) && ($orderObj = $response['order'])) {
                 $sessionOrderModel = $this->sessionOrderInterfaceFactory->create();
                 $this->dataObjectHelper->populateWithArray(
@@ -228,7 +227,7 @@ class V2 implements V2Interface
             }
             return $sessionModel;
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            $this->helper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway checkout error: %1', $e->getMessage())
             );
@@ -246,9 +245,9 @@ class V2 implements V2Interface
         }
         try {
             $transferO = $this->transferFactory->create([
-                '__storeId' => $storeId,
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             $response = $this->client->placeRequest($transferO);
             $customerModel = $this->customerInterfaceFactory->create();
@@ -259,7 +258,7 @@ class V2 implements V2Interface
             );
             return $customerModel;
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            $this->helper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway customer error: %1', $e->getMessage())
             );
@@ -277,9 +276,9 @@ class V2 implements V2Interface
         }
         try {
             $transferO = $this->transferFactory->create([
-                '__storeId' => $storeId,
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             $response = $this->client->placeRequest($transferO);
             /** @var SessionTokenizeInterface $sessionTokenizeModel */
@@ -306,7 +305,7 @@ class V2 implements V2Interface
             }
             return $tokenizeCustomerModel;
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            $this->helper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get token error: %1', $e->getMessage())
             );
@@ -328,12 +327,12 @@ class V2 implements V2Interface
         $uri = $uri . "?start-date=" . $startDate . "&end-date=" . $endDate;
         try {
             $transferO = $this->transferFactory->create([
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             return $this->client->placeRequest($transferO);
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            $this->helper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get settlement summaries error: %1', $e->getMessage())
             );
@@ -349,12 +348,12 @@ class V2 implements V2Interface
         $uri = $this->config->getGatewayURL() . $settlementDetailsEndpoint;
         try {
             $transferO = $this->transferFactory->create([
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             return $this->client->placeRequest($transferO);
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            $this->helper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Gateway get settlement details error: %1', $e->getMessage())
             );
@@ -369,8 +368,8 @@ class V2 implements V2Interface
         $uri = $this->config->getGatewayURL() . self::SEZZLE_WIDGET_QUEUE_ENDPOINT;
         try {
             $transferO = $this->transferFactory->create([
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             $response = $this->client->placeRequest($transferO);
 
@@ -378,7 +377,7 @@ class V2 implements V2Interface
                 throw new Exception(__("Invalid status code: " . $response["status_code"]));
             }
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions($e->getMessage());
+            $this->helper->logSezzleActions($e->getMessage());
             throw new LocalizedException(
                 __('Queuing widget request error : %1', $e->getMessage())
             );

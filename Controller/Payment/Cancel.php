@@ -27,6 +27,6 @@ class Cancel extends Sezzle
         $this->helper->logSezzleActions(
             "Returned from Sezzle Checkout without completing payment. Order not created."
         );
-        $this->resultRedirectFactory->create()->setPath('checkout');
+        return $this->resultRedirectFactory->create()->setPath('checkout');
     }
 }

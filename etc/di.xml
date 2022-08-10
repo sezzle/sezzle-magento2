@@ -201,7 +201,7 @@
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\CaptureTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="method" xsi:type="const">Sezzle\Sezzlepay\Gateway\Http\Client::HTTP_POST</argument>
-            <argument name="uriPath" xsi:type="string">order/{order_uuid}/capture</argument>
+            <argument name="uriPath" xsi:type="string">/order/{order_uuid}/capture</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
@@ -209,7 +209,7 @@
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\RefundTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="method" xsi:type="const">Sezzle\Sezzlepay\Gateway\Http\Client::HTTP_POST</argument>
-            <argument name="uriPath" xsi:type="string">order/{order_uuid}/refund</argument>
+            <argument name="uriPath" xsi:type="string">/order/{order_uuid}/refund</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
@@ -217,7 +217,7 @@
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\ReleaseTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="method" xsi:type="const">Sezzle\Sezzlepay\Gateway\Http\Client::HTTP_POST</argument>
-            <argument name="uriPath" xsi:type="string">order/{order_uuid}/release</argument>
+            <argument name="uriPath" xsi:type="string">/order/{order_uuid}/release</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
@@ -225,7 +225,7 @@
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\OrderTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="method" xsi:type="const">Sezzle\Sezzlepay\Gateway\Http\Client::HTTP_GET</argument>
-            <argument name="uriPath" xsi:type="string">order/{order_uuid}</argument>
+            <argument name="uriPath" xsi:type="string">/order/{order_uuid}</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
@@ -243,7 +243,7 @@
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\CustomerOrderTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="method" xsi:type="const">Sezzle\Sezzlepay\Gateway\Http\Client::HTTP_POST</argument>
-            <argument name="uriPath" xsi:type="string">customer/{customer_uuid}/order</argument>
+            <argument name="uriPath" xsi:type="string">/customer/{customer_uuid}/order</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
@@ -261,7 +261,7 @@
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\ReauthorizeOrderTransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="method" xsi:type="const">Sezzle\Sezzlepay\Gateway\Http\Client::HTTP_POST</argument>
-            <argument name="uriPath" xsi:type="string">order/{order_uuid}/reauthorize</argument>
+            <argument name="uriPath" xsi:type="string">/order/{order_uuid}/reauthorize</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>
@@ -282,16 +282,26 @@
         </arguments>
     </type>
 
+    <virtualType name="SezzleSessionRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="complete_url" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CompleteUrlRequestBuilder</item>
+                <item name="cancel_url" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CancelUrlRequestBuilder</item>
+                <item name="order" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\OrderRequestBuilder</item>
+                <item name="customer" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CustomerRequestBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <type name="Sezzle\Sezzlepay\Model\Api\V2">
         <arguments>
+            <argument name="requestBuilder" xsi:type="object">SezzleSessionRequest</argument>
             <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\V2TransferFactory</argument>
         </arguments>
     </type>
 
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\V2TransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
-            <argument name="method" xsi:type="const">Sezzle\Sezzlepay\Gateway\Http\Client::HTTP_POST</argument>
-            <argument name="uriPath" xsi:type="string">v2/order/{order_uuid}/reauthorize</argument>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
         </arguments>
     </virtualType>

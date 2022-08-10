@@ -36,8 +36,8 @@ class CustomerOrderRequestBuilder implements BuilderInterface
         $payment = $paymentDO->getPayment();
 
         return [
-            '__storeId' => $payment->getQuote()->getStoreId(),
-            'route_params' => [
+            '__store_id' => $payment->getQuote()->getStoreId(),
+            '__route_params' => [
                 'customer_uuid' => $payment->getAdditionalInformation(self::KEY_CUSTOMER_UUID)
             ],
             'intent' => 'AUTH',

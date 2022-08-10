@@ -88,7 +88,7 @@ class TransferFactory implements TransferFactoryInterface
     public function create(array $request): TransferInterface
     {
         try {
-            $storeId = (int)$request['__storeId'] ?? $this->storeManager->getStore()->getId();
+            $storeId = (int)$request['__store_id'] ?? $this->storeManager->getStore()->getId();
             $token = $this->authTokenService->getToken($storeId);
         } catch (LocalizedException $e) {
             throw new ClientException(
@@ -96,11 +96,11 @@ class TransferFactory implements TransferFactoryInterface
             );
         }
 
-        $method = $request['method'] ?? $this->method;
+        $method = $request['__method'] ?? $this->method;
 
         $args = $this->removeAndReturnArgs($request);
-        $uri = $request['uri'] ?? $this->getURI($args, $storeId);
-        unset($request['uri']);
+        $uri = $request['__uri'] ?? $this->getURI($args, $storeId);
+        unset($request['__uri']);
 
         return $this->transferBuilder
             ->setMethod($method)
@@ -139,12 +139,12 @@ class TransferFactory implements TransferFactoryInterface
     {
         $argsToReturn = [];
         foreach (self::$routeParams as $arg) {
-            if (isset($request['route_params'][$arg])) {
-                $argsToReturn[$arg] = $request['route_params'][$arg];
+            if (isset($request['__route_params'][$arg])) {
+                $argsToReturn[$arg] = $request['__route_params'][$arg];
             }
         }
 
-        unset($request['route_params'], $request['method'], $request['__storeId']);
+        unset($request['__route_params'], $request['__method'], $request['__store_id']);
         return $argsToReturn;
     }
 }

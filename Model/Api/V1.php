@@ -88,9 +88,9 @@ class V1 implements V1Interface
         ];
         try {
             $transferO = $this->transferFactory->create(array_merge([
-                    '__storeId' => $storeId,
-                    'method' => Client::HTTP_POST,
-                    'uri' => $uri
+                    '__store_id' => $storeId,
+                    '__method' => Client::HTTP_POST,
+                    '__uri' => $uri
                 ], $request)
             );
             $response = $this->client->placeRequest($transferO);
