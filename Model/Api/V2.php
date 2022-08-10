@@ -175,13 +175,12 @@ class V2 implements V2Interface
         $sessionModel = $this->sessionInterfaceFactory->create();
         try {
             $transferO = $this->transferFactory->create(array_merge([
-                    '__storeId' => $storeId,
-                    'method' => Client::HTTP_POST,
-                    'uri' => $this->config->getGatewayURL($storeId) . self::SEZZLE_CREATE_SESSION_ENDPOINT
+                    '__store_id' => $storeId,
+                    '__method' => Client::HTTP_POST,
+                    '__uri' => $this->config->getGatewayURL($storeId) . self::SEZZLE_CREATE_SESSION_ENDPOINT
                 ], $this->requestBuilder->build(['quote' => $quote, 'reference_id' => $referenceId]))
             );
             $response = $this->client->placeRequest($transferO);
-            $this->helper->logSezzleActions($response);
             if (isset($response['order']) && ($orderObj = $response['order'])) {
                 $sessionOrderModel = $this->sessionOrderInterfaceFactory->create();
                 $this->dataObjectHelper->populateWithArray(
@@ -246,9 +245,9 @@ class V2 implements V2Interface
         }
         try {
             $transferO = $this->transferFactory->create([
-                '__storeId' => $storeId,
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             $response = $this->client->placeRequest($transferO);
             $customerModel = $this->customerInterfaceFactory->create();
@@ -277,9 +276,9 @@ class V2 implements V2Interface
         }
         try {
             $transferO = $this->transferFactory->create([
-                '__storeId' => $storeId,
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             $response = $this->client->placeRequest($transferO);
             /** @var SessionTokenizeInterface $sessionTokenizeModel */
@@ -328,8 +327,8 @@ class V2 implements V2Interface
         $uri = $uri . "?start-date=" . $startDate . "&end-date=" . $endDate;
         try {
             $transferO = $this->transferFactory->create([
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             return $this->client->placeRequest($transferO);
         } catch (Exception $e) {
@@ -349,8 +348,8 @@ class V2 implements V2Interface
         $uri = $this->config->getGatewayURL() . $settlementDetailsEndpoint;
         try {
             $transferO = $this->transferFactory->create([
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             return $this->client->placeRequest($transferO);
         } catch (Exception $e) {
@@ -369,8 +368,8 @@ class V2 implements V2Interface
         $uri = $this->config->getGatewayURL() . self::SEZZLE_WIDGET_QUEUE_ENDPOINT;
         try {
             $transferO = $this->transferFactory->create([
-                'method' => Client::HTTP_GET,
-                'uri' => $uri
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
             ]);
             $response = $this->client->placeRequest($transferO);
 

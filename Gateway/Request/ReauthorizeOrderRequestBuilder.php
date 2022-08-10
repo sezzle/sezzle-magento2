@@ -26,8 +26,8 @@ class ReauthorizeOrderRequestBuilder implements BuilderInterface
         $payment = $paymentDO->getPayment();
 
         return [
-            '__storeId' => $payment->getOrder()->getStoreId(),
-            'route_params' => [
+            '__store_id' => $payment->getOrder()->getStoreId(),
+            '__route_params' => [
                 'order_uuid' => $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID)
             ],
             'amount_in_cents' => Util::formatToCents($amount),

@@ -152,9 +152,11 @@ class Checkout implements CheckoutInterface
         $links = [];
         foreach ($order->getLinks() as $link) {
             $rel = "sezzle_" . $link->getRel() . "_link";
-            if ($link->getMethod() == 'GET' && strpos($rel, "self") !== false) {
-                $rel = CustomerOrderHandler::KEY_GET_ORDER_LINK;
+            if (strpos($rel, "self") !== false) {
+                $rel = $link->getMethod() === 'GET' ?
+                    CustomerOrderHandler::KEY_GET_ORDER_LINK : CustomerOrderHandler::KEY_PATCH_ORDER_LINK;
             }
+
             $links[$rel] = $link->getHref();
         }
         $this->additionalInformation = array_merge($this->additionalInformation, $links);
