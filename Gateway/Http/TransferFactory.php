@@ -48,16 +48,16 @@ class TransferFactory implements TransferFactoryInterface
     private $storeManager;
 
     /**
-     * @var AuthTokenService
+     * @var AuthenticationService
      */
-    private $authTokenService;
+    private $authenticationService;
 
     /**
      * TransferFactory constructor
      * @param TransferBuilder $transferBuilder
      * @param SezzleConfig $sezzleConfig
      * @param StoreManagerInterface $storeManager
-     * @param AuthTokenService $authTokenService
+     * @param AuthenticationService $authenticationService
      * @param string|null $method
      * @param string|null $uriPath
      */
@@ -65,7 +65,7 @@ class TransferFactory implements TransferFactoryInterface
         TransferBuilder       $transferBuilder,
         SezzleConfig          $sezzleConfig,
         StoreManagerInterface $storeManager,
-        AuthTokenService      $authTokenService,
+        AuthenticationService $authenticationService,
         string                $method = null,
         string                $uriPath = null
     )
@@ -73,7 +73,7 @@ class TransferFactory implements TransferFactoryInterface
         $this->transferBuilder = $transferBuilder;
         $this->config = $sezzleConfig;
         $this->storeManager = $storeManager;
-        $this->authTokenService = $authTokenService;
+        $this->authenticationService = $authenticationService;
         $this->method = $method;
         $this->uriPath = $uriPath;
     }
@@ -88,8 +88,9 @@ class TransferFactory implements TransferFactoryInterface
     public function create(array $request): TransferInterface
     {
         try {
-            $storeId = (int)$request['__store_id'] ?? $this->storeManager->getStore()->getId();
-            $token = $this->authTokenService->getToken($storeId);
+            $storeId = isset($request['__store_id']) &&
+                (int)$request['__store_id'] ?? $this->storeManager->getStore()->getId();
+            $token = $this->authenticationService->getToken($storeId);
         } catch (LocalizedException $e) {
             throw new ClientException(
                 __('Something went wrong while authenticating.')

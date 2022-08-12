@@ -12,12 +12,11 @@ use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\HTTP\Client\Curl;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Api\ApiParamsInterface;
 
 /**
- * AuthTokenService
+ * AuthenticationService
  */
-class AuthTokenService
+class AuthenticationService
 {
     const TOKEN_CACHE_PREFIX = 'SEZZLE_AUTH_TOKEN';
 
@@ -57,7 +56,7 @@ class AuthTokenService
     private $helper;
 
     /**
-     * AuthTokenService constructor.
+     * AuthenticationService constructor.
      * @param StoreManagerInterface $storeManager
      * @param Config $config
      * @param CacheInterface $cache
@@ -130,6 +129,59 @@ class AuthTokenService
             }
 
             return $response['token'];
+        } catch (InputException|NoSuchEntityException|LocalizedException $e) {
+            $this->logger->critical($e->getMessage());
+            $log['error'] = $e->getMessage();
+
+            throw new LocalizedException(__($e->getMessage()));
+        } finally {
+            $log['log_origin'] = __METHOD__;
+            $this->helper->logSezzleActions($log);
+        }
+    }
+
+    /**
+     * Validate API Keys
+     *
+     * @param string $publicKey
+     * @param string $privateKey
+     * @param string $paymentMode
+     * @return string
+     * @throws LocalizedException
+     */
+    public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): string
+    {
+        $data = [
+            'public_key' => $publicKey,
+            'private_key' => $privateKey
+        ];
+
+        try {
+            $this->curl->setTimeout(Client::TIMEOUT);
+            $this->curl->addHeader('Content-Type', Client::CONTENT_TYPE_JSON);
+
+            $replaceValue = $paymentMode === Config::PAYMENT_MODE_SANDBOX ? Config::PAYMENT_MODE_SANDBOX . '.' : '';
+            $url = sprintf(Config::GATEWAY_URL, $replaceValue, Config::API_VERSION_V2) . '/authentication';
+
+            $log = [
+                'log_origin' => __METHOD__,
+                'request' => [
+                    'uri' => $url,
+                    'body' => $data
+                ]
+            ];
+
+            $this->curl->post($url, $this->jsonSerializer->serialize($data));
+
+            $responseJSON = $this->curl->getBody();
+            $response = $this->jsonSerializer->unserialize($responseJSON);
+            $log['response']['body'] = $response;
+
+            if (!isset($response['token'])) {
+                throw new LocalizedException(__('Auth token unavailable.'));
+            }
+
+            return (bool)$response['token'];
         } catch (InputException|NoSuchEntityException|LocalizedException $e) {
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();

@@ -19,6 +19,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /**
  * Class Queue
@@ -113,7 +114,10 @@ class Queue extends Action
         try {
             $this->v2->addToWidgetQueue();
             $currentTimestamp = $this->dateTime->date();
-            $this->configWriter->save(Config::KEY_WIDGET_TICKET_CREATED_AT, $currentTimestamp);
+            $this->configWriter->save(
+                sprintf('payment/%s/%s', ConfigProvider::CODE, Config::KEY_WIDGET_TICKET_CREATED_AT),
+                $currentTimestamp
+            );
 
             $this->cacheTypeList->cleanType('config');
             foreach ($this->cacheFrontendPool as $cacheFrontend) {
