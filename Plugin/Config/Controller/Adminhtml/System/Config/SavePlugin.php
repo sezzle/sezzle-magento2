@@ -98,10 +98,15 @@ class SavePlugin
             'payment_mode' => $this->config->getConfigDataValue($this->getPath('payment_mode')),
         ];
 
-        $fields = $groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields'];
-        if (!isset($fields)) {
+        $isSezzleConfig = isset($groups[ConfigProvider::CODE]) &&
+            isset($groups[ConfigProvider::CODE]['groups']) &&
+            isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']) &&
+            isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields']);
+        if (!$isSezzleConfig) {
             return $proceed();
         }
+
+        $fields = $groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields'];
 
         $new = [
             'public_key' => $this->isInherit('public_key', $fields)
