@@ -7,6 +7,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Validation\ValidationException;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
@@ -135,7 +136,6 @@ class AuthenticationService
 
             throw new LocalizedException(__($e->getMessage()));
         } finally {
-            $log['log_origin'] = __METHOD__;
             $this->helper->logSezzleActions($log);
         }
     }
@@ -147,7 +147,7 @@ class AuthenticationService
      * @param string $privateKey
      * @param string $paymentMode
      * @return string
-     * @throws LocalizedException
+     * @throws ValidationException
      */
     public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): string
     {
@@ -186,9 +186,8 @@ class AuthenticationService
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();
 
-            throw new LocalizedException(__($e->getMessage()));
+            throw new ValidationException(__($e->getMessage()));
         } finally {
-            $log['log_origin'] = __METHOD__;
             $this->helper->logSezzleActions($log);
         }
     }

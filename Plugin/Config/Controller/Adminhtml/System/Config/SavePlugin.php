@@ -12,9 +12,9 @@ use Magento\Config\Model\Config;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Config\Controller\Adminhtml\System\Config\Save;
+use Magento\Framework\Validation\ValidationException;
 use Sezzle\Sezzlepay\Gateway\Http\AuthenticationService;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
@@ -127,9 +127,9 @@ class SavePlugin
                 $new['private_key'],
                 $new['payment_mode']
             )) {
-                throw new LocalizedException(__('Unable to validate API keys'));
+                throw new ValidationException(__('Unable to validate API keys'));
             }
-        } catch (LocalizedException $e) {
+        } catch (ValidationException $e) {
             $this->helper->logSezzleActions($e->getMessage());
             $this->messageManager->addExceptionMessage(
                 $e,
