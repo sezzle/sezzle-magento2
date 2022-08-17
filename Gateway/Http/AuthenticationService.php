@@ -177,7 +177,7 @@ class AuthenticationService
             $response = $this->jsonSerializer->unserialize($responseJSON);
             $log['response']['body'] = $response;
 
-            if (!isset($response['token'])) {
+            if (!isset($response['token']) || !$response['token']) {
                 throw new LocalizedException(__('Auth token unavailable.'));
             }
 

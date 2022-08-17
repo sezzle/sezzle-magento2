@@ -122,31 +122,27 @@ class SavePlugin
         }
 
         try {
-            if (!$this->authenticationService->validateAPIKeys(
+            if ($this->authenticationService->validateAPIKeys(
                 $new['public_key'],
                 $new['private_key'],
                 $new['payment_mode']
             )) {
-                throw new ValidationException(__('Unable to validate API keys'));
+                return $proceed();
             }
         } catch (ValidationException $e) {
             $this->helper->logSezzleActions($e->getMessage());
-            $this->messageManager->addExceptionMessage(
-                $e,
-                __('Something went wrong while saving this configuration:') . ' ' . $e->getMessage()
-            );
-
-            $resultRedirect = $this->resultRedirectFactory->create();
-            return $resultRedirect->setPath(
-                'adminhtml/system_config/edit',
-                [
-                    '_current' => ['section', 'website', 'store'],
-                    '_nosid' => true
-                ]
-            );
         }
 
-        return $proceed();
+        $this->messageManager->addErrorMessage(__('Unable to validate the Sezzle API Keys.'));
+
+        $resultRedirect = $this->resultRedirectFactory->create();
+        return $resultRedirect->setPath(
+            'adminhtml/system_config/edit',
+            [
+                '_current' => ['section', 'website', 'store'],
+                '_nosid' => true
+            ]
+        );
     }
 
     /**
