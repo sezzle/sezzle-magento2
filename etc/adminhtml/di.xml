@@ -25,4 +25,7 @@
     <type name="Magento\Sales\Block\Adminhtml\Order\View\Info">
         <plugin name="sezzle_order_info" type="Sezzle\Sezzlepay\Plugin\Sales\Block\Adminhtml\Order\View\InfoPlugin" sortOrder="10" />
     </type>
+    <type name="Magento\Config\Controller\Adminhtml\System\Config\Save">
+        <plugin name="validate_api_keys" type="Sezzle\Sezzlepay\Plugin\Config\Controller\Adminhtml\System\Config\SavePlugin" sortOrder="10"/>
+    </type>
 </config>

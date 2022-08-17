@@ -368,7 +368,7 @@ class V2 implements V2Interface
         $uri = $this->config->getGatewayURL() . self::SEZZLE_WIDGET_QUEUE_ENDPOINT;
         try {
             $transferO = $this->transferFactory->create([
-                '__method' => Client::HTTP_GET,
+                '__method' => Client::HTTP_POST,
                 '__uri' => $uri
             ]);
             $response = $this->client->placeRequest($transferO);

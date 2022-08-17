@@ -3,15 +3,12 @@
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
 use InvalidArgumentException;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\HTTP\Client\Curl;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Api\ApiParamsInterface;
 
 /**
  * Client
@@ -27,20 +24,11 @@ class Client implements ClientInterface
     const TIMEOUT = 80;
     const CONTENT_TYPE_JSON = "application/json";
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var Json
      */
     private $jsonSerializer;
-
-    /**
-     * @var AuthTokenService
-     */
-    private $authTokenService;
 
     /**
      * @var Curl
@@ -55,22 +43,16 @@ class Client implements ClientInterface
     /**
      * Client constructor.
      *
-     * @param AuthTokenService $authTokenService
-     * @param LoggerInterface $logger
      * @param Json $jsonSerializer
      * @param Curl $curl
      * @param Data $helper
      */
     public function __construct(
-        AuthTokenService $authTokenService,
-        LoggerInterface  $logger,
-        Json             $jsonSerializer,
-        Curl             $curl,
-        Data             $helper
+        Json $jsonSerializer,
+        Curl $curl,
+        Data $helper
     )
     {
-        $this->authTokenService = $authTokenService;
-        $this->logger = $logger;
         $this->jsonSerializer = $jsonSerializer;
         $this->curl = $curl;
         $this->helper = $helper;

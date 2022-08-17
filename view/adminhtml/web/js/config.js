@@ -8,11 +8,10 @@ define(
     [
         'jquery',
         'uiComponent',
-        'mage/translate',
         'jquery/ui',
         'jquery/validate'
     ],
-    function ($, Class, $t) {
+    function ($, Class) {
         'use strict';
 
         return Class.extend({
