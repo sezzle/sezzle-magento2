@@ -197,7 +197,7 @@ _**Note** : Automatic Syncing requires cron to be enabled._
 * On your website, add an item to the cart, then proceed to `Checkout` and select `Sezzle` as the payment method.
 * To pay with Sezzle:
     * If customer is not tokenized, click `Continue to Sezzle`.
-    * If customer is tokenized, click `Place Order`.
+    * If customer is tokenized, click `Place Order`. However, if the customer tokenization is expired, Sezzle will create a new checkout on clicking `Place Order`.
     * If In-Context checkout, click `Pay with Sezzle`.
 * For In-Context checkout, the Sezzle checkout will be hosted in the configured mode, `iFrame` or `Popup`. Otherwise, you will be redirected to the Sezzle checkout.
 * Sign In or Sign Up to continue.

@@ -22,31 +22,5 @@ interface V1Interface
      * @param int $storeId
      * @return bool
      */
-    public function sendLogsToSezzle($merchantUUID, $log, $storeId);
-
-    /**
-     * @param string $orderReferenceID
-     * @param int $storeId
-     * @return bool
-     */
-    public function capture($orderReferenceID, $storeId);
-
-    /**
-     * @param string $orderReferenceID
-     * @param int $amount
-     * @param string $currency
-     * @param int $storeId
-     * @return string|null
-     */
-    public function refund($orderReferenceID, $amount, $currency, $storeId);
-
-    /**
-     * @param string $orderReferenceID
-     * @param int $storeId
-     * @return OrderInterface
-     * @throws NoSuchEntityException
-     * @throws LocalizedException
-     */
-    public function getOrder($orderReferenceID, $storeId);
-
+    public function sendLogsToSezzle(string $merchantUUID, string $log, int $storeId): bool;
 }

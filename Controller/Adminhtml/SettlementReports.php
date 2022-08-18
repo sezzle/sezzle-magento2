@@ -13,7 +13,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Result\PageFactory;
 use Sezzle\Sezzlepay\Api\SettlementReportsManagementInterface;
-use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * Class SettlementReports
@@ -33,19 +32,20 @@ abstract class SettlementReports extends Action
      * @var PageFactory
      */
     protected $resultPageFactory;
-    /**
-     * @var Data
-     */
-    private $sezzleHelper;
 
+    /**
+     * @param Action\Context $context
+     * @param SettlementReportsManagementInterface $settlementReportsManagement
+     * @param Registry $coreRegistry
+     * @param PageFactory $resultPageFactory
+     */
     public function __construct(
-        Action\Context $context,
+        Action\Context                       $context,
         SettlementReportsManagementInterface $settlementReportsManagement,
-        Registry $coreRegistry,
-        Data $sezzleHelper,
-        PageFactory $resultPageFactory
-    ) {
-        $this->sezzleHelper = $sezzleHelper;
+        Registry                             $coreRegistry,
+        PageFactory                          $resultPageFactory
+    )
+    {
         $this->coreRegistry = $coreRegistry;
         $this->settlementReportsManagement = $settlementReportsManagement;
         $this->resultPageFactory = $resultPageFactory;
@@ -58,7 +58,7 @@ abstract class SettlementReports extends Action
      * @return bool
      * @throws LocalizedException
      */
-    protected function initPayoutDetails()
+    protected function initPayoutDetails(): bool
     {
         try {
             if (!$payoutUUID = $this->getRequest()->getParam('payout_uuid')) {
@@ -70,9 +70,7 @@ abstract class SettlementReports extends Action
             }
             $this->coreRegistry->register('payout_details', $data);
             return true;
-        } catch (NoSuchEntityException $e) {
-            throw new LocalizedException(__("Unable to get payout details."));
-        } catch (LocalizedException $e) {
+        } catch (NoSuchEntityException|LocalizedException $e) {
             throw new LocalizedException(__("Unable to get payout details."));
         }
     }

@@ -4,8 +4,10 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
+
 namespace Sezzle\Sezzlepay\Block\Adminhtml\Order\View;
 
+use IntlDateFormatter;
 use Magento\Backend\Block\Template\Context;
 use Magento\Customer\Api\CustomerMetadataInterface;
 use Magento\Customer\Api\GroupRepositoryInterface;
@@ -13,10 +15,18 @@ use Magento\Customer\Model\Metadata\ElementFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
+use Magento\Payment\Gateway\Validator\ValidatorInterface;
 use Magento\Sales\Helper\Admin;
 use Magento\Sales\Model\Order\Address\Renderer;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
+use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
+use Sezzle\Sezzlepay\Gateway\Response\CaptureHandler;
+use Sezzle\Sezzlepay\Gateway\Response\RefundHandler;
+use Sezzle\Sezzlepay\Gateway\Response\ReleaseHandler;
+use Sezzle\Sezzlepay\Gateway\Validator\AuthorizationValidator;
 use Sezzle\Sezzlepay\Model\Tokenize;
+use Magento\Payment\Gateway\Data\PaymentDataObjectFactory;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /**
  * @api
@@ -27,9 +37,14 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
 {
 
     /**
-     * @var Sezzle
+     * @var ValidatorInterface
      */
-    private $sezzleModel;
+    private $authValidator;
+
+    /**
+     * @var PaymentDataObjectFactory
+     */
+    private $paymentDataObjectFactory;
 
     /**
      * Info constructor.
@@ -40,21 +55,25 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      * @param CustomerMetadataInterface $metadata
      * @param ElementFactory $elementFactory
      * @param Renderer $addressRenderer
-     * @param Sezzle $sezzleModel
+     * @param ValidatorInterface $authValidator
+     * @param PaymentDataObjectFactory $paymentDataObjectFactory
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        Registry $registry,
-        Admin $adminHelper,
-        GroupRepositoryInterface $groupRepository,
+        Context                   $context,
+        Registry                  $registry,
+        Admin                     $adminHelper,
+        GroupRepositoryInterface  $groupRepository,
         CustomerMetadataInterface $metadata,
-        ElementFactory $elementFactory,
-        Renderer $addressRenderer,
-        Sezzle $sezzleModel,
-        array $data = []
-    ) {
-        $this->sezzleModel = $sezzleModel;
+        ElementFactory            $elementFactory,
+        Renderer                  $addressRenderer,
+        ValidatorInterface        $authValidator,
+        PaymentDataObjectFactory  $paymentDataObjectFactory,
+        array                     $data = []
+    )
+    {
+        $this->authValidator = $authValidator;
+        $this->paymentDataObjectFactory = $paymentDataObjectFactory;
         parent::__construct(
             $context,
             $registry,
@@ -68,12 +87,23 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
+     * Check if current order is Sezzle Order
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function isSezzleOrder(): bool
+    {
+        return $this->getOrder()->getPayment()->getMethod() == ConfigProvider::CODE;
+    }
+
+    /**
      * Get value from payment additional info
      *
      * @param string $key
-     * @return string[]|null
+     * @return array|null|mixed
      */
-    private function getValue($key)
+    private function getValue(string $key): ?string
     {
         try {
             return $this->getOrder()->getPayment()->getAdditionalInformation($key);
@@ -83,97 +113,87 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     }
 
     /**
-     * Get Sezzle Order Type
-     *
-     * @return string[]|null
-     */
-    public function getSezzleOrderType()
-    {
-        return $this->getValue(Sezzle::SEZZLE_ORDER_TYPE);
-    }
-
-    /**
-     * Get Sezzle Auth Amount
+     * Get Authorized Amount
      *
      * @return string|null
      */
-    public function getSezzleAuthAmount()
+    public function getAuthorizedAmount(): ?string
     {
         try {
             return $this->getOrder()
                 ->getBaseCurrency()
-                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT));
+                ->formatTxt((float)$this->getValue(AuthorizeCommand::KEY_AUTH_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
     }
 
     /**
-     * Get Sezzle Refund Amount
+     * Get Refunded Amount
      *
      * @return string|null
      */
-    public function getSezzleRefundAmount()
+    public function getRefundedAmount(): ?string
     {
         try {
             return $this->getOrder()
                 ->getBaseCurrency()
-                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT));
+                ->formatTxt((float)$this->getValue(RefundHandler::KEY_REFUND_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
     }
 
     /**
-     * Get Sezzle Capture Amount
+     * Get Captured Amount
      *
      * @return string|null
      */
-    public function getSezzleCaptureAmount()
+    public function getCapturedAmount(): ?string
     {
         try {
             return $this->getOrder()
                 ->getBaseCurrency()
-                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_CAPTURE_AMOUNT));
+                ->formatTxt((float)$this->getValue(CaptureHandler::KEY_CAPTURE_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
     }
 
     /**
-     * Get Sezzle Release Amount
+     * Get Released Amount
      *
      * @return string|null
      */
-    public function getSezzleReleaseAmount()
+    public function getReleasedAmount(): ?string
     {
         try {
             return $this->getOrder()
                 ->getBaseCurrency()
-                ->formatTxt((float)$this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_RELEASE_AMOUNT));
+                ->formatTxt((float)$this->getValue(ReleaseHandler::KEY_RELEASE_AMOUNT));
         } catch (LocalizedException $e) {
             return null;
         }
     }
 
     /**
-     * Get Sezzle Order Reference ID
+     * Get Order Reference ID
      *
-     * @return string[]|null
+     * @return mixed
      */
-    public function getSezzleOrderReferenceID()
+    public function getOrderReferenceID(): ?string
     {
-        return $this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        return $this->getValue(CustomerOrderRequestBuilder::KEY_REFERENCE_ID);
     }
 
     /**
-     * Get Sezzle Customer UUID
+     * Get Customer UUID
      *
-     * @return string[]|null
+     * @return mixed
      */
-    public function getSezzleCustomerUUID()
+    public function getCustomerUUID(): ?string
     {
-        return $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID);
+        return $this->getValue(CustomerOrderRequestBuilder::KEY_CUSTOMER_UUID);
     }
 
     /**
@@ -181,23 +201,23 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      *
      * @return bool
      */
-    public function isTokenizedDataAvailable()
+    public function isTokenizedDataAvailable(): bool
     {
-        return $this->getSezzleCustomerUUID() && $this->getSezleCustomerUUIDExpiration();
+        return $this->getCustomerUUID() && $this->getCustomerUUIDExpiration();
     }
 
     /**
-     * Get Sezzle Auth Expiry
+     * Get Auth Expiry
      *
      * @return string|null
      */
-    public function getSezzleAuthExpiry()
+    public function getAuthExpiry(): ?string
     {
         try {
-            $authExpiry = $this->getValue(Sezzle::SEZZLE_AUTH_EXPIRY);
+            $authExpiry = $this->getValue(AuthorizationValidator::KEY_AUTH_EXPIRY);
             return $authExpiry ? $this->formatDate(
                 $authExpiry,
-                \IntlDateFormatter::MEDIUM,
+                IntlDateFormatter::MEDIUM,
                 true,
                 $this->getTimezoneForStore($this->getOrder()->getStore())
             ) : null;
@@ -212,29 +232,12 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      * @return bool
      * @throws NoSuchEntityException|LocalizedException
      */
-    public function isAuthExpired()
+    public function isAuthExpired(): bool
     {
-        return !$this->sezzleModel->canInvoice($this->getOrder());
-    }
-
-    /**
-     * Get Sezzle Capture Expiry
-     *
-     * @return string|null
-     */
-    public function getSezzleCaptureExpiry()
-    {
-        try {
-            $captureExpiry = $this->getValue(Sezzle::SEZZLE_CAPTURE_EXPIRY);
-            return $captureExpiry ? $this->formatDate(
-                $captureExpiry,
-                \IntlDateFormatter::MEDIUM,
-                true,
-                $this->getTimezoneForStore($this->getOrder()->getStore())
-            ) : null;
-        } catch (LocalizedException $e) {
-            return null;
-        }
+        $authValidatorResult = $this->authValidator->validate(
+            ['payment' => $this->paymentDataObjectFactory->create($this->getOrder()->getPayment())]
+        );
+        return !$authValidatorResult->isValid();
     }
 
     /**
@@ -243,7 +246,7 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
      * @return string
      * @throws LocalizedException
      */
-    public function getCaptureInfo()
+    public function getCaptureInfo(): string
     {
         return ($this->getOrder()->getGrandTotal() == $this->getOrder()->getTotalDue())
             ? '(Please capture before this)'
@@ -253,26 +256,18 @@ class Info extends \Magento\Sales\Block\Adminhtml\Order\View\Info
     /**
      * @return string|null
      */
-    public function getSezleCustomerUUIDExpiration()
+    public function getCustomerUUIDExpiration(): ?string
     {
         try {
-            $customerUUIExpirationTimestamp = $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
-            return $customerUUIExpirationTimestamp ? $this->formatDate(
-                $customerUUIExpirationTimestamp,
-                \IntlDateFormatter::MEDIUM,
+            $customerUUIDExpirationTimestamp = $this->getValue(Tokenize::ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION);
+            return $customerUUIDExpirationTimestamp ? $this->formatDate(
+                $customerUUIDExpirationTimestamp,
+                IntlDateFormatter::MEDIUM,
                 true,
                 $this->getTimezoneForStore($this->getOrder()->getStore())
             ) : null;
         } catch (LocalizedException $e) {
             return null;
         }
-    }
-
-    /**
-     * @return string[]|null
-     */
-    public function getSezzleOrderUUID()
-    {
-        return $this->getValue(Sezzle::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
     }
 }

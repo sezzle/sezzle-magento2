@@ -4,6 +4,7 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
+
 namespace Sezzle\Sezzlepay\Cron;
 
 use Exception;
@@ -27,19 +28,20 @@ class SyncSettlementReports
     /**
      * @var Data
      */
-    private $sezzleHelper;
+    private $helper;
 
     /**
      * Constructor
      *
-     * @param Data $sezzleHelper
+     * @param Data $helper
      * @param SettlementReportsManagementInterface $settlementReportsManagement
      */
     public function __construct(
-        Data $sezzleHelper,
+        Data                                 $helper,
         SettlementReportsManagementInterface $settlementReportsManagement
-    ) {
-        $this->sezzleHelper = $sezzleHelper;
+    )
+    {
+        $this->helper = $helper;
         $this->settlementReportsManagement = $settlementReportsManagement;
     }
 
@@ -49,19 +51,11 @@ class SyncSettlementReports
     public function execute()
     {
         try {
-            $this->sezzleHelper->logSezzleActions("****Reports syncing started****");
+            $this->helper->logSezzleActions("****Reports syncing started****");
             $this->settlementReportsManagement->syncAndSave();
-            $this->sezzleHelper->logSezzleActions("****Reports syncing ended****");
-        } catch (InputException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error(InputException) - " . $e->getMessage());
-        } catch (NoSuchEntityException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error(NoSuchEntityException) - " . $e->getMessage());
-        } catch (NotFoundException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error(NotFoundException) - " . $e->getMessage());
-        } catch (LocalizedException $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error(LocalizedException) - " . $e->getMessage());
+            $this->helper->logSezzleActions("****Reports syncing ended****");
         } catch (Exception $e) {
-            $this->sezzleHelper->logSezzleActions("Report sync error(Exception) - " . $e->getMessage());
+            $this->helper->logSezzleActions(sprintf('Report sync error(%s): %s', get_class($e), $e->getMessage()));
         }
     }
 }

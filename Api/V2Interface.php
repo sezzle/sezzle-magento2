@@ -21,129 +21,58 @@ interface V2Interface
     /**
      * Create Sezzle Checkout Session
      *
-     * @param string $reference
+     * @param string $referenceId
      * @param int $storeId
      * @return SessionInterface
      */
-    public function createSession($reference, $storeId);
-
-    /**
-     * Capture payment by Order UUID
-     *
-     * @param string $url
-     * @param string $orderUUID
-     * @param int $amount
-     * @param bool $isPartialCapture
-     * @param string $currency
-     * @param int $storeId
-     * @return string|null
-     */
-    public function capture($url, $orderUUID, $amount, $isPartialCapture, $currency, $storeId);
-
-    /**
-     * Refund payment by Order uuid
-     *
-     * @param string $url
-     * @param string $orderUUID
-     * @param int $amount
-     * @param string $currency
-     * @param int $storeId
-     * @return string|null
-     */
-    public function refund($url, $orderUUID, $amount, $currency, $storeId);
-
-    /**
-     * Get Order by Order UUID
-     *
-     * @param string $url
-     * @param string $orderUUID
-     * @param int $storeId
-     * @return OrderInterface
-     * @throws LocalizedException
-     */
-    public function getOrder($url, $orderUUID, $storeId);
+    public function createSession(string $referenceId, int $storeId): SessionInterface;
 
     /**
      * Get Customer by Customer UUID
      *
-     * @param string $url
+     * @param string $uri
      * @param string $customerUUID
      * @param int $storeId
      * @return CustomerInterface
      * @throws LocalizedException
      */
-    public function getCustomer($url, $customerUUID, $storeId);
-
-    /**
-     * Authorize Payment by Customer UUID
-     *
-     * @param string $url
-     * @param string $customerUUID
-     * @param int $amount
-     * @param string $currency
-     * @param int $storeId
-     * @return AuthorizationInterface
-     */
-    public function createOrderByCustomerUUID($url, $customerUUID, $amount, $currency, $storeId);
+    public function getCustomer(string $uri, string $customerUUID, int $storeId): CustomerInterface;
 
     /**
      * Get Customer UUID by Session token
      *
-     * @param string $url
+     * @param string $uri
      * @param string $token
      * @param int $storeId
      * @return TokenizeCustomerInterface
      * @throws LocalizedException
      */
-    public function getTokenDetails($url, $token, $storeId);
-
-    /**
-     * Release payment by Order UUID
-     *
-     * @param string $url
-     * @param string $orderUUID
-     * @param int $amount
-     * @param string $currency
-     * @param int $storeId
-     * @return bool
-     */
-    public function release($url, $orderUUID, $amount, $currency, $storeId);
+    public function getTokenDetails(string $uri, string $token, int $storeId): TokenizeCustomerInterface;
 
     /**
      * Get Settlement Report Summaries
      *
      * @param string|null $from
      * @param string|null $to
-     * @return mixed
+     * @return array|null
      * @throws LocalizedException
+     * @throws Exception
      */
-    public function getSettlementSummaries($from = null, $to = null);
+    public function getSettlementSummaries(string $from = null, string $to = null): ?array;
 
     /**
      * Get Settlement Report Details for a payout UUID
      *
      * @param string $payoutUUID
-     * @return mixed
+     * @return string|null
      * @throws LocalizedException
      */
-    public function getSettlementDetails($payoutUUID);
-
-    /**
-     * Reauthorize Payment by Order UUID
-     *
-     * @param string $url
-     * @param string $orderUUID
-     * @param int $amount
-     * @param string $currency
-     * @param int $storeId
-     * @return AuthorizationInterface
-     */
-    public function reauthorizeOrder($url, $orderUUID, $amount, $currency, $storeId);
+    public function getSettlementDetails(string $payoutUUID): ?string;
 
     /**
      * Add request to widget queue
      *
      * @throws LocalizedException
      */
-    public function addToWidgetQueue();
+    public function addToWidgetQueue(): void;
 }

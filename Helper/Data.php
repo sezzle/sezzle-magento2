@@ -13,14 +13,12 @@ use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
-use Magento\Store\Model\ScopeInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use Sezzle\Sezzlepay\Logger\Logger;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleIdentity;
-use Zend_Http_UserAgent_Mobile;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Sezzle Helper
@@ -36,53 +34,59 @@ class Data extends AbstractHelper
      * @var File
      */
     private $file;
+
     /**
-     * @var JsonHelper
+     * @var Json
      */
-    private $jsonHelper;
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
+    private $jsonSerializer;
+
     /**
      * @var Logger
      */
     private $logger;
+
     /**
      * @var CustomerSession
      */
     private $customerSession;
+
     /**
      * @var ProductMetadataInterface
      */
     private $productMetadata;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * Initialize dependencies.
      *
      * @param Context $context
      * @param File $file
-     * @param JsonHelper $jsonHelper
-     * @param StoreManagerInterface $storeManager
+     * @param Json $jsonSerializer
      * @param Logger $logger
      * @param CustomerSession $customerSession
      * @param ProductMetadataInterface $productMetadata
+     * @param Config $config
      */
     public function __construct(
-        Context $context,
-        File $file,
-        JsonHelper $jsonHelper,
-        StoreManagerInterface $storeManager,
-        Logger $logger,
-        CustomerSession $customerSession,
-        ProductMetadataInterface $productMetadata
-    ) {
+        Context                  $context,
+        File                     $file,
+        Json                     $jsonSerializer,
+        Logger                   $logger,
+        CustomerSession          $customerSession,
+        ProductMetadataInterface $productMetadata,
+        Config                   $config
+    )
+    {
         $this->file = $file;
-        $this->jsonHelper = $jsonHelper;
-        $this->storeManager = $storeManager;
+        $this->jsonSerializer = $jsonSerializer;
         $this->logger = $logger;
         $this->customerSession = $customerSession;
         $this->productMetadata = $productMetadata;
+        $this->config = $config;
         parent::__construct($context);
     }
 
@@ -92,38 +96,22 @@ class Data extends AbstractHelper
      * @param string|array|null $data
      * @return void
      */
-    public function logSezzleActions($data = null)
+    public function logSezzleActions($data = null): void
     {
         try {
-            $logTrackerEnabled = $this->scopeConfig->getValue(
-                SezzleIdentity::XML_PATH_LOG_TRACKER,
-                ScopeInterface::SCOPE_STORE,
-                $this->storeManager->getStore()->getId()
-            );
-            if (!$logTrackerEnabled) {
+            if (!$this->config->isLogTrackerEnabled()) {
                 return;
             }
 
             if (is_array($data)) {
-                $data = $this->jsonHelper->jsonEncode($data);
+                $data = $this->jsonSerializer->serialize($data);
             }
 
             $customerSessionId = $this->customerSession->getSessionId();
-            $logData = $customerSessionId . " " . $data;
+            $logData = $customerSessionId . ' ' . $data;
             $this->logger->info($logData);
-        } catch (NoSuchEntityException $e) {
+        } catch (NoSuchEntityException|InputException $e) {
         }
-    }
-
-    /**
-     * Check if Device is Mobile or Tablet
-     *
-     * @return bool
-     */
-    public function isMobileOrTablet()
-    {
-        $userAgent = $this->_httpHeader->getHttpUserAgent();
-        return Zend_Http_UserAgent_Mobile::match($userAgent, $_SERVER);
     }
 
     /**
@@ -132,7 +120,7 @@ class Data extends AbstractHelper
      * @param string $content
      * @return array
      */
-    public function csvToArray($content)
+    public function csvToArray(string $content): array
     {
         $data = ['header' => [], 'data' => []];
         $summary = [];
@@ -160,11 +148,10 @@ class Data extends AbstractHelper
      * @param string $name
      * @return string
      */
-    public function snakeCaseToTitleCase($name)
+    public function snakeCaseToTitleCase(string $name): string
     {
         $name = str_replace("_", " ", $name);
-        $name = ucwords($name);
-        return $name;
+        return ucwords($name);
     }
 
     /**
@@ -180,7 +167,7 @@ class Data extends AbstractHelper
             }
             $file = $this->file->fileGetContents($composerFilePath);
             if ($file) {
-                $contents = $this->jsonHelper->jsonDecode($file);
+                $contents = $this->jsonSerializer->unserialize($file);
                 if (is_array($contents) && isset($contents['version'])) {
                     return $contents['version'];
                 }
@@ -198,7 +185,7 @@ class Data extends AbstractHelper
      * @param float $amount
      * @return int
      */
-    public function getAmountInCents($amount)
+    public function getAmountInCents(float $amount): int
     {
         return (int)(round(
             $amount * 100,
@@ -211,7 +198,7 @@ class Data extends AbstractHelper
      *
      * @return string
      */
-    public function getEncodedPlatformDetails()
+    public function getEncodedPlatformDetails(): string
     {
         try {
             $encodedDetails = "";
@@ -220,7 +207,7 @@ class Data extends AbstractHelper
                 "version" => $this->productMetadata->getEdition() . " " . $this->productMetadata->getVersion(),
                 "plugin_version" => $this->getVersion()
             ];
-            $encodedDetails = base64_encode($this->jsonHelper->jsonEncode($platformDetails));
+            $encodedDetails = base64_encode($this->jsonSerializer->serialize($platformDetails));
         } catch (Exception $e) {
             $this->logSezzleActions("Error getting platform details: " . $e->getMessage());
         }

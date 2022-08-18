@@ -8,13 +8,13 @@
 
 namespace Sezzle\Sezzlepay\Model\System\Config\Source\Payment;
 
-use Magento\Framework\Option\ArrayInterface;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Payment\Model\MethodInterface;
 
 /**
  * Sezzle Payment Action Dropdown source
  */
-class PaymentAction implements ArrayInterface
+class PaymentAction implements OptionSourceInterface
 {
     /**
      * @inheritdoc
@@ -23,11 +23,11 @@ class PaymentAction implements ArrayInterface
     {
         return [
             [
-                'value' => Sezzle::ACTION_AUTHORIZE,
+                'value' => MethodInterface::ACTION_AUTHORIZE,
                 'label' => __('Authorize Only'),
             ],
             [
-                'value' => Sezzle::ACTION_AUTHORIZE_CAPTURE,
+                'value' => MethodInterface::ACTION_AUTHORIZE_CAPTURE,
                 'label' => __('Authorize and Capture')
             ]
         ];

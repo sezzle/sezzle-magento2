@@ -13,30 +13,31 @@ use Magento\Catalog\Block\Product\View;
 use Magento\Catalog\Helper\Product;
 use Magento\Catalog\Model\ProductTypes\ConfigInterface;
 use Magento\Customer\Model\Session;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\FormatInterface;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\Stdlib\StringUtils;
 use Magento\Framework\Url\EncoderInterface;
-use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
+use Sezzle\Sezzlepay\Helper\Data as helper;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 class PDP extends View
 {
 
     /**
-     * @var SezzleConfigInterface
+     * @var Config
      */
-    protected $sezzleConfig;
+    protected $config;
     /**
      * @var Data
      */
     protected $pricingHelper;
     /**
-     * @var SezzleHelper
+     * @var helper
      */
-    private $sezzleHelper;
+    private $helper;
 
     /**
      * AbstractWidget constructor.
@@ -50,30 +51,31 @@ class PDP extends View
      * @param Session $customerSession
      * @param ProductRepositoryInterface $productRepository
      * @param PriceCurrencyInterface $priceCurrency
-     * @param SezzleConfigInterface $sezzleConfig
+     * @param Config $config
      * @param Data $pricingHelper
-     * @param SezzleHelper $sezzleHelper
+     * @param helper $helper
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        EncoderInterface $urlEncoder,
+        Context                                  $context,
+        EncoderInterface                         $urlEncoder,
         \Magento\Framework\Json\EncoderInterface $jsonEncoder,
-        StringUtils $string,
-        Product $productHelper,
-        ConfigInterface $productTypeConfig,
-        FormatInterface $localeFormat,
-        Session $customerSession,
-        ProductRepositoryInterface $productRepository,
-        PriceCurrencyInterface $priceCurrency,
-        SezzleConfigInterface $sezzleConfig,
-        Data $pricingHelper,
-        SezzleHelper $sezzleHelper,
-        array $data = []
-    ) {
-        $this->sezzleConfig = $sezzleConfig;
+        StringUtils                              $string,
+        Product                                  $productHelper,
+        ConfigInterface                          $productTypeConfig,
+        FormatInterface                          $localeFormat,
+        Session                                  $customerSession,
+        ProductRepositoryInterface               $productRepository,
+        PriceCurrencyInterface                   $priceCurrency,
+        Config                                   $config,
+        Data                                     $pricingHelper,
+        helper                                   $helper,
+        array                                    $data = []
+    )
+    {
+        $this->config = $config;
         $this->pricingHelper = $pricingHelper;
-        $this->sezzleHelper = $sezzleHelper;
+        $this->helper = $helper;
         parent::__construct(
             $context,
             $urlEncoder,
@@ -90,41 +92,17 @@ class PDP extends View
     }
 
     /**
-     * Get Merchant UUID
-     *
-     * @return string|null
-     */
-    public function getMerchantUUID()
-    {
-        try {
-            return $this->sezzleConfig->getMerchantUUID();
-        } catch (NoSuchEntityException $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Get Widget Type
-     *
-     * @return string
-     */
-    public function getWidgetType()
-    {
-        return "standard";
-    }
-
-    /**
      * Get Widget Script for PDP status
      *
-     * @return string
+     * @return bool
      */
-    public function isWidgetEnabledForPDP()
+    public function isWidgetEnabledForPDP(): bool
     {
         try {
-            return $this->sezzleConfig->isWidgetEnabledForPDP()
-                && $this->sezzleConfig->isEnabled()
+            return $this->config->isWidgetEnabledForPDP()
+                && $this->config->isEnabled()
                 && $this->getItemPrice() != '';
-        } catch (NoSuchEntityException $e) {
+        } catch (NoSuchEntityException|InputException $e) {
             return false;
         }
     }
@@ -132,7 +110,7 @@ class PDP extends View
     /**
      * @return string
      */
-    public function getAlignment()
+    public function getAlignment(): string
     {
         return "left";
     }
@@ -154,16 +132,21 @@ class PDP extends View
     /**
      * Get Widget URL
      *
-     * @return mixed
+     * @return string
      */
-    public function getWidgetUrl()
+    public function getWidgetURL(): string
     {
-        if (!$this->getMerchantUUID()) {
-            $this->sezzleHelper->logSezzleActions("Cannot provide widget URL as Merchant UUID is empty");
-            return null;
+        try {
+            if (!$merchantUUID = $this->config->getMerchantUUID()) {
+                $this->helper->logSezzleActions("Cannot provide widget URL as Merchant UUID is empty");
+                return '';
+            }
+        } catch (InputException|NoSuchEntityException $e) {
+            return '';
         }
-        $baseUrl = $this->sezzleConfig->getWidgetUrl('v1');
-        $this->sezzleHelper->logSezzleActions("Widget URL served");
-        return sprintf("$baseUrl/javascript/price-widget?uuid=%s", $this->getMerchantUUID());
+
+        $baseUrl = $this->config->getWidgetURL(Config::API_VERSION_V1);
+        $this->helper->logSezzleActions("Widget URL served");
+        return sprintf("$baseUrl/javascript/price-widget?uuid=%s", $merchantUUID);
     }
 }

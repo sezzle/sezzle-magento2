@@ -7,10 +7,9 @@ define([
     'jquery',
     'Sezzle_Sezzlepay/js/view/payment/method-renderer/sezzle',
     'Sezzle_Sezzlepay/js/in-context/checkout-wrapper',
-    'Magento_Paypal/js/action/set-payment-method',
     'Magento_Checkout/js/model/payment/additional-validators',
     'Magento_Ui/js/lib/view/utils/async'
-], function ($, Component, Wrapper, setPaymentMethod, additionalValidators) {
+], function ($, Component, Wrapper, additionalValidators) {
     'use strict';
 
     return Component.extend(Wrapper).extend({

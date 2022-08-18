@@ -10,11 +10,12 @@ namespace Sezzle\Sezzlepay\Block\Widget;
 use Magento\Catalog\Model\ResourceModel\Url;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Pricing\Helper\Data;
 use Magento\Framework\View\Element\Template\Context;
-use Sezzle\Sezzlepay\Model\System\Config\Container\SezzleConfigInterface;
-use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Helper\Data as helper;
 
 /**
  * Class Cart
@@ -24,17 +25,17 @@ class Cart extends \Magento\Checkout\Block\Cart
 {
 
     /**
-     * @var SezzleConfigInterface
+     * @var Config
      */
-    private $sezzleConfig;
+    private $config;
     /**
      * @var Data
      */
     private $pricingHelper;
     /**
-     * @var SezzleHelper
+     * @var helper
      */
-    private $sezzleHelper;
+    private $helper;
 
     /**
      * Cart constructor.
@@ -44,26 +45,27 @@ class Cart extends \Magento\Checkout\Block\Cart
      * @param Url $catalogUrlBuilder
      * @param \Magento\Checkout\Helper\Cart $cartHelper
      * @param \Magento\Framework\App\Http\Context $httpContext
-     * @param SezzleConfigInterface $sezzleConfig
+     * @param Config $config
      * @param Data $pricingHelper
-     * @param SezzleHelper $sezzleHelper
+     * @param helper $helper
      * @param array $data
      */
     public function __construct(
-        Context $context,
-        CustomerSession $customerSession,
-        CheckoutSession $checkoutSession,
-        Url $catalogUrlBuilder,
-        \Magento\Checkout\Helper\Cart $cartHelper,
+        Context                             $context,
+        CustomerSession                     $customerSession,
+        CheckoutSession                     $checkoutSession,
+        Url                                 $catalogUrlBuilder,
+        \Magento\Checkout\Helper\Cart       $cartHelper,
         \Magento\Framework\App\Http\Context $httpContext,
-        SezzleConfigInterface $sezzleConfig,
-        Data $pricingHelper,
-        SezzleHelper $sezzleHelper,
-        array $data = []
-    ) {
-        $this->sezzleConfig = $sezzleConfig;
+        Config                              $config,
+        Data                                $pricingHelper,
+        helper                              $helper,
+        array                               $data = []
+    )
+    {
+        $this->config = $config;
         $this->pricingHelper = $pricingHelper;
-        $this->sezzleHelper = $sezzleHelper;
+        $this->helper = $helper;
         parent::__construct(
             $context,
             $customerSession,
@@ -76,41 +78,17 @@ class Cart extends \Magento\Checkout\Block\Cart
     }
 
     /**
-     * Get Merchant UUID
-     *
-     * @return string|null
-     */
-    public function getMerchantUUID()
-    {
-        try {
-            return $this->sezzleConfig->getMerchantUUID();
-        } catch (NoSuchEntityException $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Get Widget Type
-     *
-     * @return string
-     */
-    public function getWidgetType()
-    {
-        return "standard";
-    }
-
-    /**
      * Get Widget Script for Cart Page status
      *
-     * @return string
+     * @return bool
      */
-    public function isWidgetEnabledForCartPage()
+    public function isWidgetEnabledForCartPage(): bool
     {
         try {
-            return $this->sezzleConfig->isWidgetEnabledForCartPage()
-                && $this->sezzleConfig->isEnabled()
+            return $this->config->isWidgetEnabledForCart()
+                && $this->config->isEnabled()
                 && $this->getGrandTotal() != '';
-        } catch (NoSuchEntityException $e) {
+        } catch (NoSuchEntityException|InputException $e) {
             return false;
         }
     }
@@ -118,7 +96,7 @@ class Cart extends \Magento\Checkout\Block\Cart
     /**
      * @return string
      */
-    public function getGrandTotal()
+    public function getGrandTotal(): string
     {
         $totals = $this->getTotals();
         $firstTotal = reset($totals);
@@ -135,7 +113,7 @@ class Cart extends \Magento\Checkout\Block\Cart
     /**
      * @return string
      */
-    public function getAlignment()
+    public function getAlignment(): string
     {
         return "right";
     }
@@ -143,16 +121,21 @@ class Cart extends \Magento\Checkout\Block\Cart
     /**
      * Get Widget URL
      *
-     * @return mixed
+     * @return string
      */
-    public function getWidgetUrl()
+    public function getWidgetURL(): string
     {
-        if (!$this->getMerchantUUID()) {
-            $this->sezzleHelper->logSezzleActions("Cannot provide widget URL as Merchant UUID is empty");
-            return null;
+        try {
+            if (!$merchantUUID = $this->config->getMerchantUUID()) {
+                $this->helper->logSezzleActions("Cannot provide widget URL as Merchant UUID is empty");
+                return '';
+            }
+        } catch (InputException|NoSuchEntityException $e) {
+            return '';
         }
-        $baseUrl = $this->sezzleConfig->getWidgetUrl('v1');
-        $this->sezzleHelper->logSezzleActions("Widget URL served");
-        return sprintf("$baseUrl/javascript/price-widget?uuid=%s", $this->getMerchantUUID());
+
+        $baseUrl = $this->config->getWidgetURL(Config::API_VERSION_V1);
+        $this->helper->logSezzleActions("Widget URL served");
+        return sprintf("$baseUrl/javascript/price-widget?uuid=%s", $merchantUUID);
     }
 }

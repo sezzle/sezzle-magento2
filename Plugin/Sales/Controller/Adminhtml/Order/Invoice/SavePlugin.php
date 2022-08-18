@@ -15,7 +15,7 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Controller\Adminhtml\Order\Invoice\Save;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Sezzle;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /**
  * Class SavePlugin
@@ -68,7 +68,7 @@ class SavePlugin
      * @param Closure $proceed
      * @return Redirect|null
      */
-    public function aroundExecute(Save $subject, Closure $proceed)
+    public function aroundExecute(Save $subject, Closure $proceed): ?Redirect
     {
         /** @var Redirect $resultRedirect */
         $resultRedirect = $this->resultRedirectFactory->create();
@@ -87,7 +87,7 @@ class SavePlugin
             return $proceed();
         }
 
-        if ($order->getPayment()->getMethod() !== Sezzle::PAYMENT_CODE) {
+        if ($order->getPayment()->getMethod() !== ConfigProvider::CODE) {
             return $proceed();
         }
 

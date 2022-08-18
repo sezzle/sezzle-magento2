@@ -4,6 +4,7 @@
  * @package     Sezzle_Sezzlepay
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
+
 namespace Sezzle\Sezzlepay\Controller\Adminhtml\SettlementReports;
 
 use Exception;
@@ -39,10 +40,11 @@ class SyncAndSave extends Action
      * @param SettlementReportsManagementInterface $settlementReportsManagement
      */
     public function __construct(
-        Action\Context $context,
-        DateTime $dateTime,
+        Action\Context                       $context,
+        DateTime                             $dateTime,
         SettlementReportsManagementInterface $settlementReportsManagement
-    ) {
+    )
+    {
         parent::__construct($context);
         $this->dateTime = $dateTime;
         $this->settlementReportsManagement = $settlementReportsManagement;
@@ -54,7 +56,7 @@ class SyncAndSave extends Action
      * @return Redirect
      * @throws Exception
      */
-    public function execute()
+    public function execute(): Redirect
     {
         /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
@@ -69,10 +71,7 @@ class SyncAndSave extends Action
         } catch (InputException $e) {
             $this->messageManager->addNoticeMessage(__('Invalid params provided.'));
             return $resultRedirect->setPath('*/*/index');
-        } catch (NoSuchEntityException $e) {
-            $this->messageManager->addErrorMessage(__('Unable to sync your reports. Please try again.'));
-            return $resultRedirect->setPath('*/*/index');
-        } catch (LocalizedException $e) {
+        } catch (NoSuchEntityException|LocalizedException $e) {
             $this->messageManager->addErrorMessage(__('Unable to sync your reports. Please try again.'));
             return $resultRedirect->setPath('*/*/index');
         }

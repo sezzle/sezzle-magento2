@@ -8,11 +8,10 @@ define(
     [
         'jquery',
         'uiComponent',
-        'mage/translate',
         'jquery/ui',
         'jquery/validate'
     ],
-    function ($, Class, $t) {
+    function ($, Class) {
         'use strict';
 
         return Class.extend({
@@ -77,7 +76,7 @@ define(
 
                     this.$form = new Element('form', {
                         method: 'post',
-                        action: this.sezzleUrl,
+                        action: this.merchant_signup_url,
                         id: 'sezzle_config_form',
                         target: 'config',
                         novalidate: 'novalidate',

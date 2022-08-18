@@ -15,7 +15,6 @@ use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
-use Sezzle\Sezzlepay\Model\Sezzle;
 use Sezzle\Sezzlepay\Model\Tokenize;
 use Zend_Validate_Exception;
 
@@ -55,11 +54,11 @@ class AddCustomerAttributes implements DataPatchInterface
             'input' => 'text',
             'label' => 'Sezzle Customer UUID Expiration'
         ],
-        Sezzle::ADDITIONAL_INFORMATION_KEY_CREATE_ORDER_LINK => [
+        Tokenize::KEY_CREATE_ORDER_LINK => [
             'input' => 'text',
             'label' => 'Sezzle Order Create Link By Customer UUID',
         ],
-        Sezzle::ADDITIONAL_INFORMATION_KEY_GET_CUSTOMER_LINK => [
+        Tokenize::KEY_GET_CUSTOMER_LINK => [
             'input' => 'text',
             'label' => 'Sezzle Get Customer Link By Customer UUID',
         ]
@@ -72,9 +71,10 @@ class AddCustomerAttributes implements DataPatchInterface
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
-        CustomerSetupFactory $customerSetupFactory,
-        AttributeSetFactory $attributeSetFactory
-    ) {
+        CustomerSetupFactory     $customerSetupFactory,
+        AttributeSetFactory      $attributeSetFactory
+    )
+    {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->customerSetupFactory = $customerSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;

@@ -67,11 +67,11 @@ define([
         afterOnComplete: function () {
             fullScreenLoader.startLoader();
             if (!customer.isLoggedIn()) {
-                serviceUrl = urlBuilder.createUrl('/guest-carts/:cartId/order', {
+                serviceUrl = urlBuilder.createUrl('/sezzle/guest-carts/:cartId/order', {
                     cartId: quote.getQuoteId()
                 });
             } else {
-                serviceUrl = urlBuilder.createUrl('/carts/mine/order', {});
+                serviceUrl = urlBuilder.createUrl('/sezzle/carts/mine/order', {});
             }
 
             return storage.put(

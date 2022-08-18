@@ -19,8 +19,7 @@ document.addEventListener('readystatechange', function () {
             return;
         }
 
-        let merchantLocale = window.checkoutConfig.payment.sezzlepay.gatewayRegion
-                || document.querySelector('html').lang.split('-')[1]
+        let merchantLocale = document.querySelector('html').lang.split('-')[1]
                 || 'US',
             currency = window.checkoutConfig.payment.sezzlepay.currencySymbol,
             biWeeklyLocales = ['US', 'CA', 'IN', 'GU', 'PR', 'VI', 'AS', 'MP'],

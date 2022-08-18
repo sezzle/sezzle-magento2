@@ -11,9 +11,9 @@ define([
     'Magento_Checkout/js/model/quote',
     'Magento_Customer/js/model/customer',
     'Magento_Checkout/js/model/url-builder',
-    'Sezzle_Sezzlepay/js/model/create-sezzle-checkout',
+    'Sezzle_Sezzlepay/js/model/service-processor',
     'Magento_CheckoutAgreements/js/model/agreements-assigner',
-], function (quote, customer, urlBuilder, sezzleCheckoutService, agreementsAssigner) {
+], function (quote, customer, urlBuilder, serviceProcessor, agreementsAssigner) {
     'use strict';
 
     return function (paymentData, messageContainer) {
@@ -35,6 +35,6 @@ define([
             payload.email = quote.guestEmail;
         }
 
-        return sezzleCheckoutService(serviceUrl, payload, messageContainer);
+        return serviceProcessor(serviceUrl, payload, messageContainer);
     };
 });
