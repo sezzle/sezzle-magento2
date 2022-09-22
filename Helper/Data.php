@@ -16,7 +16,6 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
-use Magento\Tests\NamingConvention\true\string;
 use Sezzle\Sezzlepay\Logger\Logger;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\Serialize\Serializer\Json;
