@@ -16,6 +16,7 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Filesystem\Driver\File;
+use Magento\Tests\NamingConvention\true\string;
 use Sezzle\Sezzlepay\Logger\Logger;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -194,23 +195,27 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Get encoded platform details
+     * Get platform details
      *
+     * @param bool $encode
      * @return string
      */
-    public function getEncodedPlatformDetails(): string
+    public function getPlatformDetails(bool $encode = false): string
     {
         try {
-            $encodedDetails = "";
             $platformDetails = [
-                "id" => "Magento",
-                "version" => $this->productMetadata->getEdition() . " " . $this->productMetadata->getVersion(),
-                "plugin_version" => $this->getVersion()
+                'id' => 'Magento',
+                'version' => $this->productMetadata->getEdition() . ' ' . $this->productMetadata->getVersion(),
+                'plugin_version' => $this->getVersion()
             ];
-            $encodedDetails = base64_encode($this->jsonSerializer->serialize($platformDetails));
+            $jsonData = $this->jsonSerializer->serialize($platformDetails);
+            if (!$encode) {
+                return $jsonData;
+            }
+            return base64_encode($jsonData);
         } catch (Exception $e) {
-            $this->logSezzleActions("Error getting platform details: " . $e->getMessage());
+            $this->logSezzleActions('Error getting platform details: ' . $e->getMessage());
         }
-        return $encodedDetails;
+        return '';
     }
 }

@@ -95,7 +95,7 @@ class AuthenticationService
             $this->curl->setHeaders(
                 [
                     'Content-Type' => Client::CONTENT_TYPE_JSON,
-                    'Sezzle-Platform' => $this->helper->getEncodedPlatformDetails()
+                    'Sezzle-Platform' => $this->helper->getPlatformDetails(true)
                 ]
             );
 
@@ -103,6 +103,7 @@ class AuthenticationService
 
             $log = [
                 'log_origin' => __METHOD__,
+                'platform_data' => $this->helper->getPlatformDetails(),
                 'request' => [
                     'uri' => $url,
                     'body' => $data
