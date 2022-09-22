@@ -60,12 +60,12 @@ class AuthenticationService
      * @param Curl $curl
      */
     public function __construct(
-        Config                $config,
-        CacheInterface        $cache,
-        LoggerInterface       $logger,
-        Data                  $helper,
-        Json                  $jsonSerializer,
-        Curl                  $curl
+        Config          $config,
+        CacheInterface  $cache,
+        LoggerInterface $logger,
+        Data            $helper,
+        Json            $jsonSerializer,
+        Curl            $curl
     )
     {
         $this->config = $config;
@@ -92,7 +92,12 @@ class AuthenticationService
 
         try {
             $this->curl->setTimeout(Client::TIMEOUT);
-            $this->curl->addHeader('Content-Type', Client::CONTENT_TYPE_JSON);
+            $this->curl->setHeaders(
+                [
+                    'Content-Type' => Client::CONTENT_TYPE_JSON,
+                    'Sezzle-Platform' => $this->helper->getEncodedPlatformDetails()
+                ]
+            );
 
             $url = $this->config->getGatewayURL($storeId) . '/authentication';
 
