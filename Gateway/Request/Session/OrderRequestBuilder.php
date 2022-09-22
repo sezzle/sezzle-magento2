@@ -78,7 +78,7 @@ class OrderRequestBuilder implements BuilderInterface
         ];
 
         if ($this->config->isInContextModeActive()) {
-            $result['checkout_mode'] = $this->config->getInContextMode();
+            $result['order']['checkout_mode'] = $this->config->getInContextMode();
         }
 
         return $result;
