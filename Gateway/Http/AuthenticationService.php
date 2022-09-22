@@ -8,7 +8,6 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Validation\ValidationException;
-use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\HTTP\Client\Curl;
@@ -20,11 +19,6 @@ use Sezzle\Sezzlepay\Helper\Data;
 class AuthenticationService
 {
     const TOKEN_CACHE_PREFIX = 'SEZZLE_AUTH_TOKEN';
-
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
 
     /**
      * @var Config
@@ -58,7 +52,6 @@ class AuthenticationService
 
     /**
      * AuthenticationService constructor.
-     * @param StoreManagerInterface $storeManager
      * @param Config $config
      * @param CacheInterface $cache
      * @param LoggerInterface $logger
@@ -67,7 +60,6 @@ class AuthenticationService
      * @param Curl $curl
      */
     public function __construct(
-        StoreManagerInterface $storeManager,
         Config                $config,
         CacheInterface        $cache,
         LoggerInterface       $logger,
@@ -76,7 +68,6 @@ class AuthenticationService
         Curl                  $curl
     )
     {
-        $this->storeManager = $storeManager;
         $this->config = $config;
         $this->cache = $cache;
         $this->logger = $logger;
@@ -94,12 +85,6 @@ class AuthenticationService
      */
     public function getToken(int $storeId = null): string
     {
-        $websiteId = $this->storeManager->getStore($storeId)->getWebsiteId();
-
-        if ($token = $this->loadCacheToken($websiteId)) {
-            return $token;
-        }
-
         $data = [
             'public_key' => $this->config->getPublicKey($storeId),
             'private_key' => $this->config->getPrivateKey($storeId)
