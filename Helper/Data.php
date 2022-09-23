@@ -194,23 +194,27 @@ class Data extends AbstractHelper
     }
 
     /**
-     * Get encoded platform details
+     * Get platform details
      *
+     * @param bool $encode
      * @return string
      */
-    public function getEncodedPlatformDetails(): string
+    public function getPlatformDetails(bool $encode = false): string
     {
         try {
-            $encodedDetails = "";
             $platformDetails = [
-                "id" => "Magento",
-                "version" => $this->productMetadata->getEdition() . " " . $this->productMetadata->getVersion(),
-                "plugin_version" => $this->getVersion()
+                'id' => 'Magento',
+                'version' => $this->productMetadata->getEdition() . ' ' . $this->productMetadata->getVersion(),
+                'plugin_version' => $this->getVersion()
             ];
-            $encodedDetails = base64_encode($this->jsonSerializer->serialize($platformDetails));
+            $jsonData = $this->jsonSerializer->serialize($platformDetails);
+            if (!$encode) {
+                return $jsonData;
+            }
+            return base64_encode($jsonData);
         } catch (Exception $e) {
-            $this->logSezzleActions("Error getting platform details: " . $e->getMessage());
+            $this->logSezzleActions('Error getting platform details: ' . $e->getMessage());
         }
-        return $encodedDetails;
+        return '';
     }
 }

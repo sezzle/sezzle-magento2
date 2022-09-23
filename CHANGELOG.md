@@ -6,6 +6,23 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.1
+
+_Fri 23 Sep 2022_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- FIX: Sending platform and plugin details(name and version) to Sezzle for tracking/debugging purpose.
+- FIX: PopUp checkout window not closing on order completion at Sezzle.
+
 ## Version 7.0.0
 
 _Tue 16 Aug 2022_
