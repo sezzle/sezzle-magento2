@@ -88,8 +88,8 @@ class TransferFactory implements TransferFactoryInterface
     public function create(array $request): TransferInterface
     {
         try {
-            $storeId = isset($request['__store_id']) &&
-                (int)$request['__store_id'] ?? $this->storeManager->getStore()->getId();
+            $storeId = isset($request['__store_id']) ?
+                (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
             $token = $this->authenticationService->getToken($storeId);
         } catch (LocalizedException $e) {
             throw new ClientException(
