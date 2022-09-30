@@ -6,6 +6,22 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.3
+
+_Mon 03 Oct 2022_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- Serving the checkout installment widget from Sezzle SDK CDN.
+
 ## Version 7.0.2
 
 _Wed 28 Sep 2022_
