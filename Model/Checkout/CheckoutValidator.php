@@ -77,8 +77,11 @@ class CheckoutValidator
             }
         }
         if ($missingFields) {
-            $this->sezzleHelper->logSezzleActions(sprintf('Invalid %s Address : %s', $address->getAddressType(), $missingFields));
-            throw new LocalizedException(__(sprintf("Please check the billing address on this input fields : %s", rtrim($missingFields, ","))));
+            $this->sezzleHelper->logSezzleActions(
+                sprintf('Invalid %s address : %s', $address->getAddressType(), $missingFields));
+            throw new LocalizedException(
+                __(sprintf("Please check the %s address on this input fields : %s",
+                    $address->getAddressType(), rtrim($missingFields, ","))));
         }
         $this->sezzleHelper->logSezzleActions("Address Validated");
     }
