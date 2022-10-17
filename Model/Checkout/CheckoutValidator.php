@@ -56,7 +56,9 @@ class CheckoutValidator
     public function validate(Quote $quote)
     {
         $this->validateAddress($quote);
-        $this->validateShippingMethod($quote);
+        if (!$quote->isVirtual()) {
+            $this->validateShippingMethod($quote);
+        }
     }
 
     /**
@@ -67,20 +69,22 @@ class CheckoutValidator
      */
     protected function validateAddress(Quote $quote)
     {
-        $billingAddress = $quote->getBillingAddress();
-        $shippingAddress = $quote->getShippingAddress();
+        if (!$quote->isVirtual()) {
+            $shippingAddress = $quote->getShippingAddress();
 
-        $shippingAddressMissingFields = "";
-        foreach ($this->requiredFields as $field) {
-            if (!$shippingAddress->getData($field)) {
-                $shippingAddressMissingFields .= $field . ",";
+            $shippingAddressMissingFields = "";
+            foreach ($this->requiredFields as $field) {
+                if (!$shippingAddress->getData($field)) {
+                    $shippingAddressMissingFields .= $field . ",";
+                }
+            }
+            if ($shippingAddressMissingFields) {
+                $this->sezzleHelper->logSezzleActions(sprintf('Invalid Shipping Address : %s', $shippingAddressMissingFields));
+                throw new LocalizedException(__(sprintf("Please check the shipping address on this input fields : %s", rtrim($shippingAddressMissingFields, ","))));
             }
         }
-        if ($shippingAddressMissingFields) {
-            $this->sezzleHelper->logSezzleActions(sprintf('Invalid Shipping Address : %s', $shippingAddressMissingFields));
-            throw new LocalizedException(__(sprintf("Please check the shipping address on this input fields : %s", rtrim($shippingAddressMissingFields, ","))));
-        }
 
+        $billingAddress = $quote->getBillingAddress();
         $billingAddressMissingFields = "";
         foreach ($this->requiredFields as $field) {
             if (!$billingAddress->getData($field)) {
