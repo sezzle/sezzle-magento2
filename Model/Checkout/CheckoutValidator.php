@@ -55,41 +55,33 @@ class CheckoutValidator
      */
     public function validate(Quote $quote)
     {
-        $this->validateAddress($quote);
-        $this->validateShippingMethod($quote);
+        $this->validateAddress($quote->getBillingAddress());
+        if (!$quote->isVirtual()) {
+            $this->validateAddress($quote->getShippingAddress());
+            $this->validateShippingMethod($quote);
+        }
     }
 
     /**
      * Validate Addresses
      *
-     * @param Quote $quote
+     * @param Quote\Address $address
      * @throws LocalizedException
      */
-    protected function validateAddress(Quote $quote)
+    protected function validateAddress(Quote\Address $address)
     {
-        $billingAddress = $quote->getBillingAddress();
-        $shippingAddress = $quote->getShippingAddress();
-
-        $shippingAddressMissingFields = "";
+        $missingFields = "";
         foreach ($this->requiredFields as $field) {
-            if (!$shippingAddress->getData($field)) {
-                $shippingAddressMissingFields .= $field . ",";
+            if (!$address->getData($field)) {
+                $missingFields .= $field . ",";
             }
         }
-        if ($shippingAddressMissingFields) {
-            $this->sezzleHelper->logSezzleActions(sprintf('Invalid Shipping Address : %s', $shippingAddressMissingFields));
-            throw new LocalizedException(__(sprintf("Please check the shipping address on this input fields : %s", rtrim($shippingAddressMissingFields, ","))));
-        }
-
-        $billingAddressMissingFields = "";
-        foreach ($this->requiredFields as $field) {
-            if (!$billingAddress->getData($field)) {
-                $billingAddressMissingFields .= $field . ",";
-            }
-        }
-        if ($billingAddressMissingFields) {
-            $this->sezzleHelper->logSezzleActions(sprintf('Invalid Billing Address : %s', $billingAddressMissingFields));
-            throw new LocalizedException(__(sprintf("Please check the billing address on this input fields : %s", rtrim($billingAddressMissingFields, ","))));
+        if ($missingFields) {
+            $this->sezzleHelper->logSezzleActions(
+                sprintf('Invalid %s address : %s', $address->getAddressType(), $missingFields));
+            throw new LocalizedException(
+                __(sprintf("Please check the %s address on this input fields : %s",
+                    $address->getAddressType(), rtrim($missingFields, ","))));
         }
         $this->sezzleHelper->logSezzleActions("Address Validated");
     }
