@@ -51,6 +51,7 @@ class Config extends PaymentConfig
     const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
     const WIDGET_URL = 'https://widget.sezzle.com/%s';
     const IMAGE_SRC = 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
+    const FR_IMAGE_SRC = 'https://media.sezzle.com/stripo/guids/CABINET_3a2c9b1a0b2efa35092eb0ce3ff5b254/images/sezzlecheckout_french_1_wFv.png';
 
     /**
      * @var StoreConfigResolver
@@ -383,7 +384,13 @@ class Config extends PaymentConfig
      */
     public function getImageSrc(): string
     {
+        let language = document.querySelector('html').lang.substring(0, 2).toLowerCase()
+        if(language === "fr")
+        {
+                 return self::FR_IMAGE_SRC;
+        }
         return self::IMAGE_SRC;
+
     }
 
     /**
