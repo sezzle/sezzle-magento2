@@ -8,14 +8,9 @@
 namespace Sezzle\Sezzlepay\Model\Api;
 
 use Exception;
-use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\HTTP\ZendClient;
-use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
-use Sezzle\Sezzlepay\Api\Data\AuthInterface;
-use Sezzle\Sezzlepay\Api\Data\AuthInterfaceFactory;
 use Sezzle\Sezzlepay\Api\V1Interface;
 use Sezzle\Sezzlepay\Gateway\Http\Client;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;

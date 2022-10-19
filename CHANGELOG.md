@@ -21,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Serving the checkout installment widget from Sezzle SDK CDN.
+- Failure while sending logs to Sezzle.
 
 ## Version 7.0.3
 
