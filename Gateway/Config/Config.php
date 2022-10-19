@@ -52,16 +52,16 @@ class Config extends PaymentConfig
     const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
     const WIDGET_URL = 'https://widget.sezzle.com/%s';
     public static $imageSrc = [
-           'en' => 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
-           'fr' => 'https://media.sezzle.com/stripo/guids/CABINET_3a2c9b1a0b2efa35092eb0ce3ff5b254/images/sezzlecheckout_french_1_wFv.png'
-       ];
+        'en' => 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
+        'fr' => 'https://media.sezzle.com/stripo/guids/CABINET_3a2c9b1a0b2efa35092eb0ce3ff5b254/images/sezzlecheckout_french_1_wFv.png'
+    ];
 
-   /**
-      * @var Resolver
-      */
-     private $localeResolver;
+    /**
+     * @var Resolver
+     */
+    private $localeResolver;
 
-   /**
+    /**
      * @var StoreConfigResolver
      */
     private $storeConfigResolver;
@@ -80,8 +80,6 @@ class Config extends PaymentConfig
      * @param null $methodCode
      * @param string $pathPattern
      */
-
-
     public function __construct(
         StoreConfigResolver  $storeConfigResolver,
         ScopeConfigInterface $scopeConfig,
@@ -397,12 +395,11 @@ class Config extends PaymentConfig
      */
     public function getImageSrc(): string
     {
-       $locale = $this->localeResolver->getLocale();
-       if ($locale === 'fr_FR' || $locale === 'fr_CA') {
-        return self::$imageSrc['fr'];
-          }
+        $locale = $this->localeResolver->getLocale();
+        if ($locale === 'fr_FR' || $locale === 'fr_CA') {
+            return self::$imageSrc['fr'];
+        }
         return self::$imageSrc['en'];
-
     }
 
     /**
