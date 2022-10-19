@@ -8,7 +8,7 @@
 
 ## Version 7.0.4
 
-_Thurs 20 Oct 2022_
+_Thr 20 Oct 2022_
 
 ### Supported Editions & Versions
 
@@ -20,7 +20,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- Allow html language settings to determine Sezzle-Checkout language.
+- Displaying Sezzle logo in checkout page as per locale.
 
 # Sezzle Magento 2 Extension Changelog
 
