@@ -217,4 +217,37 @@ class Data extends AbstractHelper
         }
         return '';
     }
+
+    /**
+         * Get Config details
+         *
+         * @param bool $encode
+         * @return string
+         */
+        public function getConfigDetails(bool $encode = false): string
+        {
+            try {
+                $configDetails = [
+
+                'sezzle_enabled' => $this->config->isEnabled(),
+                'merchant_uuid' => $this->config->getMerchantUUID(),
+                'pdp_widget_enabled' => $this->config->isWidgetEnabledForPDP(),
+                'cart_widget_enabled' => $this->config->isWidgetEnabledForCart(),
+                'installment_widget_enabled' =>  $this->config->isInstallmentWidgetEnabled(),
+                'in_context_checkout_enabled' => $this->config->isInContextModeActive(),
+                'in_context_checkout_mode' => $this->config->getInContextMode(),
+                'payment_action' => $this->config->getPaymentAction(),
+                'tokenization_enabled' => $this->config->isTokenizationEnabled()
+
+                ];
+                $jsonData = $this->jsonSerializer->serialize($configDetails);
+                if (!$encode) {
+                    return $jsonData;
+                }
+                return base64_encode($jsonData);
+            } catch (Exception $e) {
+                $this->logSezzleActions('Error getting config details: ' . $e->getMessage());
+            }
+            return '';
+        }
 }
