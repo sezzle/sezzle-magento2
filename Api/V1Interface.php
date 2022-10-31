@@ -7,10 +7,6 @@
 
 namespace Sezzle\Sezzlepay\Api;
 
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Sezzle\Sezzlepay\Api\Data\AuthInterface;
-use Sezzle\Sezzlepay\Api\Data\OrderInterface;
 
 interface V1Interface
 {

@@ -13,8 +13,11 @@ use Sezzle\Sezzlepay\Block\Widget\Installment;
 ?>
 <?php if ($block->isInstallmentWidgetEnabled()) : ?>
     <script type="text/javascript">
-        require(['installmentWidget'], function () {
-            console.log("sezzle installment widget rendered");
+        require(['installmentWidgetSDK'], function () {
+            new SezzleInstallmentWidget({
+                'merchantLocale': 'US',
+                'platform': 'magento2'
+            });
         });
     </script>
 <?php endif; ?>
