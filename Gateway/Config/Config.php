@@ -8,6 +8,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
 use Sezzle\Sezzlepay\Model\StoreConfigResolver;
+use Magento\Framework\Locale\Resolver;
 
 /**
  * Config
@@ -50,7 +51,15 @@ class Config extends PaymentConfig
 
     const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
     const WIDGET_URL = 'https://widget.sezzle.com/%s';
-    const IMAGE_SRC = 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png';
+    public static $imageSrc = [
+        'en' => 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
+        'fr' => 'https://media.sezzle.com/stripo/guids/CABINET_3a2c9b1a0b2efa35092eb0ce3ff5b254/images/sezzlecheckout_french_1_wFv.png'
+    ];
+
+    /**
+     * @var Resolver
+     */
+    private $localeResolver;
 
     /**
      * @var StoreConfigResolver
@@ -67,6 +76,7 @@ class Config extends PaymentConfig
      * @param StoreConfigResolver $storeConfigResolver
      * @param ScopeConfigInterface $scopeConfig
      * @param UrlInterface $urlBuilder
+     * @param Resolver $localeResolver
      * @param null $methodCode
      * @param string $pathPattern
      */
@@ -74,6 +84,7 @@ class Config extends PaymentConfig
         StoreConfigResolver  $storeConfigResolver,
         ScopeConfigInterface $scopeConfig,
         UrlInterface         $urlBuilder,
+        Resolver             $localeResolver,
                              $methodCode = null,
         string               $pathPattern = self::DEFAULT_PATH_PATTERN
     )
@@ -81,6 +92,7 @@ class Config extends PaymentConfig
         parent::__construct($scopeConfig, $methodCode, $pathPattern);
         $this->storeConfigResolver = $storeConfigResolver;
         $this->urlBuilder = $urlBuilder;
+        $this->localeResolver = $localeResolver;
     }
 
     /**
@@ -383,7 +395,11 @@ class Config extends PaymentConfig
      */
     public function getImageSrc(): string
     {
-        return self::IMAGE_SRC;
+        $locale = $this->localeResolver->getLocale();
+        if ($locale === 'fr_FR' || $locale === 'fr_CA') {
+            return self::$imageSrc['fr'];
+        }
+        return self::$imageSrc['en'];
     }
 
     /**
