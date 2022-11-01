@@ -75,4 +75,11 @@ interface V2Interface
      * @throws LocalizedException
      */
     public function addToWidgetQueue(): void;
+
+    /**
+     * Get config details
+     *
+     * @throws LocalizedException
+     */
+    public function getConfig(): void;
 }

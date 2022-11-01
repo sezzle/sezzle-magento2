@@ -45,6 +45,8 @@ class V2 implements V2Interface
 
     const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
     const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
+    const SEZZLE_GET_CONFIG_ENDPOINT = "/configuration";
+
 
     /**
      * @var Config
@@ -383,4 +385,28 @@ class V2 implements V2Interface
             );
         }
     }
+        /**
+         * @inheritDoc
+         */
+        public function getConfig(): void
+        {
+            $uri = $this->config->getGatewayURL() . self::SEZZLE_GET_CONFIG_ENDPOINT;
+            try {
+                $transferO = $this->transferFactory->create([
+                    '__method' => Client::HTTP_POST,
+                    '__uri' => $uri
+                ]);
+                $response = $this->client->placeRequest($transferO);
+
+                if (!empty($response)) {
+                    throw new Exception(__("Invalid status code: " . $response["status_code"]));
+                }
+            } catch (Exception $e) {
+                $this->helper->logSezzleActions($e->getMessage());
+                throw new LocalizedException(
+                    __('Gateway get config details error: %1', $e->getMessage())
+                );
+            }
+        }
+
 }
