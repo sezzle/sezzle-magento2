@@ -104,7 +104,6 @@ class AuthenticationService
             $log = [
                 'log_origin' => __METHOD__,
                 'platform_data' => $this->helper->getPlatformDetails(),
-                'config_data' => $this->helper->getConfigDetails(),
                 'request' => [
                     'uri' => $url,
                     'body' => $data
