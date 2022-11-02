@@ -18,6 +18,7 @@ use Magento\Framework\Validation\ValidationException;
 use Sezzle\Sezzlepay\Gateway\Http\AuthenticationService;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
+use Sezzle\Sezzlepay\Api\V2Interface;
 
 /**
  * Class SavePlugin
@@ -56,12 +57,18 @@ class SavePlugin
     private $authenticationService;
 
     /**
+     * @var V2Interface
+     */
+    private $v2;
+
+    /**
      * SavePlugin constructor.
      * @param ManagerInterface $messageManager
      * @param RedirectFactory $resultRedirectFactory
      * @param Data $helper
      * @param RequestInterface $request
      * @param Config $config
+     * @param V2Interface $v2
      * @param AuthenticationService $authenticationService
      */
     public function __construct(
@@ -70,6 +77,7 @@ class SavePlugin
         Data                  $helper,
         RequestInterface      $request,
         Config                $config,
+        V2Interface           $v2,
         AuthenticationService $authenticationService
     )
     {
@@ -78,11 +86,13 @@ class SavePlugin
         $this->helper = $helper;
         $this->request = $request;
         $this->config = $config;
+        $this->v2 = $v2;
         $this->authenticationService = $authenticationService;
     }
 
     /**
      * Validate API Keys
+     * Send Configuration Data
      *
      * @param Save $subject
      * @param Closure $proceed
@@ -103,6 +113,7 @@ class SavePlugin
             isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']) &&
             isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields']);
         if (!$isSezzleConfig) {
+            $this->v2->sendConfig();
             return $proceed();
         }
 
@@ -118,6 +129,7 @@ class SavePlugin
         ];
 
         if ($old === $new) {
+            $this->v2->sendConfig();
             return $proceed();
         }
 
@@ -127,6 +139,7 @@ class SavePlugin
                 $new['private_key'],
                 $new['payment_mode']
             )) {
+                $this->v2->sendConfig();
                 return $proceed();
             }
         } catch (ValidationException $e) {

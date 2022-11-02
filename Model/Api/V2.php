@@ -45,7 +45,7 @@ class V2 implements V2Interface
 
     const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
     const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
-    const SEZZLE_GET_CONFIG_ENDPOINT = "/configuration";
+    const SEZZLE_SEND_CONFIG_ENDPOINT = "/configuration";
 
 
     /**
@@ -388,9 +388,9 @@ class V2 implements V2Interface
         /**
          * @inheritDoc
          */
-        public function getConfig(): void
+        public function sendConfig(): void
         {
-            $uri = $this->config->getGatewayURL() . self::SEZZLE_GET_CONFIG_ENDPOINT;
+            $uri = $this->config->getGatewayURL() . self::SEZZLE_SEND_CONFIG_ENDPOINT;
             try {
                 $transferO = $this->transferFactory->create([
                     '__method' => Client::HTTP_POST,

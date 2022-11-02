@@ -81,5 +81,5 @@ interface V2Interface
      *
      * @throws LocalizedException
      */
-    public function getConfig(): void;
+    public function sendConfig(): void;
 }
