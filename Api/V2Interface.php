@@ -77,7 +77,7 @@ interface V2Interface
     public function addToWidgetQueue(): void;
 
     /**
-     * Get config details
+     * Send config details
      *
      * @throws LocalizedException
      */

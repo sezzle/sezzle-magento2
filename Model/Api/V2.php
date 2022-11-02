@@ -404,7 +404,7 @@ class V2 implements V2Interface
             } catch (Exception $e) {
                 $this->helper->logSezzleActions($e->getMessage());
                 throw new LocalizedException(
-                    __('Gateway get config details error: %1', $e->getMessage())
+                    __('Gateway send config details error: %1', $e->getMessage())
                 );
             }
         }
