@@ -113,7 +113,6 @@ class SavePlugin
             isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']) &&
             isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields']);
         if (!$isSezzleConfig) {
-            $this->v2->sendConfig($config);
             return $proceed();
         }
 
@@ -129,7 +128,6 @@ class SavePlugin
         ];
 
         if ($old === $new) {
-            $this->v2->sendConfig($config);
             return $proceed();
         }
 
@@ -139,8 +137,11 @@ class SavePlugin
                 $new['private_key'],
                 $new['payment_mode']
             )) {
+                
+                $goAhead = $proceed();
                 $this->v2->sendConfig($config);
-                return $proceed();
+                return $goAhead; 
+
             }
         } catch (ValidationException $e) {
             $this->helper->logSezzleActions($e->getMessage());

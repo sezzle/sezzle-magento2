@@ -15,6 +15,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
+use Laminas\Http\Response;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\LinkInterface;
@@ -392,13 +393,13 @@ class V2 implements V2Interface
         {
             $uri = $this->config->getGatewayURL() . self::SEZZLE_SEND_CONFIG_ENDPOINT;
             try {
-                $transferO = $this->transferFactory->create([
+                $transferO = $this->transferFactory->create(array_merge([
                     '__method' => Client::HTTP_POST,
                     '__uri' => $uri
-                ]);
+                ], $config));
                 $response = $this->client->placeRequest($transferO);
 
-                if (!empty($response)) {
+                if (!empty($response) || $response["status_code"] !==     Response::STATUS_CODE_204) {
                     throw new Exception(__("Invalid status code: " . $response["status_code"]));
                 }
             } catch (Exception $e) {
