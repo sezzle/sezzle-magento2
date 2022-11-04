@@ -137,8 +137,8 @@ class SavePlugin
                 $new['private_key'],
                 $new['payment_mode']
             )) {
-                
                 $goAhead = $proceed();
+                $this->config = $config;
                 $this->v2->sendConfig($config);
                 return $goAhead; 
 
