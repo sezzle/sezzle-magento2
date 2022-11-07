@@ -138,8 +138,25 @@ class SavePlugin
                 $new['payment_mode']
             )) {
                 $goAhead = $proceed();
-                $this->config = $config;
-                $this->v2->sendConfig($config);
+                $new = array_merge($new,'sezzle_enabled' => $this->isInherit('sezzle_enabled', $fields)
+                ? $old['sezzle_enabled'] : (string)$fields['sezzle_enabled']['value'],
+                'merchant_uuid' => $this->isInherit('merchant_uuid', $fields)
+                ? $old['merchant_uuid'] : (string)$fields['merchant_uuid']['value'],
+                'pdp_widget_enabled' => $this->isInherit('pdp_widget_enabled', $fields)
+                ? $old['pdp_widget_enabled'] : (string)$fields['pdp_widget_enabled']['value'],
+                'cart_widget_enabled' => $this->isInherit('cart_widget_enabled', $fields)
+                ? $old['cart_widget_enabled'] : (string)$fields['cart_widget_enabled']['value'],
+                'installment_widget_enabled' => $this->isInherit('installment_widget_enabled', $fields)
+                ? $old['installment_widget_enabled'] : (string)$fields['installment_widget_enabled']['value'],
+                'in_context_checkout_enabled' => $this->isInherit('in_context_checkout_enabled', $fields)
+                ? $old['in_context_checkout_enabled'] : (string)$fields['in_context_checkout_enabled']['value'],
+                'in_context_checkout_mode' => $this->isInherit('in_context_checkout_mode', $fields)
+                ? $old['in_context_checkout_mode'] : (string)$fields['in_context_checkout_mode']['value'],
+                'payment_action' => $this->isInherit('payment_action', $fields)
+                ? $old['payment_action'] : (string)$fields['payment_action']['value'],
+                'tokenization_enabled' => $this->isInherit('tokenization_enabled', $fields)
+                ? $old['tokenization_enabled'] : (string)$fields['tokenization_enabled']['value'])
+                $this->v2->sendConfig($new);
                 return $goAhead; 
 
             }

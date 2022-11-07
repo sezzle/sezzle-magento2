@@ -82,5 +82,5 @@ interface V2Interface
      * @param string $config
      * @throws LocalizedException
      */
-    public function sendConfig(string $config): void;
+    public function sendConfig(string[] $config): void;
 }
