@@ -77,10 +77,10 @@ interface V2Interface
     public function addToWidgetQueue(): void;
 
     /**
-     * Send config details
+     * Send config data
      *
-     * @param string $config
+     * @param array $config
      * @throws LocalizedException
      */
-    public function sendConfig(string[] $config): void;
+    public function sendConfig(array $config): void;
 }

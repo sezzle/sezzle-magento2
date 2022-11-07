@@ -8,7 +8,7 @@
 
 ## Version 7.0.6
 
-_Mon 7 Nov 2022_
+_Tue 8 Nov 2022_
 
 ### Supported Editions & Versions
 
@@ -20,7 +20,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- Sending configuration details to Sezzle.
+- Sending Sezzle configuration data to Sezzle.
 
 ## Version 7.0.5
 
