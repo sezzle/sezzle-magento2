@@ -389,7 +389,7 @@ class V2 implements V2Interface
         /**
          * @inheritDoc
          */
-        public function sendConfig(string $config): void
+        public function sendConfig(string[] $config): void
         {
             $uri = $this->config->getGatewayURL() . self::SEZZLE_SEND_CONFIG_ENDPOINT;
             try {
