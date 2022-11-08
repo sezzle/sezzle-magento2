@@ -101,20 +101,19 @@ class SavePlugin
     public function aroundExecute(Save $subject, Closure $proceed): Redirect
     {
         $groups = $this->request->getPost('groups');
+        $configGroups = $groups[ConfigProvider::CODE]['groups'];
 
         $oldConfig = $this->getOldConfig();
 
         $isSezzleConfig = isset($groups[ConfigProvider::CODE]) &&
-            isset($groups[ConfigProvider::CODE]['groups']) &&
-            isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']) &&
-            isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields']);
+            isset($configGroups) &&
+            isset($configGroups['sezzle_payment']) &&
+            isset($configGroups['sezzle_payment']['fields']);
         if (!$isSezzleConfig) {
             return $proceed();
         }
 
-        $fields = $groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields'];
-
-        $newConfig = $this->getNewConfig($oldConfig, $fields);
+        $newConfig = $this->getNewConfig($oldConfig, $configGroups);
 
         if ($oldConfig === $newConfig) {
             return $proceed();
@@ -128,7 +127,7 @@ class SavePlugin
             )) {
                 $goAhead = $proceed();
                 try {
-                    $this->v2->sendConfig($this->getNewConfig($oldConfig, $fields));
+                    $this->v2->sendConfig($newConfig);
                 } catch (LocalizedException $e) {
                     $this->helper->logSezzleActions($e->getMessage());
                 }
@@ -201,30 +200,42 @@ class SavePlugin
      * Gets the new config data
      *
      * @param array $oldConfig
-     * @param array $fields
+     * @param array $configGroups
      * @return array
      */
-    private function getNewConfig(array $oldConfig, array $fields): array
+    private function getNewConfig(array $oldConfig, array $configGroups): array
     {
+        $paymentFields = $configGroups['sezzle_payment']['fields'];
+        $widgetFields = $configGroups['sezzle_widget']['fields'];
+        $inContextFields = $configGroups['sezzle_payment_in_context']['fields'];
+
         return [
-            'sezzle_enabled' => $this->isInherit('active', $fields)
-                ? $oldConfig['sezzle_enabled'] : (bool)$fields['active']['value'],
-            'merchant_uuid' => $this->isInherit('merchant_uuid', $fields)
-                ? $oldConfig['merchant_uuid'] : (string)$fields['merchant_uuid']['value'],
-            'pdp_widget_enabled' => $this->isInherit('widget_pdp', $fields)
-                ? $oldConfig['pdp_widget_enabled'] : (bool)$fields['widget_pdp']['value'],
-            'cart_widget_enabled' => $this->isInherit('widget_cart', $fields)
-                ? $oldConfig['cart_widget_enabled'] : (bool)$fields['widget_cart']['value'],
-            'installment_widget_enabled' => $this->isInherit('widget_installment', $fields)
-                ? $oldConfig['installment_widget_enabled'] : (bool)$fields['widget_installment']['value'],
-            'in_context_checkout_enabled' => $this->isInherit('active_in_context', $fields)
-                ? $oldConfig['in_context_checkout_enabled'] : (bool)$fields['active_in_context']['value'],
-            'in_context_checkout_mode' => $this->isInherit('in_context_mode', $fields)
-                ? $oldConfig['in_context_checkout_mode'] : (string)$fields['in_context_mode']['value'],
-            'payment_action' => $this->isInherit('payment_action', $fields)
-                ? $oldConfig['payment_action'] : (string)$fields['payment_action']['value'],
-            'tokenization_enabled' => $this->isInherit('tokenize', $fields)
-                ? $oldConfig['tokenization_enabled'] : (bool)$fields['tokenize']['value']
+            'sezzle_enabled' => $this->isInherit('active', $paymentFields)
+                ? $oldConfig['sezzle_enabled'] : (bool)$paymentFields['active']['value'],
+            'merchant_uuid' => $this->isInherit('merchant_uuid', $paymentFields)
+                ? $oldConfig['merchant_uuid'] : (string)$paymentFields['merchant_uuid']['value'],
+            'public_key' => $this->isInherit('public_key', $paymentFields)
+                ? $oldConfig['public_key'] : (string)$paymentFields['public_key']['value'],
+            'private_key' => $this->isInherit('private_key', $paymentFields)
+                ? $oldConfig['private_key'] : (string)$paymentFields['private_key']['value'],
+            'payment_mode' => $this->isInherit('payment_mode', $paymentFields)
+                ? $oldConfig['payment_mode'] : (string)$paymentFields['payment_mode']['value'],
+            'pdp_widget_enabled' => $this->isInherit('widget_pdp', $widgetFields)
+                ? $oldConfig['pdp_widget_enabled'] : (bool)$widgetFields['widget_pdp']['value'],
+            'cart_widget_enabled' => $this->isInherit('widget_cart', $widgetFields)
+                ? $oldConfig['cart_widget_enabled'] : (bool)$widgetFields['widget_cart']['value'],
+            'installment_widget_enabled' => $this->isInherit('widget_installment', $widgetFields)
+                ? $oldConfig['installment_widget_enabled'] : (bool)$widgetFields['widget_installment']['value'],
+            'in_context_checkout_enabled' => $this->isInherit('active_in_context', $inContextFields)
+                ? $oldConfig['in_context_checkout_enabled'] : (bool)$inContextFields['active_in_context']['value'],
+            'in_context_checkout_mode' => $this->isInherit('in_context_mode', $inContextFields)
+                ? $oldConfig['in_context_checkout_mode'] :
+                (isset($inContextFields['in_context_mode']) ?
+                    (string)$inContextFields['in_context_mode']['value'] : ''),
+            'payment_action' => $this->isInherit('payment_action', $paymentFields)
+                ? $oldConfig['payment_action'] : (string)$paymentFields['payment_action']['value'],
+            'tokenization_enabled' => $this->isInherit('tokenize', $paymentFields)
+                ? $oldConfig['tokenization_enabled'] : (bool)$paymentFields['tokenize']['value']
         ];
     }
 }
