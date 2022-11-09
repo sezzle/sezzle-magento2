@@ -136,7 +136,7 @@ class SavePlugin
 
             // sending config data to Sezzle
             try {
-                unset($newConfig['public_key'], $newConfig['private_key']);
+                unset($newConfig['public_key'], $newConfig['private_key'], $newConfig['payment_mode']);
                 $this->v2->sendConfig($newConfig);
             } catch (LocalizedException $e) {
                 $this->helper->logSezzleActions($e->getMessage());
