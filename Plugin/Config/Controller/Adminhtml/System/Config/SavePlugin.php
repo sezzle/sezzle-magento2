@@ -132,6 +132,8 @@ class SavePlugin
                 }
             }
 
+            $goAhead = $proceed();
+
             // sending config data to Sezzle
             try {
                 unset($newConfig['public_key'], $newConfig['private_key']);
@@ -139,7 +141,7 @@ class SavePlugin
             } catch (LocalizedException $e) {
                 $this->helper->logSezzleActions($e->getMessage());
             }
-            return $proceed();
+            return $goAhead;
         } catch (ValidationException $e) {
             $this->helper->logSezzleActions($e->getMessage());
         }
