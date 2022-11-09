@@ -103,8 +103,7 @@ class SavePlugin
         $groups = $this->request->getPost('groups');
         $configGroups = $groups[ConfigProvider::CODE]['groups'];
 
-        $oldConfig = $this->getOldConfig();
-
+        // don't do anything if the config data are not of Sezzle
         $isSezzleConfig = isset($groups[ConfigProvider::CODE]) &&
             isset($configGroups) &&
             isset($configGroups['sezzle_payment']) &&
@@ -113,28 +112,34 @@ class SavePlugin
             return $proceed();
         }
 
-        $newConfig = $this->getNewConfig($oldConfig, $configGroups);
 
+        // checking if the config data has been altered or not
+        $oldConfig = $this->getOldConfig();
+        $newConfig = $this->getNewConfig($oldConfig, $configGroups);
         if ($oldConfig === $newConfig) {
             return $proceed();
         }
 
         try {
-            if ($this->authenticationService->validateAPIKeys(
-                $newConfig['public_key'],
-                $newConfig['private_key'],
-                $newConfig['payment_mode']
-            )) {
-                $goAhead = $proceed();
-                try {
-                    unset($newConfig['public_key'], $newConfig['private_key']);
-                    $this->v2->sendConfig($newConfig);
-                } catch (LocalizedException $e) {
-                    $this->helper->logSezzleActions($e->getMessage());
+            // only validate keys if they are changed
+            if ($this->hasKeysChanged($oldConfig, $newConfig)) {
+                if (!$this->authenticationService->validateAPIKeys(
+                    $newConfig['public_key'],
+                    $newConfig['private_key'],
+                    $newConfig['payment_mode']
+                )) {
+                    throw new ValidationException(__('Auth token not found.'));
                 }
-                return $goAhead;
-
             }
+
+            // sending config data to Sezzle
+            try {
+                unset($newConfig['public_key'], $newConfig['private_key']);
+                $this->v2->sendConfig($newConfig);
+            } catch (LocalizedException $e) {
+                $this->helper->logSezzleActions($e->getMessage());
+            }
+            return $proceed();
         } catch (ValidationException $e) {
             $this->helper->logSezzleActions($e->getMessage());
         }
@@ -175,6 +180,26 @@ class SavePlugin
     }
 
     /**
+     * Checking if the keys values has been changed or not
+     *
+     * @param array $oldConfig
+     * @param array $newConfig
+     * @return bool
+     */
+    private function hasKeysChanged(array $oldConfig, array $newConfig): bool
+    {
+        return [
+                'public_key' => $oldConfig['public_key'],
+                'private_key' => $oldConfig['private_key'],
+                'payment_mode' => $oldConfig['payment_mode']
+            ] !== [
+                'public_key' => $newConfig['public_key'],
+                'private_key' => $newConfig['private_key'],
+                'payment_mode' => $newConfig['payment_mode']
+            ];
+    }
+
+    /**
      * Gets the old config data
      *
      * @return array
@@ -187,6 +212,7 @@ class SavePlugin
             'public_key' => $this->config->getConfigDataValue($this->getPath('public_key')),
             'private_key' => $this->config->getConfigDataValue($this->getPath('private_key')),
             'payment_mode' => $this->config->getConfigDataValue($this->getPath('payment_mode')),
+            'min_checkout_amount' => $this->config->getConfigDataValue($this->getPath('min_checkout_amount')),
             'widget_pdp' => $this->config->getConfigDataValue($this->getPath('widget_pdp')),
             'widget_cart' => $this->config->getConfigDataValue($this->getPath('widget_cart')),
             'widget_installment' => $this->config->getConfigDataValue($this->getPath('widget_installment')),
@@ -221,6 +247,8 @@ class SavePlugin
                 ? $oldConfig['private_key'] : (string)$paymentFields['private_key']['value'],
             'payment_mode' => $this->isInherit('payment_mode', $paymentFields)
                 ? $oldConfig['payment_mode'] : (string)$paymentFields['payment_mode']['value'],
+            'min_checkout_amount' => $this->isInherit('min_checkout_amount', $paymentFields)
+                ? $oldConfig['min_checkout_amount'] : (float)$paymentFields['min_checkout_amount']['value'],
             'pdp_widget_enabled' => $this->isInherit('widget_pdp', $widgetFields)
                 ? $oldConfig['pdp_widget_enabled'] : (bool)$widgetFields['widget_pdp']['value'],
             'cart_widget_enabled' => $this->isInherit('widget_cart', $widgetFields)
