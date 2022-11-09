@@ -127,6 +127,7 @@ class SavePlugin
             )) {
                 $goAhead = $proceed();
                 try {
+                    unset($newConfig['public_key'], $newConfig['private_key']);
                     $this->v2->sendConfig($newConfig);
                 } catch (LocalizedException $e) {
                     $this->helper->logSezzleActions($e->getMessage());
