@@ -75,4 +75,12 @@ interface V2Interface
      * @throws LocalizedException
      */
     public function addToWidgetQueue(): void;
+
+    /**
+     * Send config data
+     *
+     * @param array $config
+     * @throws LocalizedException
+     */
+    public function sendConfig(array $config): void;
 }

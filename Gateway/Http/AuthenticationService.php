@@ -137,10 +137,10 @@ class AuthenticationService
      * @param string $publicKey
      * @param string $privateKey
      * @param string $paymentMode
-     * @return string
+     * @return bool
      * @throws ValidationException
      */
-    public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): string
+    public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): bool
     {
         $data = [
             'public_key' => $publicKey,
@@ -172,7 +172,7 @@ class AuthenticationService
                 throw new LocalizedException(__('Auth token unavailable.'));
             }
 
-            return (bool)$response['token'];
+            return true;
         } catch (InputException|NoSuchEntityException|LocalizedException $e) {
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();
