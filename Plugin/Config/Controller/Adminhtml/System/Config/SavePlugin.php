@@ -20,6 +20,7 @@ use Sezzle\Sezzlepay\Gateway\Http\AuthenticationService;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 use Sezzle\Sezzlepay\Api\V2Interface;
+use Magento\Framework\UrlInterface;
 
 /**
  * Class SavePlugin
@@ -63,6 +64,11 @@ class SavePlugin
     private $v2;
 
     /**
+     * @var UrlInterface
+     */
+    private $urlManager;
+
+    /**
      * SavePlugin constructor.
      * @param ManagerInterface $messageManager
      * @param RedirectFactory $resultRedirectFactory
@@ -71,6 +77,7 @@ class SavePlugin
      * @param Config $config
      * @param V2Interface $v2
      * @param AuthenticationService $authenticationService
+     * @param UrlInterface $urlManager
      */
     public function __construct(
         ManagerInterface      $messageManager,
@@ -79,7 +86,8 @@ class SavePlugin
         RequestInterface      $request,
         Config                $config,
         V2Interface           $v2,
-        AuthenticationService $authenticationService
+        AuthenticationService $authenticationService,
+        UrlInterface          $urlManager
     )
     {
         $this->messageManager = $messageManager;
@@ -89,6 +97,7 @@ class SavePlugin
         $this->config = $config;
         $this->v2 = $v2;
         $this->authenticationService = $authenticationService;
+        $this->urlManager = $urlManager;
     }
 
     /**
@@ -266,7 +275,8 @@ class SavePlugin
             'payment_action' => $this->isInherit('payment_action', $paymentFields)
                 ? $oldConfig['payment_action'] : (string)$paymentFields['payment_action']['value'],
             'tokenization_enabled' => $this->isInherit('tokenize', $paymentFields)
-                ? $oldConfig['tokenization_enabled'] : (bool)$paymentFields['tokenize']['value']
+                ? $oldConfig['tokenization_enabled'] : (bool)$paymentFields['tokenize']['value'],
+            'store_url' => $this->urlManager->getBaseUrl()
         ];
     }
 }
