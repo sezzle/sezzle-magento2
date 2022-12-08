@@ -6,7 +6,7 @@
 
 # Sezzle Magento 2 Extension Changelog
 
-## Version 6.0.2
+## Version 6.0.2.1
 
 _Mon 09 May 2022_
 
@@ -20,7 +20,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- FIX: Items are not cleared from mini cart after order place.
+- FIX: Setting reauthorization approved status to true if the approved status from Sezzle is true.
 
 ## Version 6.0.1
 

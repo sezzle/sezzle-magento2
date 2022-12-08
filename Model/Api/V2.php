@@ -714,7 +714,9 @@ class V2 implements V2Interface
                 }
                 $authorizationModel->setLinks($linksArray);
             }
-            $authorizationModel->setApproved(isset($body['authorization']['approved']));
+
+            $approved = isset($body['authorization']['approved']) && $body['authorization']['approved'];
+            $authorizationModel->setApproved($approved);
             return $authorizationModel;
         } catch (Exception $e) {
             $this->sezzleHelper->logSezzleActions($e->getMessage());
