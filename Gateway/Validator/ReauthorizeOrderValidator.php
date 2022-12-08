@@ -20,8 +20,10 @@ class ReauthorizeOrderValidator extends AbstractValidator
     {
         $response = SubjectReader::readResponse($validationSubject);
 
-        if (!isset($response['authorization']) || !$response['authorization']) {
-            return $this->createResult(false, [__('Reauthorization is not approved by Sezzle.')]);
+        switch (true) {
+            case (!isset($response['authorization']) || !$response['authorization']):
+            case (!isset($response['authorization']['approved']) || !$response['authorization']['approved']) :
+                return $this->createResult(false, [__('Reauthorization is not approved by Sezzle.')]);
         }
 
         return $this->createResult(true);

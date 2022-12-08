@@ -8,7 +8,7 @@
 
 ## Version 7.0.6
 
-_Tue 6 Dec 2022_
+_Mon 12 Dec 2022_
 
 ### Supported Editions & Versions
 
@@ -21,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Sending Sezzle configuration data to Sezzle.
+- FIX: Setting reauthorization approved status properly.
 
 ## Version 7.0.5
 
