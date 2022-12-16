@@ -110,21 +110,16 @@ class SavePlugin
     public function aroundExecute(Save $subject, Closure $proceed): Redirect
     {
         $groups = $this->request->getPost('groups');
-        $configGroups = $groups[ConfigProvider::CODE]['groups'];
 
         // don't do anything if the config data are not of Sezzle
-        $isSezzleConfig = isset($groups[ConfigProvider::CODE]) &&
-            isset($configGroups) &&
-            isset($configGroups['sezzle_payment']) &&
-            isset($configGroups['sezzle_payment']['fields']);
+        $isSezzleConfig = isset($groups[ConfigProvider::CODE]['groups']['sezzle_payment']['fields']);
         if (!$isSezzleConfig) {
             return $proceed();
         }
 
-
         // checking if the config data has been altered or not
         $oldConfig = $this->getOldConfig();
-        $newConfig = $this->getNewConfig($oldConfig, $configGroups);
+        $newConfig = $this->getNewConfig($oldConfig, $groups[ConfigProvider::CODE]['groups']);
         if ($oldConfig === $newConfig) {
             return $proceed();
         }
@@ -250,8 +245,6 @@ class SavePlugin
         return [
             'sezzle_enabled' => $this->isInherit('active', $paymentFields)
                 ? $oldConfig['sezzle_enabled'] : (bool)$paymentFields['active']['value'],
-            'merchant_uuid' => $this->isInherit('merchant_uuid', $paymentFields)
-                ? $oldConfig['merchant_uuid'] : (string)$paymentFields['merchant_uuid']['value'],
             'public_key' => $this->isInherit('public_key', $paymentFields)
                 ? $oldConfig['public_key'] : (string)$paymentFields['public_key']['value'],
             'private_key' => $this->isInherit('private_key', $paymentFields)
