@@ -2,6 +2,8 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
+use Exception;
+use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -91,7 +93,11 @@ class TransferFactory implements TransferFactoryInterface
             $storeId = isset($request['__store_id']) ?
                 (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
             $token = $this->authenticationService->getToken($storeId);
-        } catch (LocalizedException $e) {
+        }
+        catch (Exception $e) {
+            if (get_class($e) === 'AuthenticationException') {
+                throw $e;
+            }
             throw new ClientException(
                 __('Something went wrong while authenticating.')
             );

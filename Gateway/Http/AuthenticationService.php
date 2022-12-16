@@ -2,6 +2,8 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
+use Exception;
+use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\App\CacheInterface;
@@ -82,12 +84,14 @@ class AuthenticationService
      * @param int|null $storeId
      * @return string
      * @throws LocalizedException
+     * @throws AuthenticationException
      */
     public function getToken(int $storeId = null): string
     {
         $data = [
             'public_key' => $this->config->getPublicKey($storeId),
-            'private_key' => $this->config->getPrivateKey($storeId)
+            'private_key' => $this->config->getPrivateKey($storeId),
+            'cancel_url' => $this->config->getCancelURL()
         ];
 
         try {
@@ -116,14 +120,22 @@ class AuthenticationService
             $response = $this->jsonSerializer->unserialize($responseJSON);
             $log['response']['body'] = $response;
 
+            if (isset($response[0]['code']) && $response[0]['code'] === 'unauthed_checkout_url') {
+                throw new AuthenticationException(__($response[0]['message']));
+            }
+
             if (!isset($response['token'])) {
                 throw new LocalizedException(__('Auth token unavailable.'));
             }
 
             return $response['token'];
-        } catch (InputException|NoSuchEntityException|LocalizedException $e) {
+        } catch (Exception $e) {
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();
+
+            if (get_class($e) === 'AuthenticationException') {
+                throw $e;
+            }
 
             throw new LocalizedException(__($e->getMessage()));
         } finally {

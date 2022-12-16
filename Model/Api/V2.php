@@ -231,6 +231,9 @@ class V2 implements V2Interface
             return $sessionModel;
         } catch (Exception $e) {
             $this->helper->logSezzleActions($e->getMessage());
+            if (get_class($e) === 'AuthenticationException') {
+                throw $e;
+            }
             throw new LocalizedException(
                 __('Gateway checkout error: %1', $e->getMessage())
             );
