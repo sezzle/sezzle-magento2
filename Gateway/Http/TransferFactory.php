@@ -93,8 +93,7 @@ class TransferFactory implements TransferFactoryInterface
             $storeId = isset($request['__store_id']) ?
                 (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
             $token = $this->authenticationService->getToken($storeId);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             throw new ClientException(__($e->getMessage()));
         }
 
