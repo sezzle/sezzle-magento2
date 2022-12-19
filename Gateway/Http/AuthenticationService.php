@@ -120,22 +120,17 @@ class AuthenticationService
             $response = $this->jsonSerializer->unserialize($responseJSON);
             $log['response']['body'] = $response;
 
-            if (isset($response[0]['code']) && $response[0]['code'] === 'unauthed_checkout_url') {
-                throw new AuthenticationException(__($response[0]['message']));
-            }
-
-            if (!isset($response['token'])) {
-                throw new LocalizedException(__('Auth token unavailable.'));
+            switch (true) {
+                case isset($response[0]['code']) && $response[0]['code'] === 'unauthed_checkout_url':
+                    throw new AuthenticationException(__($response[0]['message']));
+                case !isset($response['token']):
+                    throw new LocalizedException(__('Auth token unavailable.'));
             }
 
             return $response['token'];
         } catch (Exception $e) {
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();
-
-            if (get_class($e) === 'AuthenticationException') {
-                throw $e;
-            }
 
             throw new LocalizedException(__($e->getMessage()));
         } finally {

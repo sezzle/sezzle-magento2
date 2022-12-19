@@ -95,12 +95,7 @@ class TransferFactory implements TransferFactoryInterface
             $token = $this->authenticationService->getToken($storeId);
         }
         catch (Exception $e) {
-            if (get_class($e) === 'AuthenticationException') {
-                throw $e;
-            }
-            throw new ClientException(
-                __('Something went wrong while authenticating.')
-            );
+            throw new ClientException(__($e->getMessage()));
         }
 
         $method = $request['__method'] ?? $this->method;

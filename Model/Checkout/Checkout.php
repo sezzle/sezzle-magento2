@@ -114,18 +114,7 @@ class Checkout implements CheckoutInterface
             /** @var Quote $quote */
             $quote = $this->initQuote($cartId);
 
-//            try {
-//                $this->authenticationService->getToken($quote->getStoreId());
-//            } catch (AuthenticationException $e) {
-//                return $e->getMessage();
-//            } catch (LocalizedException $e) {
-//            }
-
-            try {
-                $session = $this->createSession($quote);
-            } catch (AuthenticationException $e) {
-                return $e->getMessage();
-            }
+            $session = $this->createSession($quote);
             $this->setTokenizeDetailsInSession($session);
 
             $quote->getPayment()->setAdditionalInformation($this->additionalInformation);
@@ -133,8 +122,9 @@ class Checkout implements CheckoutInterface
             $this->checkoutSession->replaceQuote($quote);
 
             return $session->getOrder()->getCheckoutURL();
+
         } catch (Exception $e) {
-            return '';
+            return str_contains($e->getMessage(), '?id=unauth') ? $e->getMessage() : '';
         }
     }
 
