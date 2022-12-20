@@ -260,9 +260,7 @@ class V2 implements V2Interface
             return $customerModel;
         } catch (Exception $e) {
             $this->helper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(
-                __('Gateway customer error: %1', $e->getMessage())
-            );
+            throw new LocalizedException(__($e->getMessage()));
         }
     }
 
