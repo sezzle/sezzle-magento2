@@ -5,7 +5,6 @@ namespace Sezzle\Sezzlepay\Model\Checkout;
 use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -16,11 +15,8 @@ use Sezzle\Sezzlepay\Api\CheckoutInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
-use Sezzle\Sezzlepay\Gateway\Http\AuthenticationService;
 use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
 use Sezzle\Sezzlepay\Gateway\Response\CustomerOrderHandler;
-use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Checkout
@@ -37,11 +33,6 @@ class Checkout implements CheckoutInterface
      * @var CheckoutValidator
      */
     private $checkoutValidator;
-
-    /**
-     * @var Data
-     */
-    private $sezzleHelper;
 
     /**
      * @var V2Interface
@@ -69,39 +60,28 @@ class Checkout implements CheckoutInterface
     private $cartRepository;
 
     /**
-     * @var AuthenticationService
-     */
-    private $authenticationService;
-
-    /**
-     * @param Data $sezzleHelper
      * @param V2Interface $v2
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      * @param QuoteResourceModel $quoteResourceModel
      * @param CheckoutValidator $checkoutValidator
      * @param CartRepositoryInterface $cartRepository
-     * @param AuthenticationService $authenticationService
      */
     public function __construct(
-        Data                    $sezzleHelper,
         V2Interface             $v2,
         CustomerSession         $customerSession,
         CheckoutSession         $checkoutSession,
         QuoteResourceModel      $quoteResourceModel,
         CheckoutValidator       $checkoutValidator,
-        CartRepositoryInterface $cartRepository,
-        AuthenticationService   $authenticationService
+        CartRepositoryInterface $cartRepository
     )
     {
-        $this->sezzleHelper = $sezzleHelper;
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
         $this->quoteResourceModel = $quoteResourceModel;
         $this->checkoutValidator = $checkoutValidator;
         $this->cartRepository = $cartRepository;
-        $this->authenticationService = $authenticationService;
     }
 
 
@@ -122,7 +102,6 @@ class Checkout implements CheckoutInterface
             $this->checkoutSession->replaceQuote($quote);
 
             return $session->getOrder()->getCheckoutURL();
-
         } catch (Exception $e) {
             return str_contains($e->getMessage(), '?id=unauth') ? $e->getMessage() : '';
         }
