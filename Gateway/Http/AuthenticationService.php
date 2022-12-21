@@ -121,7 +121,7 @@ class AuthenticationService
             $log['response']['body'] = $response;
 
             switch (true) {
-                case isset($response[0]['code']) && $response[0]['code'] === 'unauthed_checkout_url':
+                case isset($response[0]['id']) && $response[0]['id'] === 'unauthed_checkout_url':
                     throw new AuthenticationException(__($response[0]['message']));
                 case !isset($response['token']):
                     throw new LocalizedException(__('Auth token unavailable.'));
