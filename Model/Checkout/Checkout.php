@@ -103,7 +103,7 @@ class Checkout implements CheckoutInterface
 
             return $session->getOrder()->getCheckoutURL();
         } catch (Exception $e) {
-            return str_contains($e->getMessage(), '?id=unauth') ? $e->getMessage() : '';
+            return strpos($e->getMessage(), '?id=unauth') ? $e->getMessage() : '';
         }
     }
 
