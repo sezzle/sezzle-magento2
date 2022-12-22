@@ -6,6 +6,22 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.8
+
+_Wed 21 Dec 2022_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- Sending use to unauth URL if authentication is unsuccessful.
+
 ## Version 7.0.7
 
 _Fri 16 Dec 2022_

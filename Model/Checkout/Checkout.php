@@ -5,6 +5,7 @@ namespace Sezzle\Sezzlepay\Model\Checkout;
 use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -17,8 +18,6 @@ use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
 use Sezzle\Sezzlepay\Gateway\Response\CustomerOrderHandler;
-use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
  * Checkout
@@ -35,11 +34,6 @@ class Checkout implements CheckoutInterface
      * @var CheckoutValidator
      */
     private $checkoutValidator;
-
-    /**
-     * @var Data
-     */
-    private $sezzleHelper;
 
     /**
      * @var V2Interface
@@ -67,15 +61,14 @@ class Checkout implements CheckoutInterface
     private $cartRepository;
 
     /**
-     * @param Data $sezzleHelper
      * @param V2Interface $v2
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      * @param QuoteResourceModel $quoteResourceModel
      * @param CheckoutValidator $checkoutValidator
+     * @param CartRepositoryInterface $cartRepository
      */
     public function __construct(
-        Data                    $sezzleHelper,
         V2Interface             $v2,
         CustomerSession         $customerSession,
         CheckoutSession         $checkoutSession,
@@ -84,7 +77,6 @@ class Checkout implements CheckoutInterface
         CartRepositoryInterface $cartRepository
     )
     {
-        $this->sezzleHelper = $sezzleHelper;
         $this->v2 = $v2;
         $this->customerSession = $customerSession;
         $this->checkoutSession = $checkoutSession;
@@ -102,6 +94,7 @@ class Checkout implements CheckoutInterface
         try {
             /** @var Quote $quote */
             $quote = $this->initQuote($cartId);
+
             $session = $this->createSession($quote);
             $this->setTokenizeDetailsInSession($session);
 
@@ -110,6 +103,8 @@ class Checkout implements CheckoutInterface
             $this->checkoutSession->replaceQuote($quote);
 
             return $session->getOrder()->getCheckoutURL();
+        } catch (AuthenticationException $ae) {
+            return $ae->getMessage();
         } catch (Exception $e) {
             return '';
         }

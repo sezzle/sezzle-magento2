@@ -2,8 +2,8 @@
 
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
+use Exception;
 use Magento\Framework\Exception\InputException;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Payment\Gateway\Http\TransferBuilder;
@@ -82,20 +82,13 @@ class TransferFactory implements TransferFactoryInterface
      * Builds gateway transfer object
      *
      * @inheritDoc
-     * @throws NoSuchEntityException|InputException
-     * @throws ClientException
+     * @throws Exception
      */
     public function create(array $request): TransferInterface
     {
-        try {
-            $storeId = isset($request['__store_id']) ?
-                (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
-            $token = $this->authenticationService->getToken($storeId);
-        } catch (LocalizedException $e) {
-            throw new ClientException(
-                __('Something went wrong while authenticating.')
-            );
-        }
+        $storeId = isset($request['__store_id']) ?
+            (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
+        $token = $this->authenticationService->getToken($storeId);
 
         $method = $request['__method'] ?? $this->method;
 
