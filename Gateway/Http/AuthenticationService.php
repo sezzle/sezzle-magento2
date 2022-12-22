@@ -132,7 +132,7 @@ class AuthenticationService
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();
 
-            throw new LocalizedException(__($e->getMessage()));
+            throw $e;
         } finally {
             $this->helper->logSezzleActions($log);
         }

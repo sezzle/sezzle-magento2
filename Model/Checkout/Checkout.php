@@ -5,6 +5,7 @@ namespace Sezzle\Sezzlepay\Model\Checkout;
 use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\CartRepositoryInterface;
@@ -102,8 +103,10 @@ class Checkout implements CheckoutInterface
             $this->checkoutSession->replaceQuote($quote);
 
             return $session->getOrder()->getCheckoutURL();
+        } catch (AuthenticationException $ae) {
+            return $ae->getMessage();
         } catch (Exception $e) {
-            return strpos($e->getMessage(), '?id=unauth') ? $e->getMessage() : '';
+            return '';
         }
     }
 

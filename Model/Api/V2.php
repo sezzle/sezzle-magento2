@@ -231,7 +231,7 @@ class V2 implements V2Interface
             return $sessionModel;
         } catch (Exception $e) {
             $this->helper->logSezzleActions($e->getMessage());
-            throw new LocalizedException(__($e->getMessage()));
+            throw $e;
         }
     }
 

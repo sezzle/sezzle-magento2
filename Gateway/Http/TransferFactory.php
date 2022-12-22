@@ -82,18 +82,13 @@ class TransferFactory implements TransferFactoryInterface
      * Builds gateway transfer object
      *
      * @inheritDoc
-     * @throws NoSuchEntityException|InputException
-     * @throws ClientException
+     * @throws Exception
      */
     public function create(array $request): TransferInterface
     {
-        try {
-            $storeId = isset($request['__store_id']) ?
-                (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
-            $token = $this->authenticationService->getToken($storeId);
-        } catch (Exception $e) {
-            throw new ClientException(__($e->getMessage()));
-        }
+        $storeId = isset($request['__store_id']) ?
+            (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
+        $token = $this->authenticationService->getToken($storeId);
 
         $method = $request['__method'] ?? $this->method;
 
