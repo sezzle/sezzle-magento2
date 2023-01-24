@@ -9,6 +9,7 @@ namespace Sezzle\Sezzlepay\Plugin\Config\Controller\Adminhtml\System\Config;
 
 use Closure;
 use Magento\Config\Model\Config;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
@@ -21,6 +22,7 @@ use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Magento\Framework\UrlInterface;
+use Sezzle\Sezzlepay\Gateway\Config\Config as SezzleConfig;
 
 /**
  * Class SavePlugin
@@ -69,6 +71,11 @@ class SavePlugin
     private $urlManager;
 
     /**
+     * @var WriterInterface
+     */
+    private $configWriter;
+
+    /**
      * SavePlugin constructor.
      * @param ManagerInterface $messageManager
      * @param RedirectFactory $resultRedirectFactory
@@ -78,6 +85,7 @@ class SavePlugin
      * @param V2Interface $v2
      * @param AuthenticationService $authenticationService
      * @param UrlInterface $urlManager
+     * @param WriterInterface $configWriter
      */
     public function __construct(
         ManagerInterface      $messageManager,
@@ -87,7 +95,8 @@ class SavePlugin
         Config                $config,
         V2Interface           $v2,
         AuthenticationService $authenticationService,
-        UrlInterface          $urlManager
+        UrlInterface          $urlManager,
+        WriterInterface       $configWriter
     )
     {
         $this->messageManager = $messageManager;
@@ -98,6 +107,7 @@ class SavePlugin
         $this->v2 = $v2;
         $this->authenticationService = $authenticationService;
         $this->urlManager = $urlManager;
+        $this->configWriter = $configWriter;
     }
 
     /**
@@ -125,9 +135,10 @@ class SavePlugin
         }
 
         try {
+            $merchantUUID = '';
             // only validate keys if they are changed
             if ($this->hasKeysChanged($oldConfig, $newConfig)) {
-                if (!$this->authenticationService->validateAPIKeys(
+                if (!$merchantUUID = $this->authenticationService->validateAPIKeys(
                     $newConfig['public_key'],
                     $newConfig['private_key'],
                     $newConfig['payment_mode']
@@ -137,6 +148,13 @@ class SavePlugin
             }
 
             $goAhead = $proceed();
+
+            if ($merchantUUID) {
+                $this->configWriter->save(
+                    sprintf('payment/%s/%s', ConfigProvider::CODE, SezzleConfig::KEY_MERCHANT_UUID),
+                    $merchantUUID
+                );
+            }
 
             // sending config data to Sezzle
             try {
@@ -214,7 +232,7 @@ class SavePlugin
     {
         return [
             'active' => $this->config->getConfigDataValue($this->getPath('active')),
-            'merchant_uuid' => $this->config->getConfigDataValue($this->getPath('merchant_uuid')),
+//            'merchant_uuid' => $this->config->getConfigDataValue($this->getPath('merchant_uuid')),
             'public_key' => $this->config->getConfigDataValue($this->getPath('public_key')),
             'private_key' => $this->config->getConfigDataValue($this->getPath('private_key')),
             'payment_mode' => $this->config->getConfigDataValue($this->getPath('payment_mode')),

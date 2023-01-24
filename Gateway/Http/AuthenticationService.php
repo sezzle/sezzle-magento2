@@ -15,7 +15,6 @@ use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\HTTP\Client\Curl;
 use Sezzle\Sezzlepay\Helper\Data;
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
 /**
  * AuthenticationService
@@ -55,11 +54,6 @@ class AuthenticationService
     private $helper;
 
     /**
-     * @var WriterInterface
-     */
-    private $configWriter;
-
-    /**
      * AuthenticationService constructor.
      * @param Config $config
      * @param CacheInterface $cache
@@ -67,7 +61,6 @@ class AuthenticationService
      * @param Data $helper
      * @param Json $jsonSerializer
      * @param Curl $curl
-     * @param WriterInterface $configWriter
      */
     public function __construct(
         Config          $config,
@@ -75,16 +68,15 @@ class AuthenticationService
         LoggerInterface $logger,
         Data            $helper,
         Json            $jsonSerializer,
-        Curl            $curl,
-        WriterInterface $configWriter
-    ) {
+        Curl            $curl
+    )
+    {
         $this->config = $config;
         $this->cache = $cache;
         $this->logger = $logger;
         $this->helper = $helper;
         $this->jsonSerializer = $jsonSerializer;
         $this->curl = $curl;
-        $this->configWriter = $configWriter;
     }
 
     /**
@@ -135,10 +127,7 @@ class AuthenticationService
                 case !isset($response['token']):
                     throw new LocalizedException(__('Auth token unavailable.'));
             }
-            $this->configWriter->save(
-                sprintf('payment/%s/%s', ConfigProvider::CODE, Config::KEY_MERCHANT_UUID),
-                $response['merchant_uuid']
-            );
+
             return $response['token'];
         } catch (Exception $e) {
             $this->logger->critical($e->getMessage());
@@ -156,10 +145,10 @@ class AuthenticationService
      * @param string $publicKey
      * @param string $privateKey
      * @param string $paymentMode
-     * @return bool
+     * @return string
      * @throws ValidationException
      */
-    public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): bool
+    public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): string
     {
         $data = [
             'public_key' => $publicKey,
@@ -191,8 +180,8 @@ class AuthenticationService
                 throw new LocalizedException(__('Auth token unavailable.'));
             }
 
-            return true;
-        } catch (InputException | NoSuchEntityException | LocalizedException $e) {
+            return $response['merchant_uuid'];
+        } catch (InputException|NoSuchEntityException|LocalizedException $e) {
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();
 
