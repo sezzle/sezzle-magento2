@@ -17,7 +17,7 @@ define(
         return Class.extend({
 
                 defaults: {
-                    $sezzleMerchantUUID: null,
+                    $sezzlePublicKey: null,
                     selector: 'sezzlepay_sezzle',
                     $container: null,
                     $form: null,
@@ -35,11 +35,11 @@ define(
                         + '_payment-head');
                     self.$sezzlePayment = $('#payment_' + self.getCountry() + '_' + self.selector
                         + '_payment');
-                    self.$sezzleMerchantUUID = $('#payment_' + self.getCountry() + '_' + self.selector
-                        + '_payment_merchant_uuid').val();
+                    self.$sezzlePublicKey = $('#payment_' + self.getCountry() + '_' + self.selector
+                        + '_payment_public_key').val();
                     self.$container = $('#sezzle_config');
 
-                    if (self.$sezzleMerchantUUID) {
+                    if (self.$sezzlePublicKey) {
                         self.hideSezzleConfig();
                     }
                     else {
