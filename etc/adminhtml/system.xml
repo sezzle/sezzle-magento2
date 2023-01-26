@@ -82,13 +82,13 @@
                         <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Form\InContextInfo</frontend_model>
                     </field>
                     <!-- active_in_context -->
-                    <field id="active_in_context" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="active_in_context" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable In-Context Solution</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/sezzlepay/active_in_context</config_path>
                     </field>
                     <!-- in_context_mode -->
-                    <field id="in_context_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="in_context_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>In-Context Checkout Mode</label>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\InContextMode</source_model>
                         <config_path>payment/sezzlepay/in_context_mode</config_path>

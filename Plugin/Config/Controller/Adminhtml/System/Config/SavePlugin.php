@@ -130,9 +130,6 @@ class SavePlugin
         // checking if the config data has been altered or not
         $oldConfig = $this->getOldConfig();
         $newConfig = $this->getNewConfig($oldConfig, $groups[ConfigProvider::CODE]['groups']);
-        if ($oldConfig === $newConfig) {
-            return $proceed();
-        }
 
         try {
             $merchantUUID = '';
@@ -232,7 +229,6 @@ class SavePlugin
     {
         return [
             'active' => $this->config->getConfigDataValue($this->getPath('active')),
-//            'merchant_uuid' => $this->config->getConfigDataValue($this->getPath('merchant_uuid')),
             'public_key' => $this->config->getConfigDataValue($this->getPath('public_key')),
             'private_key' => $this->config->getConfigDataValue($this->getPath('private_key')),
             'payment_mode' => $this->config->getConfigDataValue($this->getPath('payment_mode')),
@@ -260,9 +256,13 @@ class SavePlugin
         $widgetFields = $configGroups['sezzle_widget']['fields'];
         $inContextFields = $configGroups['sezzle_payment_in_context']['fields'];
 
+        $sezzleEnabled = !isset($paymentFields['active']) ?
+            $this->config->getConfigDataValue($this->getPath('active')) :
+            ($this->isInherit('active', $paymentFields) ? $oldConfig['active']
+                : (bool)$paymentFields['active']['value']);
+
         return [
-            'sezzle_enabled' => $this->isInherit('active', $paymentFields)
-                ? $oldConfig['sezzle_enabled'] : (bool)$paymentFields['active']['value'],
+            'sezzle_enabled' => $sezzleEnabled,
             'public_key' => $this->isInherit('public_key', $paymentFields)
                 ? $oldConfig['public_key'] : (string)$paymentFields['public_key']['value'],
             'private_key' => $this->isInherit('private_key', $paymentFields)
@@ -272,21 +272,21 @@ class SavePlugin
             'min_checkout_amount' => $this->isInherit('min_checkout_amount', $paymentFields)
                 ? $oldConfig['min_checkout_amount'] : (float)$paymentFields['min_checkout_amount']['value'],
             'pdp_widget_enabled' => $this->isInherit('widget_pdp', $widgetFields)
-                ? $oldConfig['pdp_widget_enabled'] : (bool)$widgetFields['widget_pdp']['value'],
+                ? $oldConfig['widget_pdp'] : (bool)$widgetFields['widget_pdp']['value'],
             'cart_widget_enabled' => $this->isInherit('widget_cart', $widgetFields)
-                ? $oldConfig['cart_widget_enabled'] : (bool)$widgetFields['widget_cart']['value'],
+                ? $oldConfig['widget_cart'] : (bool)$widgetFields['widget_cart']['value'],
             'installment_widget_enabled' => $this->isInherit('widget_installment', $widgetFields)
-                ? $oldConfig['installment_widget_enabled'] : (bool)$widgetFields['widget_installment']['value'],
+                ? $oldConfig['widget_installment'] : (bool)$widgetFields['widget_installment']['value'],
             'in_context_checkout_enabled' => $this->isInherit('active_in_context', $inContextFields)
-                ? $oldConfig['in_context_checkout_enabled'] : (bool)$inContextFields['active_in_context']['value'],
+                ? $oldConfig['active_in_context'] : (bool)$inContextFields['active_in_context']['value'],
             'in_context_checkout_mode' => $this->isInherit('in_context_mode', $inContextFields)
-                ? $oldConfig['in_context_checkout_mode'] :
+                ? $oldConfig['in_context_mode'] :
                 (isset($inContextFields['in_context_mode']) ?
                     (string)$inContextFields['in_context_mode']['value'] : ''),
             'payment_action' => $this->isInherit('payment_action', $paymentFields)
                 ? $oldConfig['payment_action'] : (string)$paymentFields['payment_action']['value'],
             'tokenization_enabled' => $this->isInherit('tokenize', $paymentFields)
-                ? $oldConfig['tokenization_enabled'] : (bool)$paymentFields['tokenize']['value'],
+                ? $oldConfig['tokenize'] : (bool)$paymentFields['tokenize']['value'],
             'store_url' => $this->urlManager->getBaseUrl()
         ];
     }
