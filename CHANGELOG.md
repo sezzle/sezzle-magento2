@@ -8,7 +8,7 @@
 
 ## Version 7.0.9
 
-_Tue 23 Jan 2023_
+_Thu 26 Jan 2023_
 
 ### Supported Editions & Versions
 
@@ -21,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Auto save of merchant UUID during Sezzle admin config save.
+- FIX: Undefined index while saving config in scope other than default.
 
 ## Version 7.0.8
 
