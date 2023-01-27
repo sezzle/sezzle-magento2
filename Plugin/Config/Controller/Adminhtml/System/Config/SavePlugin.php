@@ -136,9 +136,9 @@ class SavePlugin
             // only validate keys if they are changed
             if ($this->hasKeysChanged($oldConfig, $newConfig)) {
                 if (!$merchantUUID = $this->authenticationService->validateAPIKeys(
-                    $newConfig['public_key'],
-                    $newConfig['private_key'],
-                    $newConfig['payment_mode']
+                    $newConfig[SezzleConfig::KEY_PUBLIC_KEY],
+                    $newConfig[SezzleConfig::KEY_PRIVATE_KEY],
+                    $newConfig[SezzleConfig::KEY_PAYMENT_MODE]
                 )) {
                     throw new ValidationException(__('Auth token not found.'));
                 }
@@ -155,7 +155,11 @@ class SavePlugin
 
             // sending config data to Sezzle
             try {
-                unset($newConfig['public_key'], $newConfig['private_key'], $newConfig['payment_mode']);
+                unset(
+                    $newConfig[SezzleConfig::KEY_PUBLIC_KEY],
+                    $newConfig[SezzleConfig::KEY_PRIVATE_KEY],
+                    $newConfig[SezzleConfig::KEY_PAYMENT_MODE]
+                );
                 $this->v2->sendConfig($newConfig);
             } catch (LocalizedException $e) {
                 $this->helper->logSezzleActions($e->getMessage());
@@ -210,13 +214,13 @@ class SavePlugin
     private function hasKeysChanged(array $oldConfig, array $newConfig): bool
     {
         return [
-                'public_key' => $oldConfig['public_key'],
-                'private_key' => $oldConfig['private_key'],
-                'payment_mode' => $oldConfig['payment_mode']
+                SezzleConfig::KEY_PUBLIC_KEY => $oldConfig[SezzleConfig::KEY_PUBLIC_KEY],
+                SezzleConfig::KEY_PRIVATE_KEY => $oldConfig[SezzleConfig::KEY_PRIVATE_KEY],
+                SezzleConfig::KEY_PAYMENT_MODE => $oldConfig[SezzleConfig::KEY_PAYMENT_MODE]
             ] !== [
-                'public_key' => $newConfig['public_key'],
-                'private_key' => $newConfig['private_key'],
-                'payment_mode' => $newConfig['payment_mode']
+                SezzleConfig::KEY_PUBLIC_KEY => $newConfig[SezzleConfig::KEY_PUBLIC_KEY],
+                SezzleConfig::KEY_PRIVATE_KEY => $newConfig[SezzleConfig::KEY_PRIVATE_KEY],
+                SezzleConfig::KEY_PAYMENT_MODE => $newConfig[SezzleConfig::KEY_PAYMENT_MODE]
             ];
     }
 
@@ -228,18 +232,30 @@ class SavePlugin
     private function getOldConfig(): array
     {
         return [
-            'active' => $this->config->getConfigDataValue($this->getPath('active')),
-            'public_key' => $this->config->getConfigDataValue($this->getPath('public_key')),
-            'private_key' => $this->config->getConfigDataValue($this->getPath('private_key')),
-            'payment_mode' => $this->config->getConfigDataValue($this->getPath('payment_mode')),
-            'min_checkout_amount' => $this->config->getConfigDataValue($this->getPath('min_checkout_amount')),
-            'widget_pdp' => $this->config->getConfigDataValue($this->getPath('widget_pdp')),
-            'widget_cart' => $this->config->getConfigDataValue($this->getPath('widget_cart')),
-            'widget_installment' => $this->config->getConfigDataValue($this->getPath('widget_installment')),
-            'active_in_context' => $this->config->getConfigDataValue($this->getPath('active_in_context')),
-            'in_context_mode' => $this->config->getConfigDataValue($this->getPath('in_context_mode')),
-            'payment_action' => $this->config->getConfigDataValue($this->getPath('payment_action')),
-            'tokenize' => $this->config->getConfigDataValue($this->getPath('tokenize')),
+            SezzleConfig::KEY_ACTIVE =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_ACTIVE)),
+            SezzleConfig::KEY_PUBLIC_KEY =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_PUBLIC_KEY)),
+            SezzleConfig::KEY_PRIVATE_KEY =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_PRIVATE_KEY)),
+            SezzleConfig::KEY_PAYMENT_MODE =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_PAYMENT_MODE)),
+            SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT)),
+            SezzleConfig::KEY_WIDGET_PDP =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_WIDGET_PDP)),
+            SezzleConfig::KEY_WIDGET_CART =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_WIDGET_CART)),
+            SezzleConfig::KEY_WIDGET_INSTALLMENT =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_WIDGET_INSTALLMENT)),
+            SezzleConfig::KEY_INCONTEXT_ACTIVE =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_INCONTEXT_ACTIVE)),
+            SezzleConfig::KEY_INCONTEXT_MODE =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_INCONTEXT_MODE)),
+            SezzleConfig::KEY_PAYMENT_ACTION =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_PAYMENT_ACTION)),
+            SezzleConfig::KEY_TOKENIZE =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_TOKENIZE)),
         ];
     }
 
@@ -256,37 +272,46 @@ class SavePlugin
         $widgetFields = $configGroups['sezzle_widget']['fields'];
         $inContextFields = $configGroups['sezzle_payment_in_context']['fields'];
 
-        $sezzleEnabled = !isset($paymentFields['active']) ?
-            $this->config->getConfigDataValue($this->getPath('active')) :
-            ($this->isInherit('active', $paymentFields) ? $oldConfig['active']
-                : (bool)$paymentFields['active']['value']);
+        $sezzleEnabled = !isset($paymentFields[SezzleConfig::KEY_ACTIVE]) ?
+            $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_ACTIVE)) :
+            ($this->isInherit(SezzleConfig::KEY_ACTIVE, $paymentFields) ? $oldConfig[SezzleConfig::KEY_ACTIVE]
+                : (bool)$paymentFields[SezzleConfig::KEY_ACTIVE]['value']);
 
         return [
             'sezzle_enabled' => $sezzleEnabled,
-            'public_key' => $this->isInherit('public_key', $paymentFields)
-                ? $oldConfig['public_key'] : (string)$paymentFields['public_key']['value'],
-            'private_key' => $this->isInherit('private_key', $paymentFields)
-                ? $oldConfig['private_key'] : (string)$paymentFields['private_key']['value'],
-            'payment_mode' => $this->isInherit('payment_mode', $paymentFields)
-                ? $oldConfig['payment_mode'] : (string)$paymentFields['payment_mode']['value'],
-            'min_checkout_amount' => $this->isInherit('min_checkout_amount', $paymentFields)
-                ? $oldConfig['min_checkout_amount'] : (float)$paymentFields['min_checkout_amount']['value'],
-            'pdp_widget_enabled' => $this->isInherit('widget_pdp', $widgetFields)
-                ? $oldConfig['widget_pdp'] : (bool)$widgetFields['widget_pdp']['value'],
-            'cart_widget_enabled' => $this->isInherit('widget_cart', $widgetFields)
-                ? $oldConfig['widget_cart'] : (bool)$widgetFields['widget_cart']['value'],
-            'installment_widget_enabled' => $this->isInherit('widget_installment', $widgetFields)
-                ? $oldConfig['widget_installment'] : (bool)$widgetFields['widget_installment']['value'],
-            'in_context_checkout_enabled' => $this->isInherit('active_in_context', $inContextFields)
-                ? $oldConfig['active_in_context'] : (bool)$inContextFields['active_in_context']['value'],
-            'in_context_checkout_mode' => $this->isInherit('in_context_mode', $inContextFields)
-                ? $oldConfig['in_context_mode'] :
-                (isset($inContextFields['in_context_mode']) ?
-                    (string)$inContextFields['in_context_mode']['value'] : ''),
-            'payment_action' => $this->isInherit('payment_action', $paymentFields)
-                ? $oldConfig['payment_action'] : (string)$paymentFields['payment_action']['value'],
-            'tokenization_enabled' => $this->isInherit('tokenize', $paymentFields)
-                ? $oldConfig['tokenize'] : (bool)$paymentFields['tokenize']['value'],
+            SezzleConfig::KEY_PUBLIC_KEY => $this->isInherit(SezzleConfig::KEY_PUBLIC_KEY, $paymentFields)
+                ? $oldConfig[SezzleConfig::KEY_PUBLIC_KEY] :
+                (string)$paymentFields[SezzleConfig::KEY_PUBLIC_KEY]['value'],
+            SezzleConfig::KEY_PRIVATE_KEY => $this->isInherit(SezzleConfig::KEY_PRIVATE_KEY, $paymentFields)
+                ? $oldConfig[SezzleConfig::KEY_PRIVATE_KEY] :
+                (string)$paymentFields[SezzleConfig::KEY_PRIVATE_KEY]['value'],
+            SezzleConfig::KEY_PAYMENT_MODE => $this->isInherit(SezzleConfig::KEY_PAYMENT_MODE, $paymentFields)
+                ? $oldConfig[SezzleConfig::KEY_PAYMENT_MODE] :
+                (string)$paymentFields[SezzleConfig::KEY_PAYMENT_MODE]['value'],
+            SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT =>
+                $this->isInherit(SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT, $paymentFields)
+                    ? $oldConfig[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT] :
+                    (float)$paymentFields[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT]['value'],
+            'pdp_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_PDP, $widgetFields)
+                ? $oldConfig[SezzleConfig::KEY_WIDGET_PDP] : (bool)$widgetFields[SezzleConfig::KEY_WIDGET_PDP]['value'],
+            'cart_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_CART, $widgetFields)
+                ? $oldConfig[SezzleConfig::KEY_WIDGET_CART] :
+                (bool)$widgetFields[SezzleConfig::KEY_WIDGET_CART]['value'],
+            'installment_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_INSTALLMENT, $widgetFields)
+                ? $oldConfig[SezzleConfig::KEY_WIDGET_INSTALLMENT] :
+                (bool)$widgetFields[SezzleConfig::KEY_WIDGET_INSTALLMENT]['value'],
+            'in_context_checkout_enabled' => $this->isInherit(SezzleConfig::KEY_INCONTEXT_ACTIVE, $inContextFields)
+                ? $oldConfig[SezzleConfig::KEY_INCONTEXT_ACTIVE] :
+                (bool)$inContextFields[SezzleConfig::KEY_INCONTEXT_ACTIVE]['value'],
+            'in_context_checkout_mode' => $this->isInherit(SezzleConfig::KEY_INCONTEXT_MODE, $inContextFields)
+                ? $oldConfig[SezzleConfig::KEY_INCONTEXT_MODE] :
+                (isset($inContextFields[SezzleConfig::KEY_INCONTEXT_MODE]) ?
+                    (string)$inContextFields[SezzleConfig::KEY_INCONTEXT_MODE]['value'] : ''),
+            SezzleConfig::KEY_PAYMENT_ACTION => $this->isInherit(SezzleConfig::KEY_PAYMENT_ACTION, $paymentFields)
+                ? $oldConfig[SezzleConfig::KEY_PAYMENT_ACTION] :
+                (string)$paymentFields[SezzleConfig::KEY_PAYMENT_ACTION]['value'],
+            'tokenization_enabled' => $this->isInherit(SezzleConfig::KEY_TOKENIZE, $paymentFields)
+                ? $oldConfig[SezzleConfig::KEY_TOKENIZE] : (bool)$paymentFields[SezzleConfig::KEY_TOKENIZE]['value'],
             'store_url' => $this->urlManager->getBaseUrl()
         ];
     }
