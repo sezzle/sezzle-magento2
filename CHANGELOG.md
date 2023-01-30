@@ -6,7 +6,7 @@
 
 # Sezzle Magento 2 Extension Changelog
 
-## Version 7.0.9
+## Version 7.0.8
 
 _Mon 30 Jan 2023_
 
