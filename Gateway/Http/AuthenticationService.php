@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Magento\Framework\HTTP\Client\Curl;
 use Sezzle\Sezzlepay\Helper\Data;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 
 /**
  * AuthenticationService
@@ -144,10 +145,10 @@ class AuthenticationService
      * @param string $publicKey
      * @param string $privateKey
      * @param string $paymentMode
-     * @return bool
+     * @return string
      * @throws ValidationException
      */
-    public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): bool
+    public function validateAPIKeys(string $publicKey, string $privateKey, string $paymentMode): string
     {
         $data = [
             'public_key' => $publicKey,
@@ -179,7 +180,7 @@ class AuthenticationService
                 throw new LocalizedException(__('Auth token unavailable.'));
             }
 
-            return true;
+            return $response['merchant_uuid'];
         } catch (InputException|NoSuchEntityException|LocalizedException $e) {
             $this->logger->critical($e->getMessage());
             $log['error'] = $e->getMessage();
