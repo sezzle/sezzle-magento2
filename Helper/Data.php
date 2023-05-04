@@ -25,7 +25,6 @@ use Magento\Framework\Serialize\Serializer\Json;
  */
 class Data extends AbstractHelper
 {
-    const PRECISION = 2;
     const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
     const SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
     const SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH = '/vendor/sezzle/sezzlepay/composer.json';
@@ -177,20 +176,6 @@ class Data extends AbstractHelper
             return '--';
         }
         return '--';
-    }
-
-    /**
-     * Get amount in cents
-     *
-     * @param float $amount
-     * @return int
-     */
-    public function getAmountInCents(float $amount): int
-    {
-        return (int)(round(
-            $amount * 100,
-            self::PRECISION
-        ));
     }
 
     /**

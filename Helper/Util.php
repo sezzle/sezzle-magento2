@@ -7,8 +7,6 @@
 
 namespace Sezzle\Sezzlepay\Helper;
 
-use Zend_Locale_Math;
-
 /**
  * Class Action
  */
@@ -60,7 +58,6 @@ class Util
      */
     protected static function formatMoney($amount)
     {
-        $amount = Zend_Locale_Math::round($amount, Data::PRECISION);
         return sprintf(self::MONEY_FORMAT, $amount);
     }
 }
