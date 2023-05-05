@@ -9,14 +9,13 @@ declare(strict_types=1);
 namespace Sezzle\Sezzlepay\Setup\Patch\Data;
 
 use Magento\Customer\Model\Customer;
-use Magento\Customer\Setup\CustomerSetup;
 use Magento\Customer\Setup\CustomerSetupFactory;
 use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Validator\ValidateException;
 use Sezzle\Sezzlepay\Model\Tokenize;
-use Zend_Validate_Exception;
 
 /**
  * Patch is mechanism, that allows to do atomic upgrade data changes
@@ -85,7 +84,7 @@ class AddCustomerAttributes implements DataPatchInterface
      *
      * @return void
      * @throws LocalizedException
-     * @throws Zend_Validate_Exception
+     * @throws ValidateException
      */
     public function apply()
     {
@@ -99,11 +98,10 @@ class AddCustomerAttributes implements DataPatchInterface
      * @param string $input
      * @param string $attributeLabel
      * @throws LocalizedException
-     * @throws Zend_Validate_Exception
+     * @throws ValidateException
      */
     private function addCustomerAttribute($attributeCode, $input, $attributeLabel)
     {
-        /** @var CustomerSetup $customerSetup */
         $customerSetup = $this->customerSetupFactory->create(['setup' => $this->moduleDataSetup]);
 
         $customerEntity = $customerSetup->getEavConfig()->getEntityType('customer');
