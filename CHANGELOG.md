@@ -21,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Removed usage of Zend_Locale_Math and optimized the cents conversion logic.
+- Remove usage of Zend_Validate_Exception.
 
 ## Version 7.0.8
 
