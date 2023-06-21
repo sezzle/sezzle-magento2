@@ -220,7 +220,6 @@ class CreateSezzleCustomerOrderTest extends TestCase
 
         $this->assertEquals(
             [
-                'success' => true,
                 'checkout_url' => $checkoutURL
             ],
             $this->resolver->resolve(

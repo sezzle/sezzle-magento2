@@ -9,6 +9,6 @@ input createSezzleCheckoutInput {
 }
 
 type createSezzleCheckoutOutput {
-    success: Boolean! @doc(description: "Customer order creation status.")
-    checkout_url: String! @doc(description: "Sezzle checkout URL to be used to complete payment.")
+    success: Boolean @doc(description: "Customer order creation status.")
+    checkout_url: String @doc(description: "Sezzle checkout URL to be used to complete payment.")
 }
