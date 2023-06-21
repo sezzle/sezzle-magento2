@@ -80,8 +80,7 @@ class CreateSezzleCustomerOrder implements ResolverInterface
             }
 
             return [
-                'success' => true,
-                'checkout_url' => $checkoutURL,
+                'checkout_url' => $checkoutURL
             ];
         }
 

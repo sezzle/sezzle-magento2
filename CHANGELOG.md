@@ -6,6 +6,23 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.10
+
+_Wed 21 Jun 2023_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- `success` and `checkout_url` fields in `CreateSezzleCheckout` and `CreateSezzleCustomerOrder`
+   graphql response are made non mandatory.
+
 ## Version 7.0.9
 
 _Thu 04 May 2023_
