@@ -16,6 +16,7 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Laminas\Http\Response;
+use Magento\Quote\Model\Quote;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\LinkInterface;
@@ -172,9 +173,9 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function createSession(string $referenceId, int $storeId): SessionInterface
+    public function createSession(string $referenceId, Quote $quote): SessionInterface
     {
-        $quote = $this->checkoutSession->getQuote();
+        $storeId = $quote->getStoreId();
         $sessionModel = $this->sessionInterfaceFactory->create();
         try {
             $transferO = $this->transferFactory->create(array_merge([
