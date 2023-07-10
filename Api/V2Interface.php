@@ -9,7 +9,7 @@ namespace Sezzle\Sezzlepay\Api;
 
 use Exception;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Quote\Model\Quote;
+use Magento\Quote\Api\Data\CartInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
 use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface;
@@ -20,10 +20,10 @@ interface V2Interface
      * Create Sezzle Checkout Session
      *
      * @param string $referenceId
-     * @param Quote $quote
+     * @param CartInterface $quote
      * @return SessionInterface
      */
-    public function createSession(string $referenceId, Quote $quote): SessionInterface;
+    public function createSession(string $referenceId, CartInterface $quote): SessionInterface;
 
     /**
      * Get Customer by Customer UUID

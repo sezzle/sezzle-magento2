@@ -9,14 +9,13 @@ namespace Sezzle\Sezzlepay\Model\Api;
 
 use DateInterval;
 use Exception;
-use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Laminas\Http\Response;
-use Magento\Quote\Model\Quote;
+use Magento\Quote\Api\Data\CartInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterface;
 use Sezzle\Sezzlepay\Api\Data\CustomerInterfaceFactory;
 use Sezzle\Sezzlepay\Api\Data\LinkInterface;
@@ -71,11 +70,6 @@ class V2 implements V2Interface
     private $sessionTokenizeInterfaceFactory;
 
     /**
-     * @var CheckoutSession
-     */
-    private $checkoutSession;
-
-    /**
      * @var SessionInterfaceFactory
      */
     private $sessionInterfaceFactory;
@@ -125,7 +119,6 @@ class V2 implements V2Interface
      * @param DataObjectHelper $dataObjectHelper
      * @param SezzleHelper $sezzleHelper
      * @param SessionTokenizeInterfaceFactory $sessionTokenizeInterfaceFactory
-     * @param CheckoutSession $checkoutSession
      * @param SessionInterfaceFactory $sessionInterfaceFactory
      * @param Config $config
      * @param SessionOrderInterfaceFactory $sessionOrderInterfaceFactory
@@ -141,7 +134,6 @@ class V2 implements V2Interface
         DataObjectHelper                 $dataObjectHelper,
         SezzleHelper                     $sezzleHelper,
         SessionTokenizeInterfaceFactory  $sessionTokenizeInterfaceFactory,
-        CheckoutSession                  $checkoutSession,
         SessionInterfaceFactory          $sessionInterfaceFactory,
         Config                           $config,
         SessionOrderInterfaceFactory     $sessionOrderInterfaceFactory,
@@ -158,7 +150,6 @@ class V2 implements V2Interface
         $this->config = $config;
         $this->helper = $sezzleHelper;
         $this->sessionTokenizeInterfaceFactory = $sessionTokenizeInterfaceFactory;
-        $this->checkoutSession = $checkoutSession;
         $this->sessionInterfaceFactory = $sessionInterfaceFactory;
         $this->sessionOrderInterfaceFactory = $sessionOrderInterfaceFactory;
         $this->tokenizeCustomerInterfaceFactory = $tokenizeCustomerInterfaceFactory;
@@ -173,7 +164,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function createSession(string $referenceId, Quote $quote): SessionInterface
+    public function createSession(string $referenceId, CartInterface $quote): SessionInterface
     {
         $storeId = $quote->getStoreId();
         $sessionModel = $this->sessionInterfaceFactory->create();
