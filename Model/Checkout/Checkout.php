@@ -133,7 +133,7 @@ class Checkout implements CheckoutInterface
     {
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
         $this->additionalInformation[CustomerOrderRequestBuilder::KEY_REFERENCE_ID] = $referenceID;
-        $session = $this->v2->createSession($referenceID, $quote->getStoreId());
+        $session = $this->v2->createSession($referenceID, $quote);
         $order = $session->getOrder();
         if (!$order) {
             throw new LocalizedException(__('Session creation failed at Sezzle.'));
