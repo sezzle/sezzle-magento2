@@ -76,17 +76,14 @@ define([
 
             return storage.put(
                 serviceUrl
-            ).success(
+            ).done(
                 function () {
                     redirectOnSuccessAction.execute();
                 }
             ).fail(
                 function (response) {
                     errorProcessor.process(response, this.messageContainer);
-                }
-            ).always(
-                function () {
-                    fullScreenLoader.stopLoader();
+                    fullScreenLoader.stopLoader(true);
                 }
             );
         },
