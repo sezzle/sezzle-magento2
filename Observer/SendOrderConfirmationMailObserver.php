@@ -15,7 +15,7 @@ use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
 
-class SendOrderConfirmationMail implements ObserverInterface
+class SendOrderConfirmationMailObserver implements ObserverInterface
 {
 
     /**
@@ -43,9 +43,9 @@ class SendOrderConfirmationMail implements ObserverInterface
 
     /**
      * @param Observer $observer
-     * @return SendOrderConfirmationMail
+     * @return SendOrderConfirmationMailObserver
      */
-    public function execute(Observer $observer): SendOrderConfirmationMail
+    public function execute(Observer $observer): SendOrderConfirmationMailObserver
     {
         /* @var Order $order */
         $order = $observer->getEvent()->getData('order');
