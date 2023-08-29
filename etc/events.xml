@@ -8,6 +8,9 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="checkout_submit_all_after">
-        <observer name="send_order_confirmation_mail" instance="Sezzle\Sezzlepay\Observer\SendOrderConfirmationMail" />
+        <observer name="send_order_confirmation_mail" instance="Sezzle\Sezzlepay\Observer\SendOrderConfirmationMailObserver" />
+    </event>
+    <event name="payment_method_is_active">
+        <observer name="payment_method_availability" instance="Sezzle\Sezzlepay\Observer\PaymentMethodAvailabilityObserver" />
     </event>
 </config>
