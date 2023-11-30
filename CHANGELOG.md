@@ -6,6 +6,22 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.14
+
+_Wed 29 Nov 2023_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- FIX: Setting correct type while sending config.
+
 ## Version 7.0.13
 
 _Tue 29 Aug 2023_

@@ -275,10 +275,10 @@ class SavePlugin
         $sezzleEnabled = !isset($paymentFields[SezzleConfig::KEY_ACTIVE]) ?
             $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_ACTIVE)) :
             ($this->isInherit(SezzleConfig::KEY_ACTIVE, $paymentFields) ? $oldConfig[SezzleConfig::KEY_ACTIVE]
-                : (bool)$paymentFields[SezzleConfig::KEY_ACTIVE]['value']);
+                : $paymentFields[SezzleConfig::KEY_ACTIVE]['value']);
 
         return [
-            'sezzle_enabled' => $sezzleEnabled,
+            'sezzle_enabled' => (bool)$sezzleEnabled,
             SezzleConfig::KEY_PUBLIC_KEY => $this->isInherit(SezzleConfig::KEY_PUBLIC_KEY, $paymentFields)
                 ? $oldConfig[SezzleConfig::KEY_PUBLIC_KEY] :
                 (string)$paymentFields[SezzleConfig::KEY_PUBLIC_KEY]['value'],
@@ -293,25 +293,25 @@ class SavePlugin
                     ? $oldConfig[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT] :
                     (float)$paymentFields[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT]['value'],
             'pdp_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_PDP, $widgetFields)
-                ? $oldConfig[SezzleConfig::KEY_WIDGET_PDP] : (bool)$widgetFields[SezzleConfig::KEY_WIDGET_PDP]['value'],
+                ? (bool)$oldConfig[SezzleConfig::KEY_WIDGET_PDP] : (bool)$widgetFields[SezzleConfig::KEY_WIDGET_PDP]['value'],
             'cart_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_CART, $widgetFields)
-                ? $oldConfig[SezzleConfig::KEY_WIDGET_CART] :
+                ? (bool)$oldConfig[SezzleConfig::KEY_WIDGET_CART] :
                 (bool)$widgetFields[SezzleConfig::KEY_WIDGET_CART]['value'],
             'installment_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_INSTALLMENT, $widgetFields)
-                ? $oldConfig[SezzleConfig::KEY_WIDGET_INSTALLMENT] :
+                ? (bool)$oldConfig[SezzleConfig::KEY_WIDGET_INSTALLMENT] :
                 (bool)$widgetFields[SezzleConfig::KEY_WIDGET_INSTALLMENT]['value'],
             'in_context_checkout_enabled' => $this->isInherit(SezzleConfig::KEY_INCONTEXT_ACTIVE, $inContextFields)
-                ? $oldConfig[SezzleConfig::KEY_INCONTEXT_ACTIVE] :
+                ? (bool)$oldConfig[SezzleConfig::KEY_INCONTEXT_ACTIVE] :
                 (bool)$inContextFields[SezzleConfig::KEY_INCONTEXT_ACTIVE]['value'],
             'in_context_checkout_mode' => $this->isInherit(SezzleConfig::KEY_INCONTEXT_MODE, $inContextFields)
-                ? $oldConfig[SezzleConfig::KEY_INCONTEXT_MODE] :
+                ? (bool)$oldConfig[SezzleConfig::KEY_INCONTEXT_MODE] :
                 (isset($inContextFields[SezzleConfig::KEY_INCONTEXT_MODE]) ?
                     (string)$inContextFields[SezzleConfig::KEY_INCONTEXT_MODE]['value'] : ''),
             SezzleConfig::KEY_PAYMENT_ACTION => $this->isInherit(SezzleConfig::KEY_PAYMENT_ACTION, $paymentFields)
                 ? $oldConfig[SezzleConfig::KEY_PAYMENT_ACTION] :
                 (string)$paymentFields[SezzleConfig::KEY_PAYMENT_ACTION]['value'],
             'tokenization_enabled' => $this->isInherit(SezzleConfig::KEY_TOKENIZE, $paymentFields)
-                ? $oldConfig[SezzleConfig::KEY_TOKENIZE] : (bool)$paymentFields[SezzleConfig::KEY_TOKENIZE]['value'],
+                ? (bool)$oldConfig[SezzleConfig::KEY_TOKENIZE] : (bool)$paymentFields[SezzleConfig::KEY_TOKENIZE]['value'],
             'store_url' => $this->urlManager->getBaseUrl()
         ];
     }
