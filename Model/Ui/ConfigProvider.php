@@ -81,6 +81,7 @@ class ConfigProvider implements ConfigProviderInterface
             'payment' => [
                 self::CODE => [
                     'methodCode' => self::CODE,
+                    'publicKey' => $this->config->getPublicKey(),
                     'allowInContextCheckout' => $allowInContextCheckout,
                     'inContextMode' => $this->config->getInContextMode(),
                     'inContextTransactionMode' => $this->config->getPaymentMode(),
