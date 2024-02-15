@@ -5,26 +5,25 @@
             <values>
                 <value id="sezzle-sdk" type="host">checkout-sdk.sezzle.com</value>
                 <value id="sandbox-sezzle-sdk" type="host">sandbox.checkout-sdk.sezzle.com</value>
-                <value id="sezzle-sdk-eu" type="host">checkout-sdk.eu.sezzle.com</value>
-                <value id="sandbox-sezzle-sdk-eu" type="host">sandbox.checkout-sdk.eu.sezzle.com</value>
                 <value id="sezzle-widget" type="host">widget.sezzle.com</value>
-                <value id="sezzle-widget-eu" type="host">widget.eu.sezzle.com</value>
-                <value id="sezzle-widget-in" type="host">widget.sezzle.in</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
                 <value id="sezzle-incontext-checkout" type="host">checkout.sezzle.com</value>
                 <value id="sandbox-sezzle-incontext-checkout" type="host">sandbox.checkout.sezzle.com</value>
-                <value id="sezzle-incontext-checkout-eu" type="host">checkout.eu.sezzle.com</value>
-                <value id="sandbox-sezzle-incontext-checkout-eu" type="host">sandbox.checkout.eu.sezzle.com</value>
                 <value id="sezzle-tracking" type="host">tracking.sezzle.com</value>
-                <value id="sezzle-tracking-eu" type="host">tracking.eu.sezzle.com</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
                 <value id="sezzle-cdn" type="host">media.sezzle.com</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="sezzle-sdk-logging" type="host">gateway.sezzle.com</value>
+                <value id="sandbox-sezzle-sdk-logging" type="host">sandbox.gateway.sezzle.com</value>
             </values>
         </policy>
     </policies>

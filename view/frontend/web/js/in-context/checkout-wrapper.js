@@ -55,6 +55,7 @@ define([
          */
         getSDKConfig: function () {
             return {
+                'publicKey': this.clientConfig.publicKey,
                 'mode': this.clientConfig.inContextMode,
                 'apiMode': this.clientConfig.inContextTransactionMode,
                 'apiVersion': this.clientConfig.inContextApiVersion
@@ -222,6 +223,7 @@ define([
             this.clientConfig.rendererComponent = this;
             this.clientConfig.sezzleButtonContainerElementID = "sezzle-smart-button-container";
             this.clientConfig.formKey = $.mage.cookies.get('form_key');
+            this.clientConfig.publicKey = window.checkoutConfig.payment.sezzlepay.publicKey;
             this.clientConfig.inContextMode = window.checkoutConfig.payment.sezzlepay.inContextMode;
             this.clientConfig.inContextTransactionMode = window.checkoutConfig.payment.sezzlepay.inContextTransactionMode;
             this.clientConfig.inContextApiVersion = window.checkoutConfig.payment.sezzlepay.inContextApiVersion;
