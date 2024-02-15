@@ -8,7 +8,7 @@
 
 ## Version 7.0.15
 
-_Wed 13 Feb 2024_
+_Thu 15 Feb 2024_
 
 ### Supported Editions & Versions
 
@@ -21,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Set public key while initializing checkout SDK so that SDK logs can be sent.
+- FIX: Safari blocking Sezzle checkout popup.
 
 ## Version 7.0.14
 
