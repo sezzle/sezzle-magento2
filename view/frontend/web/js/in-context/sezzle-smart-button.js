@@ -18,16 +18,16 @@ define([
         checkoutSDK.init({
             onClick: function (event) {
                 event.preventDefault();
+                checkoutSDK.openModal();
                 clientConfig.rendererComponent.validateCheckout().done(function () {
                     fullScreenLoader.startLoader();
                     clientConfig.rendererComponent.beforeOnClick().done(function (response) {
                         var jsonResponse = $.parseJSON(response);
-                        checkoutSDK.startCheckout({
-                            checkout_url: jsonResponse.checkout_url
-                        });
+                        checkoutSDK.startCheckout({checkout_url: jsonResponse.checkout_url});
                     }).fail(
                         function (response) {
                             errorProcessor.process(response, this.messageContainer);
+                            checkoutSDK.closeModal();
                         }
                     ).always(function () {
                         fullScreenLoader.stopLoader();
