@@ -27,5 +27,15 @@
                 <value id="sezzle-cdn" type="host">media.sezzle.com</value>
             </values>
         </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="sezzle-sdk-logging" type="host">gateway.sezzle.com</value>
+                <value id="sandbox-sezzle-sdk-logging" type="host">sandbox.gateway.sezzle.com</value>
+                <value id="sezzle-incontext-checkout-eu" type="host">checkout.eu.sezzle.com</value>
+                <value id="sandbox-sezzle-incontext-checkout-eu" type="host">sandbox.checkout.eu.sezzle.com</value>
+                <value id="sezzle-tracking" type="host">tracking.sezzle.com</value>
+                <value id="sezzle-tracking-eu" type="host">tracking.eu.sezzle.com</value>
+            </values>
+        </policy>
     </policies>
 </csp_whitelist>
