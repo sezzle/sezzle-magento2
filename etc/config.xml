@@ -37,7 +37,7 @@
                 <active_in_context>0</active_in_context>
                 <tokenize>1</tokenize>
                 <sort_order>0</sort_order>
-                <send_logs_via_cron>0</send_logs_via_cron>
+                <send_logs_via_cron>1</send_logs_via_cron>
                 <active_in_context>0</active_in_context>
                 <settlement_reports>0</settlement_reports>
                 <widget_pdp>0</widget_pdp>

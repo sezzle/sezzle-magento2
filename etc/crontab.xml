@@ -10,7 +10,7 @@
     <group id="default">
         <job name="sezzle_sync_settlement_reports" instance="Sezzle\Sezzlepay\Cron\SyncSettlementReports" method="execute"/>
         <job name="sezzle_sync_logs" instance="Sezzle\Sezzlepay\Cron\SezzleLog" method="execute">
-            <schedule>* */5 * * *</schedule>
+            <schedule>* */2 * * *</schedule>
         </job>
     </group>
 </config>
