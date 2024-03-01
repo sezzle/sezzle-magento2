@@ -21,6 +21,7 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - FIX: Sezzle logs are not getting sent Sezzle via cron.
+- Sending sezzle logs enabled by default.
 - Sezzle logs cron set to run every 2 hour daily.
 
 ## Version 7.0.15
