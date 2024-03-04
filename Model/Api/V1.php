@@ -75,7 +75,7 @@ class V1 implements V1Interface
     {
         $logEndpoint = sprintf(self::SEZZLE_LOGGER_ENDPOINT, $merchantUUID);
         $uri = $this->config->getGatewayURL($storeId, Config::API_VERSION_V1) . $logEndpoint;
-        $currentTime = $this->dateTime->date();
+        $currentTime = $this->dateTime->date('Y-m-d');
         $request = [
             'start_time' => $currentTime,
             'end_time' => $currentTime,

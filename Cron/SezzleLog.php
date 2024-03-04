@@ -78,7 +78,7 @@ class SezzleLog
         foreach ($this->storeRepository->getList() as $store) {
             $isLogsSendingToSezzleAllowed = $this->config->isLogsSendingToSezzleAllowed($store->getId());
             $isProductionMode = $this->config->getPaymentMode($store->getId()) === Config::PAYMENT_MODE_LIVE;
-            if ($isLogsSendingToSezzleAllowed || $isProductionMode) {
+            if (!($isLogsSendingToSezzleAllowed && $isProductionMode)) {
                 return;
             }
 
