@@ -135,7 +135,7 @@ class SavePlugin
         try {
             $merchantUUID = '';
             // only validate keys if they are changed
-            if ($this->hasKeysChanged($oldConfig, $newConfig)) {
+            if ($sezzleEnabled && $this->hasKeysChanged($oldConfig, $newConfig)) {
                 if (!$merchantUUID = $this->authenticationService->validateAPIKeys(
                     $newConfig[SezzleConfig::KEY_PUBLIC_KEY],
                     $newConfig[SezzleConfig::KEY_PRIVATE_KEY],
