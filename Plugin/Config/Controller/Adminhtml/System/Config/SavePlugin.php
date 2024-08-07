@@ -130,6 +130,7 @@ class SavePlugin
         // checking if the config data has been altered or not
         $oldConfig = $this->getOldConfig();
         $newConfig = $this->getNewConfig($oldConfig, $groups[ConfigProvider::CODE]['groups']);
+        $sezzleEnabled = isset($newConfig['sezzle_enabled']) && $newConfig['sezzle_enabled'];
 
         try {
             $merchantUUID = '';
