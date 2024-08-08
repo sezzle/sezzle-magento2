@@ -6,6 +6,22 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.17
+
+_Wed 7 Aug 2024_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.3 and later.
+- Magento Commerce On Prem Edition (EE) version 2.3 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.3 and later.
+
+### Highlights
+
+- FIX: Sezzle attempts to validate API keys when the payment method is disabled.
+
 ## Version 7.0.16
 
 _Mon 4 Mar 2024_
