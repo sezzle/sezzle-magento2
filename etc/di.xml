@@ -300,6 +300,12 @@
         </arguments>
     </type>
 
+    <type name="Sezzle\Sezzlepay\Model\Api\V1">
+        <arguments>
+            <argument name="transferFactory" xsi:type="object">Sezzle\Sezzlepay\Gateway\Http\TransferFactory</argument>
+        </arguments>
+    </type>
+
     <virtualType name="Sezzle\Sezzlepay\Gateway\Http\V2TransferFactory" type="Sezzle\Sezzlepay\Gateway\Http\TransferFactory">
         <arguments>
             <argument name="config" xsi:type="object">Sezzle\Sezzlepay\Gateway\Config\Config</argument>
