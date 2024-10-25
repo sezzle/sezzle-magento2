@@ -6,18 +6,21 @@
  */
 ?>
 <?php
-
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
 use Sezzle\Sezzlepay\Block\Widget\Installment;
 
-/** @var $block Installment */
+/**  @var SecureHtmlRenderer $secureRenderer */
+/**  @var Installment $block */
 ?>
 <?php if ($block->isInstallmentWidgetEnabled()) : ?>
-    <script type="text/javascript">
+    <?php $script = <<<SCRIPT
         require(['installmentWidgetSDK'], function () {
             new SezzleInstallmentWidget({
-                'merchantLocale': 'US',
-                'platform': 'magento2'
+            'merchantLocale': 'US',
+            'platform': 'magento2'
             });
         });
-    </script>
+    SCRIPT; ?>
+
+    <?php echo $secureRenderer->renderTag('script', [], $script, false); ?>
 <?php endif; ?>
