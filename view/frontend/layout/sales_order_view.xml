@@ -8,7 +8,9 @@
 -->
 
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
-    <referenceContainer name="page.main.title">
-        <block class="Sezzle\Sezzlepay\Block\Order\Info" name="sezzle_order_reference_id" before="order.date" template="Sezzle_Sezzlepay::order/sezzle_order_reference.phtml"/>
-    </referenceContainer>
+    <body>
+        <referenceContainer name="page.main.title">
+            <block class="Sezzle\Sezzlepay\Block\Order\Info" name="sezzle_order_reference_id" before="order.date" template="Sezzle_Sezzlepay::order/sezzle_order_reference.phtml"/>
+        </referenceContainer>
+    </body>
 </page>
