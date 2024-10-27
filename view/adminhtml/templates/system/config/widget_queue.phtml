@@ -12,7 +12,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
         'mage/translate',
         'Magento_Ui/js/modal/alert'
     ], function ($, \$t, alert) {
-        var canAddToWidgetQueue = '<?php echo $block->canAddToWidgetQueue() ?>',
+        var canAddToWidgetQueue = '{$block->canAddToWidgetQueue()}',
             widgetQueueElement = $('#widget_queue');
         if (!canAddToWidgetQueue) {
             widgetQueueElement.text(\$t("Request Submitted")).attr('disabled', true);
@@ -21,7 +21,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
         widgetQueueElement.click(function () {
             $(this).text(\$t("Adding to widget queue...")).attr('disabled', true);
             var self = this;
-            new Ajax.Request('<?php echo $block->getWidgetQueueUrl(); ?>', {
+            new Ajax.Request('{$block->getWidgetQueueUrl()}', {
                 loaderArea: false,
                 asynchronous: true,
                 onSuccess: function () {
