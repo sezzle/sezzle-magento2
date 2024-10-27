@@ -43,15 +43,15 @@ class SendOrderConfirmationMailObserver implements ObserverInterface
 
     /**
      * @param Observer $observer
-     * @return SendOrderConfirmationMailObserver
+     * @return void
      */
-    public function execute(Observer $observer): SendOrderConfirmationMailObserver
+    public function execute(Observer $observer)
     {
         /* @var Order $order */
         $order = $observer->getEvent()->getData('order');
         try {
             if (!$order || $order->getPayment()->getMethod() !== ConfigProvider::CODE) {
-                return $this;
+                return;
             }
             $this->orderSender->send($order);
         } catch (Exception $e) {
@@ -60,7 +60,5 @@ class SendOrderConfirmationMailObserver implements ObserverInterface
                 $e->getMessage()
             );
         }
-
-        return $this;
     }
 }

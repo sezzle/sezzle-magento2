@@ -4,7 +4,7 @@ namespace Sezzle\Sezzlepay\Observer;
 
 use Exception;
 use Magento\Framework\DataObject;
-use Magento\Framework\Event\Observer as EventObserver;
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Quote\Model\Quote;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
@@ -39,15 +39,15 @@ class PaymentMethodAvailabilityObserver implements ObserverInterface
     }
 
     /**
-     * @param EventObserver $observer
-     * @return $this
+     * @param Observer $observer
+     * @return void
      */
-    public function execute(EventObserver $observer)
+    public function execute(Observer $observer)
     {
         $event = $observer->getEvent();
         $methodInstance = $event->getMethodInstance();
         if ($methodInstance->getCode() !== ConfigProvider::CODE) {
-            return $this;
+            return;
         }
 
         /** @var Quote $quote */
@@ -74,6 +74,5 @@ class PaymentMethodAvailabilityObserver implements ObserverInterface
         }
 
         $result->setData('is_available', $isAvailable);
-        return $this;
     }
 }

@@ -18,18 +18,16 @@ class OrderStatusChangeOnVoidObserver implements ObserverInterface
 
     /**
      * @param Observer $observer
-     * @return OrderStatusChangeOnVoidObserver
+     * @return void
      */
-    public function execute(Observer $observer): OrderStatusChangeOnVoidObserver
+    public function execute(Observer $observer)
     {
         /* @var Payment $payment */
         $payment = $observer->getEvent()->getData('payment');
         if ($payment->getMethod() != ConfigProvider::CODE) {
-            return $this;
+            return;
         }
         $payment->getOrder()->setState(Order::STATE_CANCELED)
             ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED));
-
-        return $this;
     }
 }
