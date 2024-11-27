@@ -44,14 +44,10 @@ class AvailabilityValidator extends AbstractValidator
      * @throws NoSuchEntityException
      */
     public function validate(array $validationSubject): ResultInterface
-    {
-        // Logger instance
-        $logger = \Magento\Framework\App\ObjectManager::getInstance()
-        ->get(\Psr\Log\LoggerInterface::class);
-
+    {        
         // Ensure 'quote' key exists and is valid
         if (!isset($validationSubject['quote']) || !$validationSubject['quote'] instanceof Quote) {
-            $logger->error('Validation failed: Missing or invalid quote in validationSubject.');
+            $this->helper->logSezzleActions('Validation failed: Missing or invalid quote in validationSubject.');
             return $this->createResult(false, [__('Invalid or missing quote data.')]);
         }
 
@@ -65,10 +61,10 @@ class AvailabilityValidator extends AbstractValidator
 
         switch (true) {
             case (!$merchantUUID || !$publicKey || !$privateKey):
-                $logger->error('Validation failed: Missing Sezzle API keys.');
+                $this->helper->logSezzleActions('Validation failed: Missing Sezzle API keys.');
                 return $this->createResult(false, [__('Sezzle API Keys are required.')]);
             case ($quote && ($quote->getBaseGrandTotal() < $minCheckoutAmount)):
-                $logger->error(sprintf(
+                $this->helper->logSezzleActions(sprintf(
                     'Validation failed: Order total %.2f is less than minimum required amount %.2f.',
                     $quote->getBaseGrandTotal(),
                     $minCheckoutAmount
