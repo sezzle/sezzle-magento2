@@ -9,6 +9,7 @@ use Magento\Payment\Gateway\Validator\ResultInterface;
 use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
 use Magento\Quote\Model\Quote;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Helper\Data;
 
 /**
  * AvailabilityValidator
