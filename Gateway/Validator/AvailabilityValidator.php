@@ -23,16 +23,24 @@ class AvailabilityValidator extends AbstractValidator
     private $config;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * AvailabilityValidator constructor
      * @param ResultInterfaceFactory $resultFactory
      * @param Config $config
+     * @param Data $helper
      */
     public function __construct(
         ResultInterfaceFactory $resultFactory,
-        Config                 $config
+        Config                 $config,
+        Data                   $helper
     )
     {
         $this->config = $config;
+        $this->helper = $helper;
         parent::__construct($resultFactory);
     }
 
