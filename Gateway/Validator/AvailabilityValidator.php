@@ -78,7 +78,7 @@ class AvailabilityValidator extends AbstractValidator
                     $quote->getBaseGrandTotal(),
                     $minCheckoutAmount
                 ));
-                return $this->createResult(false, [__(sprintf('Minimum order amount is %d.', $minCheckoutAmount))]);
+                return $this->createResult(false, [sprintf(__('Minimum order amount is %.2f.'), $minCheckoutAmount)]);
         }
 
         return $this->createResult(true);
