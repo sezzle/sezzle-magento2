@@ -22,7 +22,8 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- Improvements.
+- Fix: Added check to ensure the `quote` key exists is valid
+- Expanded the allowlist for domains in the Content Security Policy (CSP).
 
 ## Version 7.0.19
 
