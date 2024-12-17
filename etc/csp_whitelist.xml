@@ -31,6 +31,7 @@
         <policy id="style-src">
             <values>
                 <value id="sezzle-font-cdn" type="host">fonts.cdnfonts.com</value>
+                <value id="sezzle-googleapi-cdn" type="host">fonts.googleapis.com</value>
             </values>
         </policy>
     </policies>
