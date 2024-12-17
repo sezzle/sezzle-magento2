@@ -8,7 +8,7 @@
 
 ## Version 7.0.20
 
-_Mon 16 Dec 2024_
+_Mon 17 Dec 2024_
 
 ### Supported Editions & Versions
 
@@ -20,7 +20,7 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
-- Fix: Added check to ensure the `quote` key exists is valid
+- FIX: `quote` does not exist while rendering payment option
 - Expanded the allowlist for domains in the Content Security Policy (CSP).
 
 ## Version 7.0.19
