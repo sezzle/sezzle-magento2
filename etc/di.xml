@@ -129,7 +129,6 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="country" xsi:type="string">SezzleCountryValidator</item>
-                <item name="availability" xsi:type="string">Sezzle\Sezzlepay\Gateway\Validator\AvailabilityValidator</item>
             </argument>
         </arguments>
     </virtualType>
