@@ -1,11 +1,5 @@
 # Setup
 
-https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/composer
-
-https://isuruuy.medium.com/configuring-magento2-using-mamp-server-7fbedc35297d
-
-https://www.mageplaza.com/devdocs/how-install-magento-2-mac-osx.html
-
 ## Install Elasticsearch
 
 In Terminal, run the following:
@@ -151,3 +145,11 @@ Open Docker and start `opensearch` container
 Open MAMP and click Start
 Open DBeaver and ensure `mamp localhost:8889` database is connected
 Navigate to 127.0.0.1:8888/admin
+
+# Resources
+
+https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/composer
+
+https://isuruuy.medium.com/configuring-magento2-using-mamp-server-7fbedc35297d
+
+https://www.mageplaza.com/devdocs/how-install-magento-2-mac-osx.html
