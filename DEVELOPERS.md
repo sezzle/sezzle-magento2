@@ -19,10 +19,13 @@ brew install php@8.3
 brew link --overwrite --force php@8.3
 ```
 
-## Install MAMP and Magento
+## Install MAMP
 
 [Download MAMP](https://www.mamp.info/en/downloads/)
 Unzip the downloaded file, then drag & drop to the `Applications` folder
+
+
+## Install Magento
 
 Note: The following is written for Magento 2.4.7, the latest stable version at the time of writing. You may need to download additional versions to troubleshoot issues on earlier versions, or as later versions become available.
 
@@ -46,7 +49,8 @@ Download the zip file for the latest Magento version (in this case 2.4.7-p4): ht
 Unzip the file in your Downloads folder and rename `247`
 Drag & Drop the file into /Applications/MAMP/htdocs/magento
 
-### Then
+## Configure MAMP
+
 In MAMP:
 Select `Web server`: `Apache` and `PHP version`: `8.3.14`
 Click Preferences
@@ -94,7 +98,7 @@ git clone https://github.com/sezzle/sezzle-magento2.git Sezzlepay
 cd ../../..
 ```
 
-## Configure
+## Configure Magento
 
 In Terminal, run the following:
 ```
