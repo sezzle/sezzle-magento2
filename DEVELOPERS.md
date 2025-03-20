@@ -1,8 +1,16 @@
-# Setup
+# Magento 2 Local setup
 
-## Install Elasticsearch
+## Prerequisites
 
-In Terminal, run the following:
+### MAMP
+[Download MAMP](https://www.mamp.info/en/downloads/)
+Unzip the downloaded file, then drag & drop to the `Applications` folder
+
+### Composer
+`brew install composer`
+
+### OpenSearch
+
 ```
 docker run -d --name opensearch \
   -p 9201:9200 -p 9601:9600 \
@@ -11,47 +19,25 @@ docker run -d --name opensearch \
   opensearchproject/opensearch:2.7.0
 ```
 
-## Install PHP
+### PHP
 
-In Terminal, run the following:
-```
-brew install php@8.3
-brew link --overwrite --force php@8.3
-```
+`open ~/.zshrc`
+Add the following, and save: `export PATH=/Applications/MAMP/Library/bin:/Applications/MAMP/bin/php/php8.3.14/bin:$PATH`
+`source .zshrc`
 
-## Install MAMP
+## Initial setup
 
-[Download MAMP](https://www.mamp.info/en/downloads/)
-Unzip the downloaded file, then drag & drop to the `Applications` folder
+### Install Magento to MAMP
 
-
-## Install Magento
-
-Note: The following is written for Magento 2.4.7, the latest stable version at the time of writing. You may need to download additional versions to troubleshoot issues on earlier versions, or as later versions become available.
-
-In Terminal, run the following:
 ```
 cd /Applications/MAMP/htdocs
-mkdir magento && cd magento
-```
-### With Composer:
-
-In Terminal, run the following:
-```
-brew install composer
+mkdir magento && cd magento && mkdir 247 && cd 247
 composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.7 .
 ```
-When prompted for credentials, use `Magento 2 Keys` from 1Password Dev Vault
 
-### Direct from Magento
+### Configure MAMP
 
-Download the zip file for the latest Magento version (in this case 2.4.7-p4): https://github.com/magento/magento2/releases
-Unzip the file in your Downloads folder and rename `247`
-Drag & Drop the file into /Applications/MAMP/htdocs/magento
-
-## Configure MAMP
-
-In MAMP:
+Open MAMP app
 Select `Web server`: `Apache` and `PHP version`: `8.3.14`
 Click Preferences
 In the `Ports` tab, set `Apache Port` and `Nginx Port` to `8888` and `MySQL Port` to `8889`
@@ -60,9 +46,11 @@ For `Document Root`, click `Choose` and navigate to `Applications › MAMP › h
 Click `OK`
 Click `Start`
 
-## Create Database
+### Create Database
 
-In DBeaver or equivalent:
+*Ensure other MySQL instances are not running.*
+
+Open DBeaver or equivalent
 Click `New Database connection`
 Select `MySQL`, then click `Next`
 Change `Port` to `8889`
@@ -78,31 +66,10 @@ GRANT ALL PRIVILEGES ON magento.* TO 'root'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-## Install Sezzle Extension
+### Configure Magento
 
-### Composer
-
-*For more information about installing Magento with Composer, [click here](https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/composer)
-
-In Terminal, run the following:
 ```
-composer require sezzle/sezzlepay
-```
-
-### Manual Installation
-
-In Terminal, run the following:
-```
-cd app/code && mkdir Sezzle
-git clone https://github.com/sezzle/sezzle-magento2.git Sezzlepay
-cd ../../..
-```
-
-## Configure Magento
-
-In Terminal, run the following:
-```
-bin/magento setup:install \
+php -d memory_limit=-1 bin/magento setup:install \
 --base-url=http://127.0.0.1:8888/ \
 --db-host=127.0.0.1:8889 \
 --db-name=magento \
@@ -125,22 +92,16 @@ bin/magento setup:install \
 --backend-frontname=admin
 ```
 
-Then also:
-```
-php bin/magento setup:config:set \
---db-host=127.0.0.1:8889 \
---db-name=magento \
---db-user=root \
---db-password=root
-```
+`php -d memory_limit=-1 bin/magento sampledata:deploy`
+When prompted for credentials, use `Magento 2 Keys` in 1Password
 
-Then also:
 ```
-php bin/magento module:enable Sezzle_Sezzlepay
-php bin/magento setup:install
-php bin/magento setup:upgrade
-php bin/magento setup:di:compile
-php bin/magento setup:static-content:deploy
+php -d memory_limit=-1 bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
+php -d memory_limit=-1 bin/magento setup:upgrade
+php -d memory_limit=-1 bin/magento setup:di:compile
+php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
+php -d memory_limit=-1 bin/magento indexer:reindex
+php -d memory_limit=-1 bin/magento cache:clean
 ```
 
 # Local Testing
