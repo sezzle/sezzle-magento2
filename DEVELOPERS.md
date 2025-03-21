@@ -44,7 +44,7 @@ composer create-project --repository-url=https://repo.magento.com/ magento/proje
 
 In Terminal, run the following:
 ```
-cd app/code && mkdir Sezzle
+cd generated/code && mkdir Sezzle
 git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git Sezzlepay
 cd ../../..
 ```
@@ -175,7 +175,7 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Open MAMP and click Start
 1. Open DBeaver and ensure `mamp localhost:8889` database is connected
 1. Navigate to `127.0.0.1:8888/admin`
-1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/app/code/Sezzle/Sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
+1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/generated/code/Sezzle/Sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
   - Gitlab project magento2AppFrontends will mirror push to Github magento2 project for merchant use.
   - Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
   - Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
