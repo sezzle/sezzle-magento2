@@ -38,6 +38,15 @@ mkdir magento && cd magento && mkdir 247 && cd 247
 composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.7 .
 ```
 
+### Install Sezzle Extension
+
+In Terminal, run the following:
+```
+cd app/code && mkdir Sezzle
+git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git Sezzlepay
+cd ../../..
+```
+
 ### Configure MAMP
 
 Open MAMP app
@@ -119,13 +128,58 @@ php -d memory_limit=-1 bin/magento cache:clean
 Secondary-click on `httpd.conf` and select `Open With` > `TextEdit.app`
 Search the document for `#LoadModule rewrite_module modules/mod_rewrite.so` and remove the `#` at the beginning of the line
 
+### Sezzle Configuration
+
+Navigate to 127.0.0.1:8888/admin
+Log in with Username `admin` and Password `admin123`
+Go to Stores > Configuration > Sales > Payment Methods > Additional Payment Solutions
+Next to Sezzle, click `Configure`
+Click `I've already setup Sezzle, I want to edit my settings`
+Select the following:
+Change `Enabled` to `Yes`
+Enter `Public Key` and `Private Key`
+  - Can use any valid Sezzle API key pair for testing
+Click `Save config`
+
+### Creating a Product
+
+Go to Catalog > Products
+Click `Add Product`
+Required Fields:
+  `Enable Product`: `Yes`
+  `Product Name`: (any)
+  `Price`: (any)
+  `Quantity`: (any)
+  `Visibility`: `Catalog, Search`
+Click `Save`
+
+Go to `Content` > `Pages`
+On the line for `Home Page`, click `Select` > `Edit`
+Expand `Content` then click `Edit with Page Builder` (a red line will appear where it will be inserted)
+Under `Layout`, drag `Row` to the working area (under the existing snippet)
+Under `Add Content`, drag `Products` to inside the `Row`
+Hover over `Products`, then click `Settings` (gear icon)
+Select `Category` as `Default Category`, then click `Save`
+Click `Save as Template`, name the template, then click `Save`
+Click `Apply template`, then on the template you just saved, click `Apply`
+Click `OK`
+Click the `Minimize Window` icon (diagonal arrows, pointing inward)
+Click `Save`
+
 # Local Testing
 
 Open Docker and start `opensearch` container
 Open MAMP and click Start
 Open DBeaver and ensure `mamp localhost:8889` database is connected
 Navigate to 127.0.0.1:8888/admin
-Log in with Username `admin` and Password `admin123`
+
+All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/app/code/Sezzle/Sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
+
+*Gitlab project magento2AppFrontends will mirror push to Github magento2 project for merchant use.
+
+Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
+Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
+Use `php -d memory_limit=-1 bin/magento setup:static-content:deploy -f` if making changes to html, css, or js files
 
 # Resources
 
