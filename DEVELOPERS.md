@@ -43,7 +43,7 @@ composer create-project --repository-url=https://repo.magento.com/ magento/proje
 Open MAMP app
 Select `Web server`: `Apache` and `PHP version`: `8.3.14`
 Click Preferences
-In the `Ports` tab, set `Apache Port` and `Nginx Port` to `80` and `MySQL Port` to `3306`
+In the `Ports` tab, set `Apache Port` and `Nginx Port` to `8888` and `MySQL Port` to `8889`
 In the `Server` tab, select `Use MySQL server`: `8.0.40`
 For `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 247 > pub`. Click `Choose` to save.
 Click `OK`
@@ -56,7 +56,7 @@ Click `Start`
 Open DBeaver or equivalent
 Click `New Database connection`
 Select `MySQL`, then click `Next`
-`Port` should be `3306`
+`Port` should be `8889`
 `Username` and `Password` should each be `root`
 Click `Finish`
 Secondary-click on the newly created connection and select `Rename`
@@ -68,8 +68,8 @@ Enter `Database name`: `magento` then click `OK`
 
 ```
 php -d memory_limit=-1 bin/magento setup:install \
---base-url=http://127.0.0.1:80 \
---db-host=127.0.0.1:3306 \
+--base-url=http://127.0.0.1:8888 \
+--db-host=127.0.0.1:8889 \
 --db-name=magento \
 --db-user=root \
 --db-password=root \
@@ -114,9 +114,9 @@ php -d memory_limit=-1 bin/magento cache:clean
 
 ### Enable mod_rewrite for Apache
 
-cd /Applications/MAMP/conf/apache
-open .
-Secondary-click on httpd.conf and select `Open With` > `TextEdit.app`
+`cd /Applications/MAMP/conf/apache`
+`open .`
+Secondary-click on `httpd.conf` and select `Open With` > `TextEdit.app`
 Search the document for `#LoadModule rewrite_module modules/mod_rewrite.so` and remove the `#` at the beginning of the line
 
 # Local Testing
@@ -124,9 +124,8 @@ Search the document for `#LoadModule rewrite_module modules/mod_rewrite.so` and 
 Open Docker and start `opensearch` container
 Open MAMP and click Start
 Open DBeaver and ensure `mamp localhost:8889` database is connected
-Navigate to 127.0.0.1/admin
+Navigate to 127.0.0.1:8888/admin
 Log in with Username `admin` and Password `admin123`
-
 
 # Resources
 
