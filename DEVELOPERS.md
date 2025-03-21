@@ -3,10 +3,12 @@
 ## Prerequisites
 
 ### MAMP
+
 [Download MAMP](https://www.mamp.info/en/downloads/)
 Unzip the downloaded file, then drag & drop to the `Applications` folder
 
 ### Composer
+
 `brew install composer`
 
 ### OpenSearch
@@ -23,7 +25,8 @@ docker run -d --name opensearch \
 
 `open ~/.zshrc`
 Add the following, and save: `export PATH=/Applications/MAMP/Library/bin:/Applications/MAMP/bin/php/php8.3.14/bin:$PATH`
-`source .zshrc`
+ - Note: php version should correspond to the one selected in MAMP in the later step
+`source ~/.zshrc`
 
 ## Initial setup
 
@@ -40,8 +43,8 @@ composer create-project --repository-url=https://repo.magento.com/ magento/proje
 Open MAMP app
 Select `Web server`: `Apache` and `PHP version`: `8.3.14`
 Click Preferences
-In the `Ports` tab, set `Apache Port` and `Nginx Port` to `8888` and `MySQL Port` to `8889`
-In the `Server` tab, select `Use MySQL server`: `5.7.88`
+In the `Ports` tab, set `Apache Port` and `Nginx Port` to `80` and `MySQL Port` to `3306`
+In the `Server` tab, select `Use MySQL server`: `8.0.40`
 For `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 247 > pub`. Click `Choose` to save.
 Click `OK`
 Click `Start`
@@ -53,25 +56,20 @@ Click `Start`
 Open DBeaver or equivalent
 Click `New Database connection`
 Select `MySQL`, then click `Next`
-Change `Port` to `8889`
+`Port` should be `3306`
 `Username` and `Password` should each be `root`
 Click `Finish`
 Secondary-click on the newly created connection and select `Rename`
 Enter `mamp` then click `OK`
-Secondary-click on the connection again, select `SQL Editor` then `New SQL Script`
-Enter the following SQL into the editor, then click the `Execute SQL Query` button (orange right arrow)
-```
-CREATE DATABASE `magento`;
-GRANT ALL PRIVILEGES ON magento.* TO 'root'@'localhost';
-FLUSH PRIVILEGES;
-```
+Click the connection to expand, then Secondary-click on `Databases` and select `Create New Database`
+Enter `Database name`: `magento` then click `OK`
 
 ### Configure Magento
 
 ```
 php -d memory_limit=-1 bin/magento setup:install \
---base-url=http://127.0.0.1:8888/ \
---db-host=127.0.0.1:8889 \
+--base-url=http://127.0.0.1:80 \
+--db-host=127.0.0.1:3306 \
 --db-name=magento \
 --db-user=root \
 --db-password=root \
@@ -91,9 +89,12 @@ php -d memory_limit=-1 bin/magento setup:install \
 --opensearch-timeout=15 \
 --backend-frontname=admin
 ```
+ - Should result in `[SUCCESS]: Magento installation complete.`
 
 `php -d memory_limit=-1 bin/magento sampledata:deploy`
 When prompted for credentials, use `Magento 2 Keys` in 1Password
+When prompted to store credentials, say `Y`
+ - Should result in `Sample data modules have been added via composer.`
 
 ```
 php -d memory_limit=-1 bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
@@ -103,13 +104,29 @@ php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
 php -d memory_limit=-1 bin/magento indexer:reindex
 php -d memory_limit=-1 bin/magento cache:clean
 ```
+ - Success messages should be as follows:
+  - `The following modules have been disabled:`
+  - `Nothing to import.`
+  - `Generated code and dependency injection configuration successfully.`
+  - `Execution time:`
+  - `Stores Feed index has been rebuilt successfully`
+  - `Cleaned cache types:`
+
+### Enable mod_rewrite for Apache
+
+cd /Applications/MAMP/conf/apache
+open .
+Secondary-click on httpd.conf and select `Open With` > `TextEdit.app`
+Search the document for `#LoadModule rewrite_module modules/mod_rewrite.so` and remove the `#` at the beginning of the line
 
 # Local Testing
 
 Open Docker and start `opensearch` container
 Open MAMP and click Start
 Open DBeaver and ensure `mamp localhost:8889` database is connected
-Navigate to 127.0.0.1:8888/admin
+Navigate to 127.0.0.1/admin
+Log in with Username `admin` and Password `admin123`
+
 
 # Resources
 
