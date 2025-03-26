@@ -46,7 +46,7 @@ composer create-project --repository-url=https://repo.magento.com/ magento/proje
 
 In Terminal, run the following:
 ```
-cd generated/code && mkdir Sezzle
+cd generated/code && mkdir Sezzle && cd Sezzle
 git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git Sezzlepay
 cd ../../..
 ```
