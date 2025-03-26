@@ -1,5 +1,7 @@
 # Magento 2 Local setup
 
+*The following documentation is written for Sezzle internal developers only. Merchant developers should refer to README.md for instructions.*
+
 ## Prerequisites
 
 ### MAMP
@@ -104,7 +106,8 @@ php -d memory_limit=-1 bin/magento setup:install \
  - Should result in `[SUCCESS]: Magento installation complete.`
 
 Then: `php -d memory_limit=-1 bin/magento sampledata:deploy`
- - When prompted for credentials, use `Magento 2 Keys` in 1Password
+ - When prompted for credentials, use `Magento 2 Keys` in 1Password (Platform Integrations Team vault)
+ - Alternatively, [generate new keys](https://www.youtube.com/live/HpwsbgqSR2g). (credentials are `Magento Partner Account in 1Password Dev vault - 2FA sent to magento@sezzle.com, submit an ITSD request to obtain access)
 When prompted to store credentials, say `Y`
  - Should result in `Sample data modules have been added via composer.`
 
