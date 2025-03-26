@@ -135,6 +135,18 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Secondary-click on `httpd.conf` and select `Open With` > `TextEdit.app`
 1. Search the document for `#LoadModule rewrite_module modules/mod_rewrite.so` and remove the `#` at the beginning of the line
 
+### Install Sezzle Extension
+
+In Terminal, run the following:
+```
+composer require sezzle/sezzlepay
+php -d memory_limit=-1 bin/magento setup:upgrade
+php -d memory_limit=-1 bin/magento setup:di:compile
+php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
+php -d memory_limit=-1 bin/magento indexer:reindex
+php -d memory_limit=-1 bin/magento cache:clean
+```
+
 ### Sezzle Configuration
 
 1. Navigate to 127.0.0.1:8888/admin
