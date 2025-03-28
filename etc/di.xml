@@ -142,7 +142,6 @@
                 <item name="capture" xsi:type="string">SezzleCaptureCommand</item>
                 <item name="refund" xsi:type="string">SezzleRefundCommand</item>
                 <item name="void" xsi:type="string">SezzleReleaseCommand</item>
-                //
             </argument>
         </arguments>
     </virtualType>
