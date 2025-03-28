@@ -9,9 +9,3 @@
 #variables:
 #  JIRA_PROJECT_NAME: "PLAT"
 #  PRODUCTION_INCLUDES_STAGING: "true"
-#
-#.build_docker:
-#  image:
-#    name: gcr.io/kaniko-project/executor:debug
-#  before_script:
-#    - alias log=echo
