@@ -131,10 +131,10 @@ php -d memory_limit=-1 bin/magento module:disable Magento_TwoFactorAuth Magento_
 
 In Terminal, run the following:
 ```
-composer require sezzle/sezzlepay
+cd vendor && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
+cd ../..
 ```
 <!-- why does php bin/magento module:enable Sezzle_Sezzlepay not work? -->
-<!-- how does developer set up the gitlab instance here so we can develop, test, and push as normal? -->
 
 *At this point, if you run the [Compile](#compile) command cluster below, you should be able to see Sezzle as an option  on [127.0.0.1:8888/admin](http://127.0.0.1:8888/admin/admin/system_config/edit/key/460ee844e615c1955534bea89954c0b3fbb24487d8c9e5835699e9920f8a3421/section/payment/), but you will not be able to add API keys*
 
@@ -158,10 +158,6 @@ php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
 php -d memory_limit=-1 bin/magento indexer:reindex
 php -d memory_limit=-1 bin/magento cache:clean
 ```
-
-  - Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
-  - Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
-  - Use `php -d memory_limit=-1 bin/magento setup:static-content:deploy -f` if making changes to html, css, or js files
 
 ### Sezzle Configuration
 
@@ -216,12 +212,15 @@ php -d memory_limit=-1 bin/magento cache:clean
 
 # Local Testing
 
-1. Open Docker and start `opensearch` container
+1. Open Docker Desktop and start `opensearch` container
 1. Open MAMP and click Start
 1. Open DBeaver and ensure `mamp localhost:8889` database is connected
 1. Navigate to `127.0.0.1:8888/admin`
-1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/generated/code/Sezzle/Sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
+1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/vendor/sezzle/sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
   - Gitlab project magento2AppFrontends will mirror push to Github magento2 project for merchant use.
+  - Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
+  - Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
+  - Use `php -d memory_limit=-1 bin/magento setup:static-content:deploy -f` if making changes to html, css, or js files
 
 <!-- to do: troubleshooting guide -->
 # External Resources
