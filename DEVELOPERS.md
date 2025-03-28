@@ -42,15 +42,6 @@ mkdir magento && cd magento && mkdir 247 && cd 247
 composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.7 .
 ```
 
-### Install Sezzle Extension
-
-In Terminal, run the following:
-```
-cd generated/code && mkdir Sezzle && cd Sezzle
-git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git Sezzlepay
-cd ../../..
-```
-
 ### Configure MAMP
 
 1. Open MAMP app
@@ -169,6 +160,7 @@ php -d memory_limit=-1 bin/magento cache:clean
   `Product Name`: (any)
   `Price`: (any)
   `Quantity`: (any)
+  `Category`: `Default Category`
   `Visibility`: `Catalog, Search`
 1. Click `Save`
 2. Go to `Content` > `Pages`
