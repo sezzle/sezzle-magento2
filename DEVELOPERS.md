@@ -40,6 +40,8 @@ All Sezzle developers should already have completed [Docker](https://gitlab.sezz
 
 ### OpenSearch
 
+<!-- There is an alternative way with elasticsearch - figure out how, which is better and/or how to choose between them -->
+
 In Terminal, run the following:
 ```
 docker run -d --name opensearch \
