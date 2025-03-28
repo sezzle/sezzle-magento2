@@ -4,10 +4,31 @@
 
 ## Prerequisites
 
+### Docker
+
+All Sezzle developers should already have completed [Docker](https://gitlab.sezzle.com/sezzle/sezzle-compose) setup for Sezzle-Compose (although Sezzle-Compose will not be used for Magento setup).
+
+
 ### MAMP
 
 1. [Download MAMP](https://www.mamp.info/en/downloads/)
 1. Unzip the downloaded file, then drag & drop to the `Applications` folder
+
+### PHP
+
+1. `open ~/.zshrc`
+1. Add the following, and save: `export PATH=/Applications/MAMP/Library/bin:/Applications/MAMP/bin/php/php8.3.14/bin:$PATH`
+    - Note: php version should correspond to the one selected in MAMP in the later step
+1. `source ~/.zshrc`
+
+### Enable mod_rewrite for Apache
+
+*This section will resolve the issue where stylesheets aren't loading for test environment*
+
+1. `cd /Applications/MAMP/conf/apache`
+1. `open .`
+1. Secondary-click on `httpd.conf` and select `Open With` > `TextEdit.app`
+1. Search the document for `#LoadModule rewrite_module modules/mod_rewrite.so` and remove the `#` at the beginning of the line
 
 ### Composer
 
@@ -23,13 +44,6 @@ docker run -d --name opensearch \
   -e "DISABLE_SECURITY_PLUGIN=true" \
   opensearchproject/opensearch:2.7.0
 ```
-
-### PHP
-
-1. `open ~/.zshrc`
-1. Add the following, and save: `export PATH=/Applications/MAMP/Library/bin:/Applications/MAMP/bin/php/php8.3.14/bin:$PATH`
-    - Note: php version should correspond to the one selected in MAMP in the later step
-2. `source ~/.zshrc`
 
 ## Initial setup
 
@@ -96,41 +110,41 @@ php -d memory_limit=-1 bin/magento setup:install \
 ```
  - Should result in `[SUCCESS]: Magento installation complete.`
 
-Then: `php -d memory_limit=-1 bin/magento sampledata:deploy`
- - When prompted for credentials, use `Magento 2 Keys` in 1Password (Platform Integrations Team vault)
- - Alternatively, [generate new keys](https://www.youtube.com/live/HpwsbgqSR2g). (credentials are `Magento Partner Account in 1Password Dev vault - 2FA sent to magento@sezzle.com, submit an ITSD request to obtain access)
-When prompted to store credentials, say `Y`
- - Should result in `Sample data modules have been added via composer.`
+*At this point, you should be able to open 127.0.0.1:8888 and 127.0.0.1:8888/admin but not log in*
 
 In Terminal, run the following:
 ```
 php -d memory_limit=-1 bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
-php -d memory_limit=-1 bin/magento setup:upgrade
-php -d memory_limit=-1 bin/magento setup:di:compile
-php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
-php -d memory_limit=-1 bin/magento indexer:reindex
-php -d memory_limit=-1 bin/magento cache:clean
 ```
- - Success messages should be as follows:
-  - `The following modules have been disabled:`
-  - `Nothing to import.`
-  - `Generated code and dependency injection configuration successfully.`
-  - `Execution time:`
-  - `Stores Feed index has been rebuilt successfully`
-  - `Cleaned cache types:`
 
-### Enable mod_rewrite for Apache
-
-1. `cd /Applications/MAMP/conf/apache`
-1. `open .`
-1. Secondary-click on `httpd.conf` and select `Open With` > `TextEdit.app`
-1. Search the document for `#LoadModule rewrite_module modules/mod_rewrite.so` and remove the `#` at the beginning of the line
+*At this point, you should be able to open 127.0.0.1:8888/admin and log in, but Sezzle will not be available in Payment Methods*
 
 ### Install Sezzle Extension
 
 In Terminal, run the following:
 ```
 composer require sezzle/sezzlepay
+```
+<!-- why does php bin/magento module:enable Sezzle_Sezzlepay not work? -->
+<!-- how does developer set up the gitlab instance here so we can develop, test, and push as normal? -->
+
+*At this point, if you run the [Compile](#compile) command cluster below, you should be able to see Sezzle as an option  on [127.0.0.1:8888/admin](http://127.0.0.1:8888/admin/admin/system_config/edit/key/460ee844e615c1955534bea89954c0b3fbb24487d8c9e5835699e9920f8a3421/section/payment/), but you will not be able to add API keys*
+
+### Sample Data
+
+In Terminal, run the following: `php -d memory_limit=-1 bin/magento sampledata:deploy`
+ - When prompted for credentials, use `Magento 2 Keys` in 1Password (Platform Integrations Team vault)
+ - Alternatively, [generate new keys](https://www.youtube.com/live/HpwsbgqSR2g). (credentials are `Magento Partner Account in 1Password Dev vault - 2FA sent to magento@sezzle.com, submit an ITSD request to obtain access)
+When prompted to store credentials, say `Y`
+ - Should result in `Sample data modules have been added via composer.`
+
+### Compile
+
+*This section will populate the storefront with sample products*
+
+In Terminal, run the following:
+```
+php -d memory_limit=-1 bin/magento sampledata:deploy
 php -d memory_limit=-1 bin/magento setup:upgrade
 php -d memory_limit=-1 bin/magento setup:di:compile
 php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
@@ -148,10 +162,17 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Select the following:
 1. Change `Enabled` to `Yes`
 1. Enter `Public Key` and `Private Key`
-    - Can use any valid Sezzle API key pair for testing
-2. Click `Save config`
+    - Can use any valid Sezzle API key pair for testing (recommended: [Grandmeister Coffee](https://admin.sezzle.com/merchants/396))
+    - The API keys validation only confirms that a merchant was found with the provided public and private keys. It does not validate the shop url is correct, hence how merchants re-use API keys across multiple stores. 
+      - This creates a nightmare for accounting, because the orders are recorded under the one account without distinction of site origin. 
+      - It also affects widgets, since the API Keys are used to generate the UUID in the widget snippet. Not only do we not know that widgets are installed on the other stores, but config management also gets messy.
+1. Click `Save config`
 
-### Creating a Product
+### Populating the store
+
+*This section is in case of error generated [Sample Data](#sample-data)*
+
+#### Creating a product
 
 1. Go to Catalog > Products
 1. Click `Add Product`
@@ -163,18 +184,21 @@ php -d memory_limit=-1 bin/magento cache:clean
   `Category`: `Default Category`
   `Visibility`: `Catalog, Search`
 1. Click `Save`
-2. Go to `Content` > `Pages`
-3. On the line for `Home Page`, click `Select` > `Edit`
-4. Expand `Content` then click `Edit with Page Builder` (a red line will appear where it will be inserted)
-5. Under `Layout`, drag `Row` to the working area (under the existing snippet)
-6. Under `Add Content`, drag `Products` to inside the `Row`
-7. Hover over `Products`, then click `Settings` (gear icon)
-8.  Select `Category` as `Default Category`, then click `Save`
-9. Click `Save as Template`, name the template, then click `Save`
-10. Click `Apply template`, then on the template you just saved, click `Apply`
-11. Click `OK`
-12. Click the `Minimize Window` icon (diagonal arrows, pointing inward)
-13. Click `Save`
+
+#### Adding Products to Home Page Template
+
+1. Go to `Content` > `Pages`
+1. On the line for `Home Page`, click `Select` > `Edit`
+1. Expand `Content` then click `Edit with Page Builder` (a red line will appear where it will be inserted)
+1. Under `Layout`, drag `Row` to the working area (under the existing snippet)
+1. Under `Add Content`, drag `Products` to inside the `Row`
+1. Hover over `Products`, then click `Settings` (gear icon)
+1. Select `Category` as `Default Category`, then click `Save`
+1. Click `Save as Template`, name the template, then click `Save`
+1. Click `Apply template`, then on the template you just saved, click `Apply`
+1. Click `OK`
+1. Click the `Minimize Window` icon (diagonal arrows, pointing inward)
+1. Click `Save`
 
 # Local Testing
 
