@@ -1,5 +1,9 @@
 # Magento 2 Local setup
 
+<!-- todo: update magento documentation in docs.sezzle.com -->
+<!-- to do: update readme so instead of repeating usage documentation, we link to docs.sezzle.com -->
+<!-- to do: update merchant documentation, with clear details on how to choose between composer and manual, and when docker -->
+
 *The following documentation is written for Sezzle internal developers only. Merchant developers should refer to README.md for instructions.*
 
 ## Prerequisites
@@ -46,6 +50,8 @@ docker run -d --name opensearch \
 ```
 
 ## Initial setup
+
+<!-- to do: figure out docker setup, doesn't work for me at all -->
 
 ### Install Magento to MAMP
 
