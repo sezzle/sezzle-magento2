@@ -159,6 +159,10 @@ php -d memory_limit=-1 bin/magento indexer:reindex
 php -d memory_limit=-1 bin/magento cache:clean
 ```
 
+  - Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
+  - Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
+  - Use `php -d memory_limit=-1 bin/magento setup:static-content:deploy -f` if making changes to html, css, or js files
+
 ### Sezzle Configuration
 
 1. Navigate to 127.0.0.1:8888/admin
@@ -171,9 +175,12 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Enter `Public Key` and `Private Key`
     - Can use any valid Sezzle API key pair for testing (recommended: [Grandmeister Coffee](https://admin.sezzle.com/merchants/396))
     - The API keys validation only confirms that a merchant was found with the provided public and private keys. It does not validate the shop url is correct, hence how merchants re-use API keys across multiple stores. 
+<!-- Is this something we want to change? Or is the work it would generate a bad trade-off? -->
       - This creates a nightmare for accounting, because the orders are recorded under the one account without distinction of site origin. 
       - It also affects widgets, since the API Keys are used to generate the UUID in the widget snippet. Not only do we not know that widgets are installed on the other stores, but config management also gets messy.
 1. Click `Save config`
+
+<!-- Why is Sezzle not showing at checkout now? -->
 
 ### Populating the store
 
@@ -215,10 +222,8 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Navigate to `127.0.0.1:8888/admin`
 1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/generated/code/Sezzle/Sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
   - Gitlab project magento2AppFrontends will mirror push to Github magento2 project for merchant use.
-  - Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
-  - Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
-  - Use `php -d memory_limit=-1 bin/magento setup:static-content:deploy -f` if making changes to html, css, or js files
 
+<!-- to do: troubleshooting guide -->
 # External Resources
 
 https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/composer
