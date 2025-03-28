@@ -152,7 +152,6 @@ When prompted to store credentials, say `Y`
 
 In Terminal, run the following:
 ```
-php -d memory_limit=-1 bin/magento sampledata:deploy
 php -d memory_limit=-1 bin/magento setup:upgrade
 php -d memory_limit=-1 bin/magento setup:di:compile
 php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
