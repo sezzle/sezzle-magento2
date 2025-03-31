@@ -2,7 +2,7 @@
 
 <!-- todo: update magento documentation in docs.sezzle.com -->
 <!-- to do: update readme so instead of repeating usage documentation, we link to docs.sezzle.com -->
-<!-- to do: update merchant documentation, with clear details on how to choose between composer and manual, and when docker -->
+<!-- to do: update merchant documentation, with clear details on how to choose between composer and manual, and when docker; composer is the quick way for UI viewing which controls the dependencies more easily, manual installation is required for development work -->
 
 *The following documentation is written for Sezzle internal developers only. Merchant developers should refer to README.md for instructions.*
 
@@ -38,9 +38,7 @@ All Sezzle developers should already have completed [Docker](https://gitlab.sezz
 
 `brew install composer`
 
-### OpenSearch
-
-<!-- There is an alternative way with elasticsearch - figure out how, which is better and/or how to choose between them -->
+### OpenSearch <!-- or Elasticsearch -->
 
 In Terminal, run the following:
 ```
@@ -50,6 +48,31 @@ docker run -d --name opensearch \
   -e "DISABLE_SECURITY_PLUGIN=true" \
   opensearchproject/opensearch:2.7.0
 ```
+
+<!-- 
+This will appear in the Magento config in a future step:
+--search-engine=opensearch \
+--opensearch-host=localhost \
+--opensearch-port=9201 \
+--opensearch-index-prefix=magento2 \
+--opensearch-timeout=15 \
+ -->
+
+<!-- Elasticsearch was the original product recommended by Magento. Either product will work, but now OpenSearch is recommended by Magento/Adobe:
+```
+docker run -d --name elasticsearch \
+  -p 9200:9200 -p 9601:9600 \
+  -e "discovery.type=single-node" \
+  docker.elastic.co/elasticsearch/elasticsearch:7.17.28
+```
+When using this method, update the Magento configuration below accordingly.
+
+--search-engine=elasticsearch7 \
+--elasticsearch-host=127.0.0.1 \
+--elasticsearch-port=9200 \
+
+
+ -->
 
 ## Initial setup
 
@@ -148,16 +171,17 @@ When prompted to store credentials, say `Y`
 
 ### Compile
 
-*This section will populate the storefront with sample products*
-
 In Terminal, run the following:
 ```
+php -d memory_limit=-1 bin/magento module:enable Sezzle_Sezzlepay
 php -d memory_limit=-1 bin/magento setup:upgrade
 php -d memory_limit=-1 bin/magento setup:di:compile
 php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
 php -d memory_limit=-1 bin/magento indexer:reindex
 php -d memory_limit=-1 bin/magento cache:clean
 ```
+
+*At this point, you should be able to see sample products on the storefront*
 
 ### Sezzle Configuration
 
