@@ -1,9 +1,5 @@
 # Magento 2 Local setup
 
-<!-- todo: update magento documentation in docs.sezzle.com -->
-<!-- to do: update readme so instead of repeating usage documentation, we link to docs.sezzle.com -->
-<!-- to do: update merchant documentation, with clear details on how to choose between composer and manual, and when docker; composer is the quick way for UI viewing which controls the dependencies more easily, manual installation is required for development work -->
-
 *The following documentation is written for Sezzle internal developers only. Merchant developers should refer to README.md for instructions.*
 
 ## Prerequisites
@@ -74,8 +70,22 @@ When using this method, update the Magento configuration below accordingly.
 
 ## Initial setup
 
-<!-- to do: figure out docker setup, doesn't work for me at all -->
+<!-- ### Docker Version
 
+```bash
+docker exec -it sezzle_magento2 process install
+docker exec -it sezzle_magento2 process install-sampledata
+docker exec -it sezzle_magento2 process upgrade
+docker exec -it sezzle_magento2 process compile
+docker exec -it sezzle_magento2 process deploy
+docker exec -it sezzle_magento2 process developer
+docker exec -it sezzle_magento2 process clear
+docker-compose down --rmi local -v --remove-orphans
+docker-compose up -d --build
+```
+
+Open `localhost:8085`  
+-->
 ### Install Magento to MAMP
 
 In Terminal, run the following:
