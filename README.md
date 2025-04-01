@@ -13,8 +13,8 @@ This document will help you in installing `Sezzle's Magento 2` extension. This e
 ## How to install the extension?
 
 There are two ways of installing and upgrading the extension. 
-1. By composer.
-1. Manual Process.
+1. **Composer** is the quick installation method which is also easier to update.
+2. **Manual** is useful for development.
 
 *For all purposes assume `[Magento]` as your Magento 2 root directory.*
 
