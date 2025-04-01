@@ -16,7 +16,7 @@ All Sezzle developers should already have completed [Docker](https://gitlab.sezz
 ### MAMP
 
 1. [Download MAMP](https://www.mamp.info/en/downloads/)
-2. Unzip the downloaded file, then drag & drop to the `Applications` folder
+1. Unzip the downloaded file, then drag & drop to the `Applications` folder
 
 ### PHP
 
@@ -155,7 +155,6 @@ In Terminal, run the following:
 cd vendor && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
 cd ../..
 ```
-<!-- why does php bin/magento module:enable Sezzle_Sezzlepay not work? -->
 
 *At this point, if you run the [Compile](#compile) command cluster below, you should be able to see Sezzle as an option  on [127.0.0.1:8888/admin](http://127.0.0.1:8888/admin/admin/system_config/edit/key/460ee844e615c1955534bea89954c0b3fbb24487d8c9e5835699e9920f8a3421/section/payment/), but you will not be able to add API keys*
 
@@ -163,7 +162,7 @@ cd ../..
 
 In Terminal, run the following: `php -d memory_limit=-1 bin/magento sampledata:deploy`
  - When prompted for credentials, use `Magento 2 Keys` in 1Password (Platform Integrations Team vault)
- - Alternatively, [generate new keys](https://www.youtube.com/live/HpwsbgqSR2g). (credentials are `Magento Partner Account in 1Password Dev vault - 2FA sent to magento@sezzle.com, submit an ITSD request to obtain access)
+ - Alternatively, [generate new keys](https://www.youtube.com/live/HpwsbgqSR2g). (credentials are `Magento Partner Account` in 1Password Dev vault - 2FA sent to magento@sezzle.com, submit an ITSD request to obtain access)
 When prompted to store credentials, say `Y`
  - Should result in `Sample data modules have been added via composer.`
 
@@ -183,20 +182,18 @@ php -d memory_limit=-1 bin/magento cache:clean
 
 ### Sezzle Configuration
 
-1. Navigate to 127.0.0.1:8888/admin
+1. Navigate to `127.0.0.1:8888/admin`
 1. Log in with Username `admin` and Password `admin123`
-1. Go to Stores > Configuration > Sales > Payment Methods > Additional Payment Solutions
-1. Next to Sezzle, click `Configure`
+1. Go to `Stores` > `Configuration` > `Sales` > `Payment Methods` > `Additional Payment Solutions`
+1. Next to `Sezzle`, click `Configure`
 1. Click `I've already setup Sezzle, I want to edit my settings`
-1. Select the following:
 1. Change `Enabled` to `Yes`
 1. Enter `Public Key` and `Private Key`
-    - Can use any valid sandbox Sezzle API key pair for testing (recommended: [Sezzle Shopify Test Store](https://sandbox.admin.sezzle.com/merchants/75097))
-    - The API keys validation only confirms that a merchant was found with the provided public and private keys. It does not validate the shop url is correct, hence how merchants re-use API keys across multiple stores. 
-<!-- Is this something we want to change? Or is the work it would generate a bad trade-off? -->
-      - This creates a nightmare for accounting, because the orders are recorded under the one account without distinction of site origin. 
-      - It also affects widgets, since the API Keys are used to generate the UUID in the widget snippet. Not only do we not know that widgets are installed on the other stores, but config management also gets messy.
-1. Click `Save config`
+    * Can use any valid sandbox Sezzle API key pair for testing (recommended: [Sezzle Shopify Test Store](https://sandbox.admin.sezzle.com/merchants/75097))
+    * The API keys validation only confirms that a merchant was found with the provided public and private keys. It does not validate the shop url is correct, hence how merchants re-use API keys across multiple stores. 
+    * This creates a nightmare for accounting, because the orders are recorded under the one account without distinction of site origin. 
+    * It also affects widgets, since the API Keys are used to generate the UUID in the widget snippet. Not only do we not know that widgets are installed on the other stores, but config management also gets messy.
+2. Click `Save config`
 
 ### Populating the store
 
@@ -204,15 +201,15 @@ php -d memory_limit=-1 bin/magento cache:clean
 
 #### Creating a product
 
-1. Go to Catalog > Products
+1. Go to `Catalog` > `Products`
 1. Click `Add Product`
 1. Required Fields:
-  `Enable Product`: `Yes`
-  `Product Name`: (any)
-  `Price`: (any)
-  `Quantity`: (any)
-  `Category`: `Default Category`
-  `Visibility`: `Catalog, Search`
+    * `Enable Product`: `Yes`
+    * `Product Name`: (any)
+    * `Price`: (any)
+    * `Quantity`: (any)
+    * `Category`: `Default Category`
+    * `Visibility`: `Catalog, Search`
 1. Click `Save`
 
 #### Adding Products to Home Page Template
@@ -233,14 +230,35 @@ php -d memory_limit=-1 bin/magento cache:clean
 # Local Testing
 
 1. Open Docker Desktop and start `opensearch` container
-1. Open MAMP and click Start
-1. Open DBeaver and ensure `mamp localhost:8889` database is connected
-1. Navigate to `127.0.0.1:8888/admin`
-1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/vendor/sezzle/sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
+2. Open MAMP and click Start
+    * Click `Preferences`.
+    * In the `Server` tab under `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 247 > pub`. Click `Choose` to save, then click `OK`
+3. Open DBeaver and ensure `mamp localhost:8889` database is connected
+4. Navigate to `127.0.0.1:8888/admin`
+5. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/vendor/sezzle/sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
   - Gitlab project magento2AppFrontends will mirror push to Github magento2 project for merchant use.
   - Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
   - Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
   - Use `php -d memory_limit=-1 bin/magento setup:static-content:deploy -f` if making changes to html, css, or js files
+
+## Releasing Updates to Merchants
+
+1. Update CHANGELOG.md
+2. Update `version` number in `composer.json`
+3. Merge to production
+4. `open ..`
+5. Secondary-click on the project and select `Compress`
+6. Log in to https://commercedeveloper.adobe.com/ using `Magento Partner Account` entry in 1Password
+7. Click `Extensions`
+8. Click `Extension Name`: `Sezzle` where Platform is `M2`
+9. Click `Submit a New Version`
+10. Enter `Adobe Commerce Version Number` per the same version reflected in `composer.json`
+11. Unless a feature must be released at a specific date, select `Requested Launch Date`: `On Approval`
+12. Click `Continue`
+13. Click `Attach Package`. Navigate to and select the zipped project folder, then click `Open`
+14. Select `Adobe Commerce Version Compatibility`: (all)
+15. Copy entry from `CHANGELOG.md` to the `Release Notes` field
+16. Click `Submit`
 
 <!-- to do: troubleshooting guide -->
 # External Resources
