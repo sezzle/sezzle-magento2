@@ -24,11 +24,11 @@ Open terminal and navigate to `Magento` root path.
 ```
 brew install composer
 composer require sezzle/sezzlepay
-php -d memory_limit=-1 bin/magento setup:upgrade
-php -d memory_limit=-1 bin/magento setup:di:compile
-php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
-php -d memory_limit=-1 bin/magento indexer:reindex
-php -d memory_limit=-1 bin/magento cache:clean
+php bin/magento setup:upgrade
+php bin/magento setup:di:compile
+php bin/magento setup:static-content:deploy
+php bin/magento indexer:reindex
+php bin/magento cache:clean
 ```
 
 ### Manual
@@ -39,11 +39,11 @@ php -d memory_limit=-1 bin/magento cache:clean
 4. In Terminal, run the following:
 ```
 php bin/magento module:enable Sezzle_Sezzlepay
-php -d memory_limit=-1 bin/magento setup:upgrade
-php -d memory_limit=-1 bin/magento setup:di:compile
-php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
-php -d memory_limit=-1 bin/magento indexer:reindex
-php -d memory_limit=-1 bin/magento cache:clean
+php bin/magento setup:upgrade
+php bin/magento setup:di:compile
+php bin/magento setup:static-content:deploy
+php bin/magento indexer:reindex
+php bin/magento cache:clean
 ```
 
 ## How to upgrade the extension?
@@ -53,11 +53,11 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Open terminal and navigate to `[Magento]` root path.
 ```
 composer update sezzle/sezzlepay
-php -d memory_limit=-1 bin/magento setup:upgrade
-php -d memory_limit=-1 bin/magento setup:di:compile
-php -d memory_limit=-1 bin/magento setup:static-content:deploy -f
-php -d memory_limit=-1 bin/magento indexer:reindex
-php -d memory_limit=-1 bin/magento cache:clean
+php bin/magento setup:upgrade
+php bin/magento setup:di:compile
+php bin/magento setup:static-content:deploy
+php bin/magento indexer:reindex
+php bin/magento cache:clean
 ```
 
 ### Manual
