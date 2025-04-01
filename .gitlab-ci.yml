@@ -8,5 +8,3 @@ include:
 
 variables:
   JIRA_PROJECT_NAME: "PLAT"
-  PRODUCTION_INCLUDES_STAGING: "true"
-
