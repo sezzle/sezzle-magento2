@@ -149,9 +149,11 @@ _**Note** : Automatic Syncing requires cron to be enabled._
 
 ## Release Payment
 
+*Previously, Sezzle orders needed to be released using the `Void` action. This is still supported but is being deprecated. Please use `Cancel` command going forward*
+
 * Go to `Sales > Orders` in the `Magento` admin.
 * Select the order for which you want to release the payment.
-* Click on `Void` and confirm your action.
+* Click on `Cancel` and confirm your action.
 * In `Sezzle Merchant Dashboard`, `Order Status` as `Deleted due to checkout not being captured before expiration` means payment has been fully released.
 * Only Full Release is supported from Magento.
 * Payment can also be released via Magento 2 Void API.
