@@ -16,7 +16,7 @@ All Sezzle developers should already have completed [Docker](https://gitlab.sezz
 ### MAMP
 
 1. [Download MAMP](https://www.mamp.info/en/downloads/)
-1. Unzip the downloaded file, then drag & drop to the `Applications` folder
+2. Unzip the downloaded file, then drag & drop to the `Applications` folder
 
 ### PHP
 
@@ -70,8 +70,6 @@ When using this method, update the Magento configuration below accordingly.
 --search-engine=elasticsearch7 \
 --elasticsearch-host=127.0.0.1 \
 --elasticsearch-port=9200 \
-
-
  -->
 
 ## Initial setup
@@ -193,14 +191,12 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Select the following:
 1. Change `Enabled` to `Yes`
 1. Enter `Public Key` and `Private Key`
-    - Can use any valid Sezzle API key pair for testing (recommended: [Grandmeister Coffee](https://admin.sezzle.com/merchants/396))
+    - Can use any valid sandbox Sezzle API key pair for testing (recommended: [Sezzle Shopify Test Store](https://sandbox.admin.sezzle.com/merchants/75097))
     - The API keys validation only confirms that a merchant was found with the provided public and private keys. It does not validate the shop url is correct, hence how merchants re-use API keys across multiple stores. 
 <!-- Is this something we want to change? Or is the work it would generate a bad trade-off? -->
       - This creates a nightmare for accounting, because the orders are recorded under the one account without distinction of site origin. 
       - It also affects widgets, since the API Keys are used to generate the UUID in the widget snippet. Not only do we not know that widgets are installed on the other stores, but config management also gets messy.
 1. Click `Save config`
-
-<!-- Why is Sezzle not showing at checkout now? -->
 
 ### Populating the store
 
