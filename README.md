@@ -34,9 +34,8 @@ php bin/magento cache:clean
 ### Manual
 
 1. Download the .zip or tar.gz file from [Sezzle's Github repository](https://github.com/sezzle/sezzle-magento2/blob/production/sezzle_sezzlepay-7.0.20.zip).
-2. Unzip the file, then drag & drop to `[Magento]/app/code/` either through `SFTP` or `SSH`.
-3. Copy `Sezzle` directory from unzipped folder to `[Magento]/vendor/sezzle/`.
-4. In Terminal, run the following:
+2. Unzip the file, rename to `sezzlepay`, then drag & drop to `[Magento]/vendor/sezzle/`.
+3. In Terminal, run the following:
 ```
 php bin/magento module:enable Sezzle_Sezzlepay
 php bin/magento setup:upgrade
@@ -62,7 +61,7 @@ php bin/magento cache:clean
 
 ### Manual
 
-Repeat the manual installatin instructions above, overwriting the existing content
+Repeat the manual installation instructions above, overwriting the existing content
 
 ## Configure Sezzle
 
@@ -70,25 +69,3 @@ Log in to Magento Admin and complete the configuration per the instructions [her
 ).
 
 *Your store is now ready to accept payments through Sezzle.*
-
-## How Sandbox works?
-
-1. In the `Sezzle` configuration page of your `Magento` admin, enter the `Sandbox` `API Keys` from your [`Sezzle Merchant Sandbox Dashboard`](https://sandbox.dashboard.sezzle.com/merchant/) and set the `Payment Mode` to `Sandbox`, then save the configuration. Make sure you are doing this on your `dev/staging` website.
-1. On your website, add an item to the cart, then proceed to `Checkout` and select `Sezzle` as the payment method.
-1. To pay with Sezzle:
-    1. If customer is not tokenized, click `Continue to Sezzle`.
-    1. If customer is tokenized, click `Place Order`. However, if the customer tokenization is expired, Sezzle will create a new checkout on clicking `Place Order`.
-    1. If In-Context checkout, click `Pay with Sezzle`.
-1. For In-Context checkout, the Sezzle checkout will be hosted in the configured mode, `iFrame` or `Popup`. Otherwise, you will be redirected to the Sezzle checkout.
-1. Sign In or Sign Up to continue.
-1. Enter the payment details using test data, then move to final page.
-1. Check the `Approve {Website Name} to process payments from your Sezzle account for future transactions. You may revoke this authorization at any time in your Sezzle Dashboard` to tokenize your account.
-1. If your account is already tokenized, order will be placed without redirection otherwise you will be redirected to Sezzle Checkout for completing the purchase.
-1. After payment is completed at Sezzle, you will be directed to your site's successful payment page.
-1. `Sandbox` testing is complete. You can login to your `Sezzle Merchant Sandbox Dashboard` to see the test order you just placed.
-
-## Troubleshooting/Debugging
-
-1. There is logging enabled by `Sezzle` for tracing the `Sezzle` actions.
-1. In case merchant is facing issues which is unknown to `Merchant Success` and `Support` team, they can ask for this logs and forward to the `Platform Integrations` team.
-1. Name of the log will be `sezzlepay.log`.It is always recommended to send the `system.log` and `exception.log` for better tracing of issues.
