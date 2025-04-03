@@ -8,7 +8,7 @@
 
 ## Introduction
 
-This document will help you in installing `Sezzle's Magento 2` extension. This extension is a certified one and listed [here](https://marketplace.magento.com/sezzle-sezzlepay.html) in the marketplace. The plugin can also be downloaded from [github](https://github.com/sezzle/sezzle-magento2).
+This document will help you in installing `Sezzle's Magento 2` extension. This extension is a certified one and listed [here](https://marketplace.magento.com/sezzle-sezzlepay.html) in the Marketplace. The plugin can also be downloaded from [Github](https://github.com/sezzle/sezzle-magento2).
 
 ## How to install the extension?
 
@@ -65,7 +65,6 @@ Repeat the manual installation instructions above, overwriting the existing cont
 
 ## Configure Sezzle
 
-Log in to Magento Admin and complete the configuration per the instructions [here](Log in to Magento Admin and complete the configuration per the instructions [here](https://docs.sezzle.com/docs/plugins/magento-2).
-).
+Log in to Magento Admin and complete the configuration per the instructions [here](https://docs.sezzle.com/docs/plugins/magento-2).
 
 *Your store is now ready to accept payments through Sezzle.*
