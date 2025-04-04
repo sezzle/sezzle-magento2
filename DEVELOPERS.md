@@ -240,7 +240,7 @@ php -d memory_limit=-1 bin/magento cache:clean
 # Local Testing
 
 1. Open Docker Desktop and start `opensearch` container
-2. Open MAMP and click Start
+2. Open MAMP, update `Document root`, then click `Start`
     * Click `Preferences`.
     * In the `Server` tab under `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 247 > pub`. Click `Choose` to save, then click `OK`
 3. Open DBeaver and ensure `mamp localhost:8889` database is connected
