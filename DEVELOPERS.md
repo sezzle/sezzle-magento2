@@ -255,20 +255,21 @@ php -d memory_limit=-1 bin/magento cache:clean
 
 1. Update CHANGELOG.md
 2. Update `version` number in `composer.json`
-3. Merge to production
+3. Delete previous version zip file
 4. `open ..`
-5. Secondary-click on the project and select `Compress`
-6. Log in to https://commercedeveloper.adobe.com/ using `Magento Partner Account` entry in 1Password
-7. Click `Extensions`
-8. Click `Extension Name`: `Sezzle` where Platform is `M2`
-9. Click `Submit a New Version`
-10. Enter `Adobe Commerce Version Number` per the same version reflected in `composer.json`
-11. Unless a feature must be released at a specific date, select `Requested Launch Date`: `On Approval`
-12. Click `Continue`
-13. Click `Attach Package`. Navigate to and select the zipped project folder, then click `Open`
-14. Select `Adobe Commerce Version Compatibility`: (all)
-15. Copy entry from `CHANGELOG.md` to the `Release Notes` field
-16. Click `Submit`
+5. Select all *contents* of magento2AppFrontends and compress, renaming the zip file `sezzle_sezzlepay-{version}.zip`
+6. Merge to production
+7. Log in to https://commercedeveloper.adobe.com/ using `Magento Partner Account` entry in 1Password
+8. Click `Extensions`
+9.  Click `Extension Name`: `Sezzle` where Platform is `M2`
+10. Click `Submit a New Version`
+11. Enter `Adobe Commerce Version Number` per the same version reflected in `composer.json`
+12. Unless a feature must be released at a specific date, select `Requested Launch Date`: `On Approval`
+13. Click `Continue`
+14. Click `Attach Package`. Navigate to and select the zipped project folder, then click `Open`
+15. Select `Adobe Commerce Version Compatibility`: (all)
+16. Copy entry from `CHANGELOG.md` to the `Release Notes` field
+17. Click `Submit`
 
 <!-- to do: troubleshooting guide -->
 # External Resources
