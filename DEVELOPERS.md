@@ -276,7 +276,9 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Copy entry from `CHANGELOG.md` to the `Release Notes` field
 1. Click `Submit`
 
-### Gitlab Release Tag
+### Github Release Tag
+
+*Gitlab magento2AppFrontends project will automatically mirror to Github sezzle-magento2 project. Once that has occurred, the following steps must be completed manually*
 
 1. Go to https://github.com/sezzle/sezzle-magento2/releases
 1. Click `Draft a new release`
