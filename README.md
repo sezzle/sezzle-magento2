@@ -34,7 +34,7 @@ php bin/magento cache:clean
 ### Manual
 
 1. Download the .zip or tar.gz file from [Sezzle's Github repository](https://github.com/sezzle/sezzle-magento2/blob/production/sezzle_sezzlepay-7.0.20.zip).
-2. Unzip the file, rename to `sezzlepay`, then drag & drop to `[Magento]/vendor/sezzle/`.
+2. Unzip the file, rename to `sezzlepay`, then drag & drop to `[Magento]/app/code/sezzle` or `[Magento]/vendor/sezzle/` as applicable.
 3. In Terminal, run the following:
 ```
 php bin/magento module:enable Sezzle_Sezzlepay
