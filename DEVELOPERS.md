@@ -91,8 +91,8 @@ Open `localhost:8085`
 In Terminal, run the following:
 ```
 cd /Applications/MAMP/htdocs
-mkdir magento && cd magento && mkdir 247 && cd 247
-composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.7 .
+mkdir magento && cd magento && mkdir 248 && cd 248
+composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.8 .
 ```
 
 ### Configure MAMP
@@ -102,7 +102,7 @@ composer create-project --repository-url=https://repo.magento.com/ magento/proje
 1. Click Preferences
 1. In the `Ports` tab, set `Apache Port` and `Nginx Port` to `8888` and `MySQL Port` to `8889`
 1. In the `Server` tab, select `Use MySQL server`: `8.0.40`
-1. For `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 247 > pub`. Click `Choose` to save.
+1. For `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 248 > pub`. Click `Choose` to save.
 1. Click `OK`
 1. Click `Start`
 
@@ -167,6 +167,13 @@ cd ../..
 ```
 
 *At this point, if you run the [Compile](#compile) command cluster below, you should be able to see Sezzle as an option  on [127.0.0.1:8888/admin](http://127.0.0.1:8888/admin/admin/system_config/edit/key/460ee844e615c1955534bea89954c0b3fbb24487d8c9e5835699e9920f8a3421/section/payment/), but you will not be able to add API keys*
+
+*Note: Getting `Unknown module(s)` error during `module:enable`? Try this instead:*
+
+```
+cd app && mkdir code && cd code && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
+cd ../../..
+```
 
 ### Sample Data
 
@@ -242,10 +249,10 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Open Docker Desktop and start `opensearch` container
 1. Open MAMP, update `Document root`, then click `Start`
     - Click `Preferences`.
-    - In the `Server` tab under `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 247 > pub`. Click `Choose` to save, then click `OK`
+    - In the `Server` tab under `Document Root`, click `Choose` and navigate to `Applications › MAMP › htdocs › magento › 248 > pub`. Click `Choose` to save, then click `OK`
 1. Open DBeaver and ensure `mamp localhost:8889` database is connected
 1. Navigate to `127.0.0.1:8888/admin`
-1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/247/vendor/sezzle/sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
+1. All development work will be completed inside `/Applications/MAMP/htdocs/magento/248/vendor/sezzle/sezzlepay` as you would normally in `~/go/src/sezzle/magento2AppFrontends`
     - Gitlab project magento2AppFrontends will mirror push to Github magento2 project for merchant use.
     - Use `php -d memory_limit=-1 bin/magento setup:upgrade` if any changes to Database
     - Use `php -d memory_limit=-1 bin/magento setup:di:compile` if making changes to dependencies
