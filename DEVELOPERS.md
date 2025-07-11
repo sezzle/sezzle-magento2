@@ -303,3 +303,13 @@ https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guid
 https://isuruuy.medium.com/configuring-magento2-using-mamp-server-7fbedc35297d
 
 https://www.mageplaza.com/devdocs/how-install-magento-2-mac-osx.html
+
+# Whitelisting Merchants
+
+Under `In-Context Settings`, merchants will see instructions to `Make sure you are approved by Sezzle for the InContext Checkout Solution to work.` If they wish to select Checkout Mode: `iframe`, they should contact us to perform the following:
+
+In `sezzle-checkout/deploy/default`, update `CONTENT_SECURITY_POLICY` for each applicable environment by appending the merchant's URL(s) to the `value`
+
+Post the MR in the `#code-review-checkout` Slack channel for approval.
+
+_If they select Checkout Mode: `popup`, this is not necessary._
