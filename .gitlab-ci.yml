@@ -6,4 +6,4 @@ include:
       - '.build/docker.yml'
 
 variables:
-  JIRA_PROJECT_NAME: "PLAT"
+  JIRA_PROJECT_NAME: "MERCHANT"
