@@ -52,8 +52,8 @@ class Config extends PaymentConfig
     const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
     const WIDGET_URL = 'https://widget.sezzle.com/%s';
     public static $imageSrc = [
-        'en' => 'https://media.sezzle.com/branding/sezzle-logos/sezzle-pay-over-time-no-interest@2x.png',
-        'fr' => 'https://media.sezzle.com/stripo/guids/CABINET_3a2c9b1a0b2efa35092eb0ce3ff5b254/images/sezzlecheckout_french_1_wFv.png'
+        'en' => 'https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg',
+        'fr' => 'https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg'
     ];
 
     /**
