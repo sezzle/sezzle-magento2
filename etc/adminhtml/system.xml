@@ -97,6 +97,15 @@
                         </depends>
                     </field>
                 </group>
+                <group id="sezzle_express_checkout" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Express Checkout</label>
+                    <!-- active -->
+                    <field id="express_checkout" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Express Checkout</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/sezzlepay/express_checkout</config_path>
+                    </field>
+                </group>
                 <group id="sezzle_settlement_reports" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="2">
                     <label>Settlement Report Settings</label>
                     <!-- settlement reports -->
