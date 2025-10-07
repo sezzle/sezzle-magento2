@@ -25,7 +25,7 @@ class Config extends PaymentConfig
     const KEY_MIN_CHECKOUT_AMOUNT = 'min_checkout_amount';
     const KEY_TOKENIZE = 'tokenize';
 
-    const KEY_ENABLE_EXPRESS_CHECKOUT = 'enable_express_checkout';
+    const KEY_EXPRESS_CHECKOUT = 'express_checkout';
 
     const KEY_WIDGET_PDP = 'widget_pdp';
     const KEY_WIDGET_CART = 'widget_cart';
@@ -218,7 +218,7 @@ class Config extends PaymentConfig
     public function isExpressEnabledForPDP(int $storeId = null): bool
     {
         return (bool)$this->getValue(
-            self::KEY_ENABLE_EXPRESS_CHECKOUT,
+            self::KEY_EXPRESS_CHECKOUT,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
     }

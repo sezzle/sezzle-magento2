@@ -83,7 +83,7 @@
                     </field>
                     <!-- active_in_context -->
                     <field id="active_in_context" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enable In Context Solution</label>
+                        <label>Enable In-Context Solution</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/sezzlepay/active_in_context</config_path>
                     </field>
@@ -97,13 +97,13 @@
                         </depends>
                     </field>
                 </group>
-                <group id="sezzle_express_checkout" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Express Checkout</label>
-                    <!-- active -->
-                    <field id="enable_express_checkout" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="sezzle_express_checkout" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="1">
+                    <label>Express Checkout Settings</label>
+                    <!-- settlement reports -->
+                    <field id="express_checkout" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Express Checkout</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/sezzlepay/enable_express_checkout</config_path>
+                        <config_path>payment/sezzlepay/express_checkout</config_path>
                     </field>
                 </group>
                 <group id="sezzle_settlement_reports" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="2">

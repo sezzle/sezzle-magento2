@@ -243,8 +243,8 @@ class SavePlugin
                 $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_PAYMENT_MODE)),
             SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT =>
                 $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT)),
-            SezzleConfig::KEY_ENABLE_EXPRESS_CHECKOUT =>
-                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_ENABLE_EXPRESS_CHECKOUT)),
+            SezzleConfig::KEY_EXPRESS_CHECKOUT =>
+                $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_EXPRESS_CHECKOUT)),
             SezzleConfig::KEY_WIDGET_PDP =>
                 $this->config->getConfigDataValue($this->getPath(SezzleConfig::KEY_WIDGET_PDP)),
             SezzleConfig::KEY_WIDGET_CART =>
@@ -296,8 +296,8 @@ class SavePlugin
                 $this->isInherit(SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT, $paymentFields)
                     ? $oldConfig[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT] :
                     (float)$paymentFields[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT]['value'],
-            'enable_express_checkout' => $this->isInherit(SezzleConfig::KEY_ENABLE_EXPRESS_CHECKOUT, $expressFields)
-                ? (bool)$oldConfig[SezzleConfig::KEY_ENABLE_EXPRESS_CHECKOUT] : (bool)$expressFields[SezzleConfig::KEY_ENABLE_EXPRESS_CHECKOUT]['value'],
+            'express_checkout' => $this->isInherit(SezzleConfig::KEY_EXPRESS_CHECKOUT, $expressFields)
+                ? (bool)$oldConfig[SezzleConfig::KEY_EXPRESS_CHECKOUT] : (bool)$expressFields[SezzleConfig::KEY_EXPRESS_CHECKOUT]['value'],
             'pdp_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_PDP, $widgetFields)
                 ? (bool)$oldConfig[SezzleConfig::KEY_WIDGET_PDP] : (bool)$widgetFields[SezzleConfig::KEY_WIDGET_PDP]['value'],
             'cart_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_CART, $widgetFields)
