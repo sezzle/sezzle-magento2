@@ -215,7 +215,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isExpressEnabledForPDP(int $storeId = null): bool
+    public function isExpressEnabled(int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_EXPRESS_CHECKOUT,
