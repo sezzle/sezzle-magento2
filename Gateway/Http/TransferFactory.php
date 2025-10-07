@@ -114,7 +114,7 @@ class TransferFactory implements TransferFactoryInterface
      * @throws NoSuchEntityException
      * @throws InputException
      */
-    private function getURI(array $args, int $storeId): string
+    private function getURI(array $args, int $storeId = null): string
     {
         foreach ($args as $argKey => $argVal) {
             $this->uriPath = str_replace('{' . $argKey . '}', (string)$argVal, $this->uriPath);
