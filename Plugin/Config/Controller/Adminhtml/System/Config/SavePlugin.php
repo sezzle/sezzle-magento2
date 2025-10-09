@@ -273,7 +273,6 @@ class SavePlugin
     {
         $paymentFields = $configGroups['sezzle_payment']['fields'];
         $widgetFields = $configGroups['sezzle_widget']['fields'];
-        $expressFields = $configGroups['sezzle_express_checkout']['fields'];
         $inContextFields = $configGroups['sezzle_payment_in_context']['fields'];
 
         $sezzleEnabled = !isset($paymentFields[SezzleConfig::KEY_ACTIVE]) ?
@@ -296,8 +295,8 @@ class SavePlugin
                 $this->isInherit(SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT, $paymentFields)
                     ? $oldConfig[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT] :
                     (float)$paymentFields[SezzleConfig::KEY_MIN_CHECKOUT_AMOUNT]['value'],
-            'express_checkout' => $this->isInherit(SezzleConfig::KEY_EXPRESS_CHECKOUT, $expressFields)
-                ? (bool)$oldConfig[SezzleConfig::KEY_EXPRESS_CHECKOUT] : (bool)$expressFields[SezzleConfig::KEY_EXPRESS_CHECKOUT]['value'],
+            'express_checkout' => $this->isInherit(SezzleConfig::KEY_EXPRESS_CHECKOUT, $paymentFields)
+                ? (bool)$oldConfig[SezzleConfig::KEY_EXPRESS_CHECKOUT] : (bool)$paymentFields[SezzleConfig::KEY_EXPRESS_CHECKOUT]['value'],
             'pdp_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_PDP, $widgetFields)
                 ? (bool)$oldConfig[SezzleConfig::KEY_WIDGET_PDP] : (bool)$widgetFields[SezzleConfig::KEY_WIDGET_PDP]['value'],
             'cart_widget_enabled' => $this->isInherit(SezzleConfig::KEY_WIDGET_CART, $widgetFields)
