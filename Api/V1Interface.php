@@ -18,5 +18,5 @@ interface V1Interface
      * @param int $storeId
      * @return bool
      */
-    public function sendLogsToSezzle(string $merchantUUID, string $log, int $storeId = null): bool;
+    public function sendLogsToSezzle(string $merchantUUID, string $log, int $storeId): bool;
 }

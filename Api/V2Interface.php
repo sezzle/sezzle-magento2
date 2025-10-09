@@ -34,7 +34,7 @@ interface V2Interface
      * @return CustomerInterface
      * @throws LocalizedException
      */
-    public function getCustomer(string $uri, string $customerUUID, int $storeId = null): CustomerInterface;
+    public function getCustomer(string $uri, string $customerUUID, int $storeId): CustomerInterface;
 
     /**
      * Get Customer UUID by Session token
@@ -45,7 +45,7 @@ interface V2Interface
      * @return TokenizeCustomerInterface
      * @throws LocalizedException
      */
-    public function getTokenDetails(string $uri, string $token, int $storeId = null): TokenizeCustomerInterface;
+    public function getTokenDetails(string $uri, string $token, int $storeId): TokenizeCustomerInterface;
 
     /**
      * Get Settlement Report Summaries

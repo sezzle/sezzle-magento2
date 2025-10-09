@@ -230,7 +230,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getCustomer(string $uri, string $customerUUID, int $storeId = null): CustomerInterface
+    public function getCustomer(string $uri, string $customerUUID, int $storeId): CustomerInterface
     {
         if (!$uri) {
             $customerEndpoint = sprintf(self::SEZZLE_GET_CUSTOMER_ENDPOINT, $customerUUID);
@@ -259,7 +259,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getTokenDetails(string $uri, string $token, int $storeId = null): TokenizeCustomerInterface
+    public function getTokenDetails(string $uri, string $token, int $storeId): TokenizeCustomerInterface
     {
         $sessionTokenEndpoint = sprintf(self::SEZZLE_GET_SESSION_TOKEN_ENDPOINT, $token);
         if (!$uri) {

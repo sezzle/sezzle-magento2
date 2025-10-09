@@ -71,7 +71,7 @@ class V1 implements V1Interface
     /**
      * @inheritDoc
      */
-    public function sendLogsToSezzle(string $merchantUUID, string $log, int $storeId = null): bool
+    public function sendLogsToSezzle(string $merchantUUID, string $log, int $storeId): bool
     {
         $logEndpoint = sprintf(self::SEZZLE_LOGGER_ENDPOINT, $merchantUUID);
         $uri = $this->config->getGatewayURL($storeId, Config::API_VERSION_V1) . $logEndpoint;
