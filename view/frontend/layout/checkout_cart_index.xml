@@ -11,5 +11,8 @@
         <referenceBlock name="head.additional">
             <block class="Sezzle\Sezzlepay\Block\Widget\Cart" name="sezzle.widget.cart.view" template="cart.phtml"/>
         </referenceBlock>
+        <referenceContainer name="checkout.cart.methods">
+            <block class="Sezzle\Sezzlepay\Block\Cart\ExpressCheckout" name="sezzle.cart.express-checkout" template="Sezzle_Sezzlepay::cart/express-checkout.phtml"/>
+        </referenceContainer>
     </body>
 </page>
