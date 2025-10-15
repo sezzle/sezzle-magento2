@@ -88,4 +88,32 @@ class CheckoutManagement implements CheckoutManagementInterface
 
         return $this->jsonSerializer->serialize(["checkout_url" => $checkoutURL]);
     }
+
+
+    public function createExpressCheckout(
+        string           $cartId,
+        PaymentInterface $paymentMethod): string
+    {
+        if (!$this->paymentInformationManagement->savePaymentInformation(
+            $cartId,
+            $paymentMethod,
+            null,
+        )) {
+            throw new CouldNotSaveException(__("Unable to save payment information."));
+        }
+
+        $checkoutURL = $this->checkout->getExpressCheckoutURL($cartId);
+
+        $this->helper->logSezzleActions([
+            'quote_id' => $cartId,
+            'log_origin' => __METHOD__,
+            'checkout_url' => $checkoutURL
+        ]);
+
+        if (!$checkoutURL) {
+            throw new NotFoundException(__('Checkout URL not found.'));
+        }
+
+        return $this->jsonSerializer->serialize(["checkout_url" => $checkoutURL]);
+    }
 }
