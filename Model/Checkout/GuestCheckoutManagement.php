@@ -102,4 +102,35 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
 
         return $this->jsonSerializer->serialize(["checkout_url" => $checkoutURL]);
     }
+
+    public function createExpressCheckout(
+        string           $cartId,
+        PaymentInterface $paymentMethod): string
+    {
+
+        if (!$this->paymentInformationManagement->savePaymentInformation(
+            $cartId,
+            null,
+            $paymentMethod,
+            null
+        )) {
+            throw new CouldNotSaveException(__("Unable to save payment information."));
+        }
+
+        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+
+        $checkoutURL = $this->checkout->getExpressCheckoutURL($quoteIdMask->getQuoteId());
+
+        $this->helper->logSezzleActions([
+            'quote_id' => $cartId,
+            'log_origin' => __METHOD__,
+            'checkout_url' => $checkoutURL
+        ]);
+
+        if (!$checkoutURL) {
+            throw new NotFoundException(__('Checkout URL not found.'));
+        }
+
+        return $this->jsonSerializer->serialize(["checkout_url" => $checkoutURL]);
+    }
 }

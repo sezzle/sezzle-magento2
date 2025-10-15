@@ -164,7 +164,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function createSession(string $referenceId, CartInterface $quote): SessionInterface
+    public function createSession(string $referenceId, CartInterface $quote, string | null $expressCheckoutType = null): SessionInterface
     {
         $storeId = $quote->getStoreId();
         $sessionModel = $this->sessionInterfaceFactory->create();
@@ -173,7 +173,7 @@ class V2 implements V2Interface
                     '__store_id' => $storeId,
                     '__method' => Client::HTTP_POST,
                     '__uri' => $this->config->getGatewayURL($storeId) . self::SEZZLE_CREATE_SESSION_ENDPOINT
-                ], $this->requestBuilder->build(['quote' => $quote, 'reference_id' => $referenceId]))
+                ], $this->requestBuilder->build(['quote' => $quote, 'reference_id' => $referenceId, 'express_checkout_type' => $expressCheckoutType]))
             );
             $response = $this->client->placeRequest($transferO);
             if (isset($response['order']) && ($orderObj = $response['order'])) {

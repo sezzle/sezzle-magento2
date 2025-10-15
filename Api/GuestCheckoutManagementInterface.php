@@ -36,4 +36,15 @@ interface GuestCheckoutManagementInterface
         PaymentInterface $paymentMethod,
         AddressInterface $billingAddress = null
     ): string;
+
+    /**
+     * Creates guest express checkout session at Sezzle
+     *
+     * @param string $cartId
+     * @param PaymentInterface $paymentMethod
+     * @return string
+     * @throws CouldNotSaveException
+     * @throws NotFoundException
+     */
+    public function createExpressCheckout(string $cartId, PaymentInterface $paymentMethod): string;
 }

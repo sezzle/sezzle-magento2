@@ -28,6 +28,14 @@
         </resources>
     </route>
 
+    <!-- Create Guest Sezzle Express Checkout -->
+    <route url="/V1/sezzle/guest-carts/:cartId/express-checkout" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" method="createExpressCheckout"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
     <!-- Create Sezzle Customer Order -->
     <route url="/V1/sezzle/carts/mine/customer-order" method="POST">
         <service class="Sezzle\Sezzlepay\Api\CustomerManagementInterface" method="createOrder"/>

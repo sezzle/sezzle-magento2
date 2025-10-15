@@ -110,6 +110,27 @@ class Checkout implements CheckoutInterface
         }
     }
 
+    public function getExpressCheckoutURL(int $cartId): ?string
+    {
+        try {
+            /** @var Quote $quote */
+            $quote = $this->initExpressQuote($cartId);
+
+            $session = $this->createSession($quote, 'multi-step');
+            $this->setTokenizeDetailsInSession($session);
+
+            $quote->getPayment()->setAdditionalInformation($this->additionalInformation);
+            $this->quoteResourceModel->save($quote->collectTotals());
+            $this->checkoutSession->replaceQuote($quote);
+
+            return $session->getOrder()->getCheckoutURL();
+        } catch (AuthenticationException $ae) {
+            return $ae->getMessage();
+        } catch (Exception $e) {
+            return '';
+        }
+    }
+
     /**
      * @param int $cartId
      * @return CartInterface
@@ -124,16 +145,22 @@ class Checkout implements CheckoutInterface
         return $quote->reserveOrderId();
     }
 
+    public function initExpressQuote(int $cartId): CartInterface
+    {
+        $quote = $this->cartRepository->getActive($cartId);
+        return $quote->reserveOrderId();
+    }
+
     /**
      * @param CartInterface $quote
      * @return SessionInterface
      * @throws LocalizedException
      */
-    private function createSession(CartInterface $quote): SessionInterface
+    private function createSession(CartInterface $quote, string | null $expressCheckoutType = null): SessionInterface
     {
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
         $this->additionalInformation[CustomerOrderRequestBuilder::KEY_REFERENCE_ID] = $referenceID;
-        $session = $this->v2->createSession($referenceID, $quote);
+        $session = $this->v2->createSession($referenceID, $quote, $expressCheckoutType);
         $order = $session->getOrder();
         if (!$order) {
             throw new LocalizedException(__('Session creation failed at Sezzle.'));

@@ -23,7 +23,7 @@ interface V2Interface
      * @param CartInterface $quote
      * @return SessionInterface
      */
-    public function createSession(string $referenceId, CartInterface $quote): SessionInterface;
+    public function createSession(string $referenceId, CartInterface $quote, string | null $expressCheckoutType = null): SessionInterface;
 
     /**
      * Get Customer by Customer UUID

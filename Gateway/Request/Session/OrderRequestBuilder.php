@@ -49,33 +49,55 @@ class OrderRequestBuilder implements BuilderInterface
         /** @var Quote $quote */
         $quote = $buildSubject['quote'];
         $referenceID = $buildSubject['reference_id'];
+        $expressCheckoutType = $buildSubject['express_checkout_type'];
 
+        $isExpressCheckout = $expressCheckoutType !== null && $expressCheckoutType !== '';
+
+        $requiresShippingInfo = $isExpressCheckout;
         $result = [];
 
 
-        $result['order'] = [
-            'intent' => 'AUTH',
-            'reference_id' => $referenceID,
-            'description' => $quote->getStore()->getName(),
-            'requires_shipping_info' => false,
-            'items' => $this->buildItemsPayload($quote),
-            'discounts' => [
-                $this->getPriceObject(
-                    $quote->getShippingAddress()->getBaseDiscountAmount(),
+        if ($isExpressCheckout) {
+            $result['order'] = [
+                'intent' => 'AUTH',
+                'reference_id' => $referenceID,
+                'description' => $quote->getStore()->getName(),
+                'requires_shipping_info' => $requiresShippingInfo,
+                'items' => $this->buildItemsPayload($quote),
+                'discounts' => [
+                    $this->getPriceObject(
+                        $quote->getShippingAddress()->getBaseDiscountAmount(),
+                        $quote->getBaseCurrencyCode()
+                    )
+                ],
+                'order_amount' => $this->getPriceObject($quote->getSubtotalWithDiscount(), $quote->getBaseCurrencyCode()),
+                'locale' => $this->localeResolver->getLocale(),
+            ];
+        } else {
+            $result['order'] = [
+                'intent' => 'AUTH',
+                'reference_id' => $referenceID,
+                'description' => $quote->getStore()->getName(),
+                'requires_shipping_info' => $requiresShippingInfo,
+                'items' => $this->buildItemsPayload($quote),
+                'discounts' => [
+                    $this->getPriceObject(
+                        $quote->getShippingAddress()->getBaseDiscountAmount(),
+                        $quote->getBaseCurrencyCode()
+                    )
+                ],
+                'shipping_amount' => $this->getPriceObject(
+                    $quote->getShippingAddress()->getBaseShippingAmount(),
                     $quote->getBaseCurrencyCode()
-                )
-            ],
-            'shipping_amount' => $this->getPriceObject(
-                $quote->getShippingAddress()->getBaseShippingAmount(),
-                $quote->getBaseCurrencyCode()
-            ),
-            'tax_amount' => $this->getPriceObject(
-                $quote->getShippingAddress()->getBaseTaxAmount(),
-                $quote->getBaseCurrencyCode()
-            ),
-            'order_amount' => $this->getPriceObject($quote->getBaseGrandTotal(), $quote->getBaseCurrencyCode()),
-            'locale' => $this->localeResolver->getLocale(),
-        ];
+                ),
+                'tax_amount' => $this->getPriceObject(
+                    $quote->getShippingAddress()->getBaseTaxAmount(),
+                    $quote->getBaseCurrencyCode()
+                ),
+                'order_amount' => $this->getPriceObject($quote->getBaseGrandTotal(), $quote->getBaseCurrencyCode()),
+                'locale' => $this->localeResolver->getLocale(),
+            ];
+        }
 
         if ($this->config->isInContextModeActive()) {
             $result['order']['checkout_mode'] = $this->config->getInContextMode();

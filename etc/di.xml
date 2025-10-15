@@ -287,6 +287,7 @@
             <argument name="builders" xsi:type="array">
                 <item name="complete_url" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CompleteUrlRequestBuilder</item>
                 <item name="cancel_url" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CancelUrlRequestBuilder</item>
+                <item name="express_checkout_type" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\ExpressCheckoutRequestBuilder</item>
                 <item name="order" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\OrderRequestBuilder</item>
                 <item name="customer" xsi:type="string">Sezzle\Sezzlepay\Gateway\Request\Session\CustomerRequestBuilder</item>
             </argument>
