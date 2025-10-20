@@ -316,19 +316,74 @@ class QuoteManagement implements CartManagementInterface
                     ]
                 ]);
 
-                // Set the shipping method
-                $shippingAddress->setShippingMethod($shippingMethodCode)
-                    ->setCollectShippingRates(true);
+                $shippingAddress->setCollectShippingRates(true);
+                $quote->setTotalsCollectedFlag(false);
+                $shippingAddress->requestShippingRates(); // This actually collects the rates
 
-                // Recalculate totals
+                // STEP 2: Verify the shipping method exists in available rates
+                $availableRates = $shippingAddress->getAllShippingRates();
+                $methodFound = false;
+                foreach ($availableRates as $rate) {
+                    $rateCode = $rate->getCarrier() . '_' . $rate->getMethod();
+                    if ($rateCode === $shippingMethodCode) {
+                        $methodFound = true;
+                        $this->helper->logSezzleActions([
+                            'log_origin' => __METHOD__,
+                            'message' => 'Shipping method found in available rates',
+                            'method_code' => $shippingMethodCode,
+                            'rate_price' => $rate->getPrice()
+                        ]);
+                        break;
+                    }
+                }
+
+                if (!$methodFound) {
+                    $this->helper->logSezzleActions([
+                        'log_origin' => __METHOD__,
+                        'warning' => 'Shipping method not found in available rates',
+                        'requested_method' => $shippingMethodCode,
+                        'available_rates' => array_map(function($rate) {
+                            return $rate->getCarrier() . '_' . $rate->getMethod();
+                        }, $availableRates)
+                    ]);
+                }
+
+                // STEP 3: Now set the shipping method
+                $shippingAddress->setShippingMethod($shippingMethodCode);
+                $shippingAddress->save();
+
+                // STEP 4: Recalculate totals
                 $quote->setTotalsCollectedFlag(false);
                 $quote->collectTotals();
-                $this->cartRepository->save($quote);
+
+                // Verify the method is still set
+                $currentMethod = $shippingAddress->getShippingMethod();
+
+                $this->helper->logSezzleActions([
+                    'log_origin' => __METHOD__,
+                    'current_method' => $currentMethod,
+                    'shipping_method_code' => $shippingMethodCode
+                ]);
+
+                // If it got reset, force it again
+                if ($currentMethod !== $shippingMethodCode) {
+                    $this->helper->logSezzleActions([
+                        'log_origin' => __METHOD__,
+                        'warning' => 'Shipping method was reset by collectTotals',
+                        'expected' => $shippingMethodCode,
+                        'actual' => $currentMethod,
+                        'forcing_again' => true
+                    ]);
+
+                    // Force it again
+                    $shippingAddress->setShippingMethod($shippingMethodCode);
+                }
 
                 $this->helper->logSezzleActions([
                     'log_origin' => __METHOD__,
                     'order_uuid' => $orderUUID,
                     'shipping_method_set' => $shippingMethodCode,
+                    'shipping_method' => $shippingAddress->getShippingMethod(),
                     'grand_total' => $quote->getGrandTotal(),
                     'shipping_address_after' => [
                         'firstname' => $shippingAddress->getFirstname(),

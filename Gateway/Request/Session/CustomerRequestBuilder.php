@@ -35,11 +35,25 @@ class CustomerRequestBuilder implements BuilderInterface
     {
         /** @var Quote $quote */
         $quote = $buildSubject['quote'];
+        $expressCheckout = $buildSubject['express_checkout_type'] ?? false;
 
         try {
             $tokenize = !$this->config->isInContextModeActive() && $this->config->isTokenizationEnabled();
         } catch (InputException|NoSuchEntityException $e) {
             $tokenize = false;
+        }
+
+        if ($expressCheckout) {
+            return [
+                'customer' => [
+                    'tokenize' => $tokenize,
+                    'email' => $quote->getCustomerEmail(),
+                    'first_name' => $quote->getCustomerFirstname() ?: $quote->getBillingAddress()->getFirstname(),
+                    'last_name' => $quote->getCustomerLastname() ?: $quote->getBillingAddress()->getLastname(),
+                    'phone' => $quote->getBillingAddress()->getTelephone(),
+                    'dob' => $quote->getCustomer()->getDob(),
+                ]
+            ];
         }
 
         return [
