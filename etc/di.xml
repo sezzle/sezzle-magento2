@@ -26,6 +26,8 @@
     <preference for="Sezzle\Sezzlepay\Api\CheckoutManagementInterface" type="Sezzle\Sezzlepay\Model\Checkout\CheckoutManagement"/>
     <preference for="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" type="Sezzle\Sezzlepay\Model\Checkout\GuestCheckoutManagement"/>
     <preference for="Sezzle\Sezzlepay\Api\CustomerManagementInterface" type="Sezzle\Sezzlepay\Model\Tokenize\CustomerManagement"/>
+    <preference for="Sezzle\Sezzlepay\Api\ShippingInformationManagementInterface" type="Sezzle\Sezzlepay\Model\ShippingInformationManagement"/>
+    <preference for="Sezzle\Sezzlepay\Api\GuestShippingInformationManagementInterface" type="Sezzle\Sezzlepay\Model\GuestShippingInformationManagement"/>
 
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>

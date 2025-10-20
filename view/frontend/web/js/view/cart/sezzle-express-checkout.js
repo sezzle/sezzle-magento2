@@ -8,7 +8,7 @@ define([
   "jquery",
   "Magento_Customer/js/model/customer",
   "Sezzle_Sezzlepay/js/express-checkout/express-checkout-wrapper",
-  "Sezzle_Sezzlepay/js/action/create-sezzle-checkout",
+  "Sezzle_Sezzlepay/js/action/create-sezzle-express-checkout",
   "Sezzle_Sezzlepay/js/action/create-sezzle-customer-order",
   "Magento_Checkout/js/action/redirect-on-success",
 ], function (
@@ -16,7 +16,7 @@ define([
   $,
   customer,
   ExpressCheckoutWrapper,
-  createSezzleCheckoutAction,
+  createSezzleExpressCheckoutAction,
   createSezzleCustomerOrder,
   redirectOnSuccessAction
 ) {
@@ -139,7 +139,7 @@ define([
      */
     getCreateSezzleCheckoutDeferredObject: function () {
       return $.when(
-        createSezzleCheckoutAction(this.getData(), this.messageContainer)
+        createSezzleExpressCheckoutAction(this.getData(), this.messageContainer)
       );
     },
 

@@ -20,6 +20,14 @@
         </data>
     </route>
 
+    <!-- Create Sezzle Express Checkout -->
+    <route url="/V1/sezzle/carts/mine/express-checkout" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\CheckoutManagementInterface" method="createExpressCheckout"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+    </route>
+
     <!-- Create Guest Sezzle Checkout -->
     <route url="/V1/sezzle/guest-carts/:cartId/checkout" method="POST">
         <service class="Sezzle\Sezzlepay\Api\GuestCheckoutManagementInterface" method="createCheckout"/>
@@ -61,6 +69,25 @@
     <!-- Place Guest Sezzle Order -->
     <route url="/V1/sezzle/guest-carts/:cartId/order" method="PUT">
         <service class="Sezzle\Sezzlepay\Api\GuestCartManagementInterface" method="placeOrder"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
+    <!-- Update Order with Shipping Address -->
+    <route url="/V1/sezzle/carts/mine/update-order" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\ShippingInformationManagementInterface" method="updateOrderWithAddress"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+
+    <!-- Update Guest Order with Shipping Address -->
+    <route url="/V1/sezzle/guest-carts/:cartId/update-order" method="POST">
+        <service class="Sezzle\Sezzlepay\Api\GuestShippingInformationManagementInterface" method="updateOrderWithAddress"/>
         <resources>
             <resource ref="anonymous" />
         </resources>

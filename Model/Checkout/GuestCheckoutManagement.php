@@ -107,16 +107,6 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
         string           $cartId,
         PaymentInterface $paymentMethod): string
     {
-
-        if (!$this->paymentInformationManagement->savePaymentInformation(
-            $cartId,
-            null,
-            $paymentMethod,
-            null
-        )) {
-            throw new CouldNotSaveException(__("Unable to save payment information."));
-        }
-
         $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
 
         $checkoutURL = $this->checkout->getExpressCheckoutURL($quoteIdMask->getQuoteId());

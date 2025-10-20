@@ -94,14 +94,6 @@ class CheckoutManagement implements CheckoutManagementInterface
         string           $cartId,
         PaymentInterface $paymentMethod): string
     {
-        if (!$this->paymentInformationManagement->savePaymentInformation(
-            $cartId,
-            $paymentMethod,
-            null,
-        )) {
-            throw new CouldNotSaveException(__("Unable to save payment information."));
-        }
-
         $checkoutURL = $this->checkout->getExpressCheckoutURL($cartId);
 
         $this->helper->logSezzleActions([

@@ -6,7 +6,7 @@
 define([
   "jquery",
   "mage/translate",
-  "Sezzle_Sezzlepay/js/in-context/sezzle-smart-button",
+  "Sezzle_Sezzlepay/js/express-checkout/sezzle-express-button",
   "Magento_Checkout/js/model/quote",
   "mage/storage",
   "Magento_Customer/js/model/customer",
@@ -88,6 +88,56 @@ define([
         .fail(function (response) {
           errorProcessor.process(response, this.messageContainer);
           fullScreenLoader.stopLoader(true);
+        });
+    },
+
+    /**
+     * On Calculate Address Related Costs Action
+     */
+    onCalculateAddressRelatedCosts: function (shippingAddress) {
+      if (!customer.isLoggedIn()) {
+        serviceUrl = urlBuilder.createUrl(
+          "/sezzle/guest-carts/:cartId/update-order",
+          {
+            cartId: quote.getQuoteId(),
+          }
+        );
+      } else {
+        serviceUrl = urlBuilder.createUrl(
+          "/sezzle/carts/mine/update-order",
+          {}
+        );
+      }
+
+      var payload = {
+        countryCode: shippingAddress.country_code,
+        state: shippingAddress.state,
+        city: shippingAddress.city,
+        postalCode: shippingAddress.postal_code,
+        street: shippingAddress.street,
+        street2: shippingAddress.street2 || "",
+        addressUuid: shippingAddress.uuid,
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+        phone: shippingAddress.phone,
+      };
+
+      return storage
+        .post(serviceUrl, JSON.stringify(payload))
+        .then(function (response) {
+          var data = JSON.parse(response);
+          return {
+            ok: data.ok,
+            error: null,
+          };
+        })
+        .catch(function (response) {
+          errorProcessor.process(response, this.messageContainer);
+          fullScreenLoader.stopLoader(true);
+          return {
+            ok: false,
+            error: response.responseJSON?.message || "Failed to update order",
+          };
         });
     },
 

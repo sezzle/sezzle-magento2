@@ -29,6 +29,7 @@ define([
               var jsonResponse = $.parseJSON(response);
               checkoutSDK.startCheckout({
                 checkout_url: jsonResponse.checkout_url,
+                gateway_order_uuid: jsonResponse.order_uuid,
               });
             })
             .fail(function (response) {
@@ -48,6 +49,11 @@ define([
       },
       onFailure: function () {
         clientConfig.rendererComponent.catchOnFailure();
+      },
+      onCalculateAddressRelatedCosts: function (shippingAddress) {
+        return clientConfig.rendererComponent.onCalculateAddressRelatedCosts(
+          shippingAddress
+        );
       },
     });
   };
