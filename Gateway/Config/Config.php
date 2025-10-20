@@ -25,6 +25,8 @@ class Config extends PaymentConfig
     const KEY_MIN_CHECKOUT_AMOUNT = 'min_checkout_amount';
     const KEY_TOKENIZE = 'tokenize';
 
+    const KEY_EXPRESS_CHECKOUT = 'express_checkout';
+
     const KEY_WIDGET_PDP = 'widget_pdp';
     const KEY_WIDGET_CART = 'widget_cart';
     const KEY_WIDGET_TICKET_CREATED_AT = 'widget_ticket_created_at';
@@ -203,6 +205,20 @@ class Config extends PaymentConfig
     {
         return (bool)$this->getValue(
             self::KEY_TOKENIZE,
+            $storeId ?? $this->storeConfigResolver->getStoreId()
+        );
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return bool
+     * @throws InputException
+     * @throws NoSuchEntityException
+     */
+    public function isExpressEnabled(int $storeId = null): bool
+    {
+        return (bool)$this->getValue(
+            self::KEY_EXPRESS_CHECKOUT,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
     }
