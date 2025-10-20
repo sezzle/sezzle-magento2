@@ -196,6 +196,10 @@ class ShippingInformationManagement implements ShippingInformationManagementInte
                 $carrierCode = $method->getCarrierCode();
                 $methodCode = $method->getMethodCode();
 
+                // Set the shipping method on the quote's shipping address
+                $shippingAddress->setShippingMethod("{$carrierCode}_{$methodCode}");
+                $this->cartRepository->save($quote);
+
                 // Create address information for totals calculation (mimics standard checkout)
                 $addressInformation = $this->totalsInformationFactory->create();
                 $addressInformation->setAddress($address);
@@ -214,6 +218,7 @@ class ShippingInformationManagement implements ShippingInformationManagementInte
                     'method' => "{$carrierCode}_{$methodCode}",
                     'carrier_title' => $method->getCarrierTitle(),
                     'method_title' => $method->getMethodTitle(),
+                    'shipping_method' => $shippingAddress->getShippingMethod(),
                     'subtotal' => $subtotal,
                     'shipping_amount' => $shippingAmount,
                     'tax_amount' => $taxAmount,
@@ -236,6 +241,10 @@ class ShippingInformationManagement implements ShippingInformationManagementInte
                     'final_order_amount_in_cents' => $finalOrderAmountInCents
                 ];
             }
+
+            // Unset shipping method on the quote's shipping address
+            $shippingAddress->unsShippingMethod();
+            $this->cartRepository->save($quote);
 
             $this->helper->logSezzleActions([
                 'quote_id' => $cartId,
