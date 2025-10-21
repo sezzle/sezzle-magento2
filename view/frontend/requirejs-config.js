@@ -5,10 +5,12 @@
  */
 var config = {
     map: {
-        '*': {
-            widgetRenderer: 'Sezzle_Sezzlepay/js/sezzle_widget/widget-renderer',
-            checkoutSDK: 'https://checkout-sdk.sezzle.com/checkout.min.js',
-            installmentWidgetSDK: 'https://checkout-sdk.sezzle.com/installment-widget.min.js',
-        }
-    }
+        "*": {
+            widgetRenderer: "Sezzle_Sezzlepay/js/sezzle_widget/widget-renderer",
+            checkoutSDK: "https://checkout-sdk.sezzle.com/checkout.min.js",
+            expressCheckoutSDK: "https://checkout-sdk.sezzle.com/express_checkout.min.js",
+            installmentWidgetSDK:
+                "https://checkout-sdk.sezzle.com/installment-widget.min.js",
+        },
+    },
 };
