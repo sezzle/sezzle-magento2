@@ -62,6 +62,12 @@
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Payment\PaymentAction</source_model>
                         <config_path>payment/sezzlepay/payment_action</config_path>
                     </field>
+                    <!-- express checkout -->
+                    <field id="express_checkout" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Express Checkout</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/sezzlepay/express_checkout</config_path>
+                    </field>
                     <!-- tokenize -->
                     <field id="tokenize" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Customer Tokenization?</label>
