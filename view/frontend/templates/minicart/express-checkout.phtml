@@ -1,0 +1,32 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<?php
+use Sezzle\Sezzlepay\Block\Minicart\ExpressCheckout;
+/** @var $block ExpressCheckout */
+?>
+<?php if ($block->canDisplay()) : ?>
+<script type="text/javascript">
+    window.checkoutConfig = <?= /* @noEscape */ $block->getSerializedCheckoutConfig() ?>;
+</script>
+<div id="sezzle-express-checkout-minicart" data-bind="scope: 'sezzle-express-checkout-minicart'">
+    <!-- ko template: getTemplate() --><!-- /ko -->
+</div>
+<script type="text/x-magento-init">
+{
+    "#sezzle-express-checkout-minicart": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "sezzle-express-checkout-minicart": {
+                    "component": "Sezzle_Sezzlepay/js/view/minicart/sezzle-express-checkout"
+                }
+            }
+        }
+    }
+}
+</script>
+<?php endif; ?>
