@@ -51,7 +51,6 @@ define([
       // Listen for cart updates
       cart.subscribe(function (updatedCart) {
         var hasItems = updatedCart.items && updatedCart.items.length > 0;
-        console.log("Sezzle: Cart updated, has items:", hasItems);
         self.cartHasItems(hasItems);
       });
 

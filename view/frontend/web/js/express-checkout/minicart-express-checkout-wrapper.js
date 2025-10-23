@@ -9,7 +9,7 @@ define([
   "Sezzle_Sezzlepay/js/express-checkout/sezzle-express-button",
   "Magento_Checkout/js/model/quote",
   "mage/storage",
-  "Magento_Customer/js/model/customer",
+  "Magento_Customer/js/customer-data",
   "Magento_Checkout/js/action/redirect-on-success",
   "Magento_Checkout/js/model/full-screen-loader",
   "Magento_Checkout/js/model/url-builder",
@@ -22,7 +22,7 @@ define([
   checkoutSmartButtons,
   quote,
   storage,
-  customer,
+  customerData,
   redirectOnSuccessAction,
   fullScreenLoader,
   urlBuilder,
@@ -72,7 +72,9 @@ define([
      */
     afterOnComplete: function () {
       fullScreenLoader.startLoader();
-      if (!customer.isLoggedIn()) {
+      var customerObservable = customerData.get("customer");
+      var customer = customerObservable();
+      if (!customer.firstname || customer.firstname === "") {
         serviceUrl = urlBuilder.createUrl("/sezzle/guest-carts/:cartId/order", {
           cartId: quote.getQuoteId(),
         });
@@ -95,7 +97,9 @@ define([
      * On Calculate Address Related Costs Action
      */
     onCalculateAddressRelatedCosts: function (shippingAddress) {
-      if (!customer.isLoggedIn()) {
+      var customerObservable = customerData.get("customer");
+      var customer = customerObservable();
+      if (!customer.firstname || customer.firstname === "") {
         serviceUrl = urlBuilder.createUrl(
           "/sezzle/guest-carts/:cartId/update-order",
           {

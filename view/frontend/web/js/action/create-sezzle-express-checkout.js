@@ -9,13 +9,13 @@
  */
 define([
   "Magento_Checkout/js/model/quote",
-  "Magento_Customer/js/model/customer",
+  "Magento_Customer/js/customer-data",
   "Magento_Checkout/js/model/url-builder",
   "Sezzle_Sezzlepay/js/model/service-processor",
   "Magento_CheckoutAgreements/js/model/agreements-assigner",
 ], function (
   quote,
-  customer,
+  customerData,
   urlBuilder,
   serviceProcessor,
   agreementsAssigner
@@ -31,7 +31,10 @@ define([
       paymentMethod: paymentData,
     };
 
-    if (customer.isLoggedIn()) {
+    var customerObservable = customerData.get("customer");
+    var customer = customerObservable();
+
+    if (customer.firstname && customer.firstname !== "") {
       serviceUrl = urlBuilder.createUrl(
         "/sezzle/carts/mine/express-checkout",
         {}
