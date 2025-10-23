@@ -112,7 +112,7 @@ class ExpressCheckout extends Template
     }
 
     /**
-     * Check if Sezzle payment button should be displayed
+     * Check if Sezzle payment is enabled
      * Note: Cart items check is handled in JavaScript via customer-data subscription
      *
      * @return bool
@@ -120,23 +120,7 @@ class ExpressCheckout extends Template
     public function canDisplay(): bool
     {
         try {
-            $isEnabled = $this->config->isEnabled();
-            $quote = $this->checkoutSession->getQuote();
-            $hasItems = $quote->getItemsCount() > 0;
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'is_enabled' => $isEnabled,
-                'has_items' => $hasItems,
-                'quote' => [
-                    'id' => $quote->getId(),
-                    'items_count' => $quote->getItemsCount(),
-                    'items_qty' => $quote->getItemsQty(),
-                    'grand_total' => $quote->getGrandTotal(),
-                    'customer_id' => $quote->getCustomerId(),
-                    'store_id' => $quote->getStoreId()
-                ]
-            ]);
-            return $isEnabled && $hasItems;
+            return $this->config->isEnabled();
         } catch (NoSuchEntityException|InputException $e) {
             return false;
         }

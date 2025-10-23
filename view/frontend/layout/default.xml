@@ -11,7 +11,8 @@
         <referenceContainer name="minicart.addons">
             <block class="Sezzle\Sezzlepay\Block\Minicart\ExpressCheckout"
                    name="sezzle.minicart.express-checkout"
-                   template="Sezzle_Sezzlepay::minicart/express-checkout.phtml"/>
+                   template="Sezzle_Sezzlepay::minicart/express-checkout.phtml"
+                   cacheable="false"/>
         </referenceContainer>
     </body>
 </page>

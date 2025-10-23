@@ -6,7 +6,9 @@
 define([
   "uiComponent",
   "jquery",
+  "ko",
   "Magento_Customer/js/model/customer",
+  "Magento_Customer/js/customer-data",
   "Sezzle_Sezzlepay/js/express-checkout/minicart-express-checkout-wrapper",
   "Sezzle_Sezzlepay/js/action/create-sezzle-express-checkout",
   "Sezzle_Sezzlepay/js/action/create-sezzle-customer-order",
@@ -14,7 +16,9 @@ define([
 ], function (
   Component,
   $,
+  ko,
   customer,
+  customerData,
   MinicartExpressCheckoutWrapper,
   createSezzleExpressCheckoutAction,
   createSezzleCustomerOrder,
@@ -25,6 +29,42 @@ define([
   return Component.extend(MinicartExpressCheckoutWrapper).extend({
     defaults: {
       template: "Sezzle_Sezzlepay/minicart/express-checkout",
+    },
+
+    /**
+     * Initialize component
+     */
+    initialize: function () {
+      this._super();
+      var self = this;
+
+      // Create observable for cart items
+      this.cartHasItems = ko.observable(false);
+
+      // Subscribe to cart data changes
+      var cart = customerData.get("cart");
+      console.log("cart", cart);
+
+      // Initial check
+      this.cartHasItems(cart().items && cart().items.length > 0);
+
+      // Listen for cart updates
+      cart.subscribe(function (updatedCart) {
+        var hasItems = updatedCart.items && updatedCart.items.length > 0;
+        console.log("Sezzle: Cart updated, has items:", hasItems);
+        self.cartHasItems(hasItems);
+      });
+
+      return this;
+    },
+
+    /**
+     * Check if button should be visible
+     *
+     * @returns {boolean}
+     */
+    isVisible: function () {
+      return this.cartHasItems();
     },
 
     /**
