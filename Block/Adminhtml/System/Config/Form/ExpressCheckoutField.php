@@ -88,9 +88,10 @@ class ExpressCheckoutField extends Field
             $sezzleConfig = $objectManager->get(\Sezzle\Sezzlepay\Gateway\Config\Config::class);
             $jsonSerializer = $objectManager->get(\Magento\Framework\Serialize\Serializer\Json::class);
             $helper = $objectManager->get(\Sezzle\Sezzlepay\Helper\Data::class);
+            $authService = $objectManager->get(\Sezzle\Sezzlepay\Gateway\Http\AuthenticationService::class);
 
-            // Get auth token first
-            $authToken = $this->getAuthToken($publicKey, $privateKey);
+            // Get auth token using existing service
+            $authToken = $authService->getToken();
             if (!$authToken) {
                 return false;
             }
@@ -115,7 +116,7 @@ class ExpressCheckoutField extends Field
             $curl->get($url);
             $responseJSON = $curl->getBody();
             $response = $jsonSerializer->unserialize($responseJSON);
-            
+
             $log['response'] = [
                 'status' => $curl->getStatus(),
                 'body' => $response
@@ -133,55 +134,6 @@ class ExpressCheckoutField extends Field
                 'error' => $e->getMessage()
             ]);
             return false;
-        }
-    }
-
-    /**
-     * Get authentication token
-     *
-     * @param string $publicKey
-     * @param string $privateKey
-     * @return string|null
-     */
-    private function getAuthToken(string $publicKey, string $privateKey): ?string
-    {
-        try {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $sezzleConfig = $objectManager->get(\Sezzle\Sezzlepay\Gateway\Config\Config::class);
-            $jsonSerializer = $objectManager->get(\Magento\Framework\Serialize\Serializer\Json::class);
-            $helper = $objectManager->get(\Sezzle\Sezzlepay\Helper\Data::class);
-
-            $data = [
-                'public_key' => $publicKey,
-                'private_key' => $privateKey
-            ];
-
-            $url = $sezzleConfig->getGatewayURL() . '/authentication';
-
-            $curl = new \Magento\Framework\HTTP\Client\Curl();
-            $curl->setTimeout(80);
-            $curl->setHeaders([
-                'Content-Type' => 'application/json'
-            ]);
-
-            $curl->post($url, $jsonSerializer->serialize($data));
-
-            $responseJSON = $curl->getBody();
-            $response = $jsonSerializer->unserialize($responseJSON);
-
-            if (isset($response['token'])) {
-                return $response['token'];
-            }
-
-            return null;
-        } catch (\Exception $e) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $helper = $objectManager->get(\Sezzle\Sezzlepay\Helper\Data::class);
-            $helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'error' => $e->getMessage()
-            ]);
-            return null;
         }
     }
 }
