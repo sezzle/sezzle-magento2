@@ -120,6 +120,11 @@ class ExpressCheckout extends Template
     public function canDisplay(): bool
     {
         try {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Checking if Sezzle payment is enabled',
+                'is_enabled' => $this->config->isEnabled()
+            ]);
             return $this->config->isEnabled();
         } catch (NoSuchEntityException|InputException $e) {
             return false;
@@ -143,7 +148,63 @@ class ExpressCheckout extends Template
      */
     public function getCheckoutConfig(): array
     {
-        return $this->configProvider->getConfig();
+        try {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Getting checkout config'
+            ]);
+
+            // Ensure a quote exists in the session before getting config
+            $quote = $this->checkoutSession->getQuote();
+
+            // If quote doesn't have an ID, it means it hasn't been saved yet
+            if (!$quote->getId()) {
+                $this->helper->logSezzleActions([
+                    'log_origin' => __METHOD__,
+                    'message' => 'Quote does not exist, creating new quote'
+                ]);
+
+                // For guest customers, create and save the quote
+                if (!$this->customerSession->isLoggedIn()) {
+                    $quote->setIsActive(true);
+                    $quote->setStoreId($this->_storeManager->getStore()->getId());
+                    $this->quoteRepository->save($quote);
+                } else {
+                    // For logged-in customers, create cart via cart management
+                    try {
+                        $customerId = $this->customerSession->getCustomerId();
+                        $quote = $this->cartManagement->getCartForCustomer($customerId);
+                    } catch (\Exception $e) {
+                        // If that fails, just save the current quote
+                        $quote->setCustomerId($this->customerSession->getCustomerId());
+                        $quote->setIsActive(true);
+                        $quote->setStoreId($this->_storeManager->getStore()->getId());
+                        $this->quoteRepository->save($quote);
+                    }
+                }
+
+                $this->helper->logSezzleActions([
+                    'log_origin' => __METHOD__,
+                    'message' => 'Quote created successfully',
+                    'quote_id' => $quote->getId()
+                ]);
+            }
+
+            $config = $this->configProvider->getConfig();
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Checkout config retrieved successfully',
+                'has_sezzle_config' => isset($config['payment']['sezzlepay'])
+            ]);
+            return $config;
+        } catch (\Exception $e) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Error getting checkout config: ' . $e->getMessage(),
+                'exception' => get_class($e)
+            ]);
+            return [];
+        }
     }
 
     /**
@@ -153,6 +214,22 @@ class ExpressCheckout extends Template
      */
     public function getSerializedCheckoutConfig(): string
     {
-        return $this->serializer->serialize($this->getCheckoutConfig());
+        try {
+            $config = $this->getCheckoutConfig();
+            $serialized = $this->serializer->serialize($config);
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Config serialized successfully',
+                'length' => strlen($serialized)
+            ]);
+            return $serialized;
+        } catch (\Exception $e) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Error serializing config: ' . $e->getMessage(),
+                'exception' => get_class($e)
+            ]);
+            throw $e;
+        }
     }
 }
