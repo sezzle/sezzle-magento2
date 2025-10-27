@@ -90,6 +90,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'installmentWidgetPricePath' => $this->config->getInstallmentWidgetPricePath(),
                     'currencySymbol' => $this->localeCurrency->getCurrency($quote->getBaseCurrencyCode())->getSymbol(),
                     'img_src' => $this->config->getImageSrc(),
+                    'min_checkout_amount' => $this->config->getMinCheckoutAmount(),
                 ]
             ]
         ];
