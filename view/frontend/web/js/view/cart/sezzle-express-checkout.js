@@ -6,7 +6,9 @@
 define([
   "uiComponent",
   "jquery",
+  "ko",
   "Magento_Customer/js/model/customer",
+  "Magento_Checkout/js/model/quote",
   "Sezzle_Sezzlepay/js/express-checkout/express-checkout-wrapper",
   "Sezzle_Sezzlepay/js/action/create-sezzle-express-checkout",
   "Sezzle_Sezzlepay/js/action/create-sezzle-customer-order",
@@ -14,7 +16,9 @@ define([
 ], function (
   Component,
   $,
+  ko,
   customer,
+  quote,
   ExpressCheckoutWrapper,
   createSezzleExpressCheckoutAction,
   createSezzleCustomerOrder,
@@ -25,6 +29,42 @@ define([
   return Component.extend(ExpressCheckoutWrapper).extend({
     defaults: {
       template: "Sezzle_Sezzlepay/cart/express-checkout",
+    },
+
+    /**
+     * Initialize component
+     */
+    initialize: function () {
+      this._super();
+      var self = this;
+
+      // Create observable for visibility based on minimum amount
+      this.isVisible = ko.computed(function () {
+        return self.meetsMinimumAmount();
+      });
+
+      return this;
+    },
+
+    /**
+     * Check if cart amount meets minimum checkout amount
+     *
+     * @returns {boolean}
+     */
+    meetsMinimumAmount: function () {
+      var minCheckoutAmount =
+        window.checkoutConfig.payment.sezzlepay.min_checkout_amount;
+
+      // If no minimum is set, always show the button
+      if (!minCheckoutAmount || minCheckoutAmount === null) {
+        return true;
+      }
+
+      // Get current cart total
+      var totals = quote.totals();
+      var grandTotal = totals ? totals.grand_total : 0;
+
+      return grandTotal >= minCheckoutAmount;
     },
 
     /**
