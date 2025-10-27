@@ -16,6 +16,7 @@ use Sezzle\Sezzlepay\Api\CheckoutInterface;
 use Sezzle\Sezzlepay\Api\Data\SessionInterface;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Sezzle\Sezzlepay\Gateway\Request\CustomerOrderRequestBuilder;
 use Sezzle\Sezzlepay\Gateway\Response\CustomerOrderHandler;
 
@@ -61,12 +62,18 @@ class Checkout implements CheckoutInterface
     private $cartRepository;
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * @param V2Interface $v2
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      * @param QuoteResourceModel $quoteResourceModel
      * @param CheckoutValidator $checkoutValidator
      * @param CartRepositoryInterface $cartRepository
+     * @param Config $config
      */
     public function __construct(
         V2Interface             $v2,
@@ -74,7 +81,8 @@ class Checkout implements CheckoutInterface
         CheckoutSession         $checkoutSession,
         QuoteResourceModel      $quoteResourceModel,
         CheckoutValidator       $checkoutValidator,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        Config                  $config
     )
     {
         $this->v2 = $v2;
@@ -83,6 +91,7 @@ class Checkout implements CheckoutInterface
         $this->quoteResourceModel = $quoteResourceModel;
         $this->checkoutValidator = $checkoutValidator;
         $this->cartRepository = $cartRepository;
+        $this->config = $config;
     }
 
 
@@ -148,6 +157,15 @@ class Checkout implements CheckoutInterface
     public function initExpressQuote(int $cartId): CartInterface
     {
         $quote = $this->cartRepository->getActive($cartId);
+
+        // Validate minimum checkout amount
+        $minCheckoutAmount = $this->config->getMinCheckoutAmount();
+        if ($minCheckoutAmount && $quote->getBaseGrandTotal() < $minCheckoutAmount) {
+            throw new LocalizedException(
+                __('The cart total does not meet the minimum checkout amount of %1.', $minCheckoutAmount)
+            );
+        }
+
         return $quote->reserveOrderId();
     }
 
