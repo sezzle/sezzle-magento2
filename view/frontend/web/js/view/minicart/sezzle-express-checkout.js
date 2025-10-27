@@ -43,7 +43,6 @@ define([
 
       // Subscribe to cart data changes
       var cart = customerData.get("cart");
-      console.log("cart", cart);
 
       // Initial check
       this.cartHasItems(cart().items && cart().items.length > 0);
@@ -52,6 +51,11 @@ define([
       cart.subscribe(function (updatedCart) {
         var hasItems = updatedCart.items && updatedCart.items.length > 0;
         self.cartHasItems(hasItems);
+      });
+
+      // Create computed observable for visibility based on cart items and minimum amount
+      this.isButtonVisible = ko.computed(function () {
+        return self.cartHasItems() && self.meetsMinimumAmount();
       });
 
       return this;
@@ -63,7 +67,36 @@ define([
      * @returns {boolean}
      */
     isVisible: function () {
-      return this.cartHasItems();
+      return this.isButtonVisible();
+    },
+
+    /**
+     * Check if cart amount meets minimum checkout amount
+     *
+     * @returns {boolean}
+     */
+    meetsMinimumAmount: function () {
+      var minCheckoutAmount =
+        window.checkoutConfig.payment.sezzlepay.min_checkout_amount;
+
+      // If no minimum is set, always show the button
+      if (!minCheckoutAmount || minCheckoutAmount === null) {
+        return true;
+      }
+
+      // Get current cart total from customer data
+      var cart = customerData.get("cart");
+      var cartData = cart();
+
+      // Check if subtotal_amount exists and compare
+      if (cartData && cartData.subtotalAmount) {
+        // Remove currency symbol and parse the amount
+        var cartTotal = parseFloat(cartData.subtotalAmount);
+        console.log("cartTotal", cartTotal);
+        return cartTotal >= minCheckoutAmount;
+      }
+
+      return false;
     },
 
     /**
