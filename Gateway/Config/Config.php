@@ -51,7 +51,7 @@ class Config extends PaymentConfig
     const API_VERSION_V1 = 'v1';
     const API_VERSION_V2 = 'v2';
 
-    const GATEWAY_URL = 'http://%slocalhost:10130/%s';
+    const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
     const WIDGET_URL = 'https://widget.sezzle.com/%s';
 
     const EXPRESS_CHECKOUT_FEATURE_FLAG = 'merchant-1111';
