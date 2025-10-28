@@ -113,7 +113,7 @@ class ExpressCheckout extends Template
             }
 
             // Check feature flag
-            $featureFlag = $this->getFeatureFlag('merchant_1111');
+            $featureFlag = $this->getFeatureFlag($this->config->getExpressCheckoutFeatureFlag());
 
             return $featureFlag;
         } catch (NoSuchEntityException|InputException $e) {
