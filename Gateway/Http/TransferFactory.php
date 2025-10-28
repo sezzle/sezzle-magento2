@@ -109,6 +109,38 @@ class TransferFactory implements TransferFactoryInterface
     }
 
     /**
+     * Builds gateway transfer object
+     *
+     * @inheritDoc
+     * @throws Exception
+     */
+    public function createWithBasicAuth(array $request): TransferInterface
+    {
+        $storeId = isset($request['__store_id']) ?
+            (int)$request['__store_id'] : $this->storeManager->getStore()->getId();
+
+        $method = $request['__method'] ?? $this->method;
+
+        $publicKey = $this->config->getPublicKey($storeId);
+        $encodedPublicKey = base64_encode($publicKey);
+
+        $args = $this->removeAndReturnArgs($request);
+        $uri = $request['__uri'] ?? $this->getURI($args, $storeId);
+        unset($request['__uri']);
+
+        return $this->transferBuilder
+            ->setMethod($method)
+            ->setHeaders(
+                [
+                    'Content-Type' => Client::CONTENT_TYPE_JSON,
+                    'Authorization' => 'Basic ' . $encodedPublicKey
+                ])
+            ->setBody($request)
+            ->setUri($uri)
+            ->build();
+    }
+
+    /**
      * Get API URL
      *
      * @throws NoSuchEntityException
