@@ -96,7 +96,7 @@ class ExpressCheckout extends Field
                 'feature_flag_response' => $featureFlag
             ]);
 
-            return true;
+            return $featureFlag;
         } catch (\Exception $e) {
             $this->helper->logSezzleActions([
                 'log_origin' => __METHOD__,
