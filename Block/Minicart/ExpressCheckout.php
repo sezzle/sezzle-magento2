@@ -20,6 +20,8 @@ use Magento\Quote\Api\CartManagementInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Sezzle\Sezzlepay\Helper\Data as Helper;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Gateway\Http\TransferFactory;
+use Sezzle\Sezzlepay\Gateway\Http\Client;
 
 /**
  * Class ExpressCheckout
@@ -73,6 +75,16 @@ class ExpressCheckout extends Template
     private $customerSession;
 
     /**
+     * @var TransferFactory
+     */
+    private $transferFactory;
+
+    /**
+     * @var Client
+     */
+    private $client;
+
+    /**
      * ExpressCheckout constructor.
      * @param Context $context
      * @param Helper $helper
@@ -84,6 +96,8 @@ class ExpressCheckout extends Template
      * @param CompositeConfigProvider $configProvider
      * @param SerializerInterface $serializer
      * @param CustomerSession $customerSession
+     * @param TransferFactory $transferFactory
+     * @param Client $client
      * @param array $data
      */
     public function __construct(
@@ -97,6 +111,8 @@ class ExpressCheckout extends Template
         CompositeConfigProvider $configProvider,
         SerializerInterface $serializer,
         CustomerSession $customerSession,
+        TransferFactory $transferFactory,
+        Client $client,
         array $data = []
     ) {
         $this->helper = $helper;
@@ -108,6 +124,8 @@ class ExpressCheckout extends Template
         $this->configProvider = $configProvider;
         $this->serializer = $serializer;
         $this->customerSession = $customerSession;
+        $this->transferFactory = $transferFactory;
+        $this->client = $client;
         parent::__construct($context, $data);
     }
 
@@ -125,9 +143,61 @@ class ExpressCheckout extends Template
                 'message' => 'Checking if Sezzle payment is enabled',
                 'is_enabled' => $this->config->isEnabled()
             ]);
-            return $this->config->isEnabled();
+
+            if (!$this->config->isEnabled()) {
+                return false;
+            }
+
+            // Check feature flag
+            $featureFlag = $this->getFeatureFlag($this->config->getExpressCheckoutFeatureFlag());
+
+            return $featureFlag;
         } catch (NoSuchEntityException|InputException $e) {
             return false;
+        }
+    }
+
+    /**
+     * Get feature flag from Sezzle gateway
+     *
+     * @param string $featureFlag
+     * @return bool|null
+     */
+    private function getFeatureFlag(string $featureFlag): ?bool
+    {
+        try {
+            $storeId = $this->_storeManager->getStore()->getId();
+            $uri = $this->config->getGatewayURL($storeId) . '/feature-flags/' . $featureFlag;
+
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Fetching feature flag',
+                'feature_flag' => $featureFlag,
+                'uri' => $uri
+            ]);
+
+            $transferO = $this->transferFactory->createWithBasicAuth([
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
+            ]);
+
+            $response = $this->client->placeRequest($transferO);
+
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Feature flag response received',
+                'response' => $response
+            ]);
+
+            return $response;
+        } catch (\Exception $e) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Error fetching feature flag: ' . $e->getMessage(),
+                'exception' => get_class($e)
+            ]);
+            return null;
         }
     }
 
