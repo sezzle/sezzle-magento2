@@ -15,6 +15,9 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Gateway\Http\TransferFactory;
+use Sezzle\Sezzlepay\Gateway\Http\Client;
+use Sezzle\Sezzlepay\Helper\Data as Helper;
 
 /**
  * Class ExpressCheckout
@@ -43,12 +46,30 @@ class ExpressCheckout extends Template
     private $serializer;
 
     /**
+     * @var Helper
+     */
+    private $helper;
+
+    /**
+     * @var TransferFactory
+     */
+    private $transferFactory;
+
+    /**
+     * @var Client
+     */
+    private $client;
+
+    /**
      * ExpressCheckout constructor.
      * @param Context $context
      * @param Config $config
      * @param CheckoutSession $checkoutSession
      * @param CompositeConfigProvider $configProvider
      * @param SerializerInterface $serializer
+     * @param Helper $helper
+     * @param TransferFactory $transferFactory
+     * @param Client $client
      * @param array $data
      */
     public function __construct(
@@ -57,12 +78,18 @@ class ExpressCheckout extends Template
         CheckoutSession $checkoutSession,
         CompositeConfigProvider $configProvider,
         SerializerInterface $serializer,
+        Helper $helper,
+        TransferFactory $transferFactory,
+        Client $client,
         array $data = []
     ) {
         $this->config = $config;
         $this->checkoutSession = $checkoutSession;
         $this->configProvider = $configProvider;
         $this->serializer = $serializer;
+        $this->helper = $helper;
+        $this->transferFactory = $transferFactory;
+        $this->client = $client;
         parent::__construct($context, $data);
     }
 
@@ -74,10 +101,67 @@ class ExpressCheckout extends Template
     public function canDisplay(): bool
     {
         try {
-            return $this->config->isEnabled()
-                && $this->hasItemsInCart();
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Checking if Sezzle payment is enabled',
+                'is_enabled' => $this->config->isEnabled(),
+                'has_items' => $this->hasItemsInCart()
+            ]);
+
+            if (!$this->config->isEnabled() || !$this->hasItemsInCart()) {
+                return false;
+            }
+
+            // Check feature flag
+            $featureFlag = $this->getFeatureFlag('merchant_1111');
+
+            return $featureFlag;
         } catch (NoSuchEntityException|InputException $e) {
             return false;
+        }
+    }
+
+    /**
+     * Get feature flag from Sezzle gateway
+     *
+     * @param string $featureFlag
+     * @return bool|null
+     */
+    private function getFeatureFlag(string $featureFlag): ?bool
+    {
+        try {
+            $storeId = $this->_storeManager->getStore()->getId();
+            $uri = $this->config->getGatewayURL($storeId) . '/feature-flags/' . $featureFlag;
+
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Fetching feature flag',
+                'feature_flag' => $featureFlag,
+                'uri' => $uri
+            ]);
+
+            $transferO = $this->transferFactory->createWithBasicAuth([
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_GET,
+                '__uri' => $uri
+            ]);
+
+            $response = $this->client->placeRequest($transferO);
+
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Feature flag response received',
+                'response' => $response
+            ]);
+
+            return $response;
+        } catch (\Exception $e) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Error fetching feature flag: ' . $e->getMessage(),
+                'exception' => get_class($e)
+            ]);
+            return null;
         }
     }
 
