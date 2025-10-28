@@ -66,6 +66,7 @@
                     <field id="express_checkout" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Express Checkout</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\ExpressCheckout</frontend_model>
                         <config_path>payment/sezzlepay/express_checkout</config_path>
                     </field>
                     <!-- tokenize -->
