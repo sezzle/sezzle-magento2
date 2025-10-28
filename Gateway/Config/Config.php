@@ -51,6 +51,8 @@ class Config extends PaymentConfig
 
     const GATEWAY_URL = 'http://%slocalhost:10130/%s';
     const WIDGET_URL = 'https://widget.sezzle.com/%s';
+
+    const EXPRESS_CHECKOUT_FEATURE_FLAG = 'merchant-1111';
     public static $imageSrc = [
         'en' => 'https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg',
         'fr' => 'https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg'
@@ -420,5 +422,15 @@ class Config extends PaymentConfig
     public function getCancelURL(): string
     {
         return $this->urlBuilder->getUrl("sezzle/payment/cancel/", ['_secure' => true]);
+    }
+
+    /**
+     * Get express checkout feature flag
+     *
+     * @return string
+     */
+    public function getExpressCheckoutFeatureFlag(): string
+    {
+        return self::EXPRESS_CHECKOUT_FEATURE_FLAG;
     }
 }
