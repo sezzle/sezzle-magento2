@@ -108,7 +108,7 @@ class ExpressCheckout extends Template
                 'has_items' => $this->hasItemsInCart()
             ]);
 
-            if (!$this->config->isEnabled() || !$this->hasItemsInCart()) {
+            if (!$this->config->isEnabled() || !$this->hasItemsInCart() || !$this->config->isExpressEnabled()) {
                 return false;
             }
 

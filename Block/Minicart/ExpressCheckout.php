@@ -144,7 +144,7 @@ class ExpressCheckout extends Template
                 'is_enabled' => $this->config->isEnabled()
             ]);
 
-            if (!$this->config->isEnabled()) {
+            if (!$this->config->isEnabled() || !$this->config->isExpressEnabled()) {
                 return false;
             }
 
