@@ -73,81 +73,11 @@ class ExpressCheckout extends Field
      */
     public function render(AbstractElement $element)
     {
-        if (!$this->isFeatureFlagEnabled()) {
+        if (!$this->config->isExpressCheckoutFeatureFlagEnabled()) {
             return '';
         }
 
         return parent::render($element);
     }
 
-    /**
-     * Check if feature flag is enabled
-     *
-     * @return bool
-     */
-    private function isFeatureFlagEnabled(): bool
-    {
-        try {
-            $featureFlag = $this->getFeatureFlag($this->config->getExpressCheckoutFeatureFlag());
-
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Checking feature flag for express checkout admin field',
-                'feature_flag_response' => $featureFlag
-            ]);
-
-            return $featureFlag;
-        } catch (\Exception $e) {
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Error checking feature flag: ' . $e->getMessage(),
-                'exception' => get_class($e)
-            ]);
-            return false;
-        }
-    }
-
-    /**
-     * Get feature flag from Sezzle gateway
-     *
-     * @param string $featureFlag
-     * @return bool|null
-     */
-    private function getFeatureFlag(string $featureFlag): ?bool
-    {
-        try {
-            $storeId = $this->_storeManager->getStore()->getId();
-            $uri = $this->config->getGatewayURL($storeId) . '/feature-flags/' . $featureFlag;
-
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Fetching feature flag',
-                'feature_flag' => $featureFlag,
-                'uri' => $uri
-            ]);
-
-            $transferO = $this->transferFactory->createWithBasicAuth([
-                '__store_id' => $storeId,
-                '__method' => Client::HTTP_GET,
-                '__uri' => $uri
-            ]);
-
-            $response = $this->client->placeRequest($transferO);
-
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Feature flag response received',
-                'response' => $response
-            ]);
-
-            return $response;
-        } catch (\Exception $e) {
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Error fetching feature flag: ' . $e->getMessage(),
-                'exception' => get_class($e)
-            ]);
-            return null;
-        }
-    }
 }
