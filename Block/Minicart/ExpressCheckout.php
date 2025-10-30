@@ -143,61 +143,37 @@ class ExpressCheckout extends Template
                 'message' => 'Checking if Sezzle payment is enabled',
                 'is_enabled' => $this->config->isEnabled()
             ]);
-
-            if (!$this->config->isEnabled() || !$this->config->isExpressEnabled()) {
+            $paymentMethodEnabled = $this->config->isEnabled();
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Checking if Sezzle payment method is enabled',
+                'payment_method_enabled' => $paymentMethodEnabled
+            ]);
+            if (!$paymentMethodEnabled) {
+                return false;
+            }
+            $expressEnabled = $this->config->isExpressEnabled();
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Checking if Sezzle express is enabled',
+                'express_enabled' => $expressEnabled
+            ]);
+            if (!$expressEnabled) {
+                return false;
+            }
+            $expressCheckoutFeatureFlagEnabled = $this->config->isExpressCheckoutFeatureFlagEnabled();
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Checking if Sezzle express checkout feature flag is enabled',
+                'express_checkout_feature_flag_enabled' => $expressCheckoutFeatureFlagEnabled
+            ]);
+            if (!$expressCheckoutFeatureFlagEnabled) {
                 return false;
             }
 
-            // Check feature flag
-            $featureFlag = $this->getFeatureFlag($this->config->getExpressCheckoutFeatureFlag());
-
-            return $featureFlag;
+            return true;
         } catch (NoSuchEntityException|InputException $e) {
             return false;
-        }
-    }
-
-    /**
-     * Get feature flag from Sezzle gateway
-     *
-     * @param string $featureFlag
-     * @return bool|null
-     */
-    private function getFeatureFlag(string $featureFlag): ?bool
-    {
-        try {
-            $storeId = $this->_storeManager->getStore()->getId();
-            $uri = $this->config->getGatewayURL($storeId) . '/feature-flags/' . $featureFlag;
-
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Fetching feature flag',
-                'feature_flag' => $featureFlag,
-                'uri' => $uri
-            ]);
-
-            $transferO = $this->transferFactory->createWithBasicAuth([
-                '__store_id' => $storeId,
-                '__method' => Client::HTTP_GET,
-                '__uri' => $uri
-            ]);
-
-            $response = $this->client->placeRequest($transferO);
-
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Feature flag response received',
-                'response' => $response
-            ]);
-
-            return $response;
-        } catch (\Exception $e) {
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Error fetching feature flag: ' . $e->getMessage(),
-                'exception' => get_class($e)
-            ]);
-            return null;
         }
     }
 
