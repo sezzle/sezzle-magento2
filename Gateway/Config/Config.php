@@ -3,12 +3,15 @@
 namespace Sezzle\Sezzlepay\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Gateway\Config\Config as PaymentConfig;
 use Sezzle\Sezzlepay\Model\StoreConfigResolver;
 use Magento\Framework\Locale\Resolver;
+use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Config
@@ -76,11 +79,29 @@ class Config extends PaymentConfig
     private $urlBuilder;
 
     /**
+     * @var WriterInterface
+     */
+    private $configWriter;
+
+    /**
+     * @var Curl
+     */
+    private $curl;
+
+    /**
+     * @var Json
+     */
+    private $json;
+
+    /**
      * Config constructor.
      * @param StoreConfigResolver $storeConfigResolver
      * @param ScopeConfigInterface $scopeConfig
      * @param UrlInterface $urlBuilder
      * @param Resolver $localeResolver
+     * @param WriterInterface $configWriter
+     * @param Curl $curl
+     * @param Json $json
      * @param null $methodCode
      * @param string $pathPattern
      */
@@ -89,6 +110,9 @@ class Config extends PaymentConfig
         ScopeConfigInterface $scopeConfig,
         UrlInterface         $urlBuilder,
         Resolver             $localeResolver,
+        WriterInterface      $configWriter,
+        Curl                 $curl,
+        Json                 $json,
                              $methodCode = null,
         string               $pathPattern = self::DEFAULT_PATH_PATTERN
     )
@@ -97,6 +121,9 @@ class Config extends PaymentConfig
         $this->storeConfigResolver = $storeConfigResolver;
         $this->urlBuilder = $urlBuilder;
         $this->localeResolver = $localeResolver;
+        $this->configWriter = $configWriter;
+        $this->curl = $curl;
+        $this->json = $json;
     }
 
     /**
@@ -223,6 +250,48 @@ class Config extends PaymentConfig
             self::KEY_EXPRESS_CHECKOUT,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
+    }
+
+    public function isExpressCheckoutFeatureFlagEnabled(): bool
+    {
+        $storeId = $this->storeConfigResolver->getStoreId();
+        // Check feature flag - if it's off, disable the config and return false
+        $featureFlag = $this->getFeatureFlag(self::EXPRESS_CHECKOUT_FEATURE_FLAG, $storeId);
+        if ($featureFlag === false) {
+            // Disable express checkout in config so admin must re-enable it manually
+            $this->disableExpressCheckout(storeId: $storeId);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Disable express checkout configuration
+     *
+     * @param int|null $storeId
+     * @return void
+     */
+    private function disableExpressCheckout(int $storeId = null): void
+    {
+        try {
+            $scope = 'default';
+            $scopeId = 0;
+
+            if ($storeId !== null) {
+                $scope = 'stores';
+                $scopeId = $storeId;
+            }
+
+            $this->configWriter->save(
+                'payment/sezzlepay/' . self::KEY_EXPRESS_CHECKOUT,
+                '0',
+                $scope,
+                $scopeId
+            );
+        } catch (\Exception $e) {
+            // Log error but don't throw exception to avoid breaking the flow
+            // The config will remain enabled but feature flag check will still block it
+        }
     }
 
     /**
@@ -448,5 +517,54 @@ class Config extends PaymentConfig
     public function getExpressCheckoutFeatureFlag(): string
     {
         return self::EXPRESS_CHECKOUT_FEATURE_FLAG;
+    }
+
+    /**
+     * Get feature flag from Sezzle gateway
+     *
+     * @param string $featureFlag
+     * @param int|null $storeId
+     * @return bool|null
+     */
+    private function getFeatureFlag(string $featureFlag, int $storeId = null): ?bool
+    {
+        try {
+            $storeId = $storeId ?? $this->storeConfigResolver->getStoreId();
+            $uri = $this->getGatewayURL($storeId) . '/feature-flags/' . $featureFlag;
+
+            // Get public key for Basic Auth
+            $publicKey = $this->getPublicKey($storeId);
+            if (!$publicKey) {
+                // No public key configured, return null to use config value
+                return null;
+            }
+
+            // Make direct HTTP request without TransferFactory
+            $this->curl->setHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Basic ' . base64_encode($publicKey)
+            ]);
+
+            $this->curl->get($uri);
+
+            $responseBody = $this->curl->getBody();
+            $httpStatus = $this->curl->getStatus();
+
+            // Check if request was successful
+            if ($httpStatus !== 200 || empty($responseBody)) {
+                return null;
+            }
+
+            // Parse the response
+            $response = $this->json->unserialize($responseBody);
+
+            // Return the feature flag value (true/false)
+            return $response;
+
+        } catch (\Exception $e) {
+            // If there's an error fetching the feature flag, return null
+            // This allows the config setting to be used as fallback
+            return null;
+        }
     }
 }
