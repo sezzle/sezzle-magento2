@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -27,8 +30,8 @@ use Magento\Framework\Controller\Result\RedirectFactory;
  */
 abstract class Sezzle implements HttpGetActionInterface
 {
-    const GUEST_CART_MANAGER = "guestCartManagement";
-    const CART_MANAGER = "cartManagement";
+    public const GUEST_CART_MANAGER = "guestCartManagement";
+    public const CART_MANAGER = "cartManagement";
     /**
      * @var CustomerSession
      */

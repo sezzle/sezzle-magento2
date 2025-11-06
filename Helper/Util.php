@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -15,7 +18,7 @@ class Util
     /**
      * Money format
      */
-    const MONEY_FORMAT = "%.2f";
+    public const MONEY_FORMAT = "%.2f";
 
     /**
      * Format to cents
@@ -23,7 +26,7 @@ class Util
      * @param float $amount
      * @return int
      */
-    public static function formatToCents($amount = 0.00)
+    public static function formatToCents(float $amount = 0.00): int
     {
         $negative = false;
         $str = self::formatMoney($amount);
@@ -56,7 +59,7 @@ class Util
      * @param float $amount
      * @return string
      */
-    protected static function formatMoney($amount)
+    protected static function formatMoney(float $amount): string
     {
         return sprintf(self::MONEY_FORMAT, $amount);
     }

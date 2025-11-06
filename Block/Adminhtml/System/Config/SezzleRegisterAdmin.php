@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -63,7 +66,7 @@ class SezzleRegisterAdmin extends Template
     /**
      * @var string
      */
-    const MERCHANT_DASHBOARD_URL = "https://dashboard.sezzle.com/merchant";
+    public const MERCHANT_DASHBOARD_URL = "https://dashboard.sezzle.com/merchant";
 
     /**
      * @param Context $context

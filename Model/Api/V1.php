@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -22,7 +25,7 @@ use Sezzle\Sezzlepay\Gateway\Config\Config;
  */
 class V1 implements V1Interface
 {
-    const SEZZLE_LOGGER_ENDPOINT = "/logs/%s";
+    public const SEZZLE_LOGGER_ENDPOINT = "/logs/%s";
 
     /**
      * @var Config

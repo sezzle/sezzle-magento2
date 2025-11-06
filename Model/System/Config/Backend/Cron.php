@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -17,9 +20,9 @@ use Magento\Framework\Registry;
 
 class Cron extends Value
 {
-    const CRON_STRING_PATH = 'crontab/default/jobs/sezzle_sync_settlement_reports/schedule/cron_expr';
+    public const CRON_STRING_PATH = 'crontab/default/jobs/sezzle_sync_settlement_reports/schedule/cron_expr';
 
-    const CRON_MODEL_PATH_INTERVAL = 'payment/sezzlepay/settlement_reports_schedule';
+    public const CRON_MODEL_PATH_INTERVAL = 'payment/sezzlepay/settlement_reports_schedule';
 
     /**
      * @var ValueFactory

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -14,9 +17,9 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface TokenizeCustomerInterface
 {
-    const UUID = "uuid";
-    const EXPIRATION = "expiration";
-    const LINKS = "links";
+    public const UUID = "uuid";
+    public const EXPIRATION = "expiration";
+    public const LINKS = "links";
 
     /**
      * @return string

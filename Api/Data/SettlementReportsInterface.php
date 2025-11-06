@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -13,12 +16,12 @@ namespace Sezzle\Sezzlepay\Api\Data;
 interface SettlementReportsInterface
 {
 
-    const UUID = "uuid";
-    const PAYOUT_CURRENCY = "payout_currency";
-    const PAYOUT_DATE = "payout_date";
-    const NET_SETTLEMENT_AMOUNT = "net_settlement_amount";
-    const FOREX_FEES = "forex_fees";
-    const STATUS = "status";
+    public const UUID = "uuid";
+    public const PAYOUT_CURRENCY = "payout_currency";
+    public const PAYOUT_DATE = "payout_date";
+    public const NET_SETTLEMENT_AMOUNT = "net_settlement_amount";
+    public const FOREX_FEES = "forex_fees";
+    public const STATUS = "status";
 
     /**
      * @return string|null

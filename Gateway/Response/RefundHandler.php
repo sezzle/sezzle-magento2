@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Response;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -13,7 +15,7 @@ use Magento\Sales\Model\Order\Payment;
 class RefundHandler implements HandlerInterface
 {
 
-    const KEY_REFUND_AMOUNT = 'sezzle_refund_amount';
+    public const KEY_REFUND_AMOUNT = 'sezzle_refund_amount';
 
     /**
      * @param array $handlingSubject

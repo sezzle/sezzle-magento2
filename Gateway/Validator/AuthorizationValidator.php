@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Validator;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;
@@ -15,7 +17,7 @@ use Magento\Payment\Gateway\Validator\AbstractValidator;
 class AuthorizationValidator extends AbstractValidator
 {
 
-    const KEY_AUTH_EXPIRY = 'sezzle_auth_expiry';
+    public const KEY_AUTH_EXPIRY = 'sezzle_auth_expiry';
 
     /**
      * @var DateTime

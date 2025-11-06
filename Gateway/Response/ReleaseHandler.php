@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Response;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -14,7 +16,7 @@ use Magento\Sales\Model\Order\Payment;
 class ReleaseHandler implements HandlerInterface
 {
 
-    const KEY_RELEASE_AMOUNT = 'sezzle_release_amount';
+    public const KEY_RELEASE_AMOUNT = 'sezzle_release_amount';
 
     /**
      * @param array $handlingSubject

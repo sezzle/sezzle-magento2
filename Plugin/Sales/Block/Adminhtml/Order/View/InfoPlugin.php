@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Plugin\Sales\Block\Adminhtml\Order\View;
 
 use Magento\Sales\Block\Adminhtml\Order\View\Info;

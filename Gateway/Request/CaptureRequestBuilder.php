@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Request;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Api;
 
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -15,7 +17,7 @@ interface CartManagementInterface
     /**
      * Checkout types: Checkout as Guest
      */
-    const METHOD_GUEST = 'guest';
+    public const METHOD_GUEST = 'guest';
 
     /**
      * Places an order for a specified cart.

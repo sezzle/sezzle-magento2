@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Response;
 
 use Magento\Framework\Exception\LocalizedException;

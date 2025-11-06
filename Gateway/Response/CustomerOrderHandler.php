@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Response;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -14,8 +16,8 @@ use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 class CustomerOrderHandler implements HandlerInterface
 {
 
-    const KEY_GET_ORDER_LINK = 'sezzle_get_order_link';
-    const KEY_PATCH_ORDER_LINK = 'sezzle_patch_order_link';
+    public const KEY_GET_ORDER_LINK = 'sezzle_get_order_link';
+    public const KEY_PATCH_ORDER_LINK = 'sezzle_patch_order_link';
 
     /**
      * @param array $handlingSubject

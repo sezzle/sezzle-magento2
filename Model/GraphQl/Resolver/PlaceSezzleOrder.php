@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Model\GraphQl\Resolver;
 
 use Magento\Framework\Exception\LocalizedException;

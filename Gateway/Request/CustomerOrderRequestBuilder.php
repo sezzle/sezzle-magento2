@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Request;
 
 use Magento\Payment\Gateway\Helper\SubjectReader;
@@ -16,12 +18,12 @@ class CustomerOrderRequestBuilder implements BuilderInterface
     /**
      * Customer UUID
      */
-    const KEY_CUSTOMER_UUID = "sezzle_customer_uuid";
+    public const KEY_CUSTOMER_UUID = "sezzle_customer_uuid";
 
     /**
      * Reference ID
      */
-    const KEY_REFERENCE_ID = 'sezzle_reference_id';
+    public const KEY_REFERENCE_ID = 'sezzle_reference_id';
 
 
     /**

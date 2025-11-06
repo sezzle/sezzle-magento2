@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Model\Ui;
 
 use Exception;
@@ -18,7 +20,7 @@ use Sezzle\Sezzlepay\Model\Tokenize;
 class ConfigProvider implements ConfigProviderInterface
 {
 
-    const CODE = "sezzlepay";
+    public const CODE = "sezzlepay";
 
     /**
      * @var Config

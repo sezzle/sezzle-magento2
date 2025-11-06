@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Http;
 
 use InvalidArgumentException;
@@ -16,13 +18,13 @@ use Sezzle\Sezzlepay\Helper\Data;
 class Client implements ClientInterface
 {
 
-    const HTTP_GET = 'GET';
-    const HTTP_POST = 'POST';
-    const HTTP_PUT = 'PUT';
-    const HTTP_PATCH = 'PATCH';
+    public const HTTP_GET = 'GET';
+    public const HTTP_POST = 'POST';
+    public const HTTP_PUT = 'PUT';
+    public const HTTP_PATCH = 'PATCH';
 
-    const TIMEOUT = 80;
-    const CONTENT_TYPE_JSON = "application/json";
+    public const TIMEOUT = 80;
+    public const CONTENT_TYPE_JSON = "application/json";
 
 
     /**

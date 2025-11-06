@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Command;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -19,22 +21,12 @@ class AuthorizeCommand implements CommandInterface
     /**
      * Sezzle Order UUID
      */
-    const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
+    public const KEY_ORIGINAL_ORDER_UUID = 'sezzle_original_order_uuid';
 
     /**
      * Authorized amount
      */
-    const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
-
-    /**
-     * @var Adapter
-     */
-    private $adapter;
-
-    /**
-     * @var Data
-     */
-    private $helper;
+    public const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
 
     /**
      * AuthorizeCommand constructor.
@@ -43,12 +35,9 @@ class AuthorizeCommand implements CommandInterface
      * @param Data $helper
      */
     public function __construct(
-        Adapter $adapter,
-        Data    $helper
-    )
-    {
-        $this->adapter = $adapter;
-        $this->helper = $helper;
+        private readonly Adapter $adapter,
+        private readonly Data $helper
+    ) {
     }
 
     /**

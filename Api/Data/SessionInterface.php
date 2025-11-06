@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -13,9 +16,9 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface SessionInterface
 {
-    const UUID = "uuid";
-    const ORDER = "order";
-    const TOKENIZE = "tokenize";
+    public const UUID = "uuid";
+    public const ORDER = "order";
+    public const TOKENIZE = "tokenize";
 
     /**
      * @return string|null

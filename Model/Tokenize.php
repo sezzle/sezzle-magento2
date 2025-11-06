@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Model;
 
 use Exception;
@@ -23,17 +25,17 @@ use Sezzle\Sezzlepay\Helper\Data;
  */
 class Tokenize
 {
-    const ATTR_SEZZLE_CUSTOMER_UUID = "sezzle_customer_uuid";
-    const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
-    const ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION = "sezzle_customer_uuid_expiry";
+    public const ATTR_SEZZLE_CUSTOMER_UUID = "sezzle_customer_uuid";
+    public const ATTR_SEZZLE_TOKEN_STATUS = "sezzle_tokenize_status";
+    public const ATTR_SEZZLE_CUSTOMER_UUID_EXPIRATION = "sezzle_customer_uuid_expiry";
 
-    const KEY_GET_TOKEN_DETAILS_LINK = 'sezzle_token_link';
+    public const KEY_GET_TOKEN_DETAILS_LINK = 'sezzle_token_link';
 
-    const KEY_CREATE_ORDER_LINK = 'sezzle_create_order_link';
-    const KEY_GET_CUSTOMER_LINK = 'sezzle_get_customer_link';
+    public const KEY_CREATE_ORDER_LINK = 'sezzle_create_order_link';
+    public const KEY_GET_CUSTOMER_LINK = 'sezzle_get_customer_link';
 
-    const STATUS_TOKEN_APPROVED = 'Approved';
-    const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
+    public const STATUS_TOKEN_APPROVED = 'Approved';
+    public const STATUS_TOKEN_NOT_APPROVED = 'Not Approved';
 
     public $sezzleCustomerAttributes = [
         Tokenize::ATTR_SEZZLE_CUSTOMER_UUID => [

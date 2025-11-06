@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -25,39 +28,9 @@ use Magento\Framework\Serialize\Serializer\Json;
  */
 class Data extends AbstractHelper
 {
-    const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
-    const SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
-    const SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH = '/vendor/sezzle/sezzlepay/composer.json';
-
-    /**
-     * @var File
-     */
-    private $file;
-
-    /**
-     * @var Json
-     */
-    private $jsonSerializer;
-
-    /**
-     * @var Logger
-     */
-    private $logger;
-
-    /**
-     * @var CustomerSession
-     */
-    private $customerSession;
-
-    /**
-     * @var ProductMetadataInterface
-     */
-    private $productMetadata;
-
-    /**
-     * @var Config
-     */
-    private $config;
+    public const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
+    public const SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
+    public const SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH = '/vendor/sezzle/sezzlepay/composer.json';
 
     /**
      * Initialize dependencies.
@@ -71,21 +44,14 @@ class Data extends AbstractHelper
      * @param Config $config
      */
     public function __construct(
-        Context                  $context,
-        File                     $file,
-        Json                     $jsonSerializer,
-        Logger                   $logger,
-        CustomerSession          $customerSession,
-        ProductMetadataInterface $productMetadata,
-        Config                   $config
-    )
-    {
-        $this->file = $file;
-        $this->jsonSerializer = $jsonSerializer;
-        $this->logger = $logger;
-        $this->customerSession = $customerSession;
-        $this->productMetadata = $productMetadata;
-        $this->config = $config;
+        Context $context,
+        private readonly File $file,
+        private readonly Json $jsonSerializer,
+        private readonly Logger $logger,
+        private readonly CustomerSession $customerSession,
+        private readonly ProductMetadataInterface $productMetadata,
+        private readonly Config $config
+    ) {
         parent::__construct($context);
     }
 
@@ -156,7 +122,7 @@ class Data extends AbstractHelper
     /**
      * Get Sezzle Module Version
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         try {
             if ($this->file->isExists(BP . self::SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH)) {

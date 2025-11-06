@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -17,7 +20,7 @@ use Sezzle\Sezzlepay\Api\Data\SettlementReportsInterface;
 class SettlementReports extends AbstractExtensibleModel implements IdentityInterface, SettlementReportsInterface
 {
 
-    const CACHE_TAG = 'sezzle_settlement_reports';
+    public const CACHE_TAG = 'sezzle_settlement_reports';
 
     protected $_cacheTag = 'sezzle_settlement_reports';
     protected $_eventPrefix = 'sezzle_settlement_reports';

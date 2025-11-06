@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Response;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -13,7 +15,7 @@ use Magento\Sales\Model\Order\Payment;
 class ReauthorizeOrderHandler implements HandlerInterface
 {
 
-    const KEY_EXTENDED_ORDER_UUID = 'sezzle_extended_order_uuid';
+    public const KEY_EXTENDED_ORDER_UUID = 'sezzle_extended_order_uuid';
 
     /**
      * @param array $handlingSubject

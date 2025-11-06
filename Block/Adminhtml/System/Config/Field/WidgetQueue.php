@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -22,8 +25,8 @@ use Sezzle\Sezzlepay\Gateway\Config\Config;
  */
 class WidgetQueue extends Field
 {
-    const SEZZLE_WIDGET_QUEUE_ROUTE = "sezzle/widget/queue";
-    const WIDGET_QUEUE_SLA = " +7 days";
+    public const SEZZLE_WIDGET_QUEUE_ROUTE = "sezzle/widget/queue";
+    public const WIDGET_QUEUE_SLA = " +7 days";
 
     protected $_template = 'Sezzle_Sezzlepay::system/config/widget_queue.phtml';
 

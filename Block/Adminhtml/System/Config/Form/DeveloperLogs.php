@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -20,7 +23,7 @@ use Sezzle\Sezzlepay\Helper\Data;
  */
 class DeveloperLogs extends Field
 {
-    const DOWNLOAD_PATH = 'sezzle/download';
+    public const DOWNLOAD_PATH = 'sezzle/download';
 
     protected $logs = [
         'sezzleLog' => [

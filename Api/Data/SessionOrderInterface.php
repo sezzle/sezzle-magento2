@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -13,9 +16,9 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface SessionOrderInterface
 {
-    const UUID = "uuid";
-    const CHECKOUT_URL = "checkout_url";
-    const LINKS = "links";
+    public const UUID = "uuid";
+    public const CHECKOUT_URL = "checkout_url";
+    public const LINKS = "links";
 
     /**
      * @return string|null

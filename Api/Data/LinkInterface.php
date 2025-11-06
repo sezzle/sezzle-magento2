@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -13,9 +16,9 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface LinkInterface
 {
-    const HREF = 'href';
-    const REL = "rel";
-    const METHOD = "method";
+    public const HREF = 'href';
+    public const REL = "rel";
+    public const METHOD = "method";
 
     /**
      * @return string

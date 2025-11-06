@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Logger;
 
 use Magento\Framework\Logger\Handler\Base;

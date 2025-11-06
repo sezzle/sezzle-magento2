@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -14,12 +17,12 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface SessionTokenizeInterface
 {
-    const TOKEN = "token";
-    const STATUS = "status";
-    const APPROVAL_URL = "approval_url";
-    const EXPIRATION = "expiration";
-    const CUSTOMER = "customer";
-    const LINKS = "links";
+    public const TOKEN = "token";
+    public const STATUS = "status";
+    public const APPROVAL_URL = "approval_url";
+    public const EXPIRATION = "expiration";
+    public const CUSTOMER = "customer";
+    public const LINKS = "links";
 
     /**
      * @return string|null

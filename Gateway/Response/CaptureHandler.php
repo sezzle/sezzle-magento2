@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Gateway\Response;
 
 use Magento\Framework\Exception\LocalizedException;
@@ -15,7 +17,7 @@ use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 class CaptureHandler implements HandlerInterface
 {
 
-    const KEY_CAPTURE_AMOUNT = 'sezzle_capture_amount';
+    public const KEY_CAPTURE_AMOUNT = 'sezzle_capture_amount';
 
     /**
      * @var Adapter

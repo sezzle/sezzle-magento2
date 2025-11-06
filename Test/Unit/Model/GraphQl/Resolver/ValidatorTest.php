@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sezzle\Sezzlepay\Test\Unit\Model\GraphQl\Resolver;
 
 use Magento\Framework\ObjectManagerInterface;

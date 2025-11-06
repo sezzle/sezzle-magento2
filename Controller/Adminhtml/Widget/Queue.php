@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -27,7 +30,7 @@ use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
  */
 class Queue extends Action
 {
-    const ADMIN_RESOURCE = 'Magento_Config::config';
+    public const ADMIN_RESOURCE = 'Magento_Config::config';
 
     /**
      * @var FormKeyValidator

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /*
  * @category    Sezzle
  * @package     Sezzle_Sezzlepay
@@ -18,7 +21,7 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->_get(self::EMAIL);
     }
@@ -26,15 +29,16 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setEmail($email)
+    public function setEmail(string $email): self
     {
         $this->setData(self::EMAIL, $email);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getFirstName()
+    public function getFirstName(): ?string
     {
         return $this->_get(self::FIRST_NAME);
     }
@@ -42,15 +46,16 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setFirstName($firstName)
+    public function setFirstName(string $firstName): self
     {
         $this->setData(self::FIRST_NAME, $firstName);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->_get(self::LAST_NAME);
     }
@@ -58,15 +63,16 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setLastName($lastName)
+    public function setLastName(string $lastName): self
     {
         $this->setData(self::LAST_NAME, $lastName);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getPhone()
+    public function getPhone(): ?string
     {
         return $this->_get(self::PHONE);
     }
@@ -74,15 +80,16 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setPhone($phone)
+    public function setPhone(string $phone): self
     {
         $this->setData(self::PHONE, $phone);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getDob()
+    public function getDob(): ?string
     {
         return $this->_get(self::DOB);
     }
@@ -90,15 +97,16 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setDob($dob)
+    public function setDob(string $dob): self
     {
         $this->setData(self::DOB, $dob);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getBillingAddress()
+    public function getBillingAddress(): ?AddressInterface
     {
         return $this->_get(self::BILLING_ADDRESS);
     }
@@ -106,15 +114,16 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setBillingAddress(AddressInterface $billingAddress = null)
+    public function setBillingAddress(?AddressInterface $billingAddress = null): self
     {
         $this->setData(self::BILLING_ADDRESS, $billingAddress);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getShippingAddress()
+    public function getShippingAddress(): ?AddressInterface
     {
         return $this->_get(self::SHIPPING_ADDRESS);
     }
@@ -122,8 +131,9 @@ class Customer extends AbstractExtensibleObject implements CustomerInterface
     /**
      * @inheritDoc
      */
-    public function setShippingAddress(AddressInterface $shippingAddress = null)
+    public function setShippingAddress(?AddressInterface $shippingAddress = null): self
     {
         $this->setData(self::SHIPPING_ADDRESS, $shippingAddress);
+        return $this;
     }
 }
