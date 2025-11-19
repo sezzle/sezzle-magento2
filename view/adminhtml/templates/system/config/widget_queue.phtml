@@ -15,7 +15,7 @@ $script = <<<SCRIPT
         'mage/translate',
         'Magento_Ui/js/modal/alert'
     ], function ($, \$t, alert) {
-        var canAddToWidgetQueue = '{$canAddToQueue}',
+        var canAddToWidgetQueue = '{$block->escapeJs($canAddToQueue)}',
             widgetQueueElement = $('#widget_queue');
         if (!canAddToWidgetQueue) {
             widgetQueueElement.text(\$t("Request Submitted")).attr('disabled', true);
@@ -24,7 +24,7 @@ $script = <<<SCRIPT
         widgetQueueElement.click(function () {
             $(this).text(\$t("Adding to widget queue...")).attr('disabled', true);
             var self = this;
-            new Ajax.Request('{$widgetQueueUrl}', {
+            new Ajax.Request('{$block->escapeUrl($widgetQueueUrl)}', {
                 loaderArea: false,
                 asynchronous: true,
                 onSuccess: function () {
@@ -49,5 +49,5 @@ $script = <<<SCRIPT
 SCRIPT;
 ?>
 
-<?php echo /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false); ?>
-<?php echo $secureRenderer->renderTag('div', [], $block->getButtonHtml(), false); ?>
+<?php echo $secureRenderer->renderTag('script', [], $script, false); ?>
+<?php echo $secureRenderer->renderTag('div', [], $block->escapeHtml($block->getButtonHtml()), true); ?>
