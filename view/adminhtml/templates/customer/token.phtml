@@ -21,21 +21,21 @@ use Sezzle\Sezzlepay\Block\Adminhtml\Customer\Edit\Tab\Sezzle;
     </div>
     <table class="admin__table-secondary">
         <tbody>
-        <?php echo $block->getChildHtml(); ?>
+        <?php echo /* @noEscape */ $block->getChildHtml(); ?>
         <tr>
             <th><?php /* @escapeNotVerified */
                 echo __('Status:') ?></th>
-            <td><?php echo $block->getTokenStatus(); ?></td>
+            <td><?php echo $block->escapeHtml($block->getTokenStatus()); ?></td>
         </tr>
         <tr>
             <th><?php /* @escapeNotVerified */
                 echo __('Token:') ?></th>
-            <td><?php echo $block->getToken(); ?></td>
+            <td><?php echo $block->escapeHtml($block->getToken()); ?></td>
         </tr>
         <tr>
             <th><?php /* @escapeNotVerified */
                 echo __('Token Expiration:') ?></th>
-            <td><?php echo $block->getTokenExpiration(); ?></td>
+            <td><?php echo $block->escapeHtml($block->getTokenExpiration()); ?></td>
         </tr>
         </tbody>
     </table>

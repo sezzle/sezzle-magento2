@@ -10,13 +10,12 @@ use Sezzle\Sezzlepay\Block\Adminhtml\System\Config\SezzleRegisterAdmin;
 /** @var $block SezzleRegisterAdmin */
 ?>
 <div style="background-color:#eee;padding:1em;border:1px solid #ddd;">
-Module Version : <?php echo $block->getSezzleModuleVersion(); ?>
+Module Version : <?php echo $block->escapeHtml($block->getSezzleModuleVersion()); ?>
 </div>
 <div id="sezzle_config">
     <br/>
     <div data-mage-init='{
-        "Sezzle_Sezzlepay/js/config": <?php echo /* @noEscape */
-    $block->getJsonConfig() ?> }'
+        "Sezzle_Sezzlepay/js/config": <?php echo $block->escapeHtml($block->getJsonConfig()) ?> }'
          id="sezzle_config">
 
         <span class="sezzle-register">

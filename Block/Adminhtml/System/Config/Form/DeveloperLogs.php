@@ -107,7 +107,8 @@ class DeveloperLogs extends Field
             $output = '';
 
             foreach ($links as $link) {
-                $output .= '<a href="' . $link['link'] . '">' . $link['name'] . '</a><br />';
+                $output .= '<a href="' . $this->escapeUrl($link['link']) . '">'
+                    . $this->escapeHtml($link['name']) . '</a><br />';
             }
 
             return $output;

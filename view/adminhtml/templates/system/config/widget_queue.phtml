@@ -6,13 +6,16 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
 /** @var SecureHtmlRenderer $secureRenderer */
 /** @var WidgetQueue $block */
 ?>
-<?php $script = <<<SCRIPT
+<?php
+$canAddToQueue = $block->escapeJs($block->canAddToWidgetQueue());
+$widgetQueueUrl = $block->escapeUrl($block->getWidgetQueueUrl());
+$script = <<<SCRIPT
     require([
         'jquery',
         'mage/translate',
         'Magento_Ui/js/modal/alert'
     ], function ($, \$t, alert) {
-        var canAddToWidgetQueue = '{$block->canAddToWidgetQueue()}',
+        var canAddToWidgetQueue = '{$canAddToQueue}',
             widgetQueueElement = $('#widget_queue');
         if (!canAddToWidgetQueue) {
             widgetQueueElement.text(\$t("Request Submitted")).attr('disabled', true);
@@ -21,7 +24,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
         widgetQueueElement.click(function () {
             $(this).text(\$t("Adding to widget queue...")).attr('disabled', true);
             var self = this;
-            new Ajax.Request('{$block->getWidgetQueueUrl()}', {
+            new Ajax.Request('{$widgetQueueUrl}', {
                 loaderArea: false,
                 asynchronous: true,
                 onSuccess: function () {
@@ -46,5 +49,5 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
 SCRIPT;
 ?>
 
-<?php echo $secureRenderer->renderTag('script', [], $script, false); ?>
-<?php echo $block->getButtonHtml() ?>
+<?php echo /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false); ?>
+<?php echo $secureRenderer->renderTag('div', [], $block->getButtonHtml(), false); ?>

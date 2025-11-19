@@ -26,7 +26,7 @@ use Sezzle\Sezzlepay\Block\Adminhtml\SettlementReports\PayoutDetails\View\Tab\Li
         <?php $_items = $block->getColumnData();?>
         <?php foreach ($_items as $_item) : ?>
             <tbody class="<?= /* @noEscape */ $i%2 ? 'even' : 'odd' ?>">
-            <?= $block->getLineItemHtml($_item) ?>
+            <?= /* @noEscape */ $block->getLineItemHtml($_item) ?>
             </tbody>
         <?php endforeach; ?>
     </table>

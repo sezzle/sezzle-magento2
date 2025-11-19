@@ -158,23 +158,6 @@ php -d memory_limit=-1 bin/magento module:disable Magento_TwoFactorAuth Magento_
 
 *At this point, you should be able to open 127.0.0.1:8888/admin and log in, but Sezzle will not be available in Payment Methods*
 
-### Install Sezzle Extension
-
-In Terminal, run the following:
-```
-cd vendor && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
-cd ../..
-```
-
-*At this point, if you run the [Compile](#compile) command cluster below, you should be able to see Sezzle as an option  on [127.0.0.1:8888/admin](http://127.0.0.1:8888/admin/admin/system_config/edit/key/460ee844e615c1955534bea89954c0b3fbb24487d8c9e5835699e9920f8a3421/section/payment/), but you will not be able to add API keys*
-
-*Note: Getting `Unknown module(s)` error during `module:enable`? Try this instead:*
-
-```
-cd app && mkdir code && cd code && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
-cd ../../..
-```
-
 ### Sample Data
 
 In Terminal, run the following: `php -d memory_limit=-1 bin/magento sampledata:deploy`
@@ -182,6 +165,22 @@ In Terminal, run the following: `php -d memory_limit=-1 bin/magento sampledata:d
  - Alternatively, [generate new keys](https://www.youtube.com/live/HpwsbgqSR2g). (credentials are `Magento Partner Account` in 1Password Dev vault - 2FA sent to magento@sezzle.com, submit an ITSD request to obtain access)
 When prompted to store credentials, say `Y`
  - Should result in `Sample data modules have been added via composer.`
+
+### Install Sezzle Extension
+
+In Terminal, run the following:
+```
+cd app && mkdir code && cd code && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
+cd ../../..
+```
+
+*Note: Getting `Unknown module(s)` error during `module:enable`? Try this instead:*
+```
+cd vendor && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
+cd ../..
+```
+
+*At this point, if you run the [Compile](#compile) command cluster below, you should be able to see Sezzle as an option  on [127.0.0.1:8888/admin](http://127.0.0.1:8888/admin/admin/system_config/edit/key/460ee844e615c1955534bea89954c0b3fbb24487d8c9e5835699e9920f8a3421/section/payment/), but you will not be able to add API keys*
 
 ### Compile
 
