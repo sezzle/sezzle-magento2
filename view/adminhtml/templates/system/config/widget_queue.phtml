@@ -50,4 +50,4 @@ SCRIPT;
 ?>
 
 <?php echo $secureRenderer->renderTag('script', [], $script, false); ?>
-<?php echo $secureRenderer->renderTag('div', [], $block->escapeHtml($block->getButtonHtml()), true); ?>
+<?php echo $block->getButtonHtml() ?>
