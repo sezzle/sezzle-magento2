@@ -22,5 +22,5 @@ use Sezzle\Sezzlepay\Block\Widget\Installment;
         });
     SCRIPT; ?>
 
-    <?php echo $secureRenderer->renderTag('script', [], $block->escapeHtml($script), false); ?>
+    <?php echo $secureRenderer->renderTag('script', [], $script, false); ?>
 <?php endif; ?>
