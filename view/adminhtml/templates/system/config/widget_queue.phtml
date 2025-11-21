@@ -49,5 +49,5 @@ $script = <<<SCRIPT
 SCRIPT;
 ?>
 
-<?php echo $secureRenderer->renderTag('script', [], $script, false); ?>
+<?php echo $secureRenderer->renderTag('script', [], $block->escapeHtml($script), false); ?>
 <?php echo $block->getButtonHtml() ?>
