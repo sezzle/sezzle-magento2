@@ -371,7 +371,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getGatewayURL(int|null $storeId, string $version = self::API_VERSION_V2): string
+    public function getGatewayURL(?int $storeId = null, string $version = self::API_VERSION_V2): string
     {
         $replaceValue = $this->getPaymentMode($storeId) === self::PAYMENT_MODE_SANDBOX ? self::PAYMENT_MODE_SANDBOX . '.' : '';
         return sprintf(self::GATEWAY_URL, $replaceValue, $version);
