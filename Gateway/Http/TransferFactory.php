@@ -66,8 +66,8 @@ class TransferFactory implements TransferFactoryInterface
         SezzleConfig          $sezzleConfig,
         StoreManagerInterface $storeManager,
         AuthenticationService $authenticationService,
-        string|null                $method,
-        string|null                $uriPath
+        ?string               $method = null,
+        ?string                $uriPath = null
     )
     {
         $this->transferBuilder = $transferBuilder;
