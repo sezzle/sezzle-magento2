@@ -284,7 +284,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isLogTrackerEnabled(int|null $storeId): bool
+    public function isLogTrackerEnabled(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_LOG_TRACKER,
