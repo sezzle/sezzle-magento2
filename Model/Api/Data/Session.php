@@ -18,7 +18,7 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function getUuid()
+    public function getUuid(): ?string
     {
         return $this->_get(self::UUID);
     }
@@ -26,15 +26,16 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setUuid($uuid)
+    public function setUuid(string $uuid): self
     {
         $this->setData(self::UUID, $uuid);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getOrder()
+    public function getOrder(): ?SessionOrderInterface
     {
         return $this->_get(self::ORDER);
     }
@@ -42,15 +43,16 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setOrder(SessionOrderInterface $sessionOrder = null)
+    public function setOrder(?SessionOrderInterface $sessionOrder = null): self
     {
         $this->setData(self::ORDER, $sessionOrder);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getTokenize()
+    public function getTokenize(): ?SessionTokenizeInterface
     {
         return $this->_get(self::TOKENIZE);
     }
@@ -58,8 +60,9 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setTokenize(SessionTokenizeInterface $sessionTokenize = null)
+    public function setTokenize(?SessionTokenizeInterface $sessionTokenize = null): self
     {
         $this->setData(self::TOKENIZE, $sessionTokenize);
+        return $this;
     }
 }

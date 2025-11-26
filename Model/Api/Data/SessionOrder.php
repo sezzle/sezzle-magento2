@@ -17,7 +17,7 @@ class SessionOrder extends AbstractExtensibleObject implements SessionOrderInter
     /**
      * @inheritDoc
      */
-    public function getUuid()
+    public function getUuid(): ?string
     {
         return $this->_get(self::UUID);
     }
@@ -25,15 +25,16 @@ class SessionOrder extends AbstractExtensibleObject implements SessionOrderInter
     /**
      * @inheritDoc
      */
-    public function setUuid($uuid)
+    public function setUuid(string $uuid): self
     {
         $this->setData(self::UUID, $uuid);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getCheckoutUrl()
+    public function getCheckoutUrl(): ?string
     {
         return $this->_get(self::CHECKOUT_URL);
     }
@@ -41,15 +42,16 @@ class SessionOrder extends AbstractExtensibleObject implements SessionOrderInter
     /**
      * @inheritDoc
      */
-    public function setCheckoutUrl($checkoutURL)
+    public function setCheckoutUrl(string $checkoutURL): self
     {
         $this->setData(self::CHECKOUT_URL, $checkoutURL);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getLinks()
+    public function getLinks(): ?array
     {
         return $this->_get(self::LINKS);
     }
@@ -57,8 +59,9 @@ class SessionOrder extends AbstractExtensibleObject implements SessionOrderInter
     /**
      * @inheritDoc
      */
-    public function setLinks(array $links = null)
+    public function setLinks(?array $links = null): self
     {
         $this->setData(self::LINKS, $links);
+        return $this;
     }
 }

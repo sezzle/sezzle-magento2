@@ -120,7 +120,7 @@ class PDP extends View
      *
      * @return float|string
      */
-    public function getItemPrice()
+    public function getItemPrice(): float|string
     {
         return $this->pricingHelper->currency(
             $this->getProduct()->getFinalPrice(),

@@ -17,7 +17,7 @@ use Sezzle\Sezzlepay\Api\Data\SettlementReportsInterface;
 class SettlementReports extends AbstractExtensibleModel implements IdentityInterface, SettlementReportsInterface
 {
 
-    const CACHE_TAG = 'sezzle_settlement_reports';
+    public const CACHE_TAG = 'sezzle_settlement_reports';
 
     protected $_cacheTag = 'sezzle_settlement_reports';
     protected $_eventPrefix = 'sezzle_settlement_reports';
@@ -34,7 +34,7 @@ class SettlementReports extends AbstractExtensibleModel implements IdentityInter
     /**
      * @inheritDoc
      */
-    public function getIdentities()
+    public function getIdentities(): array
     {
         return [self::CACHE_TAG . '_' . $this->getId()];
     }
@@ -50,7 +50,7 @@ class SettlementReports extends AbstractExtensibleModel implements IdentityInter
     /**
      * @inheritDoc
      */
-    public function setUuid($uuid)
+    public function setUuid($uuid): void
     {
         $this->setData(self::UUID, $uuid);
     }
@@ -66,7 +66,7 @@ class SettlementReports extends AbstractExtensibleModel implements IdentityInter
     /**
      * @inheritDoc
      */
-    public function setPayoutCurrency($payoutCurrency)
+    public function setPayoutCurrency($payoutCurrency): void
     {
         $this->setData(self::PAYOUT_CURRENCY, $payoutCurrency);
     }
@@ -82,7 +82,7 @@ class SettlementReports extends AbstractExtensibleModel implements IdentityInter
     /**
      * @inheritDoc
      */
-    public function setPayoutDate($payoutDate)
+    public function setPayoutDate($payoutDate): void
     {
         $this->setData(self::PAYOUT_DATE, $payoutDate);
     }
@@ -98,7 +98,7 @@ class SettlementReports extends AbstractExtensibleModel implements IdentityInter
     /**
      * @inheritDoc
      */
-    public function setNetSettlementAmount($netSettlementAmount)
+    public function setNetSettlementAmount($netSettlementAmount): void
     {
         $this->setData(self::NET_SETTLEMENT_AMOUNT, $netSettlementAmount);
     }
@@ -114,7 +114,7 @@ class SettlementReports extends AbstractExtensibleModel implements IdentityInter
     /**
      * @inheritDoc
      */
-    public function setForexFees($forexFees)
+    public function setForexFees($forexFees): void
     {
         $this->setData(self::FOREX_FEES, $forexFees);
     }
@@ -130,7 +130,7 @@ class SettlementReports extends AbstractExtensibleModel implements IdentityInter
     /**
      * @inheritDoc
      */
-    public function setStatus($status)
+    public function setStatus($status): void
     {
         $this->setData(self::STATUS, $status);
     }

@@ -17,7 +17,7 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->_get(self::NAME);
     }
@@ -25,15 +25,16 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setName($name)
+    public function setName(string $name): self
     {
         $this->setData(self::NAME, $name);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getCity()
+    public function getCity(): ?string
     {
         return $this->_get(self::CITY);
     }
@@ -41,15 +42,16 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setCity($city)
+    public function setCity(string $city): self
     {
         $this->setData(self::CITY, $city);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getCountryCode()
+    public function getCountryCode(): ?string
     {
         return $this->_get(self::COUNTRY_CODE);
     }
@@ -57,15 +59,16 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setCountryCode($countryCode)
+    public function setCountryCode(string $countryCode): self
     {
         $this->setData(self::COUNTRY_CODE, $countryCode);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getPhone()
+    public function getPhone(): ?string
     {
         return $this->_get(self::PHONE);
     }
@@ -73,15 +76,16 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setPhone($phone)
+    public function setPhone(string $phone): self
     {
         $this->setData(self::PHONE, $phone);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getPostalCode()
+    public function getPostalCode(): ?string
     {
         return $this->_get(self::POSTAL_CODE);
     }
@@ -89,15 +93,16 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setPostalCode($postalCode)
+    public function setPostalCode(string $postalCode): self
     {
         $this->setData(self::POSTAL_CODE, $postalCode);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getState()
+    public function getState(): ?string
     {
         return $this->_get(self::STATE);
     }
@@ -105,15 +110,16 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setState($state)
+    public function setState(string $state): self
     {
         $this->setData(self::STATE, $state);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getStreet()
+    public function getStreet(): ?string
     {
         return $this->_get(self::STREET);
     }
@@ -121,15 +127,16 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setStreet($street)
+    public function setStreet(string $street): self
     {
         $this->setData(self::STREET, $street);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getStreet2()
+    public function getStreet2(): ?string
     {
         return $this->_get(self::STREET2);
     }
@@ -137,8 +144,9 @@ class Address extends AbstractExtensibleObject implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function setStreet2($street2)
+    public function setStreet2(string $street2): self
     {
         $this->setData(self::STREET2, $street2);
+        return $this;
     }
 }

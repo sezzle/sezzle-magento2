@@ -21,7 +21,7 @@ class Complete extends Sezzle
     /**
      * Complete the order
      */
-    public function execute()
+    public function execute(): \Magento\Framework\Controller\Result\Redirect
     {
         $redirectPath = 'checkout/cart';
         try {
@@ -55,9 +55,9 @@ class Complete extends Sezzle
     /**
      * Handling Exception
      *
-     * @param mixed $exc
+     * @param \Exception $exc
      */
-    private function handleException($exc)
+    private function handleException(\Exception $exc): void
     {
         $this->helper->logSezzleActions("Sezzle Transaction Exception: " . $exc->getMessage());
         $this->messageManager->addErrorMessage(

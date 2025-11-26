@@ -14,100 +14,100 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface AddressInterface
 {
-    const NAME = "name";
-    const CITY = "city";
-    const COUNTRY_CODE = "country_code";
-    const PHONE = "phone";
-    const POSTAL_CODE = "postal_code";
-    const STATE = "state";
-    const STREET = "street";
-    const STREET2 = "street2";
+    public const NAME = "name";
+    public const CITY = "city";
+    public const COUNTRY_CODE = "country_code";
+    public const PHONE = "phone";
+    public const POSTAL_CODE = "postal_code";
+    public const STATE = "state";
+    public const STREET = "street";
+    public const STREET2 = "street2";
 
     /**
      * @return string|null
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
      * @param string $name
      * @return $this
      */
-    public function setName($name);
+    public function setName(string $name): self;
 
     /**
      * @return string|null
      */
-    public function getCity();
+    public function getCity(): ?string;
 
     /**
      * @param string $city
      * @return $this
      */
-    public function setCity($city);
+    public function setCity(string $city): self;
 
     /**
      * @return string|null
      */
-    public function getCountryCode();
+    public function getCountryCode(): ?string;
 
     /**
      * @param string $countryCode
      * @return $this
      */
-    public function setCountryCode($countryCode);
+    public function setCountryCode(string $countryCode): self;
 
     /**
      * @return string|null
      */
-    public function getPhone();
+    public function getPhone(): ?string;
 
     /**
      * @param string $phone
      * @return $this
      */
-    public function setPhone($phone);
+    public function setPhone(string $phone): self;
 
     /**
      * @return string|null
      */
-    public function getPostalCode();
+    public function getPostalCode(): ?string;
 
     /**
      * @param string $postalCode
      * @return $this
      */
-    public function setPostalCode($postalCode);
+    public function setPostalCode(string $postalCode): self;
 
     /**
      * @return string|null
      */
-    public function getState();
+    public function getState(): ?string;
 
     /**
      * @param string $state
      * @return $this
      */
-    public function setState($state);
+    public function setState(string $state): self;
 
     /**
      * @return string|null
      */
-    public function getStreet();
+    public function getStreet(): ?string;
 
     /**
      * @param string $street
      * @return $this
      */
-    public function setStreet($street);
+    public function setStreet(string $street): self;
 
     /**
      * @return string|null
      */
-    public function getStreet2();
+    public function getStreet2(): ?string;
 
     /**
      * @param string $street2
      * @return $this
      */
-    public function setStreet2($street2);
+    public function setStreet2(string $street2): self;
 }

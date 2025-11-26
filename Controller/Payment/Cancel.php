@@ -20,7 +20,7 @@ class Cancel extends Sezzle
      * Restore the quote if any
      * @throws LocalizedException
      */
-    public function execute()
+    public function execute(): \Magento\Framework\Controller\Result\Redirect
     {
         $order = $this->getOrder();
         $order->registerCancellation("Returned from Sezzle Checkout without completing payment.");

@@ -17,7 +17,7 @@ class Link extends AbstractExtensibleObject implements LinkInterface
     /**
      * @inheritDoc
      */
-    public function getHref()
+    public function getHref(): string
     {
         return $this->_get(self::HREF);
     }
@@ -25,15 +25,16 @@ class Link extends AbstractExtensibleObject implements LinkInterface
     /**
      * @inheritDoc
      */
-    public function setHref($href)
+    public function setHref(string $href): self
     {
         $this->setData(self::HREF, $href);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getRel()
+    public function getRel(): string
     {
         return $this->_get(self::REL);
     }
@@ -41,15 +42,16 @@ class Link extends AbstractExtensibleObject implements LinkInterface
     /**
      * @inheritDoc
      */
-    public function setRel($rel)
+    public function setRel(string $rel): self
     {
         $this->setData(self::REL, $rel);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->_get(self::METHOD);
     }
@@ -57,8 +59,9 @@ class Link extends AbstractExtensibleObject implements LinkInterface
     /**
      * @inheritDoc
      */
-    public function setMethod($method)
+    public function setMethod(string $method): self
     {
         $this->setData(self::METHOD, $method);
+        return $this;
     }
 }

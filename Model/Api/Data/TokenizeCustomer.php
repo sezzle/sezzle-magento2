@@ -17,7 +17,7 @@ class TokenizeCustomer extends AbstractExtensibleObject implements TokenizeCusto
     /**
      * @inheritDoc
      */
-    public function getUuid()
+    public function getUuid(): string
     {
         return $this->_get(self::UUID);
     }
@@ -25,15 +25,16 @@ class TokenizeCustomer extends AbstractExtensibleObject implements TokenizeCusto
     /**
      * @inheritDoc
      */
-    public function setUuid($uuid)
+    public function setUuid(string $uuid): self
     {
         $this->setData(self::UUID, $uuid);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getExpiration()
+    public function getExpiration(): string
     {
         return $this->_get(self::EXPIRATION);
     }
@@ -41,15 +42,16 @@ class TokenizeCustomer extends AbstractExtensibleObject implements TokenizeCusto
     /**
      * @inheritDoc
      */
-    public function setExpiration($expiration)
+    public function setExpiration(string $expiration): self
     {
         $this->setData(self::EXPIRATION, $expiration);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getLinks()
+    public function getLinks(): ?array
     {
         return $this->_get(self::LINKS);
     }
@@ -57,8 +59,9 @@ class TokenizeCustomer extends AbstractExtensibleObject implements TokenizeCusto
     /**
      * @inheritDoc
      */
-    public function setLinks(array $links = null)
+    public function setLinks(?array $links = null): self
     {
         $this->setData(self::LINKS, $links);
+        return $this;
     }
 }

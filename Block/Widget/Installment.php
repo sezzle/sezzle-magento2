@@ -43,9 +43,9 @@ class Installment extends Template
     /**
      * Get Installment Widget Status
      *
-     * @return string
+     * @return bool
      */
-    public function isInstallmentWidgetEnabled()
+    public function isInstallmentWidgetEnabled(): bool
     {
         try {
             return $this->config->isEnabled() && $this->config->isInstallmentWidgetEnabled();

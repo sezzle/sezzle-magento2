@@ -14,77 +14,77 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface SessionTokenizeInterface
 {
-    const TOKEN = "token";
-    const STATUS = "status";
-    const APPROVAL_URL = "approval_url";
-    const EXPIRATION = "expiration";
-    const CUSTOMER = "customer";
-    const LINKS = "links";
+    public const TOKEN = "token";
+    public const STATUS = "status";
+    public const APPROVAL_URL = "approval_url";
+    public const EXPIRATION = "expiration";
+    public const CUSTOMER = "customer";
+    public const LINKS = "links";
 
     /**
      * @return string|null
      */
-    public function getStatus();
+    public function getStatus(): ?string;
 
     /**
      * @param string $status
      * @return $this
      */
-    public function setStatus($status);
+    public function setStatus(string $status): self;
 
     /**
      * @return string|null
      */
-    public function getToken();
+    public function getToken(): ?string;
 
     /**
      * @param string $token
      * @return $this
      */
-    public function setToken($token);
+    public function setToken(string $token): self;
 
     /**
      * @return string|null
      */
-    public function getApprovalUrl();
+    public function getApprovalUrl(): ?string;
 
     /**
      * @param string $approvalURL
      * @return $this
      */
-    public function setApprovalUrl($approvalURL);
+    public function setApprovalUrl(string $approvalURL): self;
 
     /**
      * @return string|null
      */
-    public function getExpiration();
+    public function getExpiration(): ?string;
 
     /**
      * @param string $expiration
      * @return $this
      */
-    public function setExpiration($expiration);
+    public function setExpiration(string $expiration): self;
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface|null
      */
-    public function getCustomer();
+    public function getCustomer(): ?TokenizeCustomerInterface;
 
     /**
      * @param \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface $customer
      * @return $this
      */
-    public function setCustomer(TokenizeCustomerInterface $customer = null);
+    public function setCustomer(?TokenizeCustomerInterface $customer = null): self;
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\LinkInterface[]|null
      */
-    public function getLinks();
+    public function getLinks(): ?array;
 
     /**
      * @param \Sezzle\Sezzlepay\Api\Data\LinkInterface[] $links
      * @return $this
      */
-    public function setLinks(array $links = null);
+    public function setLinks(?array $links = null): self;
 
 }

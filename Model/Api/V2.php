@@ -39,14 +39,14 @@ use Sezzle\Sezzlepay\Gateway\Config\Config;
  */
 class V2 implements V2Interface
 {
-    const SEZZLE_CREATE_SESSION_ENDPOINT = "/session";
-    const SEZZLE_GET_CUSTOMER_ENDPOINT = "/customer/%s";
-    const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/token/%s/session";
-    const SEZZLE_WIDGET_QUEUE_ENDPOINT = "/widget/queue";
+    public const SEZZLE_CREATE_SESSION_ENDPOINT = "/session";
+    public const SEZZLE_GET_CUSTOMER_ENDPOINT = "/customer/%s";
+    public const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/token/%s/session";
+    public const SEZZLE_WIDGET_QUEUE_ENDPOINT = "/widget/queue";
 
-    const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
-    const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
-    const SEZZLE_SEND_CONFIG_ENDPOINT = "/configuration";
+    public const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
+    public const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
+    public const SEZZLE_SEND_CONFIG_ENDPOINT = "/configuration";
 
 
     /**
@@ -306,7 +306,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getSettlementSummaries(string $from = null, string $to = null): ?array
+    public function getSettlementSummaries(?string $from = null, ?string $to = null): ?array
     {
         $uri = $this->config->getGatewayURL() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
         $range = $this->config->getSettlementReportsRange();

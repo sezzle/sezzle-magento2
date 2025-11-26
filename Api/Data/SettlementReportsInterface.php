@@ -13,76 +13,76 @@ namespace Sezzle\Sezzlepay\Api\Data;
 interface SettlementReportsInterface
 {
 
-    const UUID = "uuid";
-    const PAYOUT_CURRENCY = "payout_currency";
-    const PAYOUT_DATE = "payout_date";
-    const NET_SETTLEMENT_AMOUNT = "net_settlement_amount";
-    const FOREX_FEES = "forex_fees";
-    const STATUS = "status";
+    public const UUID = "uuid";
+    public const PAYOUT_CURRENCY = "payout_currency";
+    public const PAYOUT_DATE = "payout_date";
+    public const NET_SETTLEMENT_AMOUNT = "net_settlement_amount";
+    public const FOREX_FEES = "forex_fees";
+    public const STATUS = "status";
 
     /**
      * @return string|null
      */
-    public function getUuid();
+    public function getUuid(): ?string;
 
     /**
      * @param string $uuid
      * @return $this
      */
-    public function setUuid($uuid);
+    public function setUuid(string $uuid): self;
 
     /**
      * @return string|null
      */
-    public function getPayoutCurrency();
+    public function getPayoutCurrency(): ?string;
 
     /**
      * @param string $payoutCurrency
      * @return $this
      */
-    public function setPayoutCurrency($payoutCurrency);
+    public function setPayoutCurrency(string $payoutCurrency): self;
 
     /**
      * @return string|null
      */
-    public function getPayoutDate();
+    public function getPayoutDate(): ?string;
 
     /**
      * @param string $payoutDate
      * @return $this
      */
-    public function setPayoutDate($payoutDate);
+    public function setPayoutDate(string $payoutDate): self;
 
     /**
      * @return int|null
      */
-    public function getNetSettlementAmount();
+    public function getNetSettlementAmount(): ?int;
 
     /**
      * @param int $netSettlementAmount
      * @return $this
      */
-    public function setNetSettlementAmount($netSettlementAmount);
+    public function setNetSettlementAmount(int $netSettlementAmount): self;
 
     /**
      * @return int|null
      */
-    public function getForexFees();
+    public function getForexFees(): ?int;
 
     /**
      * @param int $forexFees
      * @return $this
      */
-    public function setForexFees($forexFees);
+    public function setForexFees(int $forexFees): self;
 
     /**
      * @return string|null
      */
-    public function getStatus();
+    public function getStatus(): ?string;
 
     /**
      * @param string $status
      * @return $this
      */
-    public function setStatus($status);
+    public function setStatus(string $status): self;
 }

@@ -21,7 +21,7 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
  */
 class AuthenticationService
 {
-    const TOKEN_CACHE_PREFIX = 'SEZZLE_AUTH_TOKEN';
+    public const TOKEN_CACHE_PREFIX = 'SEZZLE_AUTH_TOKEN';
 
     /**
      * @var Config

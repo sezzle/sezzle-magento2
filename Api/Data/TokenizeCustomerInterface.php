@@ -14,41 +14,41 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface TokenizeCustomerInterface
 {
-    const UUID = "uuid";
-    const EXPIRATION = "expiration";
-    const LINKS = "links";
+    public const UUID = "uuid";
+    public const EXPIRATION = "expiration";
+    public const LINKS = "links";
 
     /**
      * @return string
      */
-    public function getUuid();
+    public function getUuid(): string;
 
     /**
      * @param string $uuid
      * @return $this
      */
-    public function setUuid($uuid);
+    public function setUuid(string $uuid): self;
 
     /**
      * @return string
      */
-    public function getExpiration();
+    public function getExpiration(): string;
 
     /**
      * @param string $expiration
      * @return $this
      */
-    public function setExpiration($expiration);
+    public function setExpiration(string $expiration): self;
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\LinkInterface[]|null
      */
-    public function getLinks();
+    public function getLinks(): ?array;
 
     /**
      * @param \Sezzle\Sezzlepay\Api\Data\LinkInterface[] $links
      * @return $this
      */
-    public function setLinks(array $links = null);
+    public function setLinks(?array $links = null): self;
 
 }

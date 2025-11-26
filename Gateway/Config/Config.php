@@ -16,42 +16,42 @@ use Magento\Framework\Locale\Resolver;
 class Config extends PaymentConfig
 {
 
-    const KEY_ACTIVE = 'active';
-    const KEY_PUBLIC_KEY = 'public_key';
-    const KEY_PRIVATE_KEY = 'private_key';
-    const KEY_PAYMENT_MODE = 'payment_mode';
-    const KEY_MERCHANT_UUID = 'merchant_id';
-    const KEY_PAYMENT_ACTION = 'payment_action';
-    const KEY_MIN_CHECKOUT_AMOUNT = 'min_checkout_amount';
-    const KEY_TOKENIZE = 'tokenize';
+    public const KEY_ACTIVE = 'active';
+    public const KEY_PUBLIC_KEY = 'public_key';
+    public const KEY_PRIVATE_KEY = 'private_key';
+    public const KEY_PAYMENT_MODE = 'payment_mode';
+    public const KEY_MERCHANT_UUID = 'merchant_id';
+    public const KEY_PAYMENT_ACTION = 'payment_action';
+    public const KEY_MIN_CHECKOUT_AMOUNT = 'min_checkout_amount';
+    public const KEY_TOKENIZE = 'tokenize';
 
-    const KEY_WIDGET_PDP = 'widget_pdp';
-    const KEY_WIDGET_CART = 'widget_cart';
-    const KEY_WIDGET_TICKET_CREATED_AT = 'widget_ticket_created_at';
-    const KEY_WIDGET_INSTALLMENT = 'widget_installment';
-    const KEY_WIDGET_INSTALLMENT_PRICE = 'widget_installment_price_path';
+    public const KEY_WIDGET_PDP = 'widget_pdp';
+    public const KEY_WIDGET_CART = 'widget_cart';
+    public const KEY_WIDGET_TICKET_CREATED_AT = 'widget_ticket_created_at';
+    public const KEY_WIDGET_INSTALLMENT = 'widget_installment';
+    public const KEY_WIDGET_INSTALLMENT_PRICE = 'widget_installment_price_path';
 
-    const KEY_INCONTEXT_ACTIVE = 'active_in_context';
-    const KEY_INCONTEXT_MODE = 'in_context_mode';
+    public const KEY_INCONTEXT_ACTIVE = 'active_in_context';
+    public const KEY_INCONTEXT_MODE = 'in_context_mode';
 
-    const KEY_LOG_TRACKER = 'log_tracker';
-    const KEY_CRON_LOGS = 'send_logs_via_cron';
+    public const KEY_LOG_TRACKER = 'log_tracker';
+    public const KEY_CRON_LOGS = 'send_logs_via_cron';
 
-    const KEY_SETTLEMENT_REPORTS = 'settlement_reports';
-    const KEY_SETTLEMENT_REPORTS_RANGE = 'settlement_reports_range';
+    public const KEY_SETTLEMENT_REPORTS = 'settlement_reports';
+    public const KEY_SETTLEMENT_REPORTS_RANGE = 'settlement_reports_range';
 
-    const PAYMENT_MODE_SANDBOX = 'sandbox';
-    const PAYMENT_MODE_LIVE = 'live';
+    public const PAYMENT_MODE_SANDBOX = 'sandbox';
+    public const PAYMENT_MODE_LIVE = 'live';
 
-    const INCONTEXT_MODE_IFRAME = 'iframe';
-    const INCONTEXT_MODE_POPUP = 'popup';
+    public const INCONTEXT_MODE_IFRAME = 'iframe';
+    public const INCONTEXT_MODE_POPUP = 'popup';
 
-    const API_VERSION_V1 = 'v1';
-    const API_VERSION_V2 = 'v2';
+    public const API_VERSION_V1 = 'v1';
+    public const API_VERSION_V2 = 'v2';
 
-    const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
-    const WIDGET_URL = 'https://widget.sezzle.com/%s';
-    public static $imageSrc = [
+    public const GATEWAY_URL = 'https://%sgateway.sezzle.com/%s';
+    public const WIDGET_URL = 'https://widget.sezzle.com/%s';
+    private static array $imageSrc = [
         'en' => 'https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg',
         'fr' => 'https://media.sezzle.com/branding/2.0/Sezzle_Logo_FullColor.svg'
     ];
@@ -85,7 +85,7 @@ class Config extends PaymentConfig
         ScopeConfigInterface $scopeConfig,
         UrlInterface         $urlBuilder,
         Resolver             $localeResolver,
-                             $methodCode = null,
+        ?string              $methodCode = null,
         string               $pathPattern = self::DEFAULT_PATH_PATTERN
     )
     {

@@ -13,40 +13,40 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface SessionInterface
 {
-    const UUID = "uuid";
-    const ORDER = "order";
-    const TOKENIZE = "tokenize";
+    public const UUID = "uuid";
+    public const ORDER = "order";
+    public const TOKENIZE = "tokenize";
 
     /**
      * @return string|null
      */
-    public function getUuid();
+    public function getUuid(): ?string;
 
     /**
-     * @param $uuid
+     * @param string $uuid
      * @return $this
      */
-    public function setUuid($uuid);
+    public function setUuid(string $uuid): self;
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\SessionOrderInterface|null
      */
-    public function getOrder();
+    public function getOrder(): ?SessionOrderInterface;
 
     /**
      * @param \Sezzle\Sezzlepay\Api\Data\SessionOrderInterface $sessionOrder
      * @return $this
      */
-    public function setOrder(SessionOrderInterface $sessionOrder = null);
+    public function setOrder(?SessionOrderInterface $sessionOrder = null): self;
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface|null
      */
-    public function getTokenize();
+    public function getTokenize(): ?SessionTokenizeInterface;
 
     /**
      * @param \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface $sessionTokenize
-     * @return mixed
+     * @return $this
      */
-    public function setTokenize(SessionTokenizeInterface $sessionTokenize = null);
+    public function setTokenize(?SessionTokenizeInterface $sessionTokenize = null): self;
 }

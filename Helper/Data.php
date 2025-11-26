@@ -25,9 +25,9 @@ use Magento\Framework\Serialize\Serializer\Json;
  */
 class Data extends AbstractHelper
 {
-    const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
-    const SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
-    const SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH = '/vendor/sezzle/sezzlepay/composer.json';
+    public const SEZZLE_LOG_FILE_PATH = '/var/log/sezzlepay.log';
+    public const SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH = '/app/code/Sezzle/Sezzlepay/composer.json';
+    public const SEZZLE_COMPOSER_INSTALL_COMPOSER_FILE_PATH = '/vendor/sezzle/sezzlepay/composer.json';
 
     /**
      * @var File
@@ -156,7 +156,7 @@ class Data extends AbstractHelper
     /**
      * Get Sezzle Module Version
      */
-    public function getVersion()
+    public function getVersion(): string
     {
         try {
             if ($this->file->isExists(BP . self::SEZZLE_MANUAL_INSTALL_COMPOSER_FILE_PATH)) {

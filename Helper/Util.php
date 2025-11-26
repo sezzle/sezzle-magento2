@@ -15,7 +15,7 @@ class Util
     /**
      * Money format
      */
-    const MONEY_FORMAT = "%.2f";
+    public const MONEY_FORMAT = "%.2f";
 
     /**
      * Format to cents

@@ -18,7 +18,7 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         return $this->_get(self::STATUS);
     }
@@ -26,15 +26,16 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setStatus($status)
+    public function setStatus(string $status): self
     {
         $this->setData(self::STATUS, $status);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getToken()
+    public function getToken(): ?string
     {
         return $this->_get(self::TOKEN);
     }
@@ -42,15 +43,16 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setToken($token)
+    public function setToken(string $token): self
     {
         $this->setData(self::TOKEN, $token);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getApprovalUrl()
+    public function getApprovalUrl(): ?string
     {
         return $this->_get(self::APPROVAL_URL);
     }
@@ -58,15 +60,16 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setApprovalUrl($approvalURL)
+    public function setApprovalUrl(string $approvalURL): self
     {
         $this->setData(self::APPROVAL_URL, $approvalURL);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getExpiration()
+    public function getExpiration(): ?string
     {
         return $this->_get(self::EXPIRATION);
     }
@@ -74,15 +77,16 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setExpiration($expiration)
+    public function setExpiration(string $expiration): self
     {
         $this->setData(self::EXPIRATION, $expiration);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getCustomer()
+    public function getCustomer(): ?TokenizeCustomerInterface
     {
         return $this->_get(self::CUSTOMER);
     }
@@ -90,15 +94,16 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setCustomer(TokenizeCustomerInterface $customer = null)
+    public function setCustomer(?TokenizeCustomerInterface $customer = null): self
     {
         $this->setData(self::CUSTOMER, $customer);
+        return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function getLinks()
+    public function getLinks(): ?array
     {
         return $this->_get(self::LINKS);
     }
@@ -106,8 +111,9 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setLinks(array $links = null)
+    public function setLinks(?array $links = null): self
     {
         $this->setData(self::LINKS, $links);
+        return $this;
     }
 }

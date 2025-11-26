@@ -13,40 +13,40 @@ namespace Sezzle\Sezzlepay\Api\Data;
  */
 interface LinkInterface
 {
-    const HREF = 'href';
-    const REL = "rel";
-    const METHOD = "method";
+    public const HREF = 'href';
+    public const REL = "rel";
+    public const METHOD = "method";
 
     /**
      * @return string
      */
-    public function getHref();
+    public function getHref(): string;
 
     /**
      * @param string $href
      * @return $this
      */
-    public function setHref($href);
+    public function setHref(string $href): self;
 
     /**
      * @return string
      */
-    public function getRel();
+    public function getRel(): string;
 
     /**
      * @param string $rel
      * @return $this
      */
-    public function setRel($rel);
+    public function setRel(string $rel): self;
 
     /**
      * @return string
      */
-    public function getMethod();
+    public function getMethod(): string;
 
     /**
      * @param string $method
      * @return $this
      */
-    public function setMethod($method);
+    public function setMethod(string $method): self;
 }
