@@ -64,7 +64,7 @@ class CheckoutManagement implements CheckoutManagementInterface
     public function createCheckout(
         int              $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null): string
+        AddressInterface|null $billingAddress): string
     {
         if (!$this->paymentInformationManagement->savePaymentInformation(
             $cartId,

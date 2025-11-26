@@ -33,7 +33,7 @@ class SettlementReportsRepository implements SettlementReportsRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function saveMultiple(array $settlementReports = null)
+    public function saveMultiple(array|null $settlementReports)
     {
         $collection = $this->settlementReportsCollectionFactory->create();
         $syncedPayoutUUIDs = $collection->getColumnValues('uuid');

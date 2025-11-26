@@ -26,5 +26,5 @@ interface CartManagementInterface
      * @throws NoSuchEntityException
      * @throws CouldNotSaveException|LocalizedException
      */
-    public function placeOrder(int $cartId, PaymentInterface $paymentMethod = null): int;
+    public function placeOrder(int $cartId, PaymentInterface|null $paymentMethod): int;
 }

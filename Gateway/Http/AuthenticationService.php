@@ -87,7 +87,7 @@ class AuthenticationService
      * @throws LocalizedException
      * @throws AuthenticationException
      */
-    public function getToken(int $storeId = null): string
+    public function getToken(int|null $storeId): string
     {
         $data = [
             'public_key' => $this->config->getPublicKey($storeId),

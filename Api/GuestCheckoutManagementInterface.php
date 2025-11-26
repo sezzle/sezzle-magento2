@@ -34,6 +34,6 @@ interface GuestCheckoutManagementInterface
         string           $cartId,
         string           $email,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        AddressInterface|null $billingAddress
     ): string;
 }

@@ -32,6 +32,6 @@ interface CheckoutManagementInterface
     public function createCheckout(
         int              $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null
+        AddressInterface|null $billingAddress
     ): string;
 }

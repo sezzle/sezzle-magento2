@@ -62,9 +62,9 @@ class CaptureCommand extends GatewayCommand
         ClientInterface             $client,
         LoggerInterface             $logger,
         Data                        $helper,
-        HandlerInterface            $handler = null,
-        ValidatorInterface          $validator = null,
-        ErrorMessageMapperInterface $errorMessageMapper = null
+        HandlerInterface|null            $handler,
+        ValidatorInterface|null          $validator,
+        ErrorMessageMapperInterface|null $errorMessageMapper
     )
     {
         parent::__construct(

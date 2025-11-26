@@ -102,7 +102,7 @@ class WidgetQueue extends Field
     public function canAddToWidgetQueue()
     {
         try {
-            if (!$widgetTicketCreatedAt = $this->config->getWidgetTicketCreatedAt()) {
+            if (!$widgetTicketCreatedAt = $this->config->getWidgetTicketCreatedAt($storeId = null)) {
                 return true;
             }
         } catch (InputException|NoSuchEntityException $e) {

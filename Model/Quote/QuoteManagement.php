@@ -80,7 +80,7 @@ class QuoteManagement implements CartManagementInterface
     /**
      * @inheritDoc
      */
-    public function placeOrder(int $cartId, PaymentInterface $paymentMethod = null): int
+    public function placeOrder(int $cartId, PaymentInterface|null $paymentMethod): int
     {
         $log = [
             'quote_id' => $cartId,

@@ -37,7 +37,7 @@ interface SessionInterface
      * @param \Sezzle\Sezzlepay\Api\Data\SessionOrderInterface $sessionOrder
      * @return $this
      */
-    public function setOrder(SessionOrderInterface $sessionOrder = null);
+    public function setOrder(SessionOrderInterface|null $sessionOrder);
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface|null
@@ -48,5 +48,5 @@ interface SessionInterface
      * @param \Sezzle\Sezzlepay\Api\Data\SessionTokenizeInterface $sessionTokenize
      * @return mixed
      */
-    public function setTokenize(SessionTokenizeInterface $sessionTokenize = null);
+    public function setTokenize(SessionTokenizeInterface|null $sessionTokenize);
 }

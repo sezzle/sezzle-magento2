@@ -56,7 +56,7 @@ interface V2Interface
      * @throws LocalizedException
      * @throws Exception
      */
-    public function getSettlementSummaries(string $from = null, string $to = null): ?array;
+    public function getSettlementSummaries(string|null $from, string|null $to): ?array;
 
     /**
      * Get Settlement Report Details for a payout UUID

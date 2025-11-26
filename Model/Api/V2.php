@@ -306,7 +306,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function getSettlementSummaries(string $from = null, string $to = null): ?array
+    public function getSettlementSummaries(string|null $from, string|null $to): ?array
     {
         $uri = $this->config->getGatewayURL() . self::SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT;
         $range = $this->config->getSettlementReportsRange();

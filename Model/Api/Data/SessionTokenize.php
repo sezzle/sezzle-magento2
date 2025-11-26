@@ -90,7 +90,7 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setCustomer(TokenizeCustomerInterface $customer = null)
+    public function setCustomer(TokenizeCustomerInterface|null $customer)
     {
         $this->setData(self::CUSTOMER, $customer);
     }
@@ -106,7 +106,7 @@ class SessionTokenize extends AbstractExtensibleObject implements SessionTokeniz
     /**
      * @inheritDoc
      */
-    public function setLinks(array $links = null)
+    public function setLinks(array|null $links)
     {
         $this->setData(self::LINKS, $links);
     }

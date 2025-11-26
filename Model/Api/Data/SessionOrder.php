@@ -57,7 +57,7 @@ class SessionOrder extends AbstractExtensibleObject implements SessionOrderInter
     /**
      * @inheritDoc
      */
-    public function setLinks(array $links = null)
+    public function setLinks(array|null $links)
     {
         $this->setData(self::LINKS, $links);
     }
