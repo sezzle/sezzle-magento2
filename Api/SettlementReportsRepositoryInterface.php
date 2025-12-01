@@ -16,6 +16,6 @@ interface SettlementReportsRepositoryInterface
      * @return mixed|void
      * @throws Exception
      */
-    public function saveMultiple(array $settlementReports = null);
+    public function saveMultiple(?array $settlementReports = null);
 
 }

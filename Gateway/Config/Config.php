@@ -101,7 +101,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isEnabled(int $storeId = null): bool
+    public function isEnabled(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_ACTIVE,
@@ -115,7 +115,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getPublicKey(int $storeId = null): ?string
+    public function getPublicKey(?int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_PUBLIC_KEY,
@@ -129,7 +129,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getPrivateKey(int $storeId = null): ?string
+    public function getPrivateKey(?int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_PRIVATE_KEY,
@@ -143,7 +143,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getMerchantUUID(int $storeId = null): ?string
+    public function getMerchantUUID(?int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_MERCHANT_UUID,
@@ -157,7 +157,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getPaymentMode(int $storeId = null): string
+    public function getPaymentMode(?int $storeId = null): string
     {
         return $this->getValue(
             self::KEY_PAYMENT_MODE,
@@ -171,7 +171,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getPaymentAction(int $storeId = null): string
+    public function getPaymentAction(?int $storeId = null): string
     {
         return $this->getValue(
             self::KEY_PAYMENT_ACTION,
@@ -185,7 +185,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getMinCheckoutAmount(int $storeId = null): ?float
+    public function getMinCheckoutAmount(?int $storeId = null): ?float
     {
         return $this->getValue(
             self::KEY_MIN_CHECKOUT_AMOUNT,
@@ -199,7 +199,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isTokenizationEnabled(int $storeId = null): bool
+    public function isTokenizationEnabled(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_TOKENIZE,
@@ -213,7 +213,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isWidgetEnabledForPDP(int $storeId = null): bool
+    public function isWidgetEnabledForPDP(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_WIDGET_PDP,
@@ -227,7 +227,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isWidgetEnabledForCart(int $storeId = null): bool
+    public function isWidgetEnabledForCart(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_WIDGET_CART,
@@ -241,7 +241,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getWidgetTicketCreatedAt(int $storeId = null): ?string
+    public function getWidgetTicketCreatedAt(?int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_WIDGET_TICKET_CREATED_AT,
@@ -255,7 +255,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isInstallmentWidgetEnabled(int $storeId = null): bool
+    public function isInstallmentWidgetEnabled(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_WIDGET_INSTALLMENT,
@@ -269,7 +269,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getInstallmentWidgetPricePath(int $storeId = null): ?string
+    public function getInstallmentWidgetPricePath(?int $storeId = null): ?string
     {
         return !$this->isInstallmentWidgetEnabled() ? '' :
             $this->getValue(
@@ -284,7 +284,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isLogTrackerEnabled(int $storeId = null): bool
+    public function isLogTrackerEnabled(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_LOG_TRACKER,
@@ -298,7 +298,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isLogsSendingToSezzleAllowed(int $storeId = null): bool
+    public function isLogsSendingToSezzleAllowed(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_CRON_LOGS,
@@ -312,7 +312,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isSettlementReportsEnabled(int $storeId = null): bool
+    public function isSettlementReportsEnabled(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_SETTLEMENT_REPORTS,
@@ -326,7 +326,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getSettlementReportsRange(int $storeId = null): bool
+    public function getSettlementReportsRange(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_SETTLEMENT_REPORTS_RANGE,
@@ -340,7 +340,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function isInContextModeActive(int $storeId = null): bool
+    public function isInContextModeActive(?int $storeId = null): bool
     {
         return (bool)$this->getValue(
             self::KEY_INCONTEXT_ACTIVE,
@@ -354,7 +354,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getInContextMode(int $storeId = null): ?string
+    public function getInContextMode(?int $storeId = null): ?string
     {
         return $this->getValue(
             self::KEY_INCONTEXT_MODE,
@@ -371,7 +371,7 @@ class Config extends PaymentConfig
      * @throws InputException
      * @throws NoSuchEntityException
      */
-    public function getGatewayURL(int $storeId = null, string $version = self::API_VERSION_V2): string
+    public function getGatewayURL(?int $storeId = null, string $version = self::API_VERSION_V2): string
     {
         $replaceValue = $this->getPaymentMode($storeId) === self::PAYMENT_MODE_SANDBOX ? self::PAYMENT_MODE_SANDBOX . '.' : '';
         return sprintf(self::GATEWAY_URL, $replaceValue, $version);

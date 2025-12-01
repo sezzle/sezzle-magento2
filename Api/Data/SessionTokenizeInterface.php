@@ -74,7 +74,7 @@ interface SessionTokenizeInterface
      * @param \Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterface $customer
      * @return $this
      */
-    public function setCustomer(TokenizeCustomerInterface $customer = null);
+    public function setCustomer(?TokenizeCustomerInterface $customer = null);
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\LinkInterface[]|null
@@ -85,6 +85,6 @@ interface SessionTokenizeInterface
      * @param \Sezzle\Sezzlepay\Api\Data\LinkInterface[] $links
      * @return $this
      */
-    public function setLinks(array $links = null);
+    public function setLinks(?array $links = null);
 
 }

@@ -86,7 +86,7 @@ interface CustomerInterface
      * @param \Sezzle\Sezzlepay\Api\Data\AddressInterface $billingAddress
      * @return $this
      */
-    public function setBillingAddress(AddressInterface $billingAddress = null);
+    public function setBillingAddress(?AddressInterface $billingAddress = null);
 
     /**
      * @return \Sezzle\Sezzlepay\Api\Data\AddressInterface|null
@@ -97,6 +97,6 @@ interface CustomerInterface
      * @param \Sezzle\Sezzlepay\Api\Data\AddressInterface $shippingAddress
      * @return $this
      */
-    public function setShippingAddress(AddressInterface $shippingAddress = null);
+    public function setShippingAddress(?AddressInterface $shippingAddress = null);
 
 }

@@ -75,7 +75,7 @@ class GuestCheckoutManagement implements GuestCheckoutManagementInterface
         string           $cartId,
         string           $email,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null): string
+        ?AddressInterface $billingAddress = null): string
     {
         if (!$this->paymentInformationManagement->savePaymentInformation(
             $cartId,

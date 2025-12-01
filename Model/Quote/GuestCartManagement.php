@@ -82,7 +82,7 @@ class GuestCartManagement implements GuestCartManagementInterface
     /**
      * @inheritDoc
      */
-    public function placeOrder(string $cartId, PaymentInterface $paymentMethod = null): int
+    public function placeOrder(string $cartId, ?PaymentInterface $paymentMethod = null): int
     {
         $log = [
             'masked_quote_id' => $cartId,

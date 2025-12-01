@@ -49,6 +49,6 @@ interface TokenizeCustomerInterface
      * @param \Sezzle\Sezzlepay\Api\Data\LinkInterface[] $links
      * @return $this
      */
-    public function setLinks(array $links = null);
+    public function setLinks(?array $links = null);
 
 }
