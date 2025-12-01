@@ -98,7 +98,7 @@ composer create-project --repository-url=https://repo.magento.com/ magento/proje
 ### Configure MAMP
 
 1. Open MAMP app
-1. Select `Web server`: `Apache` and `PHP version`: `8.3.14`
+1. Select `Web server`: `Apache` and `PHP version`: `8.4.1`
 1. Click Preferences
 1. In the `Ports` tab, set `Apache Port` and `Nginx Port` to `8888` and `MySQL Port` to `8889`
 1. In the `Server` tab, select `Use MySQL server`: `8.0.40`
@@ -175,6 +175,8 @@ cd ../../..
 ```
 
 *Note: Getting `Unknown module(s)` error during `module:enable`? Try this instead:*
+
+For older Magento versions:
 ```
 cd vendor && mkdir sezzle && cd sezzle && git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
 cd ../..
@@ -184,7 +186,7 @@ cd ../..
 
 ### Compile
 
-In Terminal, run the following:
+In Terminal (from magento/248), run the following:
 ```
 php -d memory_limit=-1 bin/magento module:enable Sezzle_Sezzlepay
 php -d memory_limit=-1 bin/magento setup:upgrade
@@ -284,7 +286,7 @@ php -d memory_limit=-1 bin/magento cache:clean
 
 ### Github Release Tag
 
-*Gitlab magento2AppFrontends project will automatically mirror to Github sezzle-magento2 project. Once that has occurred, the following steps must be completed manually*
+*Gitlab magento2AppFrontends project will automatically mirror to Github sezzle-magento2 project. Once that has occurred, the following steps must be completed manually. If this step is not completed, merchants will not be able to install the latest version via Composer*
 
 1. Go to https://github.com/sezzle/sezzle-magento2/releases
 1. Click `Draft a new release`
@@ -307,8 +309,8 @@ https://www.mageplaza.com/devdocs/how-install-magento-2-mac-osx.html
 
 Under `In-Context Settings`, merchants will see instructions to `Make sure you are approved by Sezzle for the InContext Checkout Solution to work.` If they wish to select Checkout Mode: `iframe`, they should contact us to perform the following:
 
-In `sezzle-checkout/deploy/default`, update `CONTENT_SECURITY_POLICY` for each applicable environment by appending the merchant's URL(s) to the `value`
+In `sezzle-checkout/deploy/values`, update `CONTENT_SECURITY_POLICY` under both `default` and `card` for each applicable environment by appending the merchant's URL(s) to the `value` within the `frame-ancestors` section of the string.
 
-Post the MR in the `#code-review-checkout` Slack channel for approval.
+Merchant team has been added to CODEOWNERS for this type of change. If checkout team review is needed, post the MR in the `#code-review-checkout` Slack channel for approval.
 
 _If they select Checkout Mode: `popup`, this is not necessary._
