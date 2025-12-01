@@ -18,7 +18,7 @@ use Sezzle\Sezzlepay\Block\Widget\PDP;
             "widgetRenderer": {
                 "price" : "<?php echo $block->escapeJs($block->getItemPrice()) ?>",
                 "alignment" : "<?php echo $block->escapeJs($block->getAlignment()) ?>",
-                "widget_url" : "<?php echo $block->escapeUrl($block->getWidgetURL()); ?>"
+                "widget_url" : "<?php echo $block->escapeJs($block->getWidgetURL()); ?>"
             }
         }
     }

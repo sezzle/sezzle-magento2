@@ -21,7 +21,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
         widgetQueueElement.click(function () {
             $(this).text(\$t("Adding to widget queue...")).attr('disabled', true);
             var self = this;
-            new Ajax.Request('{$block->escapeUrl($block->getWidgetQueueUrl())}', {
+            new Ajax.Request('{$block->escapeJs($block->getWidgetQueueUrl())}', {
                 loaderArea: false,
                 asynchronous: true,
                 onSuccess: function () {

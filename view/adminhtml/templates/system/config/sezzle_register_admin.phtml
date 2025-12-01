@@ -15,7 +15,7 @@ Module Version : <?php echo $block->escapeHtml($block->getSezzleModuleVersion())
 <div id="sezzle_config">
     <br/>
     <div data-mage-init='{
-        "Sezzle_Sezzlepay/js/config": <?php echo $block->escapeHtml($block->getJsonConfig()) ?> }'
+        "Sezzle_Sezzlepay/js/config": <?php echo /* @noEscape */ $block->getJsonConfig() ?> }'
          id="sezzle_config">
 
         <span class="sezzle-register">
