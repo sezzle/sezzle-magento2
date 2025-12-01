@@ -265,7 +265,7 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Update CHANGELOG.md
 1. Update `version` number in `composer.json`
 1. Delete previous version zip file
-1. `open ..`
+1. `open .`
 1. Select all *contents* of magento2AppFrontends and compress, renaming the zip file `sezzle_sezzlepay-{version}.zip`
 1. Merge to production
 
