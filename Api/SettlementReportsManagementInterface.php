@@ -32,7 +32,7 @@ interface SettlementReportsManagementInterface
      * @throws NotFoundException
      * @throws Exception
      */
-    public function syncAndSave($from = null, $to = null);
+    public function syncAndSave(?string $from = null, ?string $to = null);
 
     /**
      * Download settlement report details

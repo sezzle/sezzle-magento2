@@ -87,7 +87,7 @@ class SettlementReportsManagement implements SettlementReportsManagementInterfac
     /**
      * @inheritDoc
      */
-    public function syncAndSave($from = null, $to = null)
+    public function syncAndSave(?string $from = null, ?string $to = null)
     {
         $settlementReports = $this->v2->getSettlementSummaries($from, $to);
         if (empty($settlementReports)) {
