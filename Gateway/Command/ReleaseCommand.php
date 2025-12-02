@@ -133,18 +133,6 @@ class ReleaseCommand extends GatewayCommand
         // Get HTTP status code
         $httpStatus = $this->curl->getStatus();
 
-        // Print response to console and log
-        echo "\n========== SEZZLE RELEASE API RESPONSE ==========\n";
-        echo "HTTP Status: " . $httpStatus . "\n";
-        echo json_encode($response, JSON_PRETTY_PRINT);
-        echo "\n================================================\n\n";
-
-        $this->helper->logSezzleActions([
-            'log_origin' => __METHOD__,
-            'http_status' => $httpStatus,
-            'sezzle_response' => $response
-        ]);
-
         // Check if we should update the Magento order
         $shouldUpdateOrder = false;
 
@@ -152,21 +140,24 @@ class ReleaseCommand extends GatewayCommand
             // Success - update order
             $shouldUpdateOrder = true;
         } elseif ($httpStatus == 422) {
-            // code: "already_completed"
-            $shouldUpdateOrder = true;
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Order already released at Sezzle, updating Magento order anyway'
-            ]);
+            if($response[0] && isset($response[0]['code']) && $response[0]['code'] && $response[0]['code'] === 'already_completed') {
+                // if auth expired automatically or was manually released vis Sezzle dashboard, consider it successful and still update the order details in Magento
+                $shouldUpdateOrder = true;
+                $this->helper->logSezzleActions([
+                    'log_origin' => __METHOD__,
+                    'message' => 'Order already released at Sezzle, updating Magento order anyway'
+                ]);
+            }
         }
 
         if (!$shouldUpdateOrder) {
             // Don't update order for other error codes (401, 500, etc.)
-            $errorMessage = isset($response['message']) ? $response['message'] : 'Unknown error';
+            $errorMessage = ($response[0] && isset($response[0]['message'])) ? $response[0]['message'] : 'Unknown error';
             $this->helper->logSezzleActions([
                 'log_origin' => __METHOD__,
                 'message' => 'Release failed at Sezzle with non-recoverable error, not updating Magento order',
                 'http_status' => $httpStatus,
+                'sezzle_response' => $response,
                 'error' => $errorMessage
             ]);
             throw new CommandException(
