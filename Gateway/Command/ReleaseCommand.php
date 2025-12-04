@@ -136,7 +136,7 @@ class ReleaseCommand extends GatewayCommand
         // Check if we should update the Magento order
         $shouldUpdateOrder = false;
 
-        if ($httpStatus == 200 || $httpStatus == 422) {
+        if ($httpStatus == 200) {
             // Success - update order
             $shouldUpdateOrder = true;
         } elseif ($httpStatus == 422) {
