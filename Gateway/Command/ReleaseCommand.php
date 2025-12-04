@@ -196,8 +196,8 @@ class ReleaseCommand extends GatewayCommand
                 // Update the Magento order status to closed
                 $baseGrandTotal = $payment->getOrder()->getBaseGrandTotal();
                 $payment->setAdditionalInformation(ReleaseHandler::KEY_RELEASE_AMOUNT, $baseGrandTotal);
-                $payment->getOrder()->setState(Order::STATE_CLOSED)
-                    ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
+                $payment->getOrder()->setState(Order::STATE_CANCELED)
+                    ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED));
                 return;
             } 
 
