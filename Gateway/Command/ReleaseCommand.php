@@ -140,14 +140,12 @@ class ReleaseCommand extends GatewayCommand
             // Success - update order
             $shouldUpdateOrder = true;
         } elseif ($httpStatus == 422) {
-            if($response[0] && isset($response[0]['code']) && $response[0]['code'] && $response[0]['code'] === 'already_completed') {
-                // if auth expired automatically or was manually released vis Sezzle dashboard, consider it successful and still update the order details in Magento
-                $shouldUpdateOrder = true;
-                $this->helper->logSezzleActions([
-                    'log_origin' => __METHOD__,
-                    'message' => 'Order already released at Sezzle, updating Magento order anyway'
-                ]);
-            }
+            // if auth expired automatically or was manually released vis Sezzle dashboard, consider it successful and still update the order details in Magento
+            $shouldUpdateOrder = true;
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Order already released at Sezzle, updating Magento order anyway'
+            ]);
         }
 
         if (!$shouldUpdateOrder) {
