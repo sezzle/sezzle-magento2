@@ -71,7 +71,7 @@ class CustomerManagement implements CustomerManagementInterface
     public function createOrder(
         int              $cartId,
         PaymentInterface $paymentMethod,
-        AddressInterface $billingAddress = null): string
+        ?AddressInterface $billingAddress = null): string
     {
         if (!$this->paymentInformationManagement->savePaymentInformation(
             $cartId,

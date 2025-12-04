@@ -5,5 +5,14 @@
  * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
  */
 
+$links = $block->getLinks();
 ?>
-<div id="sezzle-payment-log"><?php echo /* @noEscape */ $block->getLinks(); ?></div>
+<div id="sezzle-payment-log">
+<?php if ($links && count($links) > 0): ?>
+    <?php foreach ($links as $link): ?>
+        <a href="<?= $block->escapeUrl($link['link']) ?>"><?= $block->escapeHtml($link['name']) ?></a><br />
+    <?php endforeach; ?>
+<?php else: ?>
+    <?= $block->escapeHtml(__('No logs are currently available.')) ?>
+<?php endif; ?>
+</div>

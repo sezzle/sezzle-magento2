@@ -95,24 +95,13 @@ class DeveloperLogs extends Field
     }
 
     /**
-     * Returns markup for developer log field.
+     * Returns array of log file links data.
      *
-     * @return Phrase|string
+     * @return array|null
      */
     public function getLinks()
     {
-        $links = $this->getLogFiles();
-
-        if ($links) {
-            $output = '';
-
-            foreach ($links as $link) {
-                $output .= '<a href="' . $link['link'] . '">' . $link['name'] . '</a><br />';
-            }
-
-            return $output;
-        }
-        return __('No logs are currently available.');
+        return $this->getLogFiles();
     }
 
     /**

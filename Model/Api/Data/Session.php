@@ -42,7 +42,7 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setOrder(SessionOrderInterface $sessionOrder = null)
+    public function setOrder(?SessionOrderInterface $sessionOrder = null)
     {
         $this->setData(self::ORDER, $sessionOrder);
     }
@@ -58,7 +58,7 @@ class Session extends AbstractExtensibleObject implements SessionInterface
     /**
      * @inheritDoc
      */
-    public function setTokenize(SessionTokenizeInterface $sessionTokenize = null)
+    public function setTokenize(?SessionTokenizeInterface $sessionTokenize = null)
     {
         $this->setData(self::TOKENIZE, $sessionTokenize);
     }

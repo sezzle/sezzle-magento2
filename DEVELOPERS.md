@@ -265,7 +265,7 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Update CHANGELOG.md
 1. Update `version` number in `composer.json`
 1. Delete previous version zip file
-1. `open ..`
+1. `open .`
 1. Select all *contents* of magento2AppFrontends and compress, renaming the zip file `sezzle_sezzlepay-{version}.zip`
 1. Merge to production
 
@@ -283,17 +283,37 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Copy entry from `CHANGELOG.md` to the `Release Notes` field
 1. Click `Submit`
 
-### Github Release Tag
+### GitLab Tag
 
-*Gitlab magento2AppFrontends project will automatically mirror to Github sezzle-magento2 project. Once that has occurred, the following steps must be completed manually*
+1. Go to https://gitlab.sezzle.com/Frontend/magento2AppFrontends/-/tags
+1. Click `New Tag`
+1. Enter `Tag Name` as the version number, i.e. `v7.0.23`
+1. In the `Create From` dropdown, select the branch which contains the updated Changelog.md and .zip file for the release
+1. Enter a message, if desired
+1. Click `Create Tag`
 
-1. Go to https://github.com/sezzle/sezzle-magento2/releases
+Alternatively, this can be accomplished via CLI, but only after the feature branch has been merged to production:
+
+*Update the version number and comment below as applicable*
+```
+git checkout production && git pull origin production
+git tag -a vA.B.C -m "<comment>"
+git push origin vA.B.C
+```
+
+### GitHub Release
+
+Gitlab magento2AppFrontends project will automatically mirror to Github sezzle-magento2 project. Once that has occurred AND the Adobe Marketplace submission has been approved, the following steps must be completed manually
+
+Go to https://github.com/sezzle/sezzle-magento2/releases
 1. Click `Draft a new release`
-1. Click `Choose a tag`, then enter the new version, following the existing format, then click `Creat a new tag... on publish`
+1. Click `Choose a tag`, then select the applicable version
 1. Enter `Release Title`: `Version {version}`
 1. In `Decribe this release`, copy + paste the CHANGELOG.md entry
     - No need to add attachments, the zip file will be added automatically.
 1. Ensure `Set as the latest release` is checked, then click `Publish release`
+
+*Note: Do not create the tag in Github only, as it will be deleted during the next Gitlab mirror, and the release will revert to Draft*
 
 <!-- to do: troubleshooting guide -->
 # External Resources

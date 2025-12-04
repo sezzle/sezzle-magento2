@@ -11,13 +11,13 @@ use Sezzle\Sezzlepay\Block\Widget\Cart;
 ?>
 <?php if ($block->isWidgetEnabledForCartPage()) : ?>
 <script type="text/x-magento-init">
-    {
+     {
         "*": {
             "widgetRenderer": {
-                "price" : "<?php echo $block->getGrandTotal() ?>",
-                "alignment" : "<?php echo $block->getAlignment() ?>",
+                "price" : "<?php echo $block->escapeJs($block->getGrandTotal()) ?>",
+                "alignment" : "<?php echo $block->escapeJs($block->getAlignment()) ?>",
                 "is_cart" : true,
-                "widget_url" : "<?php echo $block->getWidgetUrl(); ?>"
+                "widget_url" : "<?php echo $block->escapeJs($block->getWidgetUrl()); ?>"
             }
         }
     }

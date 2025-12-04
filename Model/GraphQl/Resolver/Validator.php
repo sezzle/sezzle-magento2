@@ -41,7 +41,7 @@ class Validator
      * @throws InvalidArgumentException
      * @throws NoSuchEntityException
      */
-    public function validateInput(ContextInterface $context, array $args = null)
+    public function validateInput(ContextInterface $context, ?array $args = null)
     {
         $storeId = (int)$context->getExtensionAttributes()->getStore()->getId();
 
