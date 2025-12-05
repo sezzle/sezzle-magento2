@@ -7,14 +7,11 @@ use Magento\Framework\HTTP\Client\Curl;
 use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\Command\GatewayCommand;
 use Magento\Payment\Gateway\ErrorMapper\ErrorMessageMapperInterface;
-use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Response\HandlerInterface;
 use Magento\Payment\Gateway\Validator\ValidatorInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\Payment;
 use Psr\Log\LoggerInterface;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Gateway\Response\ReleaseHandler;
@@ -29,11 +26,6 @@ class ReleaseCommand extends GatewayCommand
      * @var Data
      */
     private $helper;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var BuilderInterface
@@ -56,11 +48,6 @@ class ReleaseCommand extends GatewayCommand
     private $handler;
 
     /**
-     * @var ValidatorInterface|null
-     */
-    private $validator;
-
-    /**
      * @var Curl
      */
     private $curl;
@@ -73,7 +60,6 @@ class ReleaseCommand extends GatewayCommand
      * @param Data $helper
      * @param Curl $curl
      * @param HandlerInterface|null $handler
-     * @param ValidatorInterface|null $validator
      * @param ErrorMessageMapperInterface|null $errorMessageMapper
      */
     public function __construct(
@@ -84,7 +70,6 @@ class ReleaseCommand extends GatewayCommand
         Data                        $helper,
         Curl                        $curl,
         ?HandlerInterface            $handler = null,
-        ?ValidatorInterface          $validator = null,
         ?ErrorMessageMapperInterface $errorMessageMapper = null
     )
     {
@@ -94,16 +79,13 @@ class ReleaseCommand extends GatewayCommand
             $client,
             $logger,
             $handler,
-            $validator,
             $errorMessageMapper
         );
-        $this->logger = $logger;
         $this->helper = $helper;
         $this->requestBuilder = $requestBuilder;
         $this->transferFactory = $transferFactory;
         $this->client = $client;
         $this->handler = $handler;
-        $this->validator = $validator;
         $this->curl = $curl;
     }
 
