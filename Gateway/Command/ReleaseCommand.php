@@ -114,10 +114,6 @@ class ReleaseCommand extends GatewayCommand
      */
     public function execute(array $commandSubject): void
     {
-        $paymentDO = SubjectReader::readPayment($commandSubject);
-        /** @var Payment $payment */
-        $payment = $paymentDO->getPayment();
-
         $this->helper->logSezzleActions([
             'log_origin' => __METHOD__,
             'action' => 'release'
@@ -147,8 +143,15 @@ class ReleaseCommand extends GatewayCommand
                 'message' => 'Order already released at Sezzle, updating Magento order anyway'
             ]);
         }
-
-        if (!$shouldUpdateOrder) {
+        if ($shouldUpdateOrder) {
+            // Handle successful response
+            if ($this->handler) {
+                $this->handler->handle(
+                    $commandSubject,
+                    $response
+                );
+            }
+        } else {
             // Don't update order for other error codes (401, 500, etc.)
             $errorMessage = ($response[0] && isset($response[0]['message'])) ? $response[0]['message'] : 'Unknown error';
             $this->helper->logSezzleActions([
@@ -162,47 +165,5 @@ class ReleaseCommand extends GatewayCommand
                 __('Unable to release at Sezzle (HTTP %1): %2', $httpStatus, $errorMessage)
             );
         }
-
-        try {
-            // Validate response
-            if ($this->validator !== null) {
-                $result = $this->validator->validate(
-                    array_merge($commandSubject, ['response' => $response])
-                );
-                if (!$result->isValid()) {
-                    throw new CommandException(
-                        __('Release validation failed: %1', implode(', ', $result->getFailsDescription()))
-                    );
-                }
-            }
-
-            // Handle successful response
-            if ($this->handler) {
-                $this->handler->handle(
-                    $commandSubject,
-                    $response
-                );
-            }
-        } catch (CommandException | LocalizedException $e) {
-            // Validation or handling failed, but we should still update the order
-            // since HTTP status was 200 or 422 with "already_completed"
-            if($httpStatus == 200 || $httpStatus == 422){
-                $this->helper->logSezzleActions([
-                    'log_origin' => __METHOD__,
-                    'message' => 'Release validation/handling failed, but updating Magento order based on HTTP status',
-                    'error' => $e->getMessage()
-                ]);
-            
-                // Update the Magento order status to closed
-                $baseGrandTotal = $payment->getOrder()->getBaseGrandTotal();
-                $payment->setAdditionalInformation(ReleaseHandler::KEY_RELEASE_AMOUNT, $baseGrandTotal);
-                $payment->getOrder()->setState(Order::STATE_CANCELED)
-                    ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED));
-                return;
-            } 
-
-            throw $e;
-        }
     }
-
 }
