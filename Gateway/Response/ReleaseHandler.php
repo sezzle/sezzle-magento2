@@ -30,8 +30,8 @@ class ReleaseHandler implements HandlerInterface
         $payment = $paymentDO->getPayment();
 
         $payment->setAdditionalInformation(self::KEY_RELEASE_AMOUNT, $payment->getOrder()->getBaseGrandTotal())
-            ->setTransactionId($response['uuid']);
-        $payment->getOrder()->setState(Order::STATE_CLOSED)
-            ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
+            ->setTransactionId($response['uuid'] ?? null);
+        $payment->getOrder()->setState(Order::STATE_CANCELED)
+            ->setStatus($payment->getOrder()->getConfig()->getStateDefaultStatus(Order::STATE_CANCELED));
     }
 }

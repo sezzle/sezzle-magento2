@@ -6,9 +6,26 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.24
+
+_Fri 5 Dec 2025_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.4 and later.
+- Magento Commerce On Prem Edition (EE) version 2.4 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.4 and later.
+
+### Highlights
+
+- Update Cancel and Void actions to move Magento order to Canceled if Sezzle order auth is already expired or released
+
 ## Version 7.0.23
 
 _Fri 19 Sep 2025_
+_Re-Released: Wed 3 Dec 2025_
 
 ### Supported Editions & Versions
 
