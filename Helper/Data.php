@@ -125,16 +125,37 @@ class Data extends AbstractHelper
         $summary = [];
         $result = [];
 
-        $lines = str_getcsv($content, "\n");
+        $lines = str_getcsv($content, "\n", "\"", "\\");
         foreach ($lines as $index => $line) {
+            // Skip empty lines
+            if (trim($line) === '') {
+                continue;
+            }
+
             if ($index == 0 || $index == 2) {
                 if ($index == 2) {
                     $summary = $data;
                     unset($data);
+                    $data = ['header' => [], 'data' => []];
                 }
-                $data['header'] = str_getcsv($line);
+                $data['header'] = str_getcsv($line, ",", "\"", "\\");
             } else {
-                $row = array_combine($data['header'], str_getcsv($line));
+                $values = str_getcsv($line, ",", "\"", "\\");
+
+                // Validate that header and values have the same number of elements
+                if (count($data['header']) !== count($values)) {
+                    $this->logSezzleActions(sprintf(
+                        'CSV parsing warning: Header has %d columns but row %d has %d columns. Skipping row. Header: %s, Values: %s',
+                        count($data['header']),
+                        $index,
+                        count($values),
+                        json_encode($data['header']),
+                        json_encode($values)
+                    ));
+                    continue;
+                }
+
+                $row = array_combine($data['header'], $values);
                 $data['data'][] = $row;
             }
         }
