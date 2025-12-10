@@ -35,7 +35,7 @@
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>1</log_tracker>
                 <active_in_context>0</active_in_context>
-                <tokenize>1</tokenize>
+                <tokenize>0</tokenize>
                 <sort_order>0</sort_order>
                 <send_logs_via_cron>1</send_logs_via_cron>
                 <active_in_context>0</active_in_context>

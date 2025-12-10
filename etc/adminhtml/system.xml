@@ -66,7 +66,8 @@
                     <field id="tokenize" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Enable Customer Tokenization?</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <comment>Makes you enable Customer tokenization</comment>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Disabled</frontend_model>
+                        <comment><![CDATA[<strong style="color: #ff5501;">DEPRECATED:</strong> This feature has been disabled and is no longer supported. Existing tokenized customers can still be managed via the Sezzle tab of the Edit Customer page.]]></comment>
                         <config_path>payment/sezzlepay/tokenize</config_path>
                     </field>
                     <!--sort order-->
