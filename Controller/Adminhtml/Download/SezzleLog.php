@@ -66,10 +66,24 @@ class SezzleLog extends System
     }
 
     /**
+     * Get the path to the current day's log file
+     *
      * @return string
      */
     private function getFilePath(): string
     {
-        return Data::SEZZLE_LOG_FILE_PATH;
+        $baseLogPath = Data::SEZZLE_LOG_FILE_PATH;
+
+        // RotatingFileHandler creates dated log files: sezzlepay-YYYY-MM-DD.log
+        $dateStr = date('Y-m-d');
+        $datedLogPath = str_replace('.log', '-' . $dateStr . '.log', $baseLogPath);
+
+        // Use the dated log file if it exists (current day's logs)
+        // Fall back to base file for backwards compatibility
+        if (file_exists(BP . $datedLogPath)) {
+            return $datedLogPath;
+        }
+
+        return $baseLogPath;
     }
 }
