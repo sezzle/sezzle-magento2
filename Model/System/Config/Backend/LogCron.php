@@ -22,9 +22,9 @@ class LogCron extends Value
     const CRON_MODEL_PATH = 'payment/sezzlepay/send_logs_via_cron';
 
     /**
-     * Cron expression for log sending (every 5 hours)
+     * Cron expression for log sending (every 6 hours)
      */
-    const CRON_EXPRESSION = '0 */5 * * *';
+    const CRON_EXPRESSION = '0 */6 * * *';
 
     /**
      * @var ValueFactory

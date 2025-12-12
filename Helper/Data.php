@@ -200,6 +200,19 @@ class Data extends AbstractHelper
     }
 
     /**
+     * Get the path to the current day's log file
+     * RotatingFileHandler creates dated log files: sezzlepay-YYYY-MM-DD.log
+     *
+     * @param string|null $date Date in Y-m-d format, defaults to today
+     * @return string
+     */
+    public function getCurrentLogFilePath(?string $date = null): string
+    {
+        $dateStr = $date ?: date('Y-m-d');
+        return str_replace('.log', '-' . $dateStr . '.log', self::SEZZLE_LOG_FILE_PATH);
+    }
+
+    /**
      * Get platform details
      *
      * @param bool $encode

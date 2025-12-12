@@ -20,7 +20,7 @@ class Handler extends RotatingFileHandler
 
     /**
      * @param DriverInterface $filesystem
-     * @param string|null $filePath
+     * @param string|null $filePath Base log file path (RotatingFileHandler will append date: sezzlepay-YYYY-MM-DD.log)
      * @param int $maxFiles Maximum number of files to keep (0 = unlimited)
      * @param int $level The minimum logging level
      * @param bool $bubble Whether to bubble messages
@@ -32,6 +32,7 @@ class Handler extends RotatingFileHandler
         int $level = Logger::INFO,
         bool $bubble = true
     ) {
+        // RotatingFileHandler automatically creates date-based files: sezzlepay-YYYY-MM-DD.log
         $filePath = $filePath ?: BP . '/var/log/sezzlepay.log';
         parent::__construct($filePath, $maxFiles, $level, $bubble);
     }

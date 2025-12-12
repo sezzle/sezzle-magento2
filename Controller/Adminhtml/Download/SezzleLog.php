@@ -28,16 +28,24 @@ class SezzleLog extends System
     private $fileFactory;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * ClientLog constructor.
      * @param Context $context
      * @param FileFactory $fileFactory
+     * @param Data $helper
      */
     public function __construct(
         Context     $context,
-        FileFactory $fileFactory
+        FileFactory $fileFactory,
+        Data        $helper
     )
     {
         $this->fileFactory = $fileFactory;
+        $this->helper = $helper;
 
         parent::__construct($context);
     }
@@ -72,11 +80,7 @@ class SezzleLog extends System
      */
     private function getFilePath(): string
     {
-        $baseLogPath = Data::SEZZLE_LOG_FILE_PATH;
-
-        // RotatingFileHandler creates dated log files: sezzlepay-YYYY-MM-DD.log
-        $dateStr = date('Y-m-d');
-        $datedLogPath = str_replace('.log', '-' . $dateStr . '.log', $baseLogPath);
+        $datedLogPath = $this->helper->getCurrentLogFilePath();
 
         // Use the dated log file if it exists (current day's logs)
         // Fall back to base file for backwards compatibility
@@ -84,6 +88,6 @@ class SezzleLog extends System
             return $datedLogPath;
         }
 
-        return $baseLogPath;
+        return Data::SEZZLE_LOG_FILE_PATH;
     }
 }
