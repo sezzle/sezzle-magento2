@@ -198,17 +198,6 @@
                         <comment>If yes, all Sezzle actions will be logged</comment>
                         <config_path>payment/sezzlepay/log_tracker</config_path>
                     </field>
-                    <!-- send logs via cron -->
-                    <field id="send_logs_via_cron" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Send Logs to Sezzle</label>
-                        <depends>
-                            <field id="log_tracker">1</field>
-                        </depends>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <backend_model>Sezzle\Sezzlepay\Model\System\Config\Backend\LogCron</backend_model>
-                        <comment>If yes, sezzle.log will be sent every 5 hours to Sezzle. Make sure cron is enabled.</comment>
-                        <config_path>payment/sezzlepay/send_logs_via_cron</config_path>
-                    </field>
                     <!-- log download-->
                     <field id="log_download" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
                         <label>Developer Logs</label>

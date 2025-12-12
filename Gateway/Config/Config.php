@@ -35,7 +35,6 @@ class Config extends PaymentConfig
     const KEY_INCONTEXT_MODE = 'in_context_mode';
 
     const KEY_LOG_TRACKER = 'log_tracker';
-    const KEY_CRON_LOGS = 'send_logs_via_cron';
 
     const KEY_SETTLEMENT_REPORTS = 'settlement_reports';
     const KEY_SETTLEMENT_REPORTS_RANGE = 'settlement_reports_range';
@@ -288,20 +287,6 @@ class Config extends PaymentConfig
     {
         return (bool)$this->getValue(
             self::KEY_LOG_TRACKER,
-            $storeId ?? $this->storeConfigResolver->getStoreId()
-        );
-    }
-
-    /**
-     * @param int|null $storeId
-     * @return bool
-     * @throws InputException
-     * @throws NoSuchEntityException
-     */
-    public function isLogsSendingToSezzleAllowed(?int $storeId = null): bool
-    {
-        return (bool)$this->getValue(
-            self::KEY_CRON_LOGS,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
     }
