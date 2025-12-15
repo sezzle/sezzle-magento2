@@ -8,7 +8,7 @@
 
 ## Version 7.0.25
 
-_Thurs 11 Dec 2025_
+_Thurs 16 Dec 2025_
 
 ### Supported Editions & Versions
 
@@ -21,8 +21,9 @@ Tested and verified in clean installations of Magento 2:
 ### Highlights
 
 - Implement log rotation to prevent infinite growth of sezzlepay.log file
-- Disable Customer Tokenization config option, default to false going forward but keep Customer management features
+- Update Cron schedule and tooltip to every 6 hours
 - Fix cron associated with Send Logs to Sezzle config option, so logs send once for all stores and only when feature is enabled
+- Disable Customer Tokenization config option, default to false going forward but keep Customer management features
 - Fix PHP 8.4 compatibility bug in View Settlement Reports
 
 ## Version 7.0.24
