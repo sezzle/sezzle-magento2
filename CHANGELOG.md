@@ -6,6 +6,26 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.25
+
+_Thurs 16 Dec 2025_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.4 and later.
+- Magento Commerce On Prem Edition (EE) version 2.4 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.4 and later.
+
+### Highlights
+
+- Implement log rotation to prevent infinite growth of sezzlepay.log file
+- Update Cron schedule and tooltip to every 6 hours
+- Fix cron associated with Send Logs to Sezzle config option, so logs send once for all stores and only when feature is enabled
+- Disable Customer Tokenization config option, default to false going forward but keep Customer management features
+- Fix PHP 8.4 compatibility bug in View Settlement Reports
+
 ## Version 7.0.24
 
 _Fri 5 Dec 2025_

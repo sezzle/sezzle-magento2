@@ -57,16 +57,10 @@
         </arguments>
     </virtualType>
 
-    <virtualType name="SezzleVirtualDebugHandler" type="Magento\Framework\Logger\Handler\Base">
-        <arguments>
-            <argument name="fileName" xsi:type="string">/var/log/sezzlepay.log</argument>
-        </arguments>
-    </virtualType>
-
     <virtualType name="SezzleVirtualLogger" type="Magento\Framework\Logger\Monolog">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="debug" xsi:type="object">SezzleVirtualDebugHandler</item>
+                <item name="debug" xsi:type="object">Sezzle\Sezzlepay\Logger\Handler</item>
             </argument>
         </arguments>
     </virtualType>

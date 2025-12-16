@@ -85,10 +85,15 @@ class SezzleLog
             $this->helper->logSezzleActions("****Cron started****");
             $merchantUUID = $this->config->getMerchantUUID();
             $this->helper->logSezzleActions("Merchant UUID : $merchantUUID");
-            $logContents = $this->file->fileGetContents(BP . Data::SEZZLE_LOG_FILE_PATH);
+            $logFilePath = BP . $this->helper->getCurrentLogFilePath();
+            $logContents = $this->file->fileGetContents($logFilePath);
+            if($logContents === false || empty($logContents)){
+                $this->helper->logSezzleActions("No log contents to send.");
+                return;
+            }
             $this->v1->sendLogsToSezzle($merchantUUID, $logContents, $store->getId());
             $this->helper->logSezzleActions("****Cron end****");
-
+            return;
         }
     }
 }

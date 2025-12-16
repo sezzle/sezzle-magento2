@@ -311,8 +311,7 @@ class SavePlugin
             SezzleConfig::KEY_PAYMENT_ACTION => $this->isInherit(SezzleConfig::KEY_PAYMENT_ACTION, $paymentFields)
                 ? $oldConfig[SezzleConfig::KEY_PAYMENT_ACTION] :
                 (string)$paymentFields[SezzleConfig::KEY_PAYMENT_ACTION]['value'],
-            'tokenization_enabled' => $this->isInherit(SezzleConfig::KEY_TOKENIZE, $paymentFields)
-                ? (bool)$oldConfig[SezzleConfig::KEY_TOKENIZE] : (bool)$paymentFields[SezzleConfig::KEY_TOKENIZE]['value'],
+            'tokenization_enabled' => false,
             'store_url' => $this->urlManager->getBaseUrl()
         ];
     }

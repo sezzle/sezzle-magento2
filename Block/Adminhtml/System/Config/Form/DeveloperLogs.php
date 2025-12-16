@@ -40,20 +40,28 @@ class DeveloperLogs extends Field
     private $urlBuilder;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * DeveloperLogs constructor.
      * @param Context $context
      * @param DirectoryList $directoryList
      * @param UrlInterface $urlBuilder
+     * @param Data $helper
      * @param array $data
      */
     public function __construct(
         Context $context,
         DirectoryList $directoryList,
         UrlInterface $urlBuilder,
+        Data $helper,
         $data = []
     ) {
         $this->directoryList = $directoryList;
         $this->urlBuilder = $urlBuilder;
+        $this->helper = $helper;
         parent::__construct($context, $data);
     }
 
@@ -116,9 +124,14 @@ class DeveloperLogs extends Field
         $path = $this->directoryList->getPath(DirectoryList::ROOT);
 
         foreach ($this->logs as $name => $data) {
-            $filePath = $data['path'];
+            // Check for current day's log file (date-based rotation)
+            $currentLogPath = $this->helper->getCurrentLogFilePath();
+            $exists = file_exists($path . $currentLogPath);
 
-            $exists = file_exists($path . $filePath);
+            // Fall back to base path for backwards compatibility
+            if (!$exists) {
+                $exists = file_exists($path . $data['path']);
+            }
 
             if ($exists) {
                 $links[] = ['link' => $this->urlBuilder->getUrl(self::DOWNLOAD_PATH . '/' . $name), 'name' => $data['name']];

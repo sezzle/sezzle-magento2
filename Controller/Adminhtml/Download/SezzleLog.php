@@ -28,16 +28,24 @@ class SezzleLog extends System
     private $fileFactory;
 
     /**
+     * @var Data
+     */
+    private $helper;
+
+    /**
      * ClientLog constructor.
      * @param Context $context
      * @param FileFactory $fileFactory
+     * @param Data $helper
      */
     public function __construct(
         Context     $context,
-        FileFactory $fileFactory
+        FileFactory $fileFactory,
+        Data        $helper
     )
     {
         $this->fileFactory = $fileFactory;
+        $this->helper = $helper;
 
         parent::__construct($context);
     }
@@ -66,10 +74,20 @@ class SezzleLog extends System
     }
 
     /**
+     * Get the path to the current day's log file
+     *
      * @return string
      */
     private function getFilePath(): string
     {
+        $datedLogPath = $this->helper->getCurrentLogFilePath();
+
+        // Use the dated log file if it exists (current day's logs)
+        // Fall back to base file for backwards compatibility
+        if (file_exists(BP . $datedLogPath)) {
+            return $datedLogPath;
+        }
+
         return Data::SEZZLE_LOG_FILE_PATH;
     }
 }
