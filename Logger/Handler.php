@@ -4,7 +4,6 @@ namespace Sezzle\Sezzlepay\Logger;
 
 use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
-use Magento\Framework\Filesystem\DriverInterface;
 
 /**
  * Class Handler
@@ -19,14 +18,12 @@ class Handler extends RotatingFileHandler
     const MAX_FILES = 30;
 
     /**
-     * @param DriverInterface $filesystem
      * @param string|null $filePath Base log file path (RotatingFileHandler will append date: sezzlepay-YYYY-MM-DD.log)
      * @param int $maxFiles Maximum number of files to keep (0 = unlimited)
      * @param int $level The minimum logging level
      * @param bool $bubble Whether to bubble messages
      */
     public function __construct(
-        DriverInterface $filesystem,
         ?string $filePath = null,
         int $maxFiles = self::MAX_FILES,
         int $level = Logger::INFO,
