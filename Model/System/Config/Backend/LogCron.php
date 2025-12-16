@@ -63,16 +63,18 @@ class LogCron extends Value
     public function afterSave()
     {
         $cronExprString = '';
-
-        // Only set cron expression if log sending is enabled
-        if ($this->configValueFactory->create()->load(self::CRON_MODEL_PATH, 'path')->getValue()) {
+        
+        // Use THIS instance's value - it's already been validated and saved
+        if ($this->getValue()) {  // ← Use $this->getValue() instead
             $cronExprString = self::CRON_EXPRESSION;
         }
-
-        $this->configValueFactory->create()->load(
+        
+        $cronScheduleConfig = $this->configValueFactory->create()->load(
             self::CRON_STRING_PATH,
             'path'
-        )->setValue(
+        );
+        
+        $cronScheduleConfig->setValue(
             $cronExprString
         )->setPath(
             self::CRON_STRING_PATH
