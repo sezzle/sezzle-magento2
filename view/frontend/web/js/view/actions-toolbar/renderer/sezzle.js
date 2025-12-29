@@ -46,7 +46,13 @@ define(
              * @returns string
              */
             getSubmitButtonName: function () {
-                return this.hasCustomerUUID() ? "Place Order" : "Continue to Sezzle";
+                var isFrench = document.querySelector('html').lang?.indexOf('fr') === 0;
+
+                if (this.hasCustomerUUID()) {
+                    return isFrench ? "Passer la commande" : "Place Order";
+                } else {
+                    return isFrench ? "Continuez à Sezzle" : "Continue to Sezzle";
+                }
             },
 
             /**
