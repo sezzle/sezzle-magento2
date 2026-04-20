@@ -18,7 +18,6 @@ This method uses the [markshust/docker-magento](https://github.com/markshust/doc
 
 2. **Configure Docker file sharing**:
    - Add `Sites` directory to Docker file sharing settings
-   - Add `.composer` directory to Docker file sharing settings
 
 ### Installation Steps
 
