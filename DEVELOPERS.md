@@ -17,7 +17,7 @@ This method uses the [markshust/docker-magento](https://github.com/markshust/doc
 1. **Stop conflicting services**: This Docker setup creates its own database and Redis containers whose ports clash with MySQL and Redis from Sezzle-Compose. Before proceeding, stop your MySQL and Redis containers created from Sezzle-Compose.
 
 2. **Configure Docker file sharing**:
-   - Add `Sites` directory to Docker file sharing settings
+   - Add `Sites` directory to Docker file sharing settings(Docker Desktop under Settings>Resources>File Sharing)
 
 ### Installation Steps
 
