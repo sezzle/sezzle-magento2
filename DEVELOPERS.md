@@ -23,8 +23,8 @@ This method uses the [markshust/docker-magento](https://github.com/markshust/doc
 
 1. **Create the Magento directory**:
    ```bash
-   mkdir -p Sites/magento
-   cd Sites/magento
+   mkdir -p ~/Sites/magento
+   cd ~/Sites/magento
    ```
 
 2. **Run the one-line setup script**:
@@ -68,7 +68,7 @@ This method uses the [markshust/docker-magento](https://github.com/markshust/doc
    cd src/app/code/
    mkdir -p Sezzle/Sezzlepay
    cp -r ~/dev/magento2AppFrontends/. Sezzle/Sezzlepay/
-   cd ../..
+   cd ~/Sites/magento
    ```
    - Note: Replace `~/dev/magento2AppFrontends` with the actual path to your local clone of this repository
 
