@@ -46,23 +46,41 @@ This method uses the [markshust/docker-magento](https://github.com/markshust/doc
    bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
    ```
 
-5. **Install Sezzle Extension**:
+5. **Avoid port conflicts**:
+   - Edit `compose.yaml` to change the host ports to avoid conflicts with existing services:
+   ```yaml
+   db:
+     ports:
+       - "3307:3306"  # Changed from 3306:3306
+
+   redis:
+     ports:
+       - "6380:6379"  # Changed from 6379:6379
+   ```
+   - After making changes, restart the containers:
    ```bash
-   cd src/app/code/
-   mkdir -p sezzle
-   cd sezzle
-   git clone ssh://git@gitlab.sezzle.com:10022/Frontend/magento2AppFrontends.git sezzlepay
-   cd ../../..
+   ./bin/restart
    ```
 
-6. **Enable and compile the module**:
+6. **Install Sezzle Extension**:
+   - Ensure you have the magento2AppFrontends repository cloned locally (e.g., at `~/dev/magento2AppFrontends`)
+   - Copy the extension code to the Magento installation:
+   ```bash
+   cd src/app/code/
+   mkdir -p Sezzle/Sezzlepay
+   cp -r ~/dev/magento2AppFrontends/. Sezzle/Sezzlepay/
+   cd ../..
+   ```
+   - Note: Replace `~/dev/magento2AppFrontends` with the actual path to your local clone of this repository
+
+7. **Enable and compile the module**:
    ```bash
    bin/magento module:enable Sezzle_Sezzlepay
    bin/magento setup:upgrade
    bin/magento setup:di:compile
    ```
 
-7. **Deploy sample data** (optional):
+8. **Deploy sample data** (optional):
    - Sample products should be added during the initial setup. If they weren't, run the following command from the Magento root directory:
    ```bash
    bin/magento sampledata:deploy
