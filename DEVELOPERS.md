@@ -8,8 +8,92 @@
 
 All Sezzle developers should already have completed [Docker](https://gitlab.sezzle.com/sezzle/sezzle-compose) setup for Sezzle-Compose (although Sezzle-Compose will not be used for Magento setup).
 
+## Method 1: Using Docker
 
-### MAMP
+This method uses the [markshust/docker-magento](https://github.com/markshust/docker-magento) setup script to quickly provision a Magento 2 development environment.
+
+### Prerequisites
+
+1. **Stop conflicting services**: This Docker setup creates its own database and Redis containers whose ports clash with MySQL and Redis from Sezzle-Compose. Before proceeding, stop your MySQL and Redis containers created from Sezzle-Compose.
+
+2. **Configure Docker file sharing**:
+   - Add `Sites` directory to Docker file sharing settings(Docker Desktop under Settings>Resources>File Sharing)
+
+### Installation Steps
+
+1. **Create the Magento directory**:
+   ```bash
+   mkdir -p ~/Sites/magento
+   cd ~/Sites/magento
+   ```
+
+2. **Run the one-line setup script**:
+   ```bash
+   curl -s https://raw.githubusercontent.com/markshust/docker-magento/master/lib/onelinesetup | bash -s -- magento.test community 2.4.8-p3
+   ```
+   - This will prompt for your system password to add `magento.test` to `/etc/hosts` and install CA certificate
+   - When prompted for Magento access keys, retrieve them from 1Password under "Magento 2 Access Keys"
+
+3. **Complete initialization** (if installation stopped mid-way):
+   ```bash
+   chmod +x ./bin/init
+   ./bin/init
+   ```
+
+4. **Disable Two-Factor Authentication**:
+   ```bash
+   bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
+   ```
+
+5. **Avoid port conflicts**:
+   - Edit `compose.yaml` to change the host ports to avoid conflicts with existing services:
+   ```yaml
+   db:
+     ports:
+       - "3307:3306"  # Changed from 3306:3306
+
+   redis:
+     ports:
+       - "6380:6379"  # Changed from 6379:6379
+   ```
+   - After making changes, restart the containers:
+   ```bash
+   ./bin/restart
+   ```
+
+6. **Install Sezzle Extension**:
+   - Ensure you have the magento2AppFrontends repository cloned locally (e.g., at `~/dev/magento2AppFrontends`)
+   - Copy the extension code to the Magento installation:
+   ```bash
+   cd src/app/code/
+   mkdir -p Sezzle/Sezzlepay
+   cp -r ~/dev/magento2AppFrontends/. Sezzle/Sezzlepay/
+   cd ~/Sites/magento
+   ```
+   - Note: Replace `~/dev/magento2AppFrontends` with the actual path to your local clone of this repository
+
+7. **Enable and compile the module**:
+   ```bash
+   bin/magento module:enable Sezzle_Sezzlepay
+   bin/magento setup:upgrade
+   bin/magento setup:di:compile
+   ```
+
+8. **Deploy sample data** (optional):
+   - Sample products should be added during the initial setup. If they weren't, run the following command from the Magento root directory:
+   ```bash
+   bin/magento sampledata:deploy
+   ```
+
+### Access Information
+
+After successful installation, you can access the Magento admin panel:
+
+- **Admin URL**: `magento.test/admin`
+- **Username**: `john.smith`
+- **Password**: `password123`
+
+## Method 2: Using MAMP
 
 1. [Download MAMP](https://www.mamp.info/en/downloads/)
 1. Unzip the downloaded file, then drag & drop to the `Applications` folder
