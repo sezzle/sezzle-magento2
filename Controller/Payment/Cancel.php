@@ -9,6 +9,7 @@ namespace Sezzle\Sezzlepay\Controller\Payment;
 
 use Magento\Framework\Exception\LocalizedException;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
+use Throwable;
 
 /**
  * Class Cancel
@@ -23,7 +24,22 @@ class Cancel extends Sezzle
     public function execute()
     {
         $order = $this->getOrder();
-        $order->registerCancellation("Returned from Sezzle Checkout without completing payment.");
+        if ($order && $order->getId()) {
+            $order->registerCancellation("Returned from Sezzle Checkout without completing payment.");
+        }
+
+        try {
+            $quote = $this->checkoutSession->getQuote();
+            if ($quote && $quote->getId()) {
+                $this->sessionRecovery->release($quote);
+                $this->cartRepository->save($quote);
+            }
+        } catch (Throwable $e) {
+            $this->helper->logSezzleActions(
+                "Sezzle release-on-cancel recovery error: " . $e->getMessage()
+            );
+        }
+
         $this->helper->logSezzleActions(
             "Returned from Sezzle Checkout without completing payment. Order not created."
         );

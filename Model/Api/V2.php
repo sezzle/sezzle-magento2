@@ -11,6 +11,7 @@ use DateInterval;
 use Exception;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Payment\Gateway\Http\TransferFactoryInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
@@ -31,6 +32,7 @@ use Sezzle\Sezzlepay\Api\Data\TokenizeCustomerInterfaceFactory;
 use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Gateway\Http\Client;
 use Sezzle\Sezzlepay\Helper\Data as SezzleHelper;
+use Sezzle\Sezzlepay\Helper\Util;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 
 /**
@@ -47,6 +49,8 @@ class V2 implements V2Interface
     const SEZZLE_GET_SETTLEMENT_SUMMARIES_ENDPOINT = "/settlements/summaries";
     const SEZZLE_GET_SETTLEMENT_DETAILS_ENDPOINT = "/settlements/details/%s";
     const SEZZLE_SEND_CONFIG_ENDPOINT = "/configuration";
+    const SEZZLE_RELEASE_ORDER_ENDPOINT = "/order/%s/release";
+    const SEZZLE_REFUND_ORDER_ENDPOINT = "/order/%s/refund";
 
 
     /**
@@ -115,6 +119,11 @@ class V2 implements V2Interface
     private $requestBuilder;
 
     /**
+     * @var Curl
+     */
+    private $curl;
+
+    /**
      * V2 constructor.
      * @param DataObjectHelper $dataObjectHelper
      * @param SezzleHelper $sezzleHelper
@@ -129,6 +138,7 @@ class V2 implements V2Interface
      * @param BuilderInterface $requestBuilder
      * @param TransferFactoryInterface $transferFactory
      * @param Client $client
+     * @param Curl $curl
      */
     public function __construct(
         DataObjectHelper                 $dataObjectHelper,
@@ -143,7 +153,8 @@ class V2 implements V2Interface
         TimezoneInterface                $timezone,
         BuilderInterface                 $requestBuilder,
         TransferFactoryInterface         $transferFactory,
-        Client                           $client
+        Client                           $client,
+        Curl                             $curl
     )
     {
         $this->dataObjectHelper = $dataObjectHelper;
@@ -159,6 +170,7 @@ class V2 implements V2Interface
         $this->requestBuilder = $requestBuilder;
         $this->transferFactory = $transferFactory;
         $this->client = $client;
+        $this->curl = $curl;
     }
 
     /**
@@ -372,6 +384,76 @@ class V2 implements V2Interface
             throw new LocalizedException(
                 __('Queuing widget request error : %1', $e->getMessage())
             );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function releaseOrder(string $orderUUID, float $amount, string $currency, int $storeId): int
+    {
+        return $this->postOrderAction(
+            self::SEZZLE_RELEASE_ORDER_ENDPOINT,
+            $orderUUID,
+            $amount,
+            $currency,
+            $storeId
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function refundOrder(string $orderUUID, float $amount, string $currency, int $storeId): int
+    {
+        return $this->postOrderAction(
+            self::SEZZLE_REFUND_ORDER_ENDPOINT,
+            $orderUUID,
+            $amount,
+            $currency,
+            $storeId
+        );
+    }
+
+    /**
+     * Issue a POST against /order/{uuid}/{action} with the standard amount+currency
+     * payload, returning the HTTP status (0 on transport failure). Used by the
+     * checkout recovery path which decides between release and refund based on
+     * Sezzle's response.
+     */
+    private function postOrderAction(
+        string $endpointTemplate,
+        string $orderUUID,
+        float  $amount,
+        string $currency,
+        int    $storeId
+    ): int {
+        $uri = $this->config->getGatewayURL($storeId) . sprintf($endpointTemplate, $orderUUID);
+        try {
+            $transferO = $this->transferFactory->create([
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_POST,
+                '__uri' => $uri,
+                'amount_in_cents' => Util::formatToCents($amount),
+                'currency' => $currency,
+            ]);
+            $this->client->placeRequest($transferO);
+            $status = (int)$this->curl->getStatus();
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'endpoint' => $endpointTemplate,
+                'order_uuid' => $orderUUID,
+                'http_status' => $status
+            ]);
+            return $status;
+        } catch (Exception $e) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'endpoint' => $endpointTemplate,
+                'order_uuid' => $orderUUID,
+                'error' => $e->getMessage()
+            ]);
+            return 0;
         }
     }
 

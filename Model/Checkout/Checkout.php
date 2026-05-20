@@ -61,12 +61,18 @@ class Checkout implements CheckoutInterface
     private $cartRepository;
 
     /**
+     * @var SessionRecovery
+     */
+    private $sessionRecovery;
+
+    /**
      * @param V2Interface $v2
      * @param CustomerSession $customerSession
      * @param CheckoutSession $checkoutSession
      * @param QuoteResourceModel $quoteResourceModel
      * @param CheckoutValidator $checkoutValidator
      * @param CartRepositoryInterface $cartRepository
+     * @param SessionRecovery $sessionRecovery
      */
     public function __construct(
         V2Interface             $v2,
@@ -74,7 +80,8 @@ class Checkout implements CheckoutInterface
         CheckoutSession         $checkoutSession,
         QuoteResourceModel      $quoteResourceModel,
         CheckoutValidator       $checkoutValidator,
-        CartRepositoryInterface $cartRepository
+        CartRepositoryInterface $cartRepository,
+        SessionRecovery         $sessionRecovery
     )
     {
         $this->v2 = $v2;
@@ -83,6 +90,7 @@ class Checkout implements CheckoutInterface
         $this->quoteResourceModel = $quoteResourceModel;
         $this->checkoutValidator = $checkoutValidator;
         $this->cartRepository = $cartRepository;
+        $this->sessionRecovery = $sessionRecovery;
     }
 
 
@@ -131,6 +139,12 @@ class Checkout implements CheckoutInterface
      */
     private function createSession(CartInterface $quote): SessionInterface
     {
+        // Release any prior Sezzle order still attached to this quote before
+        // minting a new one — protects against duplicate charges when an
+        // earlier checkout attempt left an orphan auth (e.g. Complete.php
+        // never ran because the customer closed the tab).
+        $this->sessionRecovery->release($quote);
+
         $referenceID = uniqid() . "-" . $quote->getReservedOrderId();
         $this->additionalInformation[CustomerOrderRequestBuilder::KEY_REFERENCE_ID] = $referenceID;
         $session = $this->v2->createSession($referenceID, $quote);

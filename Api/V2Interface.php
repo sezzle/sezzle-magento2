@@ -81,4 +81,31 @@ interface V2Interface
      * @throws LocalizedException
      */
     public function sendConfig(array $config): void;
+
+    /**
+     * Release a Sezzle order authorization by UUID. Best-effort — returns the
+     * HTTP status from Sezzle (0 on transport failure). Callers branch on the
+     * status: 2xx means released; 4xx typically means the auth was already
+     * captured, in which case they should try refundOrder instead.
+     *
+     * @param string $orderUUID
+     * @param float $amount
+     * @param string $currency
+     * @param int $storeId
+     * @return int HTTP status code, or 0 on transport failure
+     */
+    public function releaseOrder(string $orderUUID, float $amount, string $currency, int $storeId): int;
+
+    /**
+     * Refund a Sezzle capture by UUID. Best-effort cleanup path used after a
+     * release attempt fails (which indicates funds were already captured).
+     * Returns the HTTP status from Sezzle (0 on transport failure).
+     *
+     * @param string $orderUUID
+     * @param float $amount
+     * @param string $currency
+     * @param int $storeId
+     * @return int HTTP status code, or 0 on transport failure
+     */
+    public function refundOrder(string $orderUUID, float $amount, string $currency, int $storeId): int;
 }

@@ -10,7 +10,9 @@ namespace Sezzle\Sezzlepay\Controller\Payment;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Quote\Api\Data\CartInterface;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
+use Throwable;
 
 /**
  * Class Complete
@@ -24,6 +26,7 @@ class Complete extends Sezzle
     public function execute()
     {
         $redirectPath = 'checkout/cart';
+        $quote = null;
         try {
             $quote = $this->checkoutSession->getQuote();
             $this->helper->logSezzleActions("Returned from Sezzle.");
@@ -46,22 +49,32 @@ class Complete extends Sezzle
             }
             $redirectPath = 'checkout/onepage/success';
         } catch (CouldNotSaveException|NoSuchEntityException|LocalizedException $e) {
-            $this->handleException($e);
+            $this->handleException($e, $quote);
         }
 
         return $this->resultRedirectFactory->create()->setPath($redirectPath);
     }
 
     /**
-     * Handling Exception
-     *
-     * @param mixed $exc
+     * Log the failure, release the Sezzle auth so funds aren't held until
+     * expiry, and surface the error to the customer. Recovery itself is
+     * best-effort — its own failure must not mask the original error.
      */
-    private function handleException($exc)
+    private function handleException(Throwable $exc, ?CartInterface $quote): void
     {
         $this->helper->logSezzleActions("Sezzle Transaction Exception: " . $exc->getMessage());
-        $this->messageManager->addErrorMessage(
-            $exc->getMessage()
-        );
+
+        if ($quote !== null && $quote->getId()) {
+            try {
+                $this->sessionRecovery->release($quote);
+                $this->cartRepository->save($quote);
+            } catch (Throwable $recoveryExc) {
+                $this->helper->logSezzleActions(
+                    "Sezzle release-on-failure recovery error: " . $recoveryExc->getMessage()
+                );
+            }
+        }
+
+        $this->messageManager->addErrorMessage($exc->getMessage());
     }
 }
