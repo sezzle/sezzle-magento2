@@ -26,6 +26,21 @@ interface V2Interface
     public function createSession(string $referenceId, CartInterface $quote): SessionInterface;
 
     /**
+     * Release (void) an authorized Sezzle order by its UUID.
+     *
+     * Best-effort cleanup used when a Magento order could not be created after the shopper
+     * was already authorized at Sezzle, so the authorization is not left stranded.
+     *
+     * @param string $orderUUID
+     * @param int $amountInCents
+     * @param string $currency
+     * @param int $storeId
+     * @return void
+     * @throws LocalizedException
+     */
+    public function releasePayment(string $orderUUID, int $amountInCents, string $currency, int $storeId): void;
+
+    /**
      * Get Customer by Customer UUID
      *
      * @param string $uri

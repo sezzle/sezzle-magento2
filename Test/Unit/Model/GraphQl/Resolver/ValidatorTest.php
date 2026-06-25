@@ -63,16 +63,16 @@ class ValidatorTest extends TestCase
 
         $this->contextMock = $this->getMockBuilder(ContextInterface::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getExtensionAttributes'])
+            ->onlyMethods(['getExtensionAttributes'])
             ->getMockForAbstractClass();
 
         $this->contextExtensionMock = $this->getMockBuilder(ContextExtensionInterface::class)
-            ->setMethods(['getStore'])
+            ->onlyMethods(['getStore'])
             ->getMockForAbstractClass();
 
         $this->storeMock = $this->getMockBuilder(Store::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->getMockForAbstractClass();
 
         $this->config = $this->createMock(Config::class);

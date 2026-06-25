@@ -142,7 +142,7 @@ class CreateSezzleCheckoutTest extends TestCase
             ->method('validateInput');
 
         $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -179,7 +179,7 @@ class CreateSezzleCheckoutTest extends TestCase
             ->method('validateInput');
 
         $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 

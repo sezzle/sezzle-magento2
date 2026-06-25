@@ -153,7 +153,7 @@ class CreateSezzleCustomerOrderTest extends TestCase
             ->method('validateInput');
 
         $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -195,7 +195,7 @@ class CreateSezzleCustomerOrderTest extends TestCase
             ->method('validateInput');
 
         $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -241,7 +241,7 @@ class CreateSezzleCustomerOrderTest extends TestCase
             ->method('validateInput');
 
         $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
