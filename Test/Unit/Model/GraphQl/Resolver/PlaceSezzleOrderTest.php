@@ -157,13 +157,15 @@ class PlaceSezzleOrderTest extends TestCase
      */
     private function makeQuote()
     {
-        return $this->getMockBuilder(Quote::class)
+        // QuoteStub declares the magic getCustomerEmail/getBase* getters as real methods so they
+        // can be mocked under PHPUnit 12 (MockBuilder::addMethods() was removed in PHPUnit 10+).
+        return $this->getMockBuilder(QuoteStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
                 'getId', 'setCheckoutMethod', 'getReservedOrderId',
-                'setReservedOrderId', 'reserveOrderId', 'getPayment', 'getStoreId'
+                'setReservedOrderId', 'reserveOrderId', 'getPayment', 'getStoreId',
+                'getCustomerEmail', 'getBaseGrandTotal', 'getBaseCurrencyCode'
             ])
-            ->addMethods(['getCustomerEmail', 'getBaseGrandTotal', 'getBaseCurrencyCode'])
             ->getMock();
     }
 
@@ -492,5 +494,84 @@ class PlaceSezzleOrderTest extends TestCase
             ['order' => ['order_number' => $reservedId, 'order_id' => $orderEntityId]],
             $this->resolve($cartHash)
         );
+    }
+
+    /**
+     * A reserved-id collision against an unrelated order regenerates the id and retries once.
+     */
+    public function testCollisionRegeneratesIdAndRetries()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $orderId = 12;
+        $orderNumber = '11113333';
+        $reservedId = '000000789';
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn($reservedId);
+
+        // Neither lookup finds an order for this cart: the increment id belongs to an unrelated
+        // order, so a fresh id is reserved and placeOrder is retried.
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturn($emptyOrder);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->method('get')->with($cartId)->willReturn($paymentMock);
+
+        $calls = 0;
+        $this->cartManagement->expects($this->exactly(2))
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willReturnCallback(function () use (&$calls, $orderId) {
+                if (++$calls === 1) {
+                    throw new AlreadyExistsException(__('Unique constraint violation found'));
+                }
+                return $orderId;
+            });
+
+        $quoteMock->expects($this->once())->method('setReservedOrderId')->with(null);
+        $quoteMock->expects($this->once())->method('reserveOrderId')->willReturnSelf();
+        $this->cartRepository->expects($this->once())->method('save')->with($quoteMock);
+
+        $orderMock = $this->makeOrder();
+        $orderMock->method('getIncrementId')->willReturn($orderNumber);
+        $orderMock->method('getId')->willReturn($orderId);
+        $this->orderRepository->expects($this->once())->method('get')->with($orderId)->willReturn($orderMock);
+
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->assertEquals(
+            ['order' => ['order_number' => $orderNumber, 'order_id' => $orderId]],
+            $this->resolve($cartHash)
+        );
+    }
+}
+
+/**
+ * Test double exposing Magento\Quote\Model\Quote's magic getCustomerEmail/getBase* getters as
+ * real methods so they can be mocked under PHPUnit 12, where MockBuilder::addMethods() was removed.
+ */
+class QuoteStub extends Quote
+{
+    public function getCustomerEmail()
+    {
+        return null;
+    }
+
+    public function getBaseGrandTotal()
+    {
+        return null;
+    }
+
+    public function getBaseCurrencyCode()
+    {
+        return null;
     }
 }

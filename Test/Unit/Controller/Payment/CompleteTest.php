@@ -7,6 +7,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
@@ -121,11 +122,12 @@ class CompleteTest extends TestCase
 
         $this->request = $this->createMock(RequestInterface::class);
         $this->customerSession = $this->createMock(CustomerSession::class);
-        $this->checkoutSession = $this->getMockBuilder(CheckoutSession::class)
+        // CheckoutSessionStub declares the magic Last* setters as real methods so they can
+        // be mocked under PHPUnit 12 (MockBuilder::addMethods() was removed in PHPUnit 10+).
+        $this->checkoutSession = $this->getMockBuilder(CheckoutSessionStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getQuote'])
-            ->addMethods([
-                'setLastQuoteId', 'setLastSuccessQuoteId', 'setLastOrderId',
+            ->onlyMethods([
+                'getQuote', 'setLastQuoteId', 'setLastSuccessQuoteId', 'setLastOrderId',
                 'setLastRealOrderId', 'setLastOrderStatus'
             ])
             ->getMock();
@@ -180,13 +182,15 @@ class CompleteTest extends TestCase
      */
     private function makeQuote()
     {
-        return $this->getMockBuilder(Quote::class)
+        // QuoteStub declares the magic getBase* getters as real methods so they can be mocked
+        // under PHPUnit 12 (MockBuilder::addMethods() was removed in PHPUnit 10+).
+        return $this->getMockBuilder(QuoteStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
                 'getId', 'getReservedOrderId', 'setReservedOrderId',
-                'reserveOrderId', 'getPayment', 'getStoreId'
+                'reserveOrderId', 'getPayment', 'getStoreId',
+                'getBaseGrandTotal', 'getBaseCurrencyCode'
             ])
-            ->addMethods(['getBaseGrandTotal', 'getBaseCurrencyCode'])
             ->getMock();
     }
 
@@ -281,5 +285,130 @@ class CompleteTest extends TestCase
         $this->redirect->expects($this->once())->method('setPath')->with(self::CART_PATH);
 
         $this->assertSame($this->redirect, $this->controller->execute());
+    }
+
+    public function testReservedIdCollisionReturnsConcurrentlyPlacedOrder()
+    {
+        $quote = $this->makeQuote();
+        $this->checkoutSession->method('getQuote')->willReturn($quote);
+        $quote->method('getReservedOrderId')->willReturn('000000123');
+        $quote->method('getId')->willReturn(10);
+        $this->request->method('getParam')->with('customer-uuid')->willReturn(null);
+        $this->customerSession->method('isLoggedIn')->willReturn(true);
+
+        // First lookup (idempotency guard) finds nothing; placeOrder then collides because a
+        // concurrent request placed the order; the second lookup finds it.
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+
+        $foundOrder = $this->makeOrder();
+        $foundOrder->method('loadByIncrementId')->with('000000123')->willReturnSelf();
+        $foundOrder->method('getId')->willReturn(5);
+        $foundOrder->method('getQuoteId')->willReturn(10);
+        $foundOrder->method('getIncrementId')->willReturn('000000123');
+        $foundOrder->method('getStatus')->willReturn('pending');
+        $this->orderFactory->method('create')->willReturnOnConsecutiveCalls($emptyOrder, $foundOrder);
+
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with(10)
+            ->willThrowException(new AlreadyExistsException(__('Unique constraint violation found')));
+        $this->guestCartManagement->expects($this->never())->method('placeOrder');
+
+        // The order exists, so no fresh id is reserved and no authorization is released.
+        $quote->expects($this->never())->method('reserveOrderId');
+        $this->cartRepository->expects($this->never())->method('save');
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->checkoutSession->expects($this->once())
+            ->method('setLastRealOrderId')->with('000000123')->willReturnSelf();
+        $this->redirect->expects($this->once())->method('setPath')->with(self::SUCCESS_PATH);
+
+        $this->assertSame($this->redirect, $this->controller->execute());
+    }
+
+    public function testReservedIdCollisionRegeneratesIdAndRetries()
+    {
+        $quote = $this->makeQuote();
+        $this->checkoutSession->method('getQuote')->willReturn($quote);
+        $quote->method('getReservedOrderId')->willReturn('000000123');
+        $quote->method('getId')->willReturn(10);
+        $this->request->method('getParam')->with('customer-uuid')->willReturn(null);
+        $this->customerSession->method('isLoggedIn')->willReturn(true);
+
+        // Both lookups find no order for this quote: the increment id was consumed by an
+        // unrelated order, so a fresh id must be reserved and placeOrder retried once.
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturn($emptyOrder);
+
+        $calls = 0;
+        $this->cartManagement->expects($this->exactly(2))
+            ->method('placeOrder')->with(10)
+            ->willReturnCallback(function () use (&$calls) {
+                if (++$calls === 1) {
+                    throw new AlreadyExistsException(__('Unique constraint violation found'));
+                }
+                return 200;
+            });
+
+        // A fresh reserved id is generated and persisted before the retry.
+        $quote->expects($this->once())->method('setReservedOrderId')->with(null);
+        $quote->expects($this->once())->method('reserveOrderId')->willReturnSelf();
+        $this->cartRepository->expects($this->once())->method('save')->with($quote);
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->redirect->expects($this->once())->method('setPath')->with(self::SUCCESS_PATH);
+
+        $this->assertSame($this->redirect, $this->controller->execute());
+    }
+}
+
+/**
+ * Test double exposing Magento\Checkout\Model\Session's magic Last* setters as real methods so
+ * they can be mocked under PHPUnit 12, where MockBuilder::addMethods() was removed.
+ */
+class CheckoutSessionStub extends CheckoutSession
+{
+    public function setLastQuoteId($quoteId)
+    {
+        return $this;
+    }
+
+    public function setLastSuccessQuoteId($quoteId)
+    {
+        return $this;
+    }
+
+    public function setLastOrderId($orderId)
+    {
+        return $this;
+    }
+
+    public function setLastRealOrderId($realOrderId)
+    {
+        return $this;
+    }
+
+    public function setLastOrderStatus($status)
+    {
+        return $this;
+    }
+}
+
+/**
+ * Test double exposing Magento\Quote\Model\Quote's magic getBase* getters as real methods.
+ */
+class QuoteStub extends Quote
+{
+    public function getBaseGrandTotal()
+    {
+        return null;
+    }
+
+    public function getBaseCurrencyCode()
+    {
+        return null;
     }
 }
