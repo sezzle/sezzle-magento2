@@ -5,7 +5,6 @@ namespace Sezzle\Sezzlepay\Gateway\Response;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Payment\Model\Method\Adapter;
 use Magento\Sales\Model\Order\Payment;
 use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 
@@ -16,21 +15,6 @@ class CaptureHandler implements HandlerInterface
 {
 
     const KEY_CAPTURE_AMOUNT = 'sezzle_capture_amount';
-
-    /**
-     * @var Adapter
-     */
-    private $adapter;
-
-    /**
-     * CaptureHandler constructor
-     *
-     * @param Adapter $adapter
-     */
-    public function __construct(Adapter $adapter)
-    {
-        $this->adapter = $adapter;
-    }
 
     /**
      * @param array $handlingSubject
@@ -58,7 +42,7 @@ class CaptureHandler implements HandlerInterface
 
         $payment->setAdditionalInformation(self::KEY_CAPTURE_AMOUNT, $capturedAmount)
             ->setAdditionalInformation($response['uuid'], $orderUUID)
-            ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
+            ->setAdditionalInformation('payment_type', $payment->getMethodInstance()->getConfigPaymentAction())
             ->setTransactionId($response['uuid'])
             ->setIsTransactionClosed(true);
     }

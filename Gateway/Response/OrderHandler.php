@@ -5,7 +5,6 @@ namespace Sezzle\Sezzlepay\Gateway\Response;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Payment\Gateway\Response\HandlerInterface;
-use Magento\Payment\Model\Method\Adapter;
 use Magento\Payment\Model\MethodInterface;
 use Magento\Sales\Model\Order\Payment;
 use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
@@ -16,21 +15,6 @@ use Sezzle\Sezzlepay\Gateway\Validator\AuthorizationValidator;
  */
 class OrderHandler implements HandlerInterface
 {
-
-    /**
-     * @var Adapter
-     */
-    private $adapter;
-
-    /**
-     * OrderHandler constructor
-     *
-     * @param Adapter $adapter
-     */
-    public function __construct(Adapter $adapter)
-    {
-        $this->adapter = $adapter;
-    }
 
     /**
      * @param array $handlingSubject
@@ -45,7 +29,11 @@ class OrderHandler implements HandlerInterface
         /** @var Payment $payment */
         $payment = $paymentDO->getPayment();
 
-        if ($this->adapter->getConfigPaymentAction() === MethodInterface::ACTION_AUTHORIZE) {
+        // Read the configured payment action from the payment's own method instance rather
+        // than a bare injected adapter: getMethodInstance() binds the info instance, which
+        // plugins on getConfigPaymentAction() (e.g. Braintree's) dereference without a null
+        // check. A shared facade with no info instance would otherwise fatal here.
+        if ($payment->getMethodInstance()->getConfigPaymentAction() === MethodInterface::ACTION_AUTHORIZE) {
             $payment->setAdditionalInformation(AuthorizationValidator::KEY_AUTH_EXPIRY, $response['authorization']['expiration']);
         }
     }
