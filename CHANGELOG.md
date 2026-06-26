@@ -8,7 +8,7 @@
 
 ## Version 7.0.27
 
-_Thurs 25 Jun 2026_
+_Thurs 26 Jun 2026_
 
 ### Supported Editions & Versions
 
