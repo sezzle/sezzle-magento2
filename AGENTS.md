@@ -18,21 +18,21 @@ Developed within a full Magento 2 installation using MAMP + OpenSearch:
    docker start opensearch
 
    # Open MAMP and start Apache/MySQL
-   # Ensure Document Root is set to: /Applications/MAMP/htdocs/magento/248/pub
+   # Ensure Document Root is set to: /Applications/MAMP/htdocs/magento/249/pub
    ```
 > Note: If the `opensearch` container has not been created yet, follow the OpenSearch setup steps in `DEVELOPERS.md`.
 
 2. Development location:
    ```bash
    # Extension code is at:
-   /Applications/MAMP/htdocs/magento/248/vendor/sezzle/sezzlepay
+   /Applications/MAMP/htdocs/magento/249/vendor/sezzle/sezzlepay
    # OR (manual install):
-   /Applications/MAMP/htdocs/magento/248/app/code/Sezzle/Sezzlepay
+   /Applications/MAMP/htdocs/magento/249/app/code/Sezzle/Sezzlepay
    ```
 
 3. After making changes:
    ```bash
-   cd /Applications/MAMP/htdocs/magento/248
+   cd /Applications/MAMP/htdocs/magento/249
    php -d memory_limit=-1 bin/magento setup:upgrade  # database changes
    php -d memory_limit=-1 bin/magento setup:di:compile  # dependency changes
    php -d memory_limit=-1 bin/magento setup:static-content:deploy -f  # HTML/CSS/JS
