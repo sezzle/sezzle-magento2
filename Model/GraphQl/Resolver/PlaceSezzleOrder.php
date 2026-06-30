@@ -12,17 +12,13 @@ use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Api\PaymentMethodManagementInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\OrderFactory;
 use Sezzle\Sezzlepay\Api\CartManagementInterface;
 use Magento\QuoteGraphQl\Model\Cart\CheckCartCheckoutAllowance;
-use Sezzle\Sezzlepay\Api\V2Interface;
-use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 use Sezzle\Sezzlepay\Helper\Data;
-use Sezzle\Sezzlepay\Helper\Util;
+use Sezzle\Sezzlepay\Model\OrderRecoveryService;
 
 /**
  * PlaceSezzleOrder
@@ -66,14 +62,9 @@ class PlaceSezzleOrder implements ResolverInterface
     private $cartRepository;
 
     /**
-     * @var OrderFactory
+     * @var OrderRecoveryService
      */
-    private $orderFactory;
-
-    /**
-     * @var V2Interface
-     */
-    private $v2;
+    private $orderRecovery;
 
     /**
      * @var Data
@@ -89,8 +80,7 @@ class PlaceSezzleOrder implements ResolverInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param PaymentMethodManagementInterface $paymentMethodManagement
      * @param CartRepositoryInterface $cartRepository
-     * @param OrderFactory $orderFactory
-     * @param V2Interface $v2
+     * @param OrderRecoveryService $orderRecovery
      * @param Data $helper
      */
     public function __construct(
@@ -101,8 +91,7 @@ class PlaceSezzleOrder implements ResolverInterface
         OrderRepositoryInterface         $orderRepository,
         PaymentMethodManagementInterface $paymentMethodManagement,
         CartRepositoryInterface          $cartRepository,
-        OrderFactory                     $orderFactory,
-        V2Interface                      $v2,
+        OrderRecoveryService             $orderRecovery,
         Data                             $helper
     )
     {
@@ -113,8 +102,7 @@ class PlaceSezzleOrder implements ResolverInterface
         $this->orderRepository = $orderRepository;
         $this->paymentMethodManagement = $paymentMethodManagement;
         $this->cartRepository = $cartRepository;
-        $this->orderFactory = $orderFactory;
-        $this->v2 = $v2;
+        $this->orderRecovery = $orderRecovery;
         $this->helper = $helper;
     }
 
@@ -142,7 +130,7 @@ class PlaceSezzleOrder implements ResolverInterface
             // double submit). Re-submitting reuses the reserved increment ID and fails with
             // "Unique constraint violation found", stranding the Sezzle authorization. If the
             // order already exists for this cart, return it instead of resubmitting.
-            $order = $this->getExistingOrder($cart);
+            $order = $this->orderRecovery->getExistingOrder($cart);
             if ($order === null) {
                 $order = $this->placeWithCollisionRecovery($cart, $cartId);
             }
@@ -156,9 +144,28 @@ class PlaceSezzleOrder implements ResolverInterface
         } catch (NoSuchEntityException $e) {
             throw new GraphQlNoSuchEntityException(__($e->getMessage()), $e);
         } catch (LocalizedException $e) {
+            // Last-resort recovery: the exception may have come from an observer or
+            // post-processing step that ran after the order was already persisted. If the
+            // order exists, return it rather than releasing a live authorization and
+            // surfacing an error for an order the shopper actually placed.
+            if ($order = $this->orderRecovery->getExistingOrder($cart)) {
+                $this->helper->logSezzleActions([
+                    'log_origin' => __METHOD__,
+                    'message' => 'Recovered already-placed order after exception',
+                    'order_id' => $order->getId(),
+                    'error' => $e->getMessage()
+                ]);
+                return [
+                    'order' => [
+                        'order_number' => $order->getIncrementId(),
+                        'order_id' => $order->getId(),
+                    ],
+                ];
+            }
+
             // No Magento order was created but the shopper may already be authorized at
             // Sezzle. Release that authorization so it does not sit pending / expire.
-            $this->releaseStrandedAuthorization($cart);
+            $this->orderRecovery->releaseStrandedAuthorization($cart);
             throw new GraphQlInputException(
                 __('Unable to place Sezzle order: %message', ['message' => $e->getMessage()]), $e);
         }
@@ -186,7 +193,7 @@ class PlaceSezzleOrder implements ResolverInterface
 
             // The colliding order belongs to this cart - it was placed by a concurrent
             // request. Return it rather than surfacing a DB error.
-            if ($existing = $this->getExistingOrder($cart)) {
+            if ($existing = $this->orderRecovery->getExistingOrder($cart)) {
                 return $existing;
             }
 
@@ -199,64 +206,5 @@ class PlaceSezzleOrder implements ResolverInterface
         }
 
         return $this->orderRepository->get($orderId);
-    }
-
-    /**
-     * Return the order already placed for this cart, if one exists.
-     *
-     * @param CartInterface $cart
-     * @return OrderInterface|null
-     */
-    private function getExistingOrder(CartInterface $cart): ?OrderInterface
-    {
-        $reservedId = $cart->getReservedOrderId();
-        if (!$reservedId) {
-            return null;
-        }
-
-        $order = $this->orderFactory->create()->loadByIncrementId($reservedId);
-        if ($order->getId() && (int)$order->getQuoteId() === (int)$cart->getId()) {
-            return $order;
-        }
-
-        return null;
-    }
-
-    /**
-     * Best-effort release of a Sezzle authorization left stranded when the Magento order
-     * could not be created. Never interrupts the response flow.
-     *
-     * @param CartInterface $cart
-     * @return void
-     */
-    private function releaseStrandedAuthorization(CartInterface $cart): void
-    {
-        try {
-            $payment = $cart->getPayment();
-            $orderUUID = $payment
-                ? $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID)
-                : null;
-            if (!$orderUUID) {
-                return;
-            }
-
-            $this->v2->releasePayment(
-                $orderUUID,
-                Util::formatToCents($cart->getBaseGrandTotal()),
-                (string)$cart->getBaseCurrencyCode(),
-                (int)$cart->getStoreId()
-            );
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Released stranded Sezzle authorization after failed order creation',
-                'order_uuid' => $orderUUID
-            ]);
-        } catch (\Exception $e) {
-            $this->helper->logSezzleActions([
-                'log_origin' => __METHOD__,
-                'message' => 'Failed to release stranded Sezzle authorization',
-                'error' => $e->getMessage()
-            ]);
-        }
     }
 }

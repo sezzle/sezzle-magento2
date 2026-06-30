@@ -40,7 +40,7 @@ class Complete extends Sezzle
             // fails with "Unique constraint violation found", which leaves the shopper with
             // an authorized-but-uncaptured Sezzle order and no Magento order. If the order
             // already exists for this quote, send the shopper straight to the success page.
-            if ($order = $this->getExistingOrder($quote)) {
+            if ($order = $this->orderRecovery->getExistingOrder($quote)) {
                 $this->helper->logSezzleActions([
                     'log_origin' => __METHOD__,
                     'message' => 'Order already placed for this quote; skipping resubmission',
@@ -68,7 +68,7 @@ class Complete extends Sezzle
             // Last-resort recovery: the failure may have been a reserved-id collision while
             // the order was in fact placed for this quote by a concurrent request. If so,
             // land the shopper on success instead of showing a raw error.
-            if ($quote !== null && $order = $this->getExistingOrder($quote)) {
+            if ($quote !== null && $order = $this->orderRecovery->getExistingOrder($quote)) {
                 $this->helper->logSezzleActions([
                     'log_origin' => __METHOD__,
                     'message' => 'Recovered already-placed order after exception',
@@ -83,7 +83,7 @@ class Complete extends Sezzle
             // No Magento order was created but the shopper may already be authorized at
             // Sezzle. Release that authorization so it does not sit pending / expire.
             if ($quote !== null) {
-                $this->releaseStrandedAuthorization($quote);
+                $this->orderRecovery->releaseStrandedAuthorization($quote);
             }
             $this->handleException($e);
         }
@@ -119,7 +119,7 @@ class Complete extends Sezzle
 
             // If the colliding order belongs to this quote, it was placed by a concurrent
             // request - treat it as success rather than surfacing a DB error.
-            if ($order = $this->getExistingOrder($quote)) {
+            if ($order = $this->orderRecovery->getExistingOrder($quote)) {
                 $this->restoreCheckoutSession($quote, $order);
 
                 return (int)$order->getId();
@@ -139,28 +139,6 @@ class Complete extends Sezzle
 
             return (int)$this->{$cartManager}->placeOrder($resolvedId);
         }
-    }
-
-    /**
-     * Return the order already placed for this quote, if one exists.
-     *
-     * @param CartInterface $quote
-     * @return Order|null
-     */
-    private function getExistingOrder(CartInterface $quote): ?Order
-    {
-        $reservedId = $quote->getReservedOrderId();
-        if (!$reservedId) {
-            return null;
-        }
-
-        /** @var Order $order */
-        $order = $this->orderFactory->create()->loadByIncrementId($reservedId);
-        if ($order->getId() && (int)$order->getQuoteId() === (int)$quote->getId()) {
-            return $order;
-        }
-
-        return null;
     }
 
     /**

@@ -26,6 +26,7 @@ use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Controller\Payment\Complete;
 use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\OrderRecoveryService;
 use Sezzle\Sezzlepay\Model\Tokenize;
 
 /**
@@ -157,6 +158,11 @@ class CompleteTest extends TestCase
         $this->cartRepository = $this->createMock(CartRepositoryInterface::class);
         $this->v2 = $this->createMock(V2Interface::class);
 
+        // The controller delegates order lookup / authorization release to OrderRecoveryService.
+        // Use a real service over the same orderFactory/v2/helper mocks so the existing
+        // expectations on those collaborators continue to exercise the delegated behaviour.
+        $orderRecovery = new OrderRecoveryService($this->orderFactory, $this->v2, $this->helper);
+
         $this->controller = $this->objectManager->getObject(
             Complete::class,
             [
@@ -172,7 +178,7 @@ class CompleteTest extends TestCase
                 'cartManagement' => $this->cartManagement,
                 'guestCartManagement' => $this->guestCartManagement,
                 'cartRepository' => $this->cartRepository,
-                'v2' => $this->v2,
+                'orderRecovery' => $orderRecovery,
             ]
         );
     }

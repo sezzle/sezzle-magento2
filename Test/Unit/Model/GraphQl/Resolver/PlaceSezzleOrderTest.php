@@ -28,6 +28,7 @@ use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\GetCartForUser;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\PlaceSezzleOrder;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\Validator;
+use Sezzle\Sezzlepay\Model\OrderRecoveryService;
 
 /**
  * @covers \Sezzle\Sezzlepay\Model\GraphQl\Resolver\PlaceSezzleOrder
@@ -135,6 +136,11 @@ class PlaceSezzleOrderTest extends TestCase
         $this->v2 = $this->createMock(V2Interface::class);
         $this->helper = $this->createMock(Data::class);
 
+        // The resolver delegates order lookup / authorization release to OrderRecoveryService.
+        // Use a real service over the same orderFactory/v2/helper mocks so the existing
+        // expectations on those collaborators continue to exercise the delegated behaviour.
+        $orderRecovery = new OrderRecoveryService($this->orderFactory, $this->v2, $this->helper);
+
         $this->resolver = $this->objectManager->getObject(
             PlaceSezzleOrder::class,
             [
@@ -145,8 +151,7 @@ class PlaceSezzleOrderTest extends TestCase
                 'orderRepository' => $this->orderRepository,
                 'paymentMethodManagement' => $this->paymentMethodManagement,
                 'cartRepository' => $this->cartRepository,
-                'orderFactory' => $this->orderFactory,
-                'v2' => $this->v2,
+                'orderRecovery' => $orderRecovery,
                 'helper' => $this->helper,
             ]
         );
@@ -549,6 +554,59 @@ class PlaceSezzleOrderTest extends TestCase
 
         $this->assertEquals(
             ['order' => ['order_number' => $orderNumber, 'order_id' => $orderId]],
+            $this->resolve($cartHash)
+        );
+    }
+
+    /**
+     * A non-AlreadyExists LocalizedException (e.g. from an observer / post-processing) thrown after
+     * the order was persisted is recovered: the placed order is returned and no authorization is
+     * released.
+     */
+    public function testLocalizedExceptionRecoversAlreadyPlacedOrder()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $orderEntityId = 15;
+        $reservedId = '000000999';
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn($reservedId);
+
+        // First lookup (idempotency pre-check) finds nothing; the post-exception lookup finds the
+        // order that was persisted before the observer/post-processing step threw.
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+
+        $foundOrder = $this->makeOrder();
+        $foundOrder->method('loadByIncrementId')->willReturnSelf();
+        $foundOrder->method('getId')->willReturn($orderEntityId);
+        $foundOrder->method('getQuoteId')->willReturn($cartId);
+        $foundOrder->method('getIncrementId')->willReturn($reservedId);
+
+        $this->orderFactory->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnOnConsecutiveCalls($emptyOrder, $foundOrder);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->expects($this->once())
+            ->method('get')->with($cartId)->willReturn($paymentMock);
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willThrowException(new LocalizedException(__('Post-order observer failed.')));
+
+        // Order recovered => authorization must NOT be released.
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->assertEquals(
+            ['order' => ['order_number' => $reservedId, 'order_id' => $orderEntityId]],
             $this->resolve($cartHash)
         );
     }
