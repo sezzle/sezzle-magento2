@@ -40,6 +40,7 @@ use Sezzle\Sezzlepay\Gateway\Config\Config;
 class V2 implements V2Interface
 {
     const SEZZLE_CREATE_SESSION_ENDPOINT = "/session";
+    const SEZZLE_RELEASE_ENDPOINT = "/order/%s/release";
     const SEZZLE_GET_CUSTOMER_ENDPOINT = "/customer/%s";
     const SEZZLE_GET_SESSION_TOKEN_ENDPOINT = "/token/%s/session";
     const SEZZLE_WIDGET_QUEUE_ENDPOINT = "/widget/queue";
@@ -224,6 +225,31 @@ class V2 implements V2Interface
         } catch (Exception $e) {
             $this->helper->logSezzleActions($e->getMessage());
             throw $e;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function releasePayment(string $orderUUID, int $amountInCents, string $currency, int $storeId): void
+    {
+        $uri = $this->config->getGatewayURL($storeId) . sprintf(self::SEZZLE_RELEASE_ENDPOINT, $orderUUID);
+        try {
+            $transferO = $this->transferFactory->create([
+                '__store_id' => $storeId,
+                '__method' => Client::HTTP_POST,
+                '__uri' => $uri,
+                'amount_in_cents' => $amountInCents,
+                'currency' => $currency
+            ]);
+            $this->client->placeRequest($transferO);
+        } catch (Exception $e) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'order_uuid' => $orderUUID,
+                'error' => $e->getMessage()
+            ]);
+            throw new LocalizedException(__('Gateway release error: %1', $e->getMessage()));
         }
     }
 

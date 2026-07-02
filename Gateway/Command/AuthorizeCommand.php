@@ -7,7 +7,6 @@ use Magento\Payment\Gateway\Command\CommandException;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order\Payment;
-use Magento\Payment\Model\Method\Adapter;
 use Sezzle\Sezzlepay\Helper\Data;
 
 /**
@@ -27,11 +26,6 @@ class AuthorizeCommand implements CommandInterface
     const KEY_AUTH_AMOUNT = 'sezzle_auth_amount';
 
     /**
-     * @var Adapter
-     */
-    private $adapter;
-
-    /**
      * @var Data
      */
     private $helper;
@@ -39,15 +33,12 @@ class AuthorizeCommand implements CommandInterface
     /**
      * AuthorizeCommand constructor.
      *
-     * @param Adapter $adapter
      * @param Data $helper
      */
     public function __construct(
-        Adapter $adapter,
-        Data    $helper
+        Data $helper
     )
     {
-        $this->adapter = $adapter;
         $this->helper = $helper;
     }
 
@@ -70,7 +61,7 @@ class AuthorizeCommand implements CommandInterface
         $orderUUID = $payment->getAdditionalInformation(self::KEY_ORIGINAL_ORDER_UUID);
 
         $payment->setAdditionalInformation(self::KEY_AUTH_AMOUNT, $amount)
-            ->setAdditionalInformation('payment_type', $this->adapter->getConfigPaymentAction())
+            ->setAdditionalInformation('payment_type', $payment->getMethodInstance()->getConfigPaymentAction())
             ->setTransactionId($orderUUID)->setIsTransactionClosed(false);
 
         $this->helper->logSezzleActions(

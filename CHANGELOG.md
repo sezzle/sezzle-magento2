@@ -6,6 +6,26 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.27
+
+_Thurs 26 Jun 2026_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.4 and later.
+- Magento Commerce On Prem Edition (EE) version 2.4 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.4 and later.
+
+### Highlights
+
+- Fix "Unique constraint violation found" error on order completion that could leave shoppers authorized at Sezzle with no Magento order created
+- Add idempotency guard so returning from Sezzle more than once (refresh, double redirect, concurrent request) no longer resubmits the order
+- Recover from reserved-order-id collisions by reusing the existing order or regenerating the reserved ID and retrying
+- Release stranded Sezzle authorizations when a Magento order cannot be created
+- Apply the same protections to the GraphQL `placeSezzleOrder` mutation
+
 ## Version 7.0.26
 
 _Thurs 29 Dec 2025_

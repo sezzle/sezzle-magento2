@@ -86,7 +86,7 @@ class CreateSezzleCheckoutTest extends TestCase
 
         $this->contextMock = $this->getMockBuilder(ContextInterface::class)
             ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+            ->getMock();
 
         $this->resolveInfoMock = $this->getMockBuilder(ResolveInfo::class)
             ->disableOriginalConstructor()
@@ -142,9 +142,9 @@ class CreateSezzleCheckoutTest extends TestCase
             ->method('validateInput');
 
         $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+            ->getMock();
 
         $this->getCartForUser->expects($this->once())
             ->method('getCart')
@@ -179,9 +179,9 @@ class CreateSezzleCheckoutTest extends TestCase
             ->method('validateInput');
 
         $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
+            ->onlyMethods(['getId'])
             ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+            ->getMock();
 
         $this->getCartForUser->expects($this->once())
             ->method('getCart')

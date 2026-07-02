@@ -11,10 +11,12 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Model\OrderRecoveryService;
 use Sezzle\Sezzlepay\Model\Tokenize;
 use Sezzle\Sezzlepay\Api\CartManagementInterface;
 use Sezzle\Sezzlepay\Api\GuestCartManagementInterface;
@@ -75,6 +77,14 @@ abstract class Sezzle implements HttpGetActionInterface
      * @var RedirectFactory
      */
     protected $resultRedirectFactory;
+    /**
+     * @var CartRepositoryInterface
+     */
+    protected $cartRepository;
+    /**
+     * @var OrderRecoveryService
+     */
+    protected $orderRecovery;
 
     /**
      * Sezzle constructor.
@@ -89,6 +99,8 @@ abstract class Sezzle implements HttpGetActionInterface
      * @param QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
      * @param CartManagementInterface $cartManagement
      * @param GuestCartManagementInterface $guestCartManagement
+     * @param CartRepositoryInterface $cartRepository
+     * @param OrderRecoveryService $orderRecovery
      */
     public function __construct(
         RequestInterface                $request,
@@ -101,7 +113,9 @@ abstract class Sezzle implements HttpGetActionInterface
         RedirectFactory                 $resultRedirectFactory,
         QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface,
         CartManagementInterface         $cartManagement,
-        GuestCartManagementInterface    $guestCartManagement
+        GuestCartManagementInterface    $guestCartManagement,
+        CartRepositoryInterface         $cartRepository,
+        OrderRecoveryService            $orderRecovery
     )
     {
         $this->request = $request;
@@ -115,6 +129,8 @@ abstract class Sezzle implements HttpGetActionInterface
         $this->quoteIdToMaskedQuoteIdInterface = $quoteIdToMaskedQuoteIdInterface;
         $this->cartManagement = $cartManagement;
         $this->guestCartManagement = $guestCartManagement;
+        $this->cartRepository = $cartRepository;
+        $this->orderRecovery = $orderRecovery;
     }
 
     /**

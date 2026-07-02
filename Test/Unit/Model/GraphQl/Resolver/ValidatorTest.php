@@ -61,19 +61,16 @@ class ValidatorTest extends TestCase
     {
         $this->objectManager = new ObjectManager($this);
 
-        $this->contextMock = $this->getMockBuilder(ContextInterface::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getExtensionAttributes'])
-            ->getMockForAbstractClass();
+        // Mock the full interface: under PHPUnit 12 getMock() does not implement abstract methods
+        // omitted from onlyMethods(), so restricting an interface mock leaves it abstract and fatals.
+        $this->contextMock = $this->createMock(ContextInterface::class);
 
-        $this->contextExtensionMock = $this->getMockBuilder(ContextExtensionInterface::class)
-            ->setMethods(['getStore'])
-            ->getMockForAbstractClass();
+        $this->contextExtensionMock = $this->createMock(ContextExtensionInterface::class);
 
         $this->storeMock = $this->getMockBuilder(Store::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId'])
-            ->getMockForAbstractClass();
+            ->onlyMethods(['getId'])
+            ->getMock();
 
         $this->config = $this->createMock(Config::class);
         $this->validator = $this->objectManager->getObject(

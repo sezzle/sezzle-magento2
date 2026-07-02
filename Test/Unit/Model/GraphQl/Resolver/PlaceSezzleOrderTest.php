@@ -2,29 +2,33 @@
 
 namespace Sezzle\Sezzlepay\Test\Unit\Model\GraphQl\Resolver;
 
-use Magento\Framework\Exception\InvalidArgumentException;
+use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
-use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\GraphQl\Model\Query\ContextInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Sezzle\Sezzlepay\Api\CartManagementInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Api\PaymentMethodManagementInterface;
 use Magento\Quote\Model\Quote;
 use Magento\QuoteGraphQl\Model\Cart\CheckCartCheckoutAllowance;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\OrderFactory;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use Sezzle\Sezzlepay\Api\V2Interface;
+use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\GetCartForUser;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\PlaceSezzleOrder;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\Validator;
+use Sezzle\Sezzlepay\Model\OrderRecoveryService;
 
 /**
  * @covers \Sezzle\Sezzlepay\Model\GraphQl\Resolver\PlaceSezzleOrder
@@ -48,57 +52,61 @@ class PlaceSezzleOrderTest extends TestCase
     private $resolveInfoMock;
 
     /**
-     * Mock validator
-     *
      * @var Validator|MockObject
      */
     private $validator;
 
     /**
-     * Mock getCartForUser
-     *
      * @var GetCartForUser|MockObject
      */
     private $getCartForUser;
 
     /**
-     * Mock checkCartCheckoutAllowance
-     *
      * @var CheckCartCheckoutAllowance|MockObject
      */
     private $checkCartCheckoutAllowance;
 
     /**
-     * Mock cartManagement
-     *
      * @var CartManagementInterface|MockObject
      */
     private $cartManagement;
 
     /**
-     * Mock orderRepository
-     *
      * @var OrderRepositoryInterface|MockObject
      */
     private $orderRepository;
 
     /**
-     * Mock paymentMethodManagement
-     *
      * @var PaymentMethodManagementInterface|MockObject
      */
     private $paymentMethodManagement;
 
     /**
-     * Object Manager instance
-     *
+     * @var CartRepositoryInterface|MockObject
+     */
+    private $cartRepository;
+
+    /**
+     * @var OrderFactory|MockObject
+     */
+    private $orderFactory;
+
+    /**
+     * @var V2Interface|MockObject
+     */
+    private $v2;
+
+    /**
+     * @var Data|MockObject
+     */
+    private $helper;
+
+    /**
      * @var ObjectManagerInterface
      */
     private $objectManager;
 
     /**
-     * Object to test
-     *
      * @var PlaceSezzleOrder
      */
     private $resolver;
@@ -110,17 +118,9 @@ class PlaceSezzleOrderTest extends TestCase
     {
         $this->objectManager = new ObjectManager($this);
 
-        $this->fieldMock = $this->getMockBuilder(Field::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->contextMock = $this->getMockBuilder(ContextInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->resolveInfoMock = $this->getMockBuilder(ResolveInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->fieldMock = $this->createMock(Field::class);
+        $this->contextMock = $this->createMock(ContextInterface::class);
+        $this->resolveInfoMock = $this->createMock(ResolveInfo::class);
 
         $this->validator = $this->createMock(Validator::class);
         $this->getCartForUser = $this->createMock(GetCartForUser::class);
@@ -128,6 +128,19 @@ class PlaceSezzleOrderTest extends TestCase
         $this->cartManagement = $this->createMock(CartManagementInterface::class);
         $this->orderRepository = $this->createMock(OrderRepositoryInterface::class);
         $this->paymentMethodManagement = $this->createMock(PaymentMethodManagementInterface::class);
+        $this->cartRepository = $this->createMock(CartRepositoryInterface::class);
+        $this->orderFactory = $this->getMockBuilder(OrderFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $this->v2 = $this->createMock(V2Interface::class);
+        $this->helper = $this->createMock(Data::class);
+
+        // The resolver delegates order lookup / authorization release to OrderRecoveryService.
+        // Use a real service over the same orderFactory/v2/helper mocks so the existing
+        // expectations on those collaborators continue to exercise the delegated behaviour.
+        $orderRecovery = new OrderRecoveryService($this->orderFactory, $this->v2, $this->helper);
+
         $this->resolver = $this->objectManager->getObject(
             PlaceSezzleOrder::class,
             [
@@ -137,7 +150,49 @@ class PlaceSezzleOrderTest extends TestCase
                 'cartManagement' => $this->cartManagement,
                 'orderRepository' => $this->orderRepository,
                 'paymentMethodManagement' => $this->paymentMethodManagement,
+                'cartRepository' => $this->cartRepository,
+                'orderRecovery' => $orderRecovery,
+                'helper' => $this->helper,
             ]
+        );
+    }
+
+    /**
+     * @return Quote|MockObject
+     */
+    private function makeQuote()
+    {
+        // QuoteStub declares the magic getCustomerEmail/getBase* getters as real methods so they
+        // can be mocked under PHPUnit 12 (MockBuilder::addMethods() was removed in PHPUnit 10+).
+        return $this->getMockBuilder(QuoteStub::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'getId', 'setCheckoutMethod', 'getReservedOrderId',
+                'setReservedOrderId', 'reserveOrderId', 'getPayment', 'getStoreId',
+                'getCustomerEmail', 'getBaseGrandTotal', 'getBaseCurrencyCode'
+            ])
+            ->getMock();
+    }
+
+    /**
+     * @return Order|MockObject
+     */
+    private function makeOrder()
+    {
+        return $this->getMockBuilder(Order::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['loadByIncrementId', 'getId', 'getQuoteId', 'getIncrementId'])
+            ->getMock();
+    }
+
+    private function resolve(string $cartHash)
+    {
+        return $this->resolver->resolve(
+            $this->fieldMock,
+            $this->contextMock,
+            $this->resolveInfoMock,
+            null,
+            ['input' => ['cart_id' => $cartHash]]
         );
     }
 
@@ -145,26 +200,17 @@ class PlaceSezzleOrderTest extends TestCase
     {
         $cartHash = 'abcd1234';
         $exceptionMessage = sprintf('Could not find a cart with ID "%s"', $cartHash);
-        $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException');
+        $this->expectException(GraphQlNoSuchEntityException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
-
+        $this->validator->expects($this->once())->method('validateInput');
         $this->getCartForUser->expects($this->once())
             ->method('getCart')
             ->willThrowException(new GraphQlNoSuchEntityException(
                 __('Could not find a cart with ID "%masked_cart_id"', ['masked_cart_id' => $cartHash])
             ));
 
-
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock,
-            null,
-            ['input' => ['cart_id' => $cartHash]]
-        );
+        $this->resolve($cartHash);
     }
 
     public function testGuestCheckoutNotAllowed()
@@ -172,35 +218,19 @@ class PlaceSezzleOrderTest extends TestCase
         $cartHash = 'abcd1234';
         $exceptionMessage = 'Guest checkout is not allowed. ' .
             'Register a customer account or login with existing one.';
-        $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException');
+        $this->expectException(GraphQlAuthorizationException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
+        $this->validator->expects($this->once())->method('validateInput');
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->getCartForUser->expects($this->once())
-            ->method('getCart')
-            ->willReturn($quoteMock);
-
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
         $this->checkCartCheckoutAllowance->expects($this->once())
             ->method('execute')
             ->with($quoteMock)
-            ->willThrowException(new GraphQlAuthorizationException(
-                __($exceptionMessage)
-            ));
+            ->willThrowException(new GraphQlAuthorizationException(__($exceptionMessage)));
 
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock,
-            null,
-            ['input' => ['cart_id' => $cartHash]]
-        );
+        $this->resolve($cartHash);
     }
 
     public function testGuestEmailMissing()
@@ -210,38 +240,15 @@ class PlaceSezzleOrderTest extends TestCase
         $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlInputException');
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
+        $this->validator->expects($this->once())->method('validateInput');
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getCustomerEmail'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(0);
+        $quoteMock->method('getCustomerEmail')->willReturn('');
 
-        $this->getCartForUser->expects($this->once())
-            ->method('getCart')
-            ->willReturn($quoteMock);
-
-        $this->checkCartCheckoutAllowance->expects($this->once())
-            ->method('execute')
-            ->with($quoteMock);
-
-        $this->contextMock->expects($this->once())
-            ->method('getUserId')
-            ->willReturn(0);
-
-        $quoteMock->expects($this->once())
-            ->method('getCustomerEmail')
-            ->willReturn('');
-
-
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock,
-            null,
-            ['input' => ['cart_id' => $cartHash]]
-        );
+        $this->resolve($cartHash);
     }
 
     public function testQuoteNotFound()
@@ -249,120 +256,63 @@ class PlaceSezzleOrderTest extends TestCase
         $cartHash = 'abcd1234';
         $cartId = 1;
         $exceptionMessage = 'Quote not found.';
-        $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException');
+        $this->expectException(GraphQlNoSuchEntityException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
+        $this->validator->expects($this->once())->method('validateInput');
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getCustomerEmail', 'setCheckoutMethod', 'getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->getCartForUser->expects($this->once())
-            ->method('getCart')
-            ->willReturn($quoteMock);
-
-        $this->checkCartCheckoutAllowance->expects($this->once())
-            ->method('execute')
-            ->with($quoteMock);
-
-        $this->contextMock->expects($this->once())
-            ->method('getUserId')
-            ->willReturn(0);
-
-        $quoteMock->expects($this->once())
-            ->method('getCustomerEmail')
-            ->willReturn('guest@test.com');
-
-        $quoteMock->expects($this->once())
-            ->method('setCheckoutMethod')
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(0);
+        $quoteMock->method('getCustomerEmail')->willReturn('guest@test.com');
+        $quoteMock->expects($this->once())->method('setCheckoutMethod')
             ->with(CartManagementInterface::METHOD_GUEST);
-
-        $quoteMock->expects($this->once())
-            ->method('getId')
-            ->willReturn($cartId);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
 
         $this->paymentMethodManagement->expects($this->once())
             ->method('get')
             ->with($cartId)
-            ->willThrowException(new NoSuchEntityException(
-                __($exceptionMessage)
-            ));
+            ->willThrowException(new NoSuchEntityException(__($exceptionMessage)));
 
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock,
-            null,
-            ['input' => ['cart_id' => $cartHash]]
-        );
+        $this->resolve($cartHash);
     }
 
-    public function testOrderValidationFailed()
+    public function testOrderValidationFailedReleasesNothingWithoutUuid()
     {
         $cartHash = 'abcd1234';
         $cartId = 1;
         $exceptionMessage = 'Unable to place Sezzle order: Failed order validation.';
-        $this->expectException('Magento\Framework\Exception\LocalizedException');
+        $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlInputException');
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
+        $this->validator->expects($this->once())->method('validateInput');
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getCustomerEmail', 'setCheckoutMethod', 'getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->getCartForUser->expects($this->once())
-            ->method('getCart')
-            ->willReturn($quoteMock);
-
-        $this->checkCartCheckoutAllowance->expects($this->once())
-            ->method('execute')
-            ->with($quoteMock);
-
-        $this->contextMock->expects($this->once())
-            ->method('getUserId')
-            ->willReturn(0);
-
-        $quoteMock->expects($this->once())
-            ->method('getCustomerEmail')
-            ->willReturn('guest@test.com');
-
-        $quoteMock->expects($this->once())
-            ->method('setCheckoutMethod')
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(0);
+        $quoteMock->method('getCustomerEmail')->willReturn('guest@test.com');
+        $quoteMock->expects($this->once())->method('setCheckoutMethod')
             ->with(CartManagementInterface::METHOD_GUEST);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
+        // No Sezzle order UUID on the payment => release safety net is a no-op.
+        $quoteMock->method('getPayment')->willReturn(null);
 
-        $quoteMock->expects($this->once())
-            ->method('getId')
-            ->willReturn($cartId);
-
-        $paymentMock = $this->getMockBuilder(PaymentInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
+        $paymentMock = $this->createMock(PaymentInterface::class);
         $this->paymentMethodManagement->expects($this->once())
-            ->method('get')
-            ->with($cartId)
-            ->willReturn($paymentMock);
+            ->method('get')->with($cartId)->willReturn($paymentMock);
 
         $this->cartManagement->expects($this->once())
             ->method('placeOrder')
             ->with($cartId, $paymentMock)
-            ->willThrowException(new LocalizedException(
-                __('Failed order validation.')
-            ));
+            ->willThrowException(new LocalizedException(__('Failed order validation.')));
 
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock,
-            null,
-            ['input' => ['cart_id' => $cartHash]]
-        );
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->resolve($cartHash);
     }
 
     public function testOrderNotFound()
@@ -371,69 +321,31 @@ class PlaceSezzleOrderTest extends TestCase
         $cartId = 1;
         $orderId = 4;
         $exceptionMessage = 'The entity that was requested doesn\'t exist. Verify the entity and try again.';
-        $this->expectException('Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException');
+        $this->expectException(GraphQlNoSuchEntityException::class);
         $this->expectExceptionMessage($exceptionMessage);
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
+        $this->validator->expects($this->once())->method('validateInput');
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getCustomerEmail', 'setCheckoutMethod', 'getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->getCartForUser->expects($this->once())
-            ->method('getCart')
-            ->willReturn($quoteMock);
-
-        $this->checkCartCheckoutAllowance->expects($this->once())
-            ->method('execute')
-            ->with($quoteMock);
-
-        $this->contextMock->expects($this->once())
-            ->method('getUserId')
-            ->willReturn(0);
-
-        $quoteMock->expects($this->once())
-            ->method('getCustomerEmail')
-            ->willReturn('guest@test.com');
-
-        $quoteMock->expects($this->once())
-            ->method('setCheckoutMethod')
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(0);
+        $quoteMock->method('getCustomerEmail')->willReturn('guest@test.com');
+        $quoteMock->expects($this->once())->method('setCheckoutMethod')
             ->with(CartManagementInterface::METHOD_GUEST);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
 
-        $quoteMock->expects($this->once())
-            ->method('getId')
-            ->willReturn($cartId);
-
-        $paymentMock = $this->getMockBuilder(PaymentInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
+        $paymentMock = $this->createMock(PaymentInterface::class);
         $this->paymentMethodManagement->expects($this->once())
-            ->method('get')
-            ->with($cartId)
-            ->willReturn($paymentMock);
-
+            ->method('get')->with($cartId)->willReturn($paymentMock);
         $this->cartManagement->expects($this->once())
-            ->method('placeOrder')
-            ->with($cartId, $paymentMock)
-            ->willReturn($orderId);
-
+            ->method('placeOrder')->with($cartId, $paymentMock)->willReturn($orderId);
         $this->orderRepository->expects($this->once())
-            ->method('get')
-            ->with($orderId)
-            ->willThrowException(new NoSuchEntityException(
-                __($exceptionMessage)
-            ));
+            ->method('get')->with($orderId)
+            ->willThrowException(new NoSuchEntityException(__($exceptionMessage)));
 
-        $this->resolver->resolve(
-            $this->fieldMock,
-            $this->contextMock,
-            $this->resolveInfoMock,
-            null,
-            ['input' => ['cart_id' => $cartHash]]
-        );
+        $this->resolve($cartHash);
     }
 
     public function testPlaceGuestOrderSuccess()
@@ -443,80 +355,32 @@ class PlaceSezzleOrderTest extends TestCase
         $orderId = 4;
         $orderNumber = '11112222';
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
+        $this->validator->expects($this->once())->method('validateInput');
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getCustomerEmail', 'setCheckoutMethod', 'getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->getCartForUser->expects($this->once())
-            ->method('getCart')
-            ->willReturn($quoteMock);
-
-        $this->checkCartCheckoutAllowance->expects($this->once())
-            ->method('execute')
-            ->with($quoteMock);
-
-        $this->contextMock->expects($this->once())
-            ->method('getUserId')
-            ->willReturn(0);
-
-        $quoteMock->expects($this->once())
-            ->method('getCustomerEmail')
-            ->willReturn('guest@test.com');
-
-        $quoteMock->expects($this->once())
-            ->method('setCheckoutMethod')
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(0);
+        $quoteMock->method('getCustomerEmail')->willReturn('guest@test.com');
+        $quoteMock->expects($this->once())->method('setCheckoutMethod')
             ->with(CartManagementInterface::METHOD_GUEST);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
 
-        $quoteMock->expects($this->once())
-            ->method('getId')
-            ->willReturn($cartId);
-
-        $paymentMock = $this->getMockBuilder(PaymentInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
+        $paymentMock = $this->createMock(PaymentInterface::class);
         $this->paymentMethodManagement->expects($this->once())
-            ->method('get')
-            ->with($cartId)
-            ->willReturn($paymentMock);
-
+            ->method('get')->with($cartId)->willReturn($paymentMock);
         $this->cartManagement->expects($this->once())
-            ->method('placeOrder')
-            ->with($cartId, $paymentMock)
-            ->willReturn($orderId);
+            ->method('placeOrder')->with($cartId, $paymentMock)->willReturn($orderId);
 
-        $orderMock = $this->getMockBuilder(OrderInterface::class)
-            ->setMethods(['getIncrementId', 'getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->orderRepository->expects($this->once())
-            ->method('get')
-            ->with($orderId)
-            ->willReturn($orderMock);
-
-        $orderMock->expects($this->once())
-            ->method('getIncrementId')
-            ->willReturn($orderNumber);
+        $orderMock = $this->makeOrder();
+        $this->orderRepository->expects($this->once())->method('get')->with($orderId)->willReturn($orderMock);
+        $orderMock->method('getIncrementId')->willReturn($orderNumber);
+        $orderMock->method('getId')->willReturn($orderId);
 
         $this->assertEquals(
-            [
-                'order' => [
-                    'order_number' => $orderNumber,
-                    'order_id' => $orderId
-                ]
-            ],
-            $this->resolver->resolve(
-                $this->fieldMock,
-                $this->contextMock,
-                $this->resolveInfoMock,
-                null,
-                ['input' => ['cart_id' => $cartHash]]
-            )
+            ['order' => ['order_number' => $orderNumber, 'order_id' => $orderId]],
+            $this->resolve($cartHash)
         );
     }
 
@@ -527,72 +391,245 @@ class PlaceSezzleOrderTest extends TestCase
         $orderId = 4;
         $orderNumber = '11112222';
 
-        $this->validator->expects($this->once())
-            ->method('validateInput');
+        $this->validator->expects($this->once())->method('validateInput');
 
-        $quoteMock = $this->getMockBuilder(Quote::class)
-            ->setMethods(['getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
 
-        $this->getCartForUser->expects($this->once())
-            ->method('getCart')
-            ->willReturn($quoteMock);
-
-        $this->checkCartCheckoutAllowance->expects($this->once())
-            ->method('execute')
-            ->with($quoteMock);
-
-        $this->contextMock->expects($this->once())
-            ->method('getUserId')
-            ->willReturn(1);
-
-        $quoteMock->expects($this->once())
-            ->method('getId')
-            ->willReturn($cartId);
-
-        $paymentMock = $this->getMockBuilder(PaymentInterface::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
+        $paymentMock = $this->createMock(PaymentInterface::class);
         $this->paymentMethodManagement->expects($this->once())
-            ->method('get')
-            ->with($cartId)
-            ->willReturn($paymentMock);
-
+            ->method('get')->with($cartId)->willReturn($paymentMock);
         $this->cartManagement->expects($this->once())
-            ->method('placeOrder')
-            ->with($cartId, $paymentMock)
-            ->willReturn($orderId);
+            ->method('placeOrder')->with($cartId, $paymentMock)->willReturn($orderId);
 
-        $orderMock = $this->getMockBuilder(OrderInterface::class)
-            ->setMethods(['getIncrementId', 'getId'])
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-
-        $this->orderRepository->expects($this->once())
-            ->method('get')
-            ->with($orderId)
-            ->willReturn($orderMock);
-
-        $orderMock->expects($this->once())
-            ->method('getIncrementId')
-            ->willReturn($orderNumber);
+        $orderMock = $this->makeOrder();
+        $this->orderRepository->expects($this->once())->method('get')->with($orderId)->willReturn($orderMock);
+        $orderMock->method('getIncrementId')->willReturn($orderNumber);
+        $orderMock->method('getId')->willReturn($orderId);
 
         $this->assertEquals(
-            [
-                'order' => [
-                    'order_number' => $orderNumber,
-                    'order_id' => $orderId
-                ]
-            ],
-            $this->resolver->resolve(
-                $this->fieldMock,
-                $this->contextMock,
-                $this->resolveInfoMock,
-                null,
-                ['input' => ['cart_id' => $cartHash]]
-            )
+            ['order' => ['order_number' => $orderNumber, 'order_id' => $orderId]],
+            $this->resolve($cartHash)
         );
+    }
+
+    /**
+     * Idempotency: the order already exists for this cart, so placeOrder is never called.
+     */
+    public function testReturnsExistingOrderWithoutResubmitting()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $orderEntityId = 7;
+        $reservedId = '000000123';
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn($reservedId);
+
+        $orderMock = $this->makeOrder();
+        $orderMock->method('loadByIncrementId')->with($reservedId)->willReturnSelf();
+        $orderMock->method('getId')->willReturn($orderEntityId);
+        $orderMock->method('getQuoteId')->willReturn($cartId);
+        $orderMock->method('getIncrementId')->willReturn($reservedId);
+        $this->orderFactory->expects($this->once())->method('create')->willReturn($orderMock);
+
+        $this->cartManagement->expects($this->never())->method('placeOrder');
+
+        $this->assertEquals(
+            ['order' => ['order_number' => $reservedId, 'order_id' => $orderEntityId]],
+            $this->resolve($cartHash)
+        );
+    }
+
+    /**
+     * A reserved-id collision whose existing order belongs to this cart is treated as success.
+     */
+    public function testCollisionRecoveredByExistingOrder()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $orderEntityId = 9;
+        $reservedId = '000000456';
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn($reservedId);
+
+        // First lookup (idempotency pre-check) finds nothing; second (after collision) finds it.
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+
+        $foundOrder = $this->makeOrder();
+        $foundOrder->method('loadByIncrementId')->willReturnSelf();
+        $foundOrder->method('getId')->willReturn($orderEntityId);
+        $foundOrder->method('getQuoteId')->willReturn($cartId);
+        $foundOrder->method('getIncrementId')->willReturn($reservedId);
+
+        $this->orderFactory->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnOnConsecutiveCalls($emptyOrder, $foundOrder);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->expects($this->once())
+            ->method('get')->with($cartId)->willReturn($paymentMock);
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willThrowException(new AlreadyExistsException(__('Unique constraint violation found')));
+
+        // Recovered from the existing order; no resubmission through orderRepository.
+        $this->orderRepository->expects($this->never())->method('get');
+
+        $this->assertEquals(
+            ['order' => ['order_number' => $reservedId, 'order_id' => $orderEntityId]],
+            $this->resolve($cartHash)
+        );
+    }
+
+    /**
+     * A reserved-id collision against an unrelated order regenerates the id and retries once.
+     */
+    public function testCollisionRegeneratesIdAndRetries()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $orderId = 12;
+        $orderNumber = '11113333';
+        $reservedId = '000000789';
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn($reservedId);
+
+        // Neither lookup finds an order for this cart: the increment id belongs to an unrelated
+        // order, so a fresh id is reserved and placeOrder is retried.
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturn($emptyOrder);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->method('get')->with($cartId)->willReturn($paymentMock);
+
+        $calls = 0;
+        $this->cartManagement->expects($this->exactly(2))
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willReturnCallback(function () use (&$calls, $orderId) {
+                if (++$calls === 1) {
+                    throw new AlreadyExistsException(__('Unique constraint violation found'));
+                }
+                return $orderId;
+            });
+
+        $quoteMock->expects($this->once())->method('setReservedOrderId')->with(null);
+        $quoteMock->expects($this->once())->method('reserveOrderId')->willReturnSelf();
+        $this->cartRepository->expects($this->once())->method('save')->with($quoteMock);
+
+        $orderMock = $this->makeOrder();
+        $orderMock->method('getIncrementId')->willReturn($orderNumber);
+        $orderMock->method('getId')->willReturn($orderId);
+        $this->orderRepository->expects($this->once())->method('get')->with($orderId)->willReturn($orderMock);
+
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->assertEquals(
+            ['order' => ['order_number' => $orderNumber, 'order_id' => $orderId]],
+            $this->resolve($cartHash)
+        );
+    }
+
+    /**
+     * A non-AlreadyExists LocalizedException (e.g. from an observer / post-processing) thrown after
+     * the order was persisted is recovered: the placed order is returned and no authorization is
+     * released.
+     */
+    public function testLocalizedExceptionRecoversAlreadyPlacedOrder()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $orderEntityId = 15;
+        $reservedId = '000000999';
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn($reservedId);
+
+        // First lookup (idempotency pre-check) finds nothing; the post-exception lookup finds the
+        // order that was persisted before the observer/post-processing step threw.
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+
+        $foundOrder = $this->makeOrder();
+        $foundOrder->method('loadByIncrementId')->willReturnSelf();
+        $foundOrder->method('getId')->willReturn($orderEntityId);
+        $foundOrder->method('getQuoteId')->willReturn($cartId);
+        $foundOrder->method('getIncrementId')->willReturn($reservedId);
+
+        $this->orderFactory->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnOnConsecutiveCalls($emptyOrder, $foundOrder);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->expects($this->once())
+            ->method('get')->with($cartId)->willReturn($paymentMock);
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willThrowException(new LocalizedException(__('Post-order observer failed.')));
+
+        // Order recovered => authorization must NOT be released.
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->assertEquals(
+            ['order' => ['order_number' => $reservedId, 'order_id' => $orderEntityId]],
+            $this->resolve($cartHash)
+        );
+    }
+}
+
+/**
+ * Test double exposing Magento\Quote\Model\Quote's magic getCustomerEmail/getBase* getters as
+ * real methods so they can be mocked under PHPUnit 12, where MockBuilder::addMethods() was removed.
+ */
+class QuoteStub extends Quote
+{
+    public function getCustomerEmail()
+    {
+        return null;
+    }
+
+    public function getBaseGrandTotal()
+    {
+        return null;
+    }
+
+    public function getBaseCurrencyCode()
+    {
+        return null;
     }
 }
