@@ -7,6 +7,7 @@
 
 namespace Sezzle\Sezzlepay\Model;
 
+use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
@@ -24,6 +25,14 @@ use Sezzle\Sezzlepay\Helper\Util;
  */
 class OrderRecoveryService
 {
+    /**
+     * Message Magento attaches to a reserved-increment-ID collision.
+     *
+     * Matched as text because the exception object itself is not always reachable - see
+     * isIncrementIdCollision().
+     */
+    private const COLLISION_MESSAGE = 'Unique constraint violation found';
+
     /**
      * @var OrderFactory
      */
@@ -68,13 +77,119 @@ class OrderRecoveryService
             return null;
         }
 
-        /** @var Order $order */
-        $order = $this->orderFactory->create()->loadByIncrementId($reservedId);
-        if ($order->getId() && (int)$order->getQuoteId() === (int)$quote->getId()) {
+        $order = $this->loadOrderByIncrementId((string)$reservedId, $quote->getStoreId());
+        if ($order !== null && $order->getId() && (int)$order->getQuoteId() === (int)$quote->getId()) {
             return $order;
         }
 
         return null;
+    }
+
+    /**
+     * Load an order by increment ID, scoped to the quote's store.
+     *
+     * sales_order's unique key is (increment_id, store_id) - not increment_id alone - and
+     * Magento's sequence only gives a store its own numbering if that store was created with a
+     * distinct prefix. Stores restored from a database copy or created by direct insert share
+     * the empty prefix, so several stores legitimately hold the same increment ID. The unscoped
+     * Order::loadByIncrementId() then returns whichever row the database happens to yield
+     * first, which may belong to another store; the quote_id check in getExistingOrder() fails,
+     * the caller concludes no order exists, and it resubmits into a collision.
+     *
+     * @param string $incrementId
+     * @param int|string|null $storeId
+     * @return Order|null
+     */
+    private function loadOrderByIncrementId(string $incrementId, $storeId): ?Order
+    {
+        $order = $this->orderFactory->create();
+
+        // A quote always carries a store in practice. If one somehow does not, fall back to the
+        // unscoped lookup rather than filtering on a null store and matching nothing.
+        $loaded = ($storeId === null || $storeId === '')
+            ? $order->loadByIncrementId($incrementId)
+            : $order->loadByIncrementIdAndStoreId($incrementId, $storeId);
+
+        return $loaded instanceof Order ? $loaded : null;
+    }
+
+    /**
+     * Whether a reserved-increment-ID collision is implicated anywhere in this failure.
+     *
+     * Magento does not reliably surface the collision as the top-level exception. When anything
+     * throws while submitQuote() is rolling back a failed submit, Magento replaces it with a
+     * plain \Exception reading "An exception occurred on
+     * 'sales_model_service_quote_submit_failure' event: <message>" - and that wrapper keeps the
+     * *original* exception as its previous while discarding the one raised during rollback. So
+     * an AlreadyExistsException may sit in the previous chain, or may survive only as text in a
+     * message. Both are checked, since matching on the top-level class alone misses it either
+     * way.
+     *
+     * This is a hint rather than a guarantee - the text check does not survive translation - but
+     * a miss is safe: the caller falls through to releasing the authorization instead of
+     * retrying.
+     *
+     * @param \Throwable $e
+     * @return bool
+     */
+    public function isIncrementIdCollision(\Throwable $e): bool
+    {
+        foreach ($this->throwableChain($e) as $link) {
+            if ($link instanceof AlreadyExistsException
+                || str_contains($link->getMessage(), self::COLLISION_MESSAGE)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Flatten an exception and everything it wraps into a loggable structure.
+     *
+     * The message that reaches the shopper - and the Magento error report - is often only the
+     * outermost wrapper. The failure that actually broke order placement is further down the
+     * previous chain, where nothing currently records it.
+     *
+     * @param \Throwable $e
+     * @return array
+     */
+    public function describeThrowable(\Throwable $e): array
+    {
+        $chain = [];
+        foreach ($this->throwableChain($e) as $depth => $link) {
+            $chain[] = [
+                'depth' => $depth,
+                'class' => get_class($link),
+                'message' => $link->getMessage(),
+                'origin' => $link->getFile() . ':' . $link->getLine()
+            ];
+        }
+
+        return $chain;
+    }
+
+    /**
+     * An exception and each exception it wraps, outermost first.
+     *
+     * @param \Throwable $e
+     * @return \Throwable[]
+     */
+    private function throwableChain(\Throwable $e): array
+    {
+        $chain = [];
+        $seen = [];
+        for ($link = $e; $link !== null; $link = $link->getPrevious()) {
+            // Defensive: a self-referential previous chain would otherwise loop forever.
+            $id = spl_object_id($link);
+            if (isset($seen[$id])) {
+                break;
+            }
+            $seen[$id] = true;
+            $chain[] = $link;
+        }
+
+        return $chain;
     }
 
     /**
