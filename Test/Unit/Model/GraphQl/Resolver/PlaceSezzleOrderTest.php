@@ -7,6 +7,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
+use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Framework\ObjectManagerInterface;
@@ -181,8 +182,28 @@ class PlaceSezzleOrderTest extends TestCase
     {
         return $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['loadByIncrementId', 'getId', 'getQuoteId', 'getIncrementId'])
+            ->onlyMethods([
+                'loadByIncrementId', 'loadByIncrementIdAndStoreId',
+                'getId', 'getQuoteId', 'getIncrementId'
+            ])
             ->getMock();
+    }
+
+    /**
+     * The exception shape Magento actually produces for a reserved-id collision: a plain
+     * \Exception raised while submitQuote() was rolling back, carrying the collision only as
+     * text. Neither an AlreadyExistsException nor a LocalizedException.
+     *
+     * @return \Exception
+     */
+    private function wrappedCollisionException(): \Exception
+    {
+        return new \Exception(
+            "An exception occurred on 'sales_model_service_quote_submit_failure' event: "
+            . 'Unique constraint violation found',
+            0,
+            new LocalizedException(__('Some earlier failure'))
+        );
     }
 
     private function resolve(string $cartHash)
@@ -609,6 +630,91 @@ class PlaceSezzleOrderTest extends TestCase
             ['order' => ['order_number' => $reservedId, 'order_id' => $orderEntityId]],
             $this->resolve($cartHash)
         );
+    }
+
+    /**
+     * Magento's wrapped collision is a plain \Exception, so it has to be recognised through the
+     * message rather than the class - and the lookup has to be scoped to the cart's store.
+     */
+    public function testWrappedCollisionRecoveredByExistingOrder()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $orderEntityId = 21;
+        $reservedId = '000000321';
+        $storeId = 3;
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn($reservedId);
+        $quoteMock->method('getStoreId')->willReturn($storeId);
+
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementIdAndStoreId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+
+        $foundOrder = $this->makeOrder();
+        $foundOrder->method('loadByIncrementIdAndStoreId')->with($reservedId, $storeId)->willReturnSelf();
+        $foundOrder->method('getId')->willReturn($orderEntityId);
+        $foundOrder->method('getQuoteId')->willReturn($cartId);
+        $foundOrder->method('getIncrementId')->willReturn($reservedId);
+
+        $this->orderFactory->expects($this->exactly(2))
+            ->method('create')
+            ->willReturnOnConsecutiveCalls($emptyOrder, $foundOrder);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->expects($this->once())
+            ->method('get')->with($cartId)->willReturn($paymentMock);
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willThrowException($this->wrappedCollisionException());
+
+        $this->orderRepository->expects($this->never())->method('get');
+        $this->v2->expects($this->never())->method('releasePayment');
+
+        $this->assertEquals(
+            ['order' => ['order_number' => $reservedId, 'order_id' => $orderEntityId]],
+            $this->resolve($cartHash)
+        );
+    }
+
+    /**
+     * An internal failure is reported without echoing the underlying database or PHP error.
+     */
+    public function testInternalFailureIsNotLeakedToTheClient()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+
+        $this->expectException(GraphQlInputException::class);
+        $this->expectExceptionMessage('Unable to place Sezzle order: an internal error occurred');
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
+        $quoteMock->method('getPayment')->willReturn(null);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->expects($this->once())
+            ->method('get')->with($cartId)->willReturn($paymentMock);
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willThrowException(new \RuntimeException(
+                'SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry'
+            ));
+
+        $this->resolve($cartHash);
     }
 }
 

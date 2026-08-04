@@ -2,7 +2,6 @@
 
 namespace Sezzle\Sezzlepay\Model\GraphQl\Resolver;
 
-use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
@@ -141,14 +140,18 @@ class PlaceSezzleOrder implements ResolverInterface
                     'order_id' => $order->getId(),
                 ],
             ];
-        } catch (NoSuchEntityException $e) {
-            throw new GraphQlNoSuchEntityException(__($e->getMessage()), $e);
-        } catch (LocalizedException $e) {
+        } catch (\Throwable $e) {
+            // Catch broadly, by design - see the matching comment in
+            // Controller\Payment\Complete::execute(). Magento wraps a failure that occurs while
+            // rolling back a failed submitQuote() in a plain \Exception, so matching on
+            // LocalizedException alone let the most damaging case through unhandled.
+            $this->logPlacementFailure(__METHOD__, $e, $cart);
+
             // Last-resort recovery: the exception may have come from an observer or
             // post-processing step that ran after the order was already persisted. If the
             // order exists, return it rather than releasing a live authorization and
             // surfacing an error for an order the shopper actually placed.
-            if ($order = $this->orderRecovery->getExistingOrder($cart)) {
+            if ($order = $this->findRecoverableOrder($cart)) {
                 $this->helper->logSezzleActions([
                     'log_origin' => __METHOD__,
                     'message' => 'Recovered already-placed order after exception',
@@ -166,8 +169,74 @@ class PlaceSezzleOrder implements ResolverInterface
             // No Magento order was created but the shopper may already be authorized at
             // Sezzle. Release that authorization so it does not sit pending / expire.
             $this->orderRecovery->releaseStrandedAuthorization($cart);
+
+            // GraphQl exceptions only accept an \Exception as their cause, so an \Error (a PHP
+            // type error in an observer, say) is reported without one rather than fataling here.
+            $cause = $e instanceof \Exception ? $e : null;
+            if ($e instanceof NoSuchEntityException) {
+                throw new GraphQlNoSuchEntityException(__($e->getMessage()), $cause);
+            }
+
+            // Internal failures must not leak a database constraint or PHP error to the client.
+            $reason = $e instanceof LocalizedException
+                ? $e->getMessage()
+                : (string)__('an internal error occurred');
+
             throw new GraphQlInputException(
-                __('Unable to place Sezzle order: %message', ['message' => $e->getMessage()]), $e);
+                __('Unable to place Sezzle order: %message', ['message' => $reason]), $cause);
+        }
+    }
+
+    /**
+     * Record a placement failure with everything needed to diagnose it after the fact.
+     *
+     * Never throws: this runs on the failure path, ahead of the authorization release, and a
+     * second exception here would cost the shopper that release.
+     *
+     * @param string $origin
+     * @param \Throwable $e
+     * @param CartInterface $cart
+     * @return void
+     */
+    private function logPlacementFailure(string $origin, \Throwable $e, CartInterface $cart): void
+    {
+        try {
+            $this->helper->logSezzleActions([
+                'log_origin' => $origin,
+                'message' => 'Order placement failed for Sezzle cart',
+                'quote_id' => $cart->getId(),
+                'store_id' => $cart->getStoreId(),
+                'reserved_order_id' => $cart->getReservedOrderId(),
+                'is_increment_id_collision' => $this->orderRecovery->isIncrementIdCollision($e),
+                'exception_chain' => $this->orderRecovery->describeThrowable($e)
+            ]);
+        } catch (\Throwable $loggingFailure) {
+            $this->helper->logSezzleActions(
+                'Could not log Sezzle placement failure: ' . $loggingFailure->getMessage()
+            );
+        }
+    }
+
+    /**
+     * Look for an already-placed order for this cart, without ever throwing.
+     *
+     * Also runs on the failure path, so it must not displace the authorization release either.
+     *
+     * @param CartInterface $cart
+     * @return OrderInterface|null
+     */
+    private function findRecoverableOrder(CartInterface $cart): ?OrderInterface
+    {
+        try {
+            return $this->orderRecovery->getExistingOrder($cart);
+        } catch (\Throwable $lookupFailure) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Could not check whether an order was already placed for this cart',
+                'error' => $lookupFailure->getMessage()
+            ]);
+
+            return null;
         }
     }
 
@@ -177,17 +246,24 @@ class PlaceSezzleOrder implements ResolverInterface
      * @param CartInterface $cart
      * @param int $cartId
      * @return OrderInterface
-     * @throws LocalizedException
+     * @throws \Throwable
      */
     private function placeWithCollisionRecovery(CartInterface $cart, $cartId): OrderInterface
     {
         try {
             $orderId = $this->cartManagement->placeOrder($cartId, $this->paymentMethodManagement->get($cartId));
-        } catch (AlreadyExistsException $e) {
+        } catch (\Throwable $e) {
+            // Only a collision is recoverable here. Anything else belongs to resolve(), which
+            // logs it, looks for an already-placed order and releases the authorization.
+            if (!$this->orderRecovery->isIncrementIdCollision($e)) {
+                throw $e;
+            }
+
             $this->helper->logSezzleActions([
                 'log_origin' => __METHOD__,
                 'message' => 'Reserved order ID collision on placeOrder',
                 'reserved_order_id' => $cart->getReservedOrderId(),
+                'store_id' => $cart->getStoreId(),
                 'error' => $e->getMessage()
             ]);
 
