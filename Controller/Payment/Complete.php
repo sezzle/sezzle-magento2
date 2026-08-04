@@ -7,10 +7,8 @@
 
 namespace Sezzle\Sezzlepay\Controller\Payment;
 
-use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order;
 use Sezzle\Sezzlepay\Controller\AbstractController\Sezzle;
@@ -45,6 +43,7 @@ class Complete extends Sezzle
                     'log_origin' => __METHOD__,
                     'message' => 'Order already placed for this quote; skipping resubmission',
                     'reserved_order_id' => $quote->getReservedOrderId(),
+                    'store_id' => $quote->getStoreId(),
                     'order_id' => $order->getId()
                 ]);
                 $this->restoreCheckoutSession($quote, $order);
@@ -64,11 +63,19 @@ class Complete extends Sezzle
                 throw new CouldNotSaveException(__("Unable to place the order."));
             }
             $redirectPath = self::SUCCESS_PATH;
-        } catch (CouldNotSaveException|NoSuchEntityException|LocalizedException $e) {
+        } catch (\Throwable $e) {
+            // Catch broadly, by design. Magento surfaces the same underlying failure as several
+            // different exception types, including a plain \Exception when something throws
+            // while submitQuote() is rolling back a failed submit. Matching on specific classes
+            // let that case escape the controller entirely, which showed the shopper a raw
+            // Magento error report page and left their Sezzle authorization stranded. By this
+            // point the shopper may already be authorized, so any failure needs handling.
+            $this->logPlacementFailure(__METHOD__, $e, $quote);
+
             // Last-resort recovery: the failure may have been a reserved-id collision while
             // the order was in fact placed for this quote by a concurrent request. If so,
             // land the shopper on success instead of showing a raw error.
-            if ($quote !== null && $order = $this->orderRecovery->getExistingOrder($quote)) {
+            if ($order = $this->findRecoverableOrder($quote)) {
                 $this->helper->logSezzleActions([
                     'log_origin' => __METHOD__,
                     'message' => 'Recovered already-placed order after exception',
@@ -96,7 +103,7 @@ class Complete extends Sezzle
      *
      * @param CartInterface $quote
      * @return int|null
-     * @throws LocalizedException
+     * @throws \Throwable
      */
     private function placeOrder(CartInterface $quote): ?int
     {
@@ -108,12 +115,19 @@ class Complete extends Sezzle
 
         try {
             return (int)$this->{$cartManager}->placeOrder($resolvedId);
-        } catch (AlreadyExistsException $e) {
+        } catch (\Throwable $e) {
+            // Only a collision is recoverable here. Anything else belongs to execute(), which
+            // logs it, looks for an already-placed order and releases the authorization.
+            if (!$this->orderRecovery->isIncrementIdCollision($e)) {
+                throw $e;
+            }
+
             // The reserved increment ID collided with an existing sales_order row.
             $this->helper->logSezzleActions([
                 'log_origin' => __METHOD__,
                 'message' => 'Reserved order ID collision on placeOrder',
                 'reserved_order_id' => $quote->getReservedOrderId(),
+                'store_id' => $quote->getStoreId(),
                 'error' => $e->getMessage()
             ]);
 
@@ -159,15 +173,82 @@ class Complete extends Sezzle
     }
 
     /**
+     * Record a placement failure with everything needed to diagnose it after the fact.
+     *
+     * The wrapper Magento throws carries only the message of whatever failed last, so the
+     * originating error is invisible in both the error-report page and the storefront message.
+     * Logging the whole previous chain alongside the quote, store and reserved increment ID is
+     * what makes these reports diagnosable without asking the merchant for another log.
+     *
+     * Never throws: this runs on the failure path, ahead of the authorization release, and a
+     * second exception here would cost the shopper that release.
+     *
+     * @param string $origin
+     * @param \Throwable $e
+     * @param CartInterface|null $quote
+     * @return void
+     */
+    private function logPlacementFailure(string $origin, \Throwable $e, ?CartInterface $quote): void
+    {
+        try {
+            $this->helper->logSezzleActions([
+                'log_origin' => $origin,
+                'message' => 'Order placement failed on return from Sezzle',
+                'quote_id' => $quote ? $quote->getId() : null,
+                'store_id' => $quote ? $quote->getStoreId() : null,
+                'reserved_order_id' => $quote ? $quote->getReservedOrderId() : null,
+                'is_increment_id_collision' => $this->orderRecovery->isIncrementIdCollision($e),
+                'exception_chain' => $this->orderRecovery->describeThrowable($e)
+            ]);
+        } catch (\Throwable $loggingFailure) {
+            $this->helper->logSezzleActions(
+                'Could not log Sezzle placement failure: ' . $loggingFailure->getMessage()
+            );
+        }
+    }
+
+    /**
+     * Look for an already-placed order for this quote, without ever throwing.
+     *
+     * Also runs on the failure path, so it must not displace the authorization release either.
+     *
+     * @param CartInterface|null $quote
+     * @return Order|null
+     */
+    private function findRecoverableOrder(?CartInterface $quote): ?Order
+    {
+        if ($quote === null) {
+            return null;
+        }
+
+        try {
+            return $this->orderRecovery->getExistingOrder($quote);
+        } catch (\Throwable $lookupFailure) {
+            $this->helper->logSezzleActions([
+                'log_origin' => __METHOD__,
+                'message' => 'Could not check whether an order was already placed for this quote',
+                'error' => $lookupFailure->getMessage()
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
      * Handling Exception
      *
-     * @param mixed $exc
+     * @param \Throwable $exc
      */
-    private function handleException($exc)
+    private function handleException(\Throwable $exc)
     {
         $this->helper->logSezzleActions("Sezzle Transaction Exception: " . $exc->getMessage());
+
+        // Localized exceptions are written for shoppers; anything else is internal (a database
+        // constraint name, a PHP error) and must not be echoed onto the storefront.
         $this->messageManager->addErrorMessage(
-            $exc->getMessage()
+            $exc instanceof LocalizedException
+                ? $exc->getMessage()
+                : __('We were unable to complete your order. Please try again or contact us for help.')
         );
     }
 }
