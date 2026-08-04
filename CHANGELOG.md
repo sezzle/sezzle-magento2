@@ -6,6 +6,27 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Version 7.0.28
+
+_Tues 4 Aug 2026_
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.4 and later.
+- Magento Commerce On Prem Edition (EE) version 2.4 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.4 and later.
+
+### Highlights
+
+- Make the 7.0.27 order-completion recovery reachable for the failure it was written for: Magento reports it as a plain exception, which the previous release's error handling did not match, so shoppers still reached a Magento error report page with a stranded Sezzle authorization
+- Scope the existing-order lookup to the quote's store, so multi-store setups whose stores share an order-number sequence no longer miss an order that was already placed
+- Log the full exception chain, quote, store and reserved order ID when order placement fails, so the underlying error is recorded instead of only Magento's outer wrapper
+- Stop internal database and PHP errors from being displayed to shoppers or returned by the GraphQL `placeSezzleOrder` mutation
+
+> Note: this release improves recovery and diagnostics for a failure that originates in Magento's order creation. It does not prevent the underlying order-number collision, which is addressed by store configuration (see the `lock` setting in `app/etc/env.php` and per-store order-number prefixes).
+
 ## Version 7.0.27
 
 _Thurs 26 Jun 2026_
