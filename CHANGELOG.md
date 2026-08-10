@@ -25,7 +25,7 @@ Tested and verified in clean installations of Magento 2:
 - Log the full exception chain, quote, store and reserved order ID when order placement fails, so the underlying error is recorded instead of only Magento's outer wrapper
 - Stop internal database and PHP errors from being displayed to shoppers or returned by the GraphQL `placeSezzleOrder` mutation
 
-> Note: this release improves recovery and diagnostics for a failure that originates in Magento's order creation. It does not prevent the underlying order-number collision, which is addressed by store configuration (see the `lock` setting in `app/etc/env.php` and per-store order-number prefixes).
+> Note: this release improves recovery and diagnostics for a failure that originates outside this extension. It does not prevent the underlying error, which occurs inside Magento's order creation — typically caused by another extension that hooks order placement or saving (for example, one that rewrites order increment IDs after placement). The new diagnostics record that originating error in `var/log/sezzlepay.log` so it can be identified and fixed.
 
 ## Version 7.0.27
 
