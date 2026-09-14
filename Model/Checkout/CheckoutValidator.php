@@ -12,6 +12,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Sezzle\Sezzlepay\Helper\Data;
+use Sezzle\Sezzlepay\Helper\Util;
 
 /**
  * Class CheckoutValidator
@@ -55,7 +56,20 @@ class CheckoutValidator
      */
     public function validate(Quote $quote)
     {
-        $this->validateAddress($quote->getBillingAddress());
+        // Billing address is optional. A shopper may clear "same as shipping" and leave
+        // the form untouched, which leaves the quote without any billing data. Only a
+        // partially filled billing address is treated as an error.
+        //
+        // A virtual quote has no shipping address, so its billing address is the only one
+        // Magento can hand to BillingAddressValidationRule when the order is placed on the
+        // return leg from Sezzle. Keep it required there rather than letting the shopper
+        // authorize and then fail at placeOrder().
+        if (!$quote->isVirtual() && Util::isAddressEmpty($quote->getBillingAddress())) {
+            $this->sezzleHelper->logSezzleActions('Billing address is empty. Skipping billing address validation.');
+        } else {
+            $this->validateAddress($quote->getBillingAddress());
+        }
+
         if (!$quote->isVirtual()) {
             $this->validateAddress($quote->getShippingAddress());
             $this->validateShippingMethod($quote);

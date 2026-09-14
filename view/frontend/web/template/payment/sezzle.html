@@ -38,7 +38,7 @@
                         data-bind="
                         click: continueToSezzle,
                         attr: {title: getSubmitButtonName()},
-                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        css: {disabled: !isSezzleActionAllowed()},
                         enable: (getCode() == isChecked())
                         "
                         disabled>

@@ -174,11 +174,19 @@ define([
          * @return {*}
          */
         validateCheckout: function () {
+            var isActionAllowed;
+
             if (this.clientConfig.isAheadworksCheckoutEnabled) {
                 return this._beforeAction();
             }
 
-            if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === true) {
+            // isSezzleActionAllowed() tolerates a deliberately blank billing address.
+            // Fall back for renderers that do not mix in the Sezzle method renderer.
+            isActionAllowed = typeof this.isSezzleActionAllowed === 'function'
+                ? this.isSezzleActionAllowed()
+                : this.isPlaceOrderActionAllowed();
+
+            if (additionalValidators.validate() && isActionAllowed === true) {
                 return $.Deferred().resolve();
             }
             errorProcessor.process({

@@ -6,6 +6,8 @@
 define(
     [
         'jquery',
+        'uiRegistry',
+        'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
@@ -15,6 +17,8 @@ define(
     ],
     function (
         $,
+        registry,
+        quote,
         customer,
         Component,
         additionalValidators,
@@ -25,7 +29,134 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'Sezzle_Sezzlepay/payment/sezzle'
+                template: 'Sezzle_Sezzlepay/payment/sezzle',
+                billingAddressSkipped: false,
+                isRequestPending: false
+            },
+
+            /**
+             * Billing address fields the shopper fills in. Country is left out on
+             * purpose - Magento pre-selects the store default, so an untouched form
+             * always reports one.
+             */
+            billingAddressFields: [
+                'firstname',
+                'lastname',
+                'company',
+                'street',
+                'city',
+                'region',
+                'region_id',
+                'postcode',
+                'telephone',
+                'vat_id'
+            ],
+
+            /**
+             * @returns {Component} Chainable.
+             */
+            initObservable: function () {
+                this._super().observe(['billingAddressSkipped', 'isRequestPending']);
+
+                return this;
+            },
+
+            /**
+             * Billing address is optional for Sezzle. Magento blocks the place order
+             * action as soon as the quote has no billing address, which happens the
+             * moment the shopper unchecks "same as shipping". Track that case so the
+             * Sezzle action stays available while the form is left untouched.
+             *
+             * @returns {Component} Chainable.
+             */
+            initialize: function () {
+                var self = this;
+
+                this._super();
+
+                registry.async('checkoutProvider')(function (checkoutProvider) {
+                    self.checkoutProvider = checkoutProvider;
+                    checkoutProvider.on(
+                        'billingAddress' + self.getCode(),
+                        function () {
+                            self.resolveBillingAddressSkipped();
+                        },
+                        'sezzleBillingAddress'
+                    );
+                    self.resolveBillingAddressSkipped();
+                });
+
+                quote.billingAddress.subscribe(function () {
+                    self.resolveBillingAddressSkipped();
+                });
+                this.resolveBillingAddressSkipped();
+
+                return this;
+            },
+
+            /**
+             * Drop the billing address form subscription alongside the core ones
+             */
+            disposeSubscriptions: function () {
+                this._super();
+
+                registry.async('checkoutProvider')(function (checkoutProvider) {
+                    checkoutProvider.off('sezzleBillingAddress');
+                });
+            },
+
+            /**
+             * Flag the billing address as deliberately skipped when the quote carries
+             * no billing address and nothing has been typed into the form.
+             *
+             * A virtual quote has no shipping address, so its billing address is the
+             * only one Magento can validate when the order is placed on the return leg
+             * from Sezzle. Leave the button gated there so the shopper is stopped here
+             * rather than after authorizing.
+             */
+            resolveBillingAddressSkipped: function () {
+                this.billingAddressSkipped(
+                    !quote.isVirtual()
+                    && quote.billingAddress() === null
+                    && this.isBillingAddressFormEmpty()
+                );
+            },
+
+            /**
+             * Check the live billing address form for shopper entered data
+             *
+             * @returns {Boolean}
+             */
+            isBillingAddressFormEmpty: function () {
+                var data = this.checkoutProvider && this.checkoutProvider.get('billingAddress' + this.getCode());
+
+                if (!data) {
+                    return true;
+                }
+
+                return this.billingAddressFields.every(function (field) {
+                    var value = data[field];
+
+                    if ($.isArray(value)) {
+                        value = value.join('');
+                    }
+
+                    return value === undefined || value === null || String(value).trim() === '';
+                });
+            },
+
+            /**
+             * Whether the Sezzle action may run. Mirrors isPlaceOrderActionAllowed but
+             * tolerates a deliberately blank billing address.
+             *
+             * @returns {Boolean}
+             */
+            isSezzleActionAllowed: function () {
+                if (this.isRequestPending()) {
+                    return false;
+                }
+
+                return this.isPlaceOrderActionAllowed() || this.billingAddressSkipped();
             },
 
             /**
@@ -84,6 +215,7 @@ define(
                 var self = this;
 
                 self.isPlaceOrderActionAllowed(false);
+                self.isRequestPending(true);
 
                 // created order by customer UUID if customer is tokenized
                 if (customer.isLoggedIn() && this.hasCustomerUUID()) {
@@ -101,6 +233,7 @@ define(
                         ).always(
                         function () {
                             self.isPlaceOrderActionAllowed(true);
+                            self.isRequestPending(false);
                         }
                     );
                     return;
@@ -116,6 +249,7 @@ define(
                     ).always(
                     function () {
                         self.isPlaceOrderActionAllowed(true);
+                        self.isRequestPending(false);
                     }
                 );
             },
@@ -152,7 +286,7 @@ define(
 
                 if (this.validate()
                     && additionalValidators.validate()
-                    && this.isPlaceOrderActionAllowed() === true) {
+                    && this.isSezzleActionAllowed() === true) {
                     this.handleRedirectAction();
                 }
             }
