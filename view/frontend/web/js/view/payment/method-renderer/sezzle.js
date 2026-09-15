@@ -216,9 +216,19 @@ define(
                     return;
                 }
 
-                if (this.validate() && additionalValidators.validate()) {
-                    this.handleRedirectAction();
+                // validate() and additionalValidators mark up their own fields, but those
+                // can sit well outside the viewport, so a refused click looks like it did
+                // nothing. Say something here too, the same way the in-context path does
+                // in checkout-wrapper.js.
+                if (!this.validate() || !additionalValidators.validate()) {
+                    this.messageContainer.addErrorMessage({
+                        message: $t('Please complete the required checkout fields before continuing.')
+                    });
+
+                    return;
                 }
+
+                this.handleRedirectAction();
             }
         });
     }
