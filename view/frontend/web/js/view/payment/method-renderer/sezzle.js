@@ -60,18 +60,23 @@ define(
                     return null;
                 }
 
-                // The quote has no billing address. When the merchant requires one it is
-                // still being entered; when they do not, Magento renders no form at all
-                // and reuses the shipping address, so reaching here means a virtual cart
-                // with nothing to fall back on.
+                // isPlaceOrderActionAllowed is shared. Core keeps it in step with the
+                // quote's billing address, but also lowers it while a place order request
+                // is in flight, and other checkout integrations can lower it for reasons
+                // of their own. Being false is therefore not proof that billing is the
+                // cause, so read the quote before naming one.
+                if (quote.billingAddress()) {
+                    return $t('Unable to continue with Sezzle. Please review your checkout details and try again.');
+                }
+
                 if (quote.isVirtual()) {
                     return $t('Please enter a billing address.');
                 }
 
-                return $t(
-                    'Your billing address has not been saved. Select Update below the billing '
-                    + 'address form to save it.'
-                );
+                // Deliberately names no control. With the billing address requirement
+                // turned off Magento renders no billing form at all, and one step or
+                // otherwise customized checkouts need not have an Update button either.
+                return $t('Your billing address has not been saved. Please complete the billing address to continue.');
             },
 
             /**
