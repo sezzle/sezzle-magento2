@@ -7,7 +7,6 @@ define(
     [
         'jquery',
         'mage/translate',
-        'uiRegistry',
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/view/payment/default',
@@ -19,7 +18,6 @@ define(
     function (
         $,
         $t,
-        registry,
         quote,
         customer,
         Component,
@@ -32,119 +30,16 @@ define(
         return Component.extend({
             defaults: {
                 template: 'Sezzle_Sezzlepay/payment/sezzle',
-                billingAddressSkipped: false,
                 isRequestPending: false
             },
-
-            /**
-             * Billing address fields the shopper fills in. Country is left out on
-             * purpose - Magento pre-selects the store default, so an untouched form
-             * always reports one.
-             */
-            billingAddressFields: [
-                'firstname',
-                'lastname',
-                'company',
-                'street',
-                'city',
-                'region',
-                'region_id',
-                'postcode',
-                'telephone',
-                'vat_id'
-            ],
 
             /**
              * @returns {Component} Chainable.
              */
             initObservable: function () {
-                this._super().observe(['billingAddressSkipped', 'isRequestPending']);
+                this._super().observe(['isRequestPending']);
 
                 return this;
-            },
-
-            /**
-             * Billing address is optional for Sezzle. Magento blocks the place order
-             * action as soon as the quote has no billing address, which happens the
-             * moment the shopper unchecks "same as shipping". Track that case so the
-             * Sezzle action stays available while the form is left untouched.
-             *
-             * @returns {Component} Chainable.
-             */
-            initialize: function () {
-                var self = this;
-
-                this._super();
-
-                registry.async('checkoutProvider')(function (checkoutProvider) {
-                    self.checkoutProvider = checkoutProvider;
-                    checkoutProvider.on(
-                        'billingAddress' + self.getCode(),
-                        function () {
-                            self.resolveBillingAddressSkipped();
-                        },
-                        'sezzleBillingAddress'
-                    );
-                    self.resolveBillingAddressSkipped();
-                });
-
-                quote.billingAddress.subscribe(function () {
-                    self.resolveBillingAddressSkipped();
-                });
-                this.resolveBillingAddressSkipped();
-
-                return this;
-            },
-
-            /**
-             * Drop the billing address form subscription alongside the core ones
-             */
-            disposeSubscriptions: function () {
-                this._super();
-
-                registry.async('checkoutProvider')(function (checkoutProvider) {
-                    checkoutProvider.off('sezzleBillingAddress');
-                });
-            },
-
-            /**
-             * Flag the billing address as deliberately skipped when the quote carries
-             * no billing address and nothing has been typed into the form.
-             *
-             * A virtual quote has no shipping address, so its billing address is the
-             * only one Magento can validate when the order is placed on the return leg
-             * from Sezzle. Leave the button gated there so the shopper is stopped here
-             * rather than after authorizing.
-             */
-            resolveBillingAddressSkipped: function () {
-                this.billingAddressSkipped(
-                    !quote.isVirtual()
-                    && quote.billingAddress() === null
-                    && this.isBillingAddressFormEmpty()
-                );
-            },
-
-            /**
-             * Check the live billing address form for shopper entered data
-             *
-             * @returns {Boolean}
-             */
-            isBillingAddressFormEmpty: function () {
-                var data = this.checkoutProvider && this.checkoutProvider.get('billingAddress' + this.getCode());
-
-                if (!data) {
-                    return true;
-                }
-
-                return this.billingAddressFields.every(function (field) {
-                    var value = data[field];
-
-                    if ($.isArray(value)) {
-                        value = value.join('');
-                    }
-
-                    return value === undefined || value === null || String(value).trim() === '';
-                });
             },
 
             /**
@@ -165,28 +60,22 @@ define(
                     return null;
                 }
 
-                // The quote has no billing address. Either the shopper deliberately left
-                // it blank, which Sezzle allows, or they filled the form and never
-                // pressed Update, so it was never committed. Falling back to the shipping
-                // address in that second case would bill them somewhere they did not
-                // choose, so ask them to commit or clear it instead.
-                if (this.billingAddressSkipped()) {
-                    return null;
-                }
-
+                // The quote has no billing address. When the merchant requires one it is
+                // still being entered; when they do not, Magento renders no form at all
+                // and reuses the shipping address, so reaching here means a virtual cart
+                // with nothing to fall back on.
                 if (quote.isVirtual()) {
                     return $t('Please enter a billing address.');
                 }
 
                 return $t(
                     'Your billing address has not been saved. Select Update below the billing '
-                    + 'address form, or clear the form to use your shipping address.'
+                    + 'address form to save it.'
                 );
             },
 
             /**
-             * Whether the Sezzle action may run. Mirrors isPlaceOrderActionAllowed but
-             * tolerates a deliberately blank billing address.
+             * Whether the Sezzle action may run
              *
              * @returns {Boolean}
              */
