@@ -6,6 +6,7 @@
 define(
     [
         'jquery',
+        'mage/translate',
         'uiRegistry',
         'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
@@ -17,6 +18,7 @@ define(
     ],
     function (
         $,
+        $t,
         registry,
         quote,
         customer,
@@ -146,17 +148,50 @@ define(
             },
 
             /**
+             * Describe why the Sezzle action cannot run, or null when it can.
+             *
+             * Returning a message rather than a bare false lets callers show the
+             * shopper something they can act on. Refusing silently strands them on a
+             * disabled button or a spinning modal with no idea what is wrong.
+             *
+             * @returns {String|null}
+             */
+            getCheckoutBlocker: function () {
+                if (this.isRequestPending()) {
+                    return $t('Your request is still being processed. Please wait.');
+                }
+
+                if (this.isPlaceOrderActionAllowed()) {
+                    return null;
+                }
+
+                // The quote has no billing address. Either the shopper deliberately left
+                // it blank, which Sezzle allows, or they filled the form and never
+                // pressed Update, so it was never committed. Falling back to the shipping
+                // address in that second case would bill them somewhere they did not
+                // choose, so ask them to commit or clear it instead.
+                if (this.billingAddressSkipped()) {
+                    return null;
+                }
+
+                if (quote.isVirtual()) {
+                    return $t('Please enter a billing address.');
+                }
+
+                return $t(
+                    'Your billing address has not been saved. Select Update below the billing '
+                    + 'address form, or clear the form to use your shipping address.'
+                );
+            },
+
+            /**
              * Whether the Sezzle action may run. Mirrors isPlaceOrderActionAllowed but
              * tolerates a deliberately blank billing address.
              *
              * @returns {Boolean}
              */
             isSezzleActionAllowed: function () {
-                if (this.isRequestPending()) {
-                    return false;
-                }
-
-                return this.isPlaceOrderActionAllowed() || this.billingAddressSkipped();
+                return this.getCheckoutBlocker() === null;
             },
 
             /**
@@ -284,9 +319,15 @@ define(
                     event.preventDefault();
                 }
 
-                if (this.validate()
-                    && additionalValidators.validate()
-                    && this.isSezzleActionAllowed() === true) {
+                var blocker = this.getCheckoutBlocker();
+
+                if (blocker) {
+                    this.messageContainer.addErrorMessage({message: blocker});
+
+                    return;
+                }
+
+                if (this.validate() && additionalValidators.validate()) {
                     this.handleRedirectAction();
                 }
             }

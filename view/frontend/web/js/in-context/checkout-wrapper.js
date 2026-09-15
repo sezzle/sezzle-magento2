@@ -174,24 +174,30 @@ define([
          * @return {*}
          */
         validateCheckout: function () {
-            var isActionAllowed;
+            var blocker;
 
             if (this.clientConfig.isAheadworksCheckoutEnabled) {
                 return this._beforeAction();
             }
 
-            // isSezzleActionAllowed() tolerates a deliberately blank billing address.
-            // Fall back for renderers that do not mix in the Sezzle method renderer.
-            isActionAllowed = typeof this.isSezzleActionAllowed === 'function'
-                ? this.isSezzleActionAllowed()
-                : this.isPlaceOrderActionAllowed();
+            // getCheckoutBlocker() comes from the Sezzle method renderer. Renderers that
+            // do not mix it in fall back to the core flag, which carries no reason.
+            blocker = typeof this.getCheckoutBlocker === 'function'
+                ? this.getCheckoutBlocker()
+                : (this.isPlaceOrderActionAllowed() ? null : $t('Unable to process your request.'));
 
-            if (additionalValidators.validate() && isActionAllowed === true) {
+            if (!blocker && additionalValidators.validate()) {
                 return $.Deferred().resolve();
             }
-            errorProcessor.process({
-                responseText: JSON.stringify({message:"Unable to process you request."})
-            }, this.messageContainer);
+
+            // additionalValidators renders its own field-level errors, so only speak up
+            // when the block came from us and the shopper would otherwise see nothing.
+            if (blocker) {
+                errorProcessor.process({
+                    responseText: JSON.stringify({message: blocker})
+                }, this.messageContainer);
+            }
+
             return $.Deferred().reject();
         },
 

@@ -17,23 +17,44 @@ define([
         checkoutSDK.renderSezzleButton(clientConfig.sezzleButtonContainerElementID);
         checkoutSDK.init({
             onClick: function (event) {
+                var component = clientConfig.rendererComponent,
+                    blocker = typeof component.getCheckoutBlocker === 'function'
+                        ? component.getCheckoutBlocker()
+                        : null;
+
                 event.preventDefault();
+
+                // Surface anything we already know is wrong before the modal opens. The
+                // modal covers the page with a loader, so an error raised behind it is
+                // invisible and the shopper is left watching a spinner.
+                if (blocker) {
+                    errorProcessor.process({
+                        responseText: JSON.stringify({message: blocker})
+                    }, component.messageContainer);
+
+                    return;
+                }
+
+                // openModal() stays synchronous inside the click handler so the browser
+                // does not treat the popup as unsolicited.
                 checkoutSDK.openModal();
-                clientConfig.rendererComponent.validateCheckout().done(function () {
+                component.validateCheckout().done(function () {
                     fullScreenLoader.startLoader();
-                    clientConfig.rendererComponent.beforeOnClick().done(function (response) {
+                    component.beforeOnClick().done(function (response) {
                         var jsonResponse = $.parseJSON(response);
                         checkoutSDK.startCheckout({checkout_url: jsonResponse.checkout_url});
                     }).fail(
                         function (response) {
-                            errorProcessor.process(response, this.messageContainer);
+                            errorProcessor.process(response, component.messageContainer);
                             checkoutSDK.closeModal();
                         }
                     ).always(function () {
                         fullScreenLoader.stopLoader();
                     })
-                })
-
+                }).fail(function () {
+                    // Never leave the shopper on a spinning modal with no way back.
+                    checkoutSDK.closeModal();
+                });
             },
             onComplete: function () {
                 clientConfig.rendererComponent.afterOnComplete();
