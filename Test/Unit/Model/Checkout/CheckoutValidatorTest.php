@@ -20,6 +20,12 @@ use Sezzle\Sezzlepay\Model\Checkout\CheckoutValidator;
 class CheckoutValidatorTest extends TestCase
 {
     /**
+     * The message CheckoutValidator logs when it fills billing from shipping
+     */
+    private const COPIED_FROM_SHIPPING =
+        'Billing address is empty and not required. Copied from the shipping address.';
+
+    /**
      * @var Data|MockObject
      */
     private $sezzleHelper;
@@ -41,9 +47,22 @@ class CheckoutValidatorTest extends TestCase
      */
     private $addressState = [];
 
+    /**
+     * Everything passed to logSezzleActions() during the run
+     *
+     * @var array
+     */
+    private $loggedActions = [];
+
     protected function setUp(): void
     {
+        $this->loggedActions = [];
         $this->sezzleHelper = $this->createMock(Data::class);
+        $this->sezzleHelper->method('logSezzleActions')->willReturnCallback(
+            function ($action) {
+                $this->loggedActions[] = $action;
+            }
+        );
         $this->config = $this->createMock(Config::class);
         $this->validator = new CheckoutValidator($this->sezzleHelper, $this->config);
     }
@@ -91,6 +110,10 @@ class CheckoutValidatorTest extends TestCase
             });
 
         $this->validator->validate($this->buildQuote($billing, $shipping));
+
+        $this->assertSame(1, $this->timesLogged(self::COPIED_FROM_SHIPPING));
+        // Both addresses still validated afterwards - the copy is not a way to skip it.
+        $this->assertSame(2, $this->timesLogged('Address Validated'));
     }
 
     /**
@@ -128,7 +151,7 @@ class CheckoutValidatorTest extends TestCase
 
         $this->validator->validate($quote);
 
-        $this->assertTrue(true, 'No exception is thrown for complete addresses.');
+        $this->assertSame(2, $this->timesLogged('Address Validated'));
     }
 
     /**
@@ -182,7 +205,8 @@ class CheckoutValidatorTest extends TestCase
 
         $this->validator->validate($quote);
 
-        $this->assertTrue(true, 'A virtual quote only needs a billing address.');
+        // One address validated, not two: the shipping address was never looked at.
+        $this->assertSame(1, $this->timesLogged('Address Validated'));
     }
 
     /**
@@ -214,7 +238,8 @@ class CheckoutValidatorTest extends TestCase
 
         $this->validator->validate($quote);
 
-        $this->assertTrue(true, 'No exception is thrown for complete addresses.');
+        $this->assertSame(2, $this->timesLogged('Address Validated'));
+        $this->assertSame(0, $this->timesLogged(self::COPIED_FROM_SHIPPING));
     }
 
     /**
@@ -257,6 +282,21 @@ class CheckoutValidatorTest extends TestCase
         $this->expectExceptionMessage('Please check the shipping address');
 
         $this->validator->validate($quote);
+    }
+
+    /**
+     * How many times a message was logged, whether logged bare or inside an array
+     *
+     * @param string $message
+     * @return int
+     */
+    private function timesLogged(string $message): int
+    {
+        $messages = array_map(static function ($action) {
+            return is_array($action) ? ($action['message'] ?? '') : (string)$action;
+        }, $this->loggedActions);
+
+        return count(array_keys($messages, $message, true));
     }
 
     /**
