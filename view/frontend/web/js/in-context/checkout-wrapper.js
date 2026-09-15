@@ -186,19 +186,28 @@ define([
                 ? this.getCheckoutBlocker()
                 : (this.isPlaceOrderActionAllowed() ? null : $t('Unable to process your request.'));
 
-            if (!blocker && additionalValidators.validate()) {
-                return $.Deferred().resolve();
-            }
-
-            // additionalValidators renders its own field-level errors, so only speak up
-            // when the block came from us and the shopper would otherwise see nothing.
             if (blocker) {
                 errorProcessor.process({
                     responseText: JSON.stringify({message: blocker})
                 }, this.messageContainer);
+
+                return $.Deferred().reject();
             }
 
-            return $.Deferred().reject();
+            if (!additionalValidators.validate()) {
+                // additionalValidators marks up its own fields, but those can sit well
+                // outside the viewport. Say something here too, so a refused click is
+                // never silent.
+                errorProcessor.process({
+                    responseText: JSON.stringify({
+                        message: $t('Please complete the required checkout fields before continuing.')
+                    })
+                }, this.messageContainer);
+
+                return $.Deferred().reject();
+            }
+
+            return $.Deferred().resolve();
         },
 
         /**

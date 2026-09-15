@@ -17,28 +17,18 @@ define([
         checkoutSDK.renderSezzleButton(clientConfig.sezzleButtonContainerElementID);
         checkoutSDK.init({
             onClick: function (event) {
-                var component = clientConfig.rendererComponent,
-                    blocker = typeof component.getCheckoutBlocker === 'function'
-                        ? component.getCheckoutBlocker()
-                        : null;
+                var component = clientConfig.rendererComponent;
 
                 event.preventDefault();
 
-                // Surface anything we already know is wrong before the modal opens. The
-                // modal covers the page with a loader, so an error raised behind it is
-                // invisible and the shopper is left watching a spinner.
-                if (blocker) {
-                    errorProcessor.process({
-                        responseText: JSON.stringify({message: blocker})
-                    }, component.messageContainer);
-
-                    return;
-                }
-
-                // openModal() stays synchronous inside the click handler so the browser
-                // does not treat the popup as unsolicited.
-                checkoutSDK.openModal();
+                // Validate before anything opens. The modal covers the page with its own
+                // loader, so an error raised behind it is invisible and closing it from
+                // the same tick it opened in does not reliably take effect.
+                //
+                // validateCheckout() settles synchronously, so openModal() still runs
+                // within the click handler and is not treated as an unsolicited popup.
                 component.validateCheckout().done(function () {
+                    checkoutSDK.openModal();
                     fullScreenLoader.startLoader();
                     component.beforeOnClick().done(function (response) {
                         var jsonResponse = $.parseJSON(response);
