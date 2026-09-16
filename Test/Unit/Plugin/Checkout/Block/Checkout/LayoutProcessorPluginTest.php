@@ -4,6 +4,7 @@ namespace Sezzle\Sezzlepay\Test\Unit\Plugin\Checkout\Block\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessor;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Stdlib\ArrayManager;
 use Magento\Quote\Model\Quote;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +17,23 @@ use Sezzle\Sezzlepay\Plugin\Checkout\Block\Checkout\LayoutProcessorPlugin;
  */
 class LayoutProcessorPluginTest extends TestCase
 {
+    /**
+     * Spelled out again rather than imported from the plugin.
+     *
+     * The plugin holds the only copy it uses, so a typo there no longer makes it write
+     * somewhere it never reads. What still has to be caught is a typo in that one copy,
+     * and a fixture built from the same constant would agree with any path at all. This
+     * is the oracle, so it has to be written independently.
+     */
+    private const LAYOUT_PATH = 'components/checkout/children/steps/children/billing-step/'
+        . 'children/payment/children/renders/children/sezzlepay/methods/sezzlepay/'
+        . 'isBillingAddressRequired';
+
+    /**
+     * @var ArrayManager
+     */
+    private $arrayManager;
+
     /**
      * @var Config|MockObject
      */
@@ -38,6 +56,7 @@ class LayoutProcessorPluginTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->arrayManager = new ArrayManager();
         $this->config = $this->createMock(Config::class);
         $this->checkoutSession = $this->getMockBuilder(CheckoutSession::class)
             ->disableOriginalConstructor()
@@ -48,7 +67,8 @@ class LayoutProcessorPluginTest extends TestCase
         $this->plugin = new LayoutProcessorPlugin(
             $this->config,
             $this->checkoutSession,
-            $this->createMock(Data::class)
+            $this->createMock(Data::class),
+            $this->arrayManager
         );
     }
 
@@ -128,12 +148,7 @@ class LayoutProcessorPluginTest extends TestCase
      */
     private function buildLayout(): array
     {
-        $methods = ['sezzlepay' => ['isBillingAddressRequired' => true]];
-        $renders = ['children' => ['sezzlepay' => ['methods' => $methods]]];
-        $payment = ['children' => ['renders' => $renders]];
-        $steps = ['children' => ['billing-step' => ['children' => ['payment' => $payment]]]];
-
-        return ['components' => ['checkout' => ['children' => ['steps' => $steps]]]];
+        return $this->arrayManager->set(self::LAYOUT_PATH, [], true);
     }
 
     /**
@@ -142,8 +157,6 @@ class LayoutProcessorPluginTest extends TestCase
      */
     private function readFlag(array $jsLayout): bool
     {
-        return $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']
-            ['children']['payment']['children']['renders']['children']['sezzlepay']['methods']
-            ['sezzlepay']['isBillingAddressRequired'];
+        return $this->arrayManager->get(self::LAYOUT_PATH, $jsLayout);
     }
 }

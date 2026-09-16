@@ -10,6 +10,7 @@ namespace Sezzle\Sezzlepay\Plugin\Checkout\Block\Checkout;
 use Exception;
 use Magento\Checkout\Block\Checkout\LayoutProcessor;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Stdlib\ArrayManager;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
 use Sezzle\Sezzlepay\Helper\Data;
 
@@ -24,6 +25,13 @@ use Sezzle\Sezzlepay\Helper\Data;
  */
 class LayoutProcessorPlugin
 {
+    /**
+     * Where the Sezzle renderer keeps the flag inside the checkout layout
+     */
+    private const BILLING_ADDRESS_REQUIRED_PATH = 'components/checkout/children/steps/children/'
+        . 'billing-step/children/payment/children/renders/children/sezzlepay/methods/sezzlepay/'
+        . 'isBillingAddressRequired';
+
     /**
      * @var Config
      */
@@ -40,19 +48,27 @@ class LayoutProcessorPlugin
     private $helper;
 
     /**
+     * @var ArrayManager
+     */
+    private $arrayManager;
+
+    /**
      * @param Config $config
      * @param CheckoutSession $checkoutSession
      * @param Data $helper
+     * @param ArrayManager $arrayManager
      */
     public function __construct(
         Config          $config,
         CheckoutSession $checkoutSession,
-        Data            $helper
+        Data            $helper,
+        ArrayManager    $arrayManager
     )
     {
         $this->config = $config;
         $this->checkoutSession = $checkoutSession;
         $this->helper = $helper;
+        $this->arrayManager = $arrayManager;
     }
 
     /**
@@ -62,12 +78,11 @@ class LayoutProcessorPlugin
      */
     public function beforeProcess(LayoutProcessor $subject, array $jsLayout): array
     {
-        // Read the path before writing it. Taking a reference to a missing key would
-        // create every level of it, leaving stray nodes in layouts that carry no Sezzle
-        // renderer at all.
-        if (!isset($jsLayout['components']['checkout']['children']['steps']['children']['billing-step']
-            ['children']['payment']['children']['renders']['children']['sezzlepay']['methods']['sezzlepay']
-            ['isBillingAddressRequired'])) {
+        // Read the path before writing it. ArrayManager::set() populates, creating every
+        // missing level on its way down, which would leave stray nodes in layouts that
+        // carry no Sezzle renderer at all. get() returning null covers both a missing
+        // path and a null flag, the same two cases the isset() this replaced ruled out.
+        if ($this->arrayManager->get(self::BILLING_ADDRESS_REQUIRED_PATH, $jsLayout) === null) {
             return [$jsLayout];
         }
 
@@ -75,11 +90,7 @@ class LayoutProcessorPlugin
             return [$jsLayout];
         }
 
-        $jsLayout['components']['checkout']['children']['steps']['children']['billing-step']
-            ['children']['payment']['children']['renders']['children']['sezzlepay']['methods']['sezzlepay']
-            ['isBillingAddressRequired'] = false;
-
-        return [$jsLayout];
+        return [$this->arrayManager->set(self::BILLING_ADDRESS_REQUIRED_PATH, $jsLayout, false)];
     }
 
     /**
