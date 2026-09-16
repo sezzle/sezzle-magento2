@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Sezzle\Sezzlepay\Helper\Util;
 use stdClass;
+use TypeError;
 
 /**
  * @covers \Sezzle\Sezzlepay\Helper\Util
@@ -14,8 +15,8 @@ use stdClass;
 class UtilTest extends TestCase
 {
     /**
-     * Callers reach for this before they know whether an address exists at all, so
-     * anything that is not a quote address holds no shopper data by definition.
+     * Callers reach for this before they know whether an address exists at all, and
+     * an address that is not there holds no shopper data.
      */
     public function testNullIsEmpty(): void
     {
@@ -27,14 +28,23 @@ class UtilTest extends TestCase
         $this->assertTrue(Util::isAddressEmpty());
     }
 
-    public function testUnrelatedObjectIsEmpty(): void
+    /**
+     * True means skip or omit, so the wrong type has to be loud. Answering "empty"
+     * would drop billing_address from the Sezzle payload and re-point the identity
+     * fields at shipping, far from whoever passed the wrong thing.
+     */
+    public function testUnrelatedObjectIsRejected(): void
     {
-        $this->assertTrue(Util::isAddressEmpty(new stdClass()));
+        $this->expectException(TypeError::class);
+
+        Util::isAddressEmpty(new stdClass());
     }
 
-    public function testStringIsEmpty(): void
+    public function testStringIsRejected(): void
     {
-        $this->assertTrue(Util::isAddressEmpty('123 Main St'));
+        $this->expectException(TypeError::class);
+
+        Util::isAddressEmpty('123 Main St');
     }
 
     public function testUntouchedAddressIsEmpty(): void

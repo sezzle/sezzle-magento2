@@ -41,12 +41,17 @@ class Util
     /**
      * Check whether an address holds no shopper entered data
      *
+     * Typed rather than guarded by instanceof. True here means skip or omit, so a
+     * caller that hands over the wrong thing should get a TypeError at its own call
+     * site rather than a quiet "empty" that drops billing from the Sezzle payload
+     * three layers away. Null stays true: a missing address holds no data.
+     *
      * @param Address|null $address
      * @return bool
      */
-    public static function isAddressEmpty($address = null)
+    public static function isAddressEmpty(?Address $address = null): bool
     {
-        if (!$address instanceof Address) {
+        if ($address === null) {
             return true;
         }
 
