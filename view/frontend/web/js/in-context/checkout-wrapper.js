@@ -216,9 +216,28 @@ define([
          * @returns {Promise}
          */
         beforeOnClick: function () {
+            var self = this;
+
+            // Raise the same flag the redirect path raises, so getCheckoutBlocker() can
+            // refuse a second click while this session request is in flight. The SDK
+            // renders its own button, so there is no disabled binding to fall back on
+            // here, and every extra click is another /v2/session at Sezzle for the one
+            // cart.
+            //
+            // Guarded for the same reason the getCheckoutBlocker() lookup above is: the
+            // Aheadworks toolbar renderer mixes this wrapper into a component that does
+            // not extend the Sezzle method renderer, so it has no isRequestPending.
+            if (typeof this.isRequestPending === 'function') {
+                this.isRequestPending(true);
+            }
+
             return $.when(
                 createSezzleCheckoutAction(this.getData(), this.messageContainer)
-            );
+            ).always(function () {
+                if (typeof self.isRequestPending === 'function') {
+                    self.isRequestPending(false);
+                }
+            });
         },
 
         /**
