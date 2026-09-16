@@ -174,17 +174,40 @@ define([
          * @return {*}
          */
         validateCheckout: function () {
+            var blocker;
+
             if (this.clientConfig.isAheadworksCheckoutEnabled) {
                 return this._beforeAction();
             }
 
-            if (additionalValidators.validate() && this.isPlaceOrderActionAllowed() === true) {
-                return $.Deferred().resolve();
+            // getCheckoutBlocker() comes from the Sezzle method renderer. Renderers that
+            // do not mix it in fall back to the core flag, which carries no reason.
+            blocker = typeof this.getCheckoutBlocker === 'function'
+                ? this.getCheckoutBlocker()
+                : (this.isPlaceOrderActionAllowed() ? null : $t('Unable to process your request.'));
+
+            if (blocker) {
+                errorProcessor.process({
+                    responseText: JSON.stringify({message: blocker})
+                }, this.messageContainer);
+
+                return $.Deferred().reject();
             }
-            errorProcessor.process({
-                responseText: JSON.stringify({message:"Unable to process you request."})
-            }, this.messageContainer);
-            return $.Deferred().reject();
+
+            if (!additionalValidators.validate()) {
+                // additionalValidators marks up its own fields, but those can sit well
+                // outside the viewport. Say something here too, so a refused click is
+                // never silent.
+                errorProcessor.process({
+                    responseText: JSON.stringify({
+                        message: $t('Please complete the required checkout fields before continuing.')
+                    })
+                }, this.messageContainer);
+
+                return $.Deferred().reject();
+            }
+
+            return $.Deferred().resolve();
         },
 
         /**
@@ -193,9 +216,28 @@ define([
          * @returns {Promise}
          */
         beforeOnClick: function () {
+            var self = this;
+
+            // Raise the same flag the redirect path raises, so getCheckoutBlocker() can
+            // refuse a second click while this session request is in flight. The SDK
+            // renders its own button, so there is no disabled binding to fall back on
+            // here, and every extra click is another /v2/session at Sezzle for the one
+            // cart.
+            //
+            // Guarded for the same reason the getCheckoutBlocker() lookup above is: the
+            // Aheadworks toolbar renderer mixes this wrapper into a component that does
+            // not extend the Sezzle method renderer, so it has no isRequestPending.
+            if (typeof this.isRequestPending === 'function') {
+                this.isRequestPending(true);
+            }
+
             return $.when(
                 createSezzleCheckoutAction(this.getData(), this.messageContainer)
-            );
+            ).always(function () {
+                if (typeof self.isRequestPending === 'function') {
+                    self.isRequestPending(false);
+                }
+            });
         },
 
         /**

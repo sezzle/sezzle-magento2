@@ -70,6 +70,13 @@
                         <comment><![CDATA[<strong style="color: #ff5501;">DEPRECATED:</strong> This feature has been disabled and is no longer supported. Existing tokenized customers can still be managed via the Sezzle tab of the Edit Customer page.]]></comment>
                         <config_path>payment/sezzlepay/tokenize</config_path>
                     </field>
+                    <!-- billing address -->
+                    <field id="billing_address_required" translate="label comment" type="select" sortOrder="135" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Require Billing Address?</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment><![CDATA[Set to <strong>No</strong> to stop collecting a billing address at checkout. Sezzle then receives the shipping address, and the order records it as the billing address too. Carts containing only virtual or downloadable products still ask for a billing address, since they have no shipping address to fall back on. If your tax rules are based on the billing address, review them before turning this off.]]></comment>
+                        <config_path>payment/sezzlepay/billing_address_required</config_path>
+                    </field>
                     <!--sort order-->
                     <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sort Order</label>

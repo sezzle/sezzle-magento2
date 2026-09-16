@@ -7,6 +7,8 @@
 
 namespace Sezzle\Sezzlepay\Helper;
 
+use Magento\Quote\Model\Quote\Address;
+
 /**
  * Class Action
  */
@@ -16,6 +18,56 @@ class Util
      * Money format
      */
     const MONEY_FORMAT = "%.2f";
+
+    /**
+     * Address fields holding shopper entered data
+     *
+     * Country is left out on purpose. Magento pre-selects the store default country
+     * on every address form, so an untouched address always carries one.
+     */
+    const ADDRESS_DATA_FIELDS = [
+        "firstname",
+        "lastname",
+        "company",
+        "street",
+        "city",
+        "region",
+        "region_id",
+        "postcode",
+        "telephone",
+        "vat_id"
+    ];
+
+    /**
+     * Check whether an address holds no shopper entered data
+     *
+     * Typed rather than guarded by instanceof. True here means skip or omit, so a
+     * caller that hands over the wrong thing should get a TypeError at its own call
+     * site rather than a quiet "empty" that drops billing from the Sezzle payload
+     * three layers away. Null stays true: a missing address holds no data.
+     *
+     * @param Address|null $address
+     * @return bool
+     */
+    public static function isAddressEmpty(?Address $address = null): bool
+    {
+        if ($address === null) {
+            return true;
+        }
+
+        foreach (self::ADDRESS_DATA_FIELDS as $field) {
+            $value = $address->getData($field);
+            if (is_array($value)) {
+                $value = implode('', $value);
+            }
+
+            if (trim((string)$value) !== '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Format to cents

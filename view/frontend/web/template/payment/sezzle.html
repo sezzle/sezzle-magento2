@@ -37,8 +37,11 @@
                         type="submit"
                         data-bind="
                         click: continueToSezzle,
-                        attr: {title: getSubmitButtonName()},
-                        css: {disabled: !isPlaceOrderActionAllowed()},
+                        attr: {
+                            title: getSubmitButtonName(),
+                            'aria-disabled': !isSezzleActionAllowed()
+                        },
+                        css: {disabled: !isSezzleActionAllowed()},
                         enable: (getCode() == isChecked())
                         "
                         disabled>

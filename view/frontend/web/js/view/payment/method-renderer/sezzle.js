@@ -6,6 +6,8 @@
 define(
     [
         'jquery',
+        'mage/translate',
+        'Magento_Checkout/js/model/quote',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/payment/additional-validators',
@@ -15,6 +17,8 @@ define(
     ],
     function (
         $,
+        $t,
+        quote,
         customer,
         Component,
         additionalValidators,
@@ -25,7 +29,63 @@ define(
 
         return Component.extend({
             defaults: {
-                template: 'Sezzle_Sezzlepay/payment/sezzle'
+                template: 'Sezzle_Sezzlepay/payment/sezzle',
+                isRequestPending: false
+            },
+
+            /**
+             * @returns {Component} Chainable.
+             */
+            initObservable: function () {
+                this._super().observe(['isRequestPending']);
+
+                return this;
+            },
+
+            /**
+             * Describe why the Sezzle action cannot run, or null when it can.
+             *
+             * Returning a message rather than a bare false lets callers show the
+             * shopper something they can act on. Refusing silently strands them on a
+             * disabled button or a spinning modal with no idea what is wrong.
+             *
+             * @returns {String|null}
+             */
+            getCheckoutBlocker: function () {
+                if (this.isRequestPending()) {
+                    return $t('Your request is still being processed. Please wait.');
+                }
+
+                if (this.isPlaceOrderActionAllowed()) {
+                    return null;
+                }
+
+                // isPlaceOrderActionAllowed is shared. Core keeps it in step with the
+                // quote's billing address, but also lowers it while a place order request
+                // is in flight, and other checkout integrations can lower it for reasons
+                // of their own. Being false is therefore not proof that billing is the
+                // cause, so read the quote before naming one.
+                if (quote.billingAddress()) {
+                    return $t('Unable to continue with Sezzle. Please review your checkout details and try again.');
+                }
+
+                if (quote.isVirtual()) {
+                    return $t('Please enter a billing address.');
+                }
+
+                // Deliberately names no control. With the billing address requirement
+                // turned off Magento renders no billing form at all, and one step or
+                // otherwise customized checkouts need not have an Update button either.
+                return $t('Your billing address has not been saved. Please complete the billing address to continue.');
+            },
+
+            /**
+             * Whether the Sezzle action may run
+             *
+             * @returns {Boolean}
+             */
+            isSezzleActionAllowed: function () {
+                return this.getCheckoutBlocker() === null;
             },
 
             /**
@@ -84,6 +144,7 @@ define(
                 var self = this;
 
                 self.isPlaceOrderActionAllowed(false);
+                self.isRequestPending(true);
 
                 // created order by customer UUID if customer is tokenized
                 if (customer.isLoggedIn() && this.hasCustomerUUID()) {
@@ -101,6 +162,7 @@ define(
                         ).always(
                         function () {
                             self.isPlaceOrderActionAllowed(true);
+                            self.isRequestPending(false);
                         }
                     );
                     return;
@@ -116,6 +178,7 @@ define(
                     ).always(
                     function () {
                         self.isPlaceOrderActionAllowed(true);
+                        self.isRequestPending(false);
                     }
                 );
             },
@@ -150,11 +213,27 @@ define(
                     event.preventDefault();
                 }
 
-                if (this.validate()
-                    && additionalValidators.validate()
-                    && this.isPlaceOrderActionAllowed() === true) {
-                    this.handleRedirectAction();
+                var blocker = this.getCheckoutBlocker();
+
+                if (blocker) {
+                    this.messageContainer.addErrorMessage({message: blocker});
+
+                    return;
                 }
+
+                // validate() and additionalValidators mark up their own fields, but those
+                // can sit well outside the viewport, so a refused click looks like it did
+                // nothing. Say something here too, the same way the in-context path does
+                // in checkout-wrapper.js.
+                if (!this.validate() || !additionalValidators.validate()) {
+                    this.messageContainer.addErrorMessage({
+                        message: $t('Please complete the required checkout fields before continuing.')
+                    });
+
+                    return;
+                }
+
+                this.handleRedirectAction();
             }
         });
     }

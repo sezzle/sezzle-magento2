@@ -24,6 +24,7 @@ class Config extends PaymentConfig
     const KEY_PAYMENT_ACTION = 'payment_action';
     const KEY_MIN_CHECKOUT_AMOUNT = 'min_checkout_amount';
     const KEY_TOKENIZE = 'tokenize';
+    const KEY_BILLING_ADDRESS_REQUIRED = 'billing_address_required';
 
     const KEY_WIDGET_PDP = 'widget_pdp';
     const KEY_WIDGET_CART = 'widget_cart';
@@ -105,6 +106,25 @@ class Config extends PaymentConfig
     {
         return (bool)$this->getValue(
             self::KEY_ACTIVE,
+            $storeId ?? $this->storeConfigResolver->getStoreId()
+        );
+    }
+
+    /**
+     * Whether a billing address must be collected at checkout
+     *
+     * When this is off, Magento renders no billing address form for Sezzle and reuses
+     * the shipping address instead. See LayoutProcessorPlugin.
+     *
+     * @param int|null $storeId
+     * @return bool
+     * @throws InputException
+     * @throws NoSuchEntityException
+     */
+    public function isBillingAddressRequired(?int $storeId = null): bool
+    {
+        return (bool)$this->getValue(
+            self::KEY_BILLING_ADDRESS_REQUIRED,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         );
     }
