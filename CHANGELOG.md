@@ -6,6 +6,31 @@
 
 # Sezzle Magento 2 Extension Changelog
 
+## Unreleased
+
+### Supported Editions & Versions
+
+Tested and verified in clean installations of Magento 2:
+
+- Magento Open Source Edition (CE) version 2.4 and later.
+- Magento Commerce On Prem Edition (EE) version 2.4 and later.
+- Magento Commerce Cloud Edition (ECE) version 2.4 and later.
+
+### Highlights
+
+- Add **Require Billing Address?** at _Stores → Configuration → Sales → Payment Methods → Sezzle → General_.
+  Defaults to **Yes**, so existing stores are unaffected. Set to **No** to stop collecting a billing
+  address at Sezzle checkout; Sezzle receives the shipping address and the order records it as the
+  billing address. Carts containing only virtual or downloadable products still require one. Review
+  your tax rules first if they are based on the billing address
+- Explain why the Sezzle button refused a click instead of refusing silently — validation failures and
+  a missing billing address now surface a message rather than leaving the shopper on a spinning modal
+- Announce a blocked Sezzle action to assistive technology with `aria-disabled`, rather than only
+  styling the button as disabled
+- Keep the in-context modal inside the user gesture on Aheadworks One Step Checkout, so the browser no
+  longer blocks it as an unsolicited popup
+- Stop a second click on the in-context Sezzle button from opening another Sezzle session for one cart
+
 ## Version 7.0.27
 
 _Thurs 26 Jun 2026_
