@@ -8,7 +8,7 @@
 
 ## Version 7.0.28
 
-_Mon 10 Aug 2026_
+_Mon 21 Sep 2026_
 
 ### Supported Editions & Versions
 
@@ -37,6 +37,7 @@ Tested and verified in clean installations of Magento 2:
 - Scope the existing-order lookup to the quote's store, so multi-store setups whose stores share an order-number sequence no longer miss an order that was already placed
 - Log the full exception chain, quote, store and reserved order ID when order placement fails, so the underlying error is recorded instead of only Magento's outer wrapper
 - Stop internal database and PHP errors from being displayed to shoppers or returned by the GraphQL `placeSezzleOrder` mutation
+- Redact the private key and API auth token from `var/log/sezzlepay.log`, which previously recorded both in cleartext on every authentication call
 
 > Note: this release improves recovery and diagnostics for a failure that originates outside this extension. It does not prevent the underlying error, which occurs inside Magento's order creation — typically caused by another extension that hooks order placement or saving (for example, one that rewrites order increment IDs after placement). The new diagnostics record that originating error in `var/log/sezzlepay.log` so it can be identified and fixed.
 
