@@ -32,7 +32,6 @@ Tested and verified in clean installations of Magento 2:
 - Keep the in-context modal inside the user gesture on Aheadworks One Step Checkout, so the browser no
   longer blocks it as an unsolicited popup
 - Stop a second click on the in-context Sezzle button from opening another Sezzle session for one cart
-
 - Make the 7.0.27 order-completion recovery reachable for the failure it was written for: Magento reports it as a plain exception, which the previous release's error handling did not match, so shoppers still reached a Magento error report page with a stranded Sezzle authorization
 - Scope the existing-order lookup to the quote's store, so multi-store setups whose stores share an order-number sequence no longer miss an order that was already placed
 - Log the full exception chain, quote, store and reserved order ID when order placement fails, so the underlying error is recorded instead of only Magento's outer wrapper
