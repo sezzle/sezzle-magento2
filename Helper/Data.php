@@ -102,8 +102,13 @@ class Data extends AbstractHelper
                 return;
             }
 
+            // Redact before serializing, not at the call sites. This log file is routinely
+            // sent to Sezzle support by merchants, and a credential that reaches it has
+            // left the merchant's control.
             if (is_array($data)) {
-                $data = $this->jsonSerializer->serialize($data);
+                $data = $this->jsonSerializer->serialize(Util::redactSensitive($data));
+            } elseif (is_string($data)) {
+                $data = Util::redactSensitiveText($data);
             }
 
             $customerSessionId = $this->customerSession->getSessionId();
