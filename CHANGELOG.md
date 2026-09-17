@@ -20,12 +20,26 @@ Tested and verified in clean installations of Magento 2:
 
 ### Highlights
 
+- Add **Require Billing Address?** at _Stores → Configuration → Sales → Payment Methods → Sezzle → General_.
+  Defaults to **Yes**, so existing stores are unaffected. Set to **No** to stop collecting a billing
+  address at Sezzle checkout; Sezzle receives the shipping address and the order records it as the
+  billing address. Carts containing only virtual or downloadable products still require one. Review
+  your tax rules first if they are based on the billing address
+- Explain why the Sezzle button refused a click instead of refusing silently — validation failures and
+  a missing billing address now surface a message rather than leaving the shopper on a spinning modal
+- Announce a blocked Sezzle action to assistive technology with `aria-disabled`, rather than only
+  styling the button as disabled
+- Keep the in-context modal inside the user gesture on Aheadworks One Step Checkout, so the browser no
+  longer blocks it as an unsolicited popup
+- Stop a second click on the in-context Sezzle button from opening another Sezzle session for one cart
+
 - Make the 7.0.27 order-completion recovery reachable for the failure it was written for: Magento reports it as a plain exception, which the previous release's error handling did not match, so shoppers still reached a Magento error report page with a stranded Sezzle authorization
 - Scope the existing-order lookup to the quote's store, so multi-store setups whose stores share an order-number sequence no longer miss an order that was already placed
 - Log the full exception chain, quote, store and reserved order ID when order placement fails, so the underlying error is recorded instead of only Magento's outer wrapper
 - Stop internal database and PHP errors from being displayed to shoppers or returned by the GraphQL `placeSezzleOrder` mutation
 
 > Note: this release improves recovery and diagnostics for a failure that originates outside this extension. It does not prevent the underlying error, which occurs inside Magento's order creation — typically caused by another extension that hooks order placement or saving (for example, one that rewrites order increment IDs after placement). The new diagnostics record that originating error in `var/log/sezzlepay.log` so it can be identified and fixed.
+
 
 ## Version 7.0.27
 

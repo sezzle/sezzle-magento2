@@ -8,6 +8,7 @@ use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Helper\Util;
 
 
 /**
@@ -42,18 +43,29 @@ class CustomerRequestBuilder implements BuilderInterface
             $tokenize = false;
         }
 
-        return [
-            'customer' => [
-                'tokenize' => $tokenize,
-                'email' => $quote->getCustomerEmail(),
-                'first_name' => $quote->getCustomerFirstname() ?: $quote->getBillingAddress()->getFirstname(),
-                'last_name' => $quote->getCustomerLastname() ?: $quote->getBillingAddress()->getLastname(),
-                'phone' => $quote->getBillingAddress()->getTelephone(),
-                'dob' => $quote->getCustomer()->getDob(),
-                'billing_address' => $this->buildAddressPayload($quote->getBillingAddress()),
-                'shipping_address' => $this->buildAddressPayload($quote->getShippingAddress()),
-            ]
+        $billingAddress = $quote->getBillingAddress();
+        $shippingAddress = $quote->getShippingAddress();
+
+        // Billing address is optional. When the shopper leaves it blank, read the
+        // customer identity off the shipping address instead of sending blanks.
+        $isBillingAddressEmpty = Util::isAddressEmpty($billingAddress);
+        $identityAddress = $isBillingAddressEmpty ? $shippingAddress : $billingAddress;
+
+        $customer = [
+            'tokenize' => $tokenize,
+            'email' => $quote->getCustomerEmail(),
+            'first_name' => $quote->getCustomerFirstname() ?: $identityAddress->getFirstname(),
+            'last_name' => $quote->getCustomerLastname() ?: $identityAddress->getLastname(),
+            'phone' => $identityAddress->getTelephone(),
+            'dob' => $quote->getCustomer()->getDob(),
+            'shipping_address' => $this->buildAddressPayload($shippingAddress),
         ];
+
+        if (!$isBillingAddressEmpty) {
+            $customer['billing_address'] = $this->buildAddressPayload($billingAddress);
+        }
+
+        return ['customer' => $customer];
     }
 
     /**
