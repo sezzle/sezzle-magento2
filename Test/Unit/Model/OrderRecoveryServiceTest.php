@@ -2,14 +2,18 @@
 
 namespace Sezzle\Sezzlepay\Test\Unit\Model;
 
+use Magento\Framework\DB\Adapter\DuplicateException;
 use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Payment as QuotePayment;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Sezzle\Sezzlepay\Api\V2Interface;
@@ -38,6 +42,31 @@ class OrderRecoveryServiceTest extends TestCase
     private $helper;
 
     /**
+     * @var OrderCollectionFactory|MockObject
+     */
+    private $orderCollectionFactory;
+
+    /**
+     * @var OrderCollection|MockObject
+     */
+    private $orderCollection;
+
+    /**
+     * @var CartRepositoryInterface|MockObject
+     */
+    private $cartRepository;
+
+    /**
+     * Order the quote_id lookup currently returns.
+     *
+     * Held as state and read through a callback rather than restubbed per test: a second
+     * willReturn() on an already configured method is ignored, so the setUp default would win.
+     *
+     * @var Order|MockObject|null
+     */
+    private $orderForQuoteId;
+
+    /**
      * @var ObjectManagerInterface
      */
     private $objectManager;
@@ -57,8 +86,54 @@ class OrderRecoveryServiceTest extends TestCase
             ->getMock();
         $this->v2 = $this->createMock(V2Interface::class);
         $this->helper = $this->createMock(Data::class);
+        $this->cartRepository = $this->createMock(CartRepositoryInterface::class);
 
-        $this->service = new OrderRecoveryService($this->orderFactory, $this->v2, $this->helper);
+        $this->orderCollection = $this->getMockBuilder(OrderCollection::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['addFieldToFilter', 'setPageSize', 'getFirstItem'])
+            ->getMock();
+        $this->orderCollection->method('addFieldToFilter')->willReturnSelf();
+        $this->orderCollection->method('setPageSize')->willReturnSelf();
+        $this->orderCollection->method('getFirstItem')
+            ->willReturnCallback(function () {
+                if ($this->orderForQuoteId !== null) {
+                    return $this->orderForQuoteId;
+                }
+
+                $empty = $this->makeOrder();
+                $empty->method('getId')->willReturn(null);
+
+                return $empty;
+            });
+
+        $this->orderCollectionFactory = $this->getMockBuilder(OrderCollectionFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $this->orderCollectionFactory->method('create')->willReturn($this->orderCollection);
+
+        // Default: no order carries this quote_id, so tests exercising the increment-ID
+        // fallback reach it. Tests about the quote_id lookup override this.
+        $this->orderForQuoteId = null;
+
+        $this->service = new OrderRecoveryService(
+            $this->orderFactory,
+            $this->v2,
+            $this->helper,
+            $this->orderCollectionFactory,
+            $this->cartRepository
+        );
+    }
+
+    /**
+     * Make the quote_id lookup return the given order.
+     *
+     * @param Order|MockObject $order
+     * @return void
+     */
+    private function stubOrderForQuoteId($order): void
+    {
+        $this->orderForQuoteId = $order;
     }
 
     /**
@@ -274,6 +349,148 @@ class OrderRecoveryServiceTest extends TestCase
         $this->assertArrayHasKey('origin', $chain[1]);
     }
 
+    public function testGetExistingOrderFindsOrderByQuoteIdWhenIncrementIdWasRewritten()
+    {
+        $quote = $this->makeQuote();
+        $quote->method('getId')->willReturn(10);
+        // Ktpl_OrderPrefix rewrites the increment ID after placement, so the reserved ID the
+        // quote still holds no longer matches any row. This is the confirmed production shape:
+        // before the quote_id lookup, recovery reported no order for a quote that had one, and
+        // the caller went on to either place a second order or release a live authorization.
+        $quote->method('getReservedOrderId')->willReturn('002411368');
+        $quote->method('getStoreId')->willReturn(3);
+
+        $placed = $this->makeOrder();
+        $placed->method('getId')->willReturn(7);
+        $this->stubOrderForQuoteId($placed);
+
+        // The increment-ID lookup must not even be attempted once quote_id has answered.
+        $this->orderFactory->expects($this->never())->method('create');
+
+        $this->assertSame($placed, $this->service->getExistingOrder($quote));
+    }
+
+    public function testGetExistingOrderStillFallsBackToIncrementIdWithoutAQuoteMatch()
+    {
+        $quote = $this->makeQuote();
+        $quote->method('getId')->willReturn(10);
+        $quote->method('getReservedOrderId')->willReturn('000000123');
+        $quote->method('getStoreId')->willReturn(3);
+
+        $order = $this->makeOrder();
+        $order->expects($this->once())
+            ->method('loadByIncrementIdAndStoreId')->with('000000123', 3)->willReturnSelf();
+        $order->method('getId')->willReturn(5);
+        $order->method('getQuoteId')->willReturn(10);
+        $this->orderFactory->method('create')->willReturn($order);
+
+        $this->assertSame($order, $this->service->getExistingOrder($quote));
+    }
+
+    public function testIsIncrementIdCollisionDetectsDuplicateExceptionWithoutTheEnglishPhrase()
+    {
+        // The collision phrase goes through __(), so it is absent on a translated locale. The
+        // driver signal is not translated, which is why it is matched as well.
+        $translated = new \Exception(
+            "An exception occurred on 'sales_model_service_quote_submit_failure' event: "
+            . 'Verletzung der Eindeutigkeitsbedingung gefunden',
+            0,
+            new DuplicateException('SQLSTATE[23000]: Integrity constraint violation: 1062')
+        );
+
+        $this->assertTrue($this->service->isIncrementIdCollision($translated));
+    }
+
+    public function testIsIncrementIdCollisionDetectsASqlStateCodeAnywhereInTheChain()
+    {
+        $driver = new \Exception('SQLSTATE[23000]: Integrity constraint violation', '23000');
+
+        $this->assertTrue($this->service->isIncrementIdCollision(new \Exception('Wrapper', 0, $driver)));
+    }
+
+    public function testIsIncrementIdCollisionNarrowedToThisCheckoutMatchesTheReservedId()
+    {
+        // The generic phrase and the "Duplicate entry '...'" text that names the value are
+        // raised at different levels, so the reserved ID is looked for across the whole chain
+        // rather than in the link that carried the conflict.
+        $failure = $this->wrappedCollisionException(
+            new \Exception("SQLSTATE[23000]: Duplicate entry 'LS-002411368-1' for key 'UNQ_...'")
+        );
+
+        $this->assertTrue($this->service->isIncrementIdCollision($failure, '002411368'));
+    }
+
+    public function testIsIncrementIdCollisionNarrowedToThisCheckoutRejectsAnUnrelatedConflict()
+    {
+        // A duplicate coupon-usage row is a unique conflict too. Regenerating the reserved ID
+        // and resubmitting an already-authorized payment cannot fix it, so the narrowed form
+        // sends it to the caller's recover-or-release path instead of the retry.
+        $unrelated = new \Exception(
+            'Wrapper',
+            0,
+            new AlreadyExistsException(__("Duplicate entry '42-7' for key 'UNQ_SALESRULE_COUPON_USAGE'"))
+        );
+
+        $this->assertFalse($this->service->isIncrementIdCollision($unrelated, '000000123'));
+        // Unnarrowed, the same failure still reports a conflict - the diagnostic flag would
+        // rather over-report than miss one.
+        $this->assertTrue($this->service->isIncrementIdCollision($unrelated));
+    }
+
+    public function testDescribeThrowableTruncatesLongDriverMessages()
+    {
+        // Driver exceptions embed the failing SQL with its bound values, which on a checkout
+        // failure is shopper PII, in a file merchants email to support.
+        $long = 'SQLSTATE[23000]: ' . str_repeat('a', 900) . 'shopper@example.com';
+        $chain = $this->service->describeThrowable(new \Exception($long));
+
+        $this->assertLessThan(mb_strlen($long), mb_strlen($chain[0]['message']));
+        $this->assertStringEndsWith('... [truncated]', $chain[0]['message']);
+        $this->assertStringNotContainsString('shopper@example.com', $chain[0]['message']);
+    }
+
+    public function testReleaseDoesNotReleaseTwiceForTheSameQuote()
+    {
+        $quote = $this->makeQuote();
+        $payment = $this->createMock(QuotePayment::class);
+        // A shopper who reloads the return URL runs the whole flow again. Without this guard the
+        // second pass sends another releasePayment() for the same UUID, and if placement
+        // succeeds that time Magento ends up holding an order whose authorization was released.
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
+            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, 1758200000]
+        ]);
+        $quote->method('getPayment')->willReturn($payment);
+
+        $this->v2->expects($this->never())->method('releasePayment');
+        $this->cartRepository->expects($this->never())->method('save');
+        $this->helper->expects($this->once())->method('logSezzleActions');
+
+        $this->service->releaseStrandedAuthorization($quote);
+    }
+
+    public function testReleaseIsStillReportedWhenTheStampCannotBeSaved()
+    {
+        $quote = $this->makeQuote();
+        $payment = $this->createMock(QuotePayment::class);
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
+            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
+        ]);
+        $quote->method('getPayment')->willReturn($payment);
+        $quote->method('getBaseGrandTotal')->willReturn(100.00);
+        $quote->method('getBaseCurrencyCode')->willReturn('USD');
+        $quote->method('getStoreId')->willReturn(1);
+
+        $this->v2->expects($this->once())->method('releasePayment');
+        // The release has already happened by then; failing to record it must not report the
+        // release itself as failed.
+        $this->cartRepository->method('save')->willThrowException(new \Exception('Quote save failed'));
+        $this->helper->expects($this->exactly(2))->method('logSezzleActions');
+
+        $this->service->releaseStrandedAuthorization($quote);
+    }
+
     public function testReleaseDoesNothingWithoutPayment()
     {
         $quote = $this->makeQuote();
@@ -288,9 +505,9 @@ class OrderRecoveryServiceTest extends TestCase
     {
         $quote = $this->makeQuote();
         $payment = $this->createMock(QuotePayment::class);
-        $payment->method('getAdditionalInformation')
-            ->with(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID)
-            ->willReturn(null);
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, null]
+        ]);
         $quote->method('getPayment')->willReturn($payment);
 
         $this->v2->expects($this->never())->method('releasePayment');
@@ -302,9 +519,10 @@ class OrderRecoveryServiceTest extends TestCase
     {
         $quote = $this->makeQuote();
         $payment = $this->createMock(QuotePayment::class);
-        $payment->method('getAdditionalInformation')
-            ->with(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID)
-            ->willReturn('order-uuid-123');
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
+            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
+        ]);
         $quote->method('getPayment')->willReturn($payment);
         $quote->method('getBaseGrandTotal')->willReturn(100.00);
         $quote->method('getBaseCurrencyCode')->willReturn('USD');
@@ -313,6 +531,12 @@ class OrderRecoveryServiceTest extends TestCase
         $this->v2->expects($this->once())
             ->method('releasePayment')
             ->with('order-uuid-123', 10000, 'USD', 1);
+        // Released authorizations are stamped on the payment so a repeat visit can tell that
+        // this one has already been given back.
+        $payment->expects($this->once())
+            ->method('setAdditionalInformation')
+            ->with(OrderRecoveryService::KEY_AUTH_RELEASED_AT, $this->isInt());
+        $this->cartRepository->expects($this->once())->method('save')->with($quote);
         $this->helper->expects($this->once())->method('logSezzleActions');
 
         $this->service->releaseStrandedAuthorization($quote);
@@ -322,9 +546,10 @@ class OrderRecoveryServiceTest extends TestCase
     {
         $quote = $this->makeQuote();
         $payment = $this->createMock(QuotePayment::class);
-        $payment->method('getAdditionalInformation')
-            ->with(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID)
-            ->willReturn('order-uuid-123');
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
+            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
+        ]);
         $quote->method('getPayment')->willReturn($payment);
         $quote->method('getBaseGrandTotal')->willReturn(100.00);
         $quote->method('getBaseCurrencyCode')->willReturn('USD');

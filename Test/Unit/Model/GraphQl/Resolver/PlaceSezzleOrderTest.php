@@ -10,6 +10,7 @@ use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Framework\Phrase;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\GraphQl\Model\Query\ContextInterface;
@@ -22,6 +23,8 @@ use Magento\QuoteGraphQl\Model\Cart\CheckCartCheckoutAllowance;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
+use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Sezzle\Sezzlepay\Api\V2Interface;
@@ -140,7 +143,7 @@ class PlaceSezzleOrderTest extends TestCase
         // The resolver delegates order lookup / authorization release to OrderRecoveryService.
         // Use a real service over the same orderFactory/v2/helper mocks so the existing
         // expectations on those collaborators continue to exercise the delegated behaviour.
-        $orderRecovery = new OrderRecoveryService($this->orderFactory, $this->v2, $this->helper);
+        $orderRecovery = $this->makeOrderRecovery();
 
         $this->resolver = $this->objectManager->getObject(
             PlaceSezzleOrder::class,
@@ -155,6 +158,46 @@ class PlaceSezzleOrderTest extends TestCase
                 'orderRecovery' => $orderRecovery,
                 'helper' => $this->helper,
             ]
+        );
+    }
+
+    /**
+     * Build the real recovery service the entry point delegates to.
+     *
+     * The quote_id lookup is stubbed to find nothing by default, so these tests continue to
+     * exercise the increment-ID path they were written for; recovery by quote_id has its own
+     * coverage in OrderRecoveryServiceTest.
+     *
+     * @return OrderRecoveryService
+     */
+    private function makeOrderRecovery(): OrderRecoveryService
+    {
+        $emptyOrder = $this->getMockBuilder(Order::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getId'])
+            ->getMock();
+        $emptyOrder->method('getId')->willReturn(null);
+
+        $collection = $this->getMockBuilder(OrderCollection::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['addFieldToFilter', 'setPageSize', 'getFirstItem'])
+            ->getMock();
+        $collection->method('addFieldToFilter')->willReturnSelf();
+        $collection->method('setPageSize')->willReturnSelf();
+        $collection->method('getFirstItem')->willReturn($emptyOrder);
+
+        $collectionFactory = $this->getMockBuilder(OrderCollectionFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $collectionFactory->method('create')->willReturn($collection);
+
+        return new OrderRecoveryService(
+            $this->orderFactory,
+            $this->v2,
+            $this->helper,
+            $collectionFactory,
+            $this->cartRepository
         );
     }
 
@@ -555,12 +598,22 @@ class PlaceSezzleOrderTest extends TestCase
         $calls = 0;
         $this->cartManagement->expects($this->exactly(2))
             ->method('placeOrder')->with($cartId, $paymentMock)
-            ->willReturnCallback(function () use (&$calls, $orderId) {
+            ->willReturnCallback(function () use (&$calls, $orderId, $reservedId) {
                 if (++$calls === 1) {
-                    throw new AlreadyExistsException(__('Unique constraint violation found'));
+                    // The shape MySQL actually produces when the reserved increment ID has
+                    // been consumed: the duplicate-entry text names the value, which is what
+                    // ties the conflict to this checkout rather than to some other unique key.
+                    throw new AlreadyExistsException(
+                        __("Unique constraint violation found"),
+                        new \Exception("SQLSTATE[23000]: Duplicate entry '" . $reservedId . "-1' for key 'UNQ_SALES_ORDER'")
+                    );
                 }
                 return $orderId;
             });
+
+        // The cart is re-read from committed state before the retry, because the copy in hand
+        // carries mutations from the submitQuote() that rolled back.
+        $this->cartRepository->expects($this->once())->method('get')->with($cartId)->willReturn($quoteMock);
 
         $quoteMock->expects($this->once())->method('setReservedOrderId')->with(null);
         $quoteMock->expects($this->once())->method('reserveOrderId')->willReturnSelf();
@@ -687,6 +740,114 @@ class PlaceSezzleOrderTest extends TestCase
     /**
      * An internal failure is reported without echoing the underlying database or PHP error.
      */
+    /**
+     * AlreadyExistsException extends LocalizedException, so a "localized means client-safe"
+     * test alone returns the database constraint name for the very failure this resolver
+     * exists to handle.
+     */
+    public function testCollisionTextIsNotLeakedToTheClientDespiteBeingLocalized()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+
+        $this->expectException(GraphQlInputException::class);
+        $this->expectExceptionMessage('Unable to place Sezzle order: an internal error occurred');
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        // The conflict names no increment ID, so it cannot be attributed to this checkout and
+        // is not retried; it reaches the client-facing branch instead.
+        $quoteMock->method('getReservedOrderId')->willReturn('000000789');
+        $quoteMock->method('getStoreId')->willReturn(1);
+        $quoteMock->method('getPayment')->willReturn(null);
+
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementIdAndStoreId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturn($emptyOrder);
+
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->method('get')->with($cartId)->willReturn($paymentMock);
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with($cartId, $paymentMock)
+            ->willThrowException(new AlreadyExistsException(
+                __('Unique constraint violation found, rule name is UNIQUE_SALES_ORDER_INCREMENT_ID_STORE_ID')
+            ));
+
+        $this->resolve($cartHash);
+    }
+
+    /**
+     * A downstream message is not a translation key. Passing it through __() would have any
+     * %1 in it interpreted as a placeholder against the arguments that follow.
+     */
+    public function testANoSuchEntityMessageIsNotTreatedAsATranslationTemplate()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+        $message = 'No such entity with %1 = 4';
+
+        $this->expectException(GraphQlNoSuchEntityException::class);
+        $this->expectExceptionMessage($message);
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
+        $quoteMock->method('getPayment')->willReturn(null);
+
+        $this->paymentMethodManagement->expects($this->once())
+            ->method('get')->with($cartId)
+            ->willThrowException(new NoSuchEntityException(new Phrase($message)));
+
+        $this->resolve($cartHash);
+    }
+
+    /**
+     * logSezzleActions() is gated on payment/sezzlepay/log_tracker, and the catch turns the
+     * failure into a GraphQl error rather than letting Magento write a report, so with the
+     * tracker off this would otherwise leave no trace of a checkout that failed after
+     * authorization.
+     */
+    public function testPlacementFailureIsAlsoLoggedOutsideTheGatedSezzleLog()
+    {
+        $cartHash = 'abcd1234';
+        $cartId = 1;
+
+        $this->expectException(GraphQlInputException::class);
+
+        $this->validator->expects($this->once())->method('validateInput');
+
+        $quoteMock = $this->makeQuote();
+        $this->getCartForUser->expects($this->once())->method('getCart')->willReturn($quoteMock);
+        $this->checkCartCheckoutAllowance->expects($this->once())->method('execute')->with($quoteMock);
+        $this->contextMock->expects($this->once())->method('getUserId')->willReturn(1);
+        $quoteMock->method('getId')->willReturn($cartId);
+        $quoteMock->method('getReservedOrderId')->willReturn(null);
+        $quoteMock->method('getPayment')->willReturn(null);
+
+        $failure = new \RuntimeException('Some internal failure');
+        $paymentMock = $this->createMock(PaymentInterface::class);
+        $this->paymentMethodManagement->method('get')->with($cartId)->willReturn($paymentMock);
+        $this->cartManagement->expects($this->once())
+            ->method('placeOrder')->with($cartId, $paymentMock)->willThrowException($failure);
+
+        $this->helper->expects($this->once())
+            ->method('logCriticalFailure')
+            ->with($this->isString(), $failure);
+
+        $this->resolve($cartHash);
+    }
+
     public function testInternalFailureIsNotLeakedToTheClient()
     {
         $cartHash = 'abcd1234';
