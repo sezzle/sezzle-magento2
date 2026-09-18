@@ -4,6 +4,7 @@ namespace Sezzle\Sezzlepay\Test\Unit\Helper;
 
 use Magento\Quote\Model\Quote\Address;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sezzle\Sezzlepay\Helper\Util;
 use stdClass;
@@ -209,6 +210,104 @@ class UtilTest extends TestCase
 
         $this->assertStringNotContainsString('SECRET', $redacted);
         $this->assertStringContainsString('"keep":"yes"', $redacted);
+    }
+
+    /**
+     * The sink cannot rely on call sites spelling a credential field the way this list does,
+     * which was the whole reason for redacting here rather than at each call site.
+     */
+    #[DataProvider('credentialKeySpellingProvider')]
+    public function testCredentialKeyVariantsAreRedacted(string $key): void
+    {
+        $redacted = Util::redactSensitive([$key => 'LEAK']);
+        $this->assertSame(Util::REDACTED, $redacted[$key], $key . ' was left readable');
+
+        $asText = Util::redactSensitiveText('{"' . $key . '":"LEAK"}');
+        $this->assertStringNotContainsString('LEAK', $asText, $key . ' was left readable in raw JSON');
+    }
+
+    /**
+     * @return array<string, string[]>
+     */
+    public static function credentialKeySpellingProvider(): array
+    {
+        return [
+            'snake case' => ['private_key'],
+            'camel case' => ['privateKey'],
+            'prefixed' => ['sezzle_private_key'],
+            'prefixed token' => ['merchant_token'],
+            'header style' => ['X-Api-Key'],
+            'upper case' => ['PASSWORD']
+        ];
+    }
+
+    /**
+     * Over-redaction is the safe direction, but not at the cost of the diagnostics support
+     * reads. A key that merely contains a sensitive word is not itself a credential.
+     */
+    public function testKeysThatOnlyContainASensitiveWordStayReadable(): void
+    {
+        $redacted = Util::redactSensitive([
+            'sezzle_tokenize_status' => 'complete',
+            'public_key' => 'pk_visible',
+            'publicKey' => 'pk_visible_too'
+        ]);
+
+        $this->assertSame('complete', $redacted['sezzle_tokenize_status']);
+        $this->assertSame('pk_visible', $redacted['public_key']);
+        $this->assertSame('pk_visible_too', $redacted['publicKey']);
+    }
+
+    /**
+     * A non-string value is still a credential. Key matching covers this in an array payload,
+     * but a body logged as raw JSON only has the text matcher to rely on.
+     */
+    public function testNonStringCredentialValuesInRawJsonAreRedacted(): void
+    {
+        $redacted = Util::redactSensitiveText('{"token":1234567,"secret":null,"amount":99}');
+
+        $this->assertStringNotContainsString('1234567', $redacted);
+        $this->assertStringNotContainsString('"secret":null', $redacted);
+        // An ordinary numeric field is untouched.
+        $this->assertStringContainsString('"amount":99', $redacted);
+    }
+
+    /**
+     * Gateway\Http\Client logs curl's response body verbatim, so a body that itself contains a
+     * JSON document arrives with its inner quotes escaped. The key is then \"token\" rather
+     * than "token", which a pattern expecting a bare quote walks straight past.
+     */
+    public function testCredentialsInsideEscapedEmbeddedJsonAreRedacted(): void
+    {
+        $redacted = Util::redactSensitiveText(
+            '{"uri":"/v2/authentication","body":"{\"token\":\"LEAKED\",\"public_key\":\"pk_ok\"}"}'
+        );
+
+        $this->assertStringNotContainsString('LEAKED', $redacted);
+        // The document stays parseable and the identifying fields stay readable.
+        $this->assertStringContainsString('pk_ok', $redacted);
+        $this->assertStringContainsString('"uri":"/v2/authentication"', $redacted);
+        $this->assertIsArray(json_decode($redacted, true));
+    }
+
+    /**
+     * preg_replace_callback() returns null past pcre.backtrack_limit, which a large response
+     * body can reach. Dropping the line is the safe direction, but a bare empty string leaves
+     * a support engineer unable to tell a blank line from a lost one.
+     */
+    public function testAFailedRedactionSaysSoRatherThanWritingAnEmptyLine(): void
+    {
+        $limit = ini_get('pcre.backtrack_limit');
+        ini_set('pcre.backtrack_limit', '1');
+
+        try {
+            $result = Util::redactSensitiveText('{"token":"' . str_repeat('a', 5000) . '"}');
+        } finally {
+            ini_set('pcre.backtrack_limit', (string)$limit);
+        }
+
+        $this->assertSame(Util::REDACTION_FAILED, $result);
+        $this->assertNotSame('', $result);
     }
 
     /**
