@@ -370,7 +370,7 @@ class OrderRecoveryService
                 (string)$quote->getBaseCurrencyCode(),
                 (int)$quote->getStoreId()
             );
-            $this->stampReleased($quote, $payment);
+            $this->stampReleased($quote);
             $this->logQuietly([
                 'log_origin' => __METHOD__,
                 'message' => 'Released stranded Sezzle authorization after failed order creation',
@@ -393,14 +393,18 @@ class OrderRecoveryService
      * release as failed.
      *
      * @param CartInterface $quote
-     * @param mixed $payment
      * @return void
      */
-    private function stampReleased(CartInterface $quote, $payment): void
+    private function stampReleased(CartInterface $quote): void
     {
         try {
-            $payment->setAdditionalInformation(self::KEY_AUTH_RELEASED_AT, time());
-            $this->cartRepository->save($quote);
+            // Re-read for the same reason the retry path does: the quote in hand came out of a
+            // rolled-back submitQuote(), and this is the only place that path writes it back.
+            // Saving the object as-is would persist that half-converted cart, and on a retry
+            // would overwrite the reserved ID the retry had just regenerated.
+            $fresh = $this->cartRepository->get((int)$quote->getId());
+            $fresh->getPayment()->setAdditionalInformation(self::KEY_AUTH_RELEASED_AT, time());
+            $this->cartRepository->save($fresh);
         } catch (\Throwable $stampFailure) {
             $this->logQuietly([
                 'log_origin' => __METHOD__,

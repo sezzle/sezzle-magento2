@@ -243,6 +243,26 @@ class CompleteTest extends TestCase
     }
 
     /**
+     * A quote as the repository hands it back: committed state, not the object the rolled-back
+     * submitQuote() left behind.
+     *
+     * @return Quote|MockObject
+     */
+    private function makeFreshQuote()
+    {
+        $fresh = $this->getMockBuilder(QuoteStub::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'getId', 'getReservedOrderId', 'setReservedOrderId',
+                'reserveOrderId', 'getPayment'
+            ])
+            ->getMock();
+        $fresh->method('getPayment')->willReturn($this->createMock(QuotePayment::class));
+
+        return $fresh;
+    }
+
+    /**
      * @return Order|MockObject
      */
     private function makeOrder()
@@ -352,6 +372,9 @@ class CompleteTest extends TestCase
         $this->v2->expects($this->once())
             ->method('releasePayment')
             ->with('order-uuid-123', 10000, 'USD', 1);
+        // The stamp is written against committed state, not against the object the rolled-back
+        // submitQuote() left behind.
+        $this->cartRepository->method('get')->with(10)->willReturn($this->makeFreshQuote());
 
         $this->messageManager->expects($this->once())->method('addErrorMessage');
 
@@ -529,6 +552,75 @@ class CompleteTest extends TestCase
         $this->assertSame($this->redirect, $this->controller->execute());
     }
 
+    /**
+     * How the two writes on this path interact. The retry regenerates the reserved ID and
+     * saves it; the retry then fails for its own reasons, so the release path saves too. If
+     * that second write went through the quote in hand - the object the rolled-back
+     * submitQuote() mutated, which execute() still holds - it would put the abandoned reserved
+     * ID back over the one just persisted.
+     */
+    public function testReleaseAfterAFailedRetryDoesNotOverwriteTheRegeneratedReservedId()
+    {
+        $quote = $this->makeQuote();
+        $this->checkoutSession->method('getQuote')->willReturn($quote);
+        $quote->method('getReservedOrderId')->willReturn('000000123');
+        $quote->method('getId')->willReturn(10);
+        $quote->method('getStoreId')->willReturn(3);
+        $this->request->method('getParam')->with('customer-uuid')->willReturn(null);
+        $this->customerSession->method('isLoggedIn')->willReturn(true);
+
+        $emptyOrder = $this->makeOrder();
+        $emptyOrder->method('loadByIncrementIdAndStoreId')->willReturnSelf();
+        $emptyOrder->method('getId')->willReturn(null);
+        $this->orderFactory->method('create')->willReturn($emptyOrder);
+
+        $calls = 0;
+        $this->cartManagement->expects($this->exactly(2))
+            ->method('placeOrder')->with(10)
+            ->willReturnCallback(function () use (&$calls) {
+                if (++$calls === 1) {
+                    throw new AlreadyExistsException(
+                        __("Unique constraint violation found"),
+                        new \Exception("SQLSTATE[23000]: Duplicate entry '000000123-3' for key 'UNQ_SALES_ORDER'")
+                    );
+                }
+                // The retry fails on its own, so the authorization still has to be released.
+                throw new LocalizedException(__('Some failure'));
+            });
+
+        $fresh = $this->makeFreshQuote();
+        $fresh->method('getReservedOrderId')->willReturn('000000124');
+        $this->cartRepository->method('get')->with(10)->willReturn($fresh);
+
+        $payment = $this->createMock(QuotePayment::class);
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
+            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
+        ]);
+        $quote->method('getPayment')->willReturn($payment);
+        $quote->method('getBaseGrandTotal')->willReturn(100.00);
+        $quote->method('getBaseCurrencyCode')->willReturn('USD');
+
+        $this->v2->expects($this->once())->method('releasePayment');
+
+        // Neither write touches the stale object: the retry reassigns its own local, and the
+        // stamp re-reads for itself.
+        $quote->expects($this->never())->method('setReservedOrderId');
+        $payment->expects($this->never())->method('setAdditionalInformation');
+
+        $saved = [];
+        $this->cartRepository->expects($this->exactly(2))
+            ->method('save')
+            ->willReturnCallback(function ($cart) use (&$saved) {
+                $saved[] = $cart;
+            });
+
+        $this->redirect->expects($this->once())->method('setPath')->with(self::CART_PATH);
+
+        $this->assertSame($this->redirect, $this->controller->execute());
+        $this->assertSame([$fresh, $fresh], $saved);
+    }
+
     public function testUnattributableCollisionReleasesRatherThanResubmitting()
     {
         $quote = $this->makeQuote();
@@ -553,7 +645,8 @@ class CompleteTest extends TestCase
             ->willThrowException($this->wrappedCollisionException());
 
         // No regenerate-and-retry: the reserved ID is left alone and placeOrder is not called
-        // a second time. (The quote is still saved once, further down, to stamp the release.)
+        // a second time. (The re-read quote is still saved once, further down, to stamp the
+        // release.)
         $quote->expects($this->never())->method('reserveOrderId');
         $quote->expects($this->never())->method('setReservedOrderId');
 
@@ -566,12 +659,18 @@ class CompleteTest extends TestCase
         $quote->method('getBaseGrandTotal')->willReturn(100.00);
         $quote->method('getBaseCurrencyCode')->willReturn('USD');
 
+        $fresh = $this->makeFreshQuote();
+        $freshPayment = $fresh->getPayment();
+
         $this->v2->expects($this->once())->method('releasePayment');
-        // The release is stamped on the payment so a repeat visit cannot resubmit against it.
-        $payment->expects($this->once())
+        // The release is stamped on the payment so a repeat visit cannot resubmit against it -
+        // on the quote as committed, not on the one the rolled-back submitQuote() mutated.
+        $this->cartRepository->expects($this->once())->method('get')->with(10)->willReturn($fresh);
+        $payment->expects($this->never())->method('setAdditionalInformation');
+        $freshPayment->expects($this->once())
             ->method('setAdditionalInformation')
             ->with(OrderRecoveryService::KEY_AUTH_RELEASED_AT, $this->isInt());
-        $this->cartRepository->expects($this->once())->method('save')->with($quote);
+        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
         $this->redirect->expects($this->once())->method('setPath')->with(self::CART_PATH);
 
         $this->assertSame($this->redirect, $this->controller->execute());
@@ -681,6 +780,7 @@ class CompleteTest extends TestCase
 
         // The release still happens, and the shopper still gets a redirect rather than a raw
         // Magento error report page.
+        $this->cartRepository->method('get')->with(10)->willReturn($this->makeFreshQuote());
         $this->v2->expects($this->once())->method('releasePayment');
         $this->redirect->expects($this->once())->method('setPath')->with(self::CART_PATH);
 
@@ -775,6 +875,7 @@ class CompleteTest extends TestCase
         $quote->method('getBaseCurrencyCode')->willReturn('USD');
 
         // A broken lookup must not cost the shopper the release of their authorization.
+        $this->cartRepository->method('get')->with(10)->willReturn($this->makeFreshQuote());
         $this->v2->expects($this->once())
             ->method('releasePayment')->with('order-uuid-123', 10000, 'USD', 3);
 

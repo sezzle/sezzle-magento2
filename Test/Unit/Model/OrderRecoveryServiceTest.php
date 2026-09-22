@@ -153,6 +153,20 @@ class OrderRecoveryServiceTest extends TestCase
     }
 
     /**
+     * A quote as the repository hands it back: committed state, not the object the rolled-back
+     * submitQuote() left behind.
+     *
+     * @return Quote|MockObject
+     */
+    private function makeFreshQuote()
+    {
+        return $this->getMockBuilder(QuoteStub::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getId', 'getPayment'])
+            ->getMock();
+    }
+
+    /**
      * @return Order|MockObject
      */
     private function makeOrder()
@@ -485,6 +499,7 @@ class OrderRecoveryServiceTest extends TestCase
         $this->v2->expects($this->once())->method('releasePayment');
         // The release has already happened by then; failing to record it must not report the
         // release itself as failed.
+        $this->cartRepository->method('get')->willReturn($this->makeFreshQuote());
         $this->cartRepository->method('save')->willThrowException(new \Exception('Quote save failed'));
         $this->helper->expects($this->exactly(2))->method('logSezzleActions');
 
@@ -523,21 +538,62 @@ class OrderRecoveryServiceTest extends TestCase
             [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
             [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
         ]);
+        $quote->method('getId')->willReturn(42);
         $quote->method('getPayment')->willReturn($payment);
         $quote->method('getBaseGrandTotal')->willReturn(100.00);
         $quote->method('getBaseCurrencyCode')->willReturn('USD');
         $quote->method('getStoreId')->willReturn(1);
 
+        // The quote in hand came out of a rolled-back submitQuote(), so the stamp is written
+        // against committed state instead - see testStampNeverSavesTheQuoteItWasHandedOn.
+        $freshPayment = $this->createMock(QuotePayment::class);
+        $fresh = $this->makeFreshQuote();
+        $fresh->method('getPayment')->willReturn($freshPayment);
+
         $this->v2->expects($this->once())
             ->method('releasePayment')
             ->with('order-uuid-123', 10000, 'USD', 1);
+        $this->cartRepository->expects($this->once())->method('get')->with(42)->willReturn($fresh);
         // Released authorizations are stamped on the payment so a repeat visit can tell that
         // this one has already been given back.
-        $payment->expects($this->once())
+        $freshPayment->expects($this->once())
             ->method('setAdditionalInformation')
             ->with(OrderRecoveryService::KEY_AUTH_RELEASED_AT, $this->isInt());
-        $this->cartRepository->expects($this->once())->method('save')->with($quote);
+        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
         $this->helper->expects($this->once())->method('logSezzleActions');
+
+        $this->service->releaseStrandedAuthorization($quote);
+    }
+
+    public function testStampNeverSavesTheQuoteItWasHandedOn()
+    {
+        // The object on this path is the one the rolled-back submitQuote() mutated. Saving it
+        // would persist that half-converted cart, and where the caller has already regenerated
+        // the reserved order ID and retried, would revert reserved_order_id to the abandoned
+        // value that the retry had just replaced.
+        $quote = $this->makeQuote();
+        $payment = $this->createMock(QuotePayment::class);
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
+            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
+        ]);
+        $quote->method('getId')->willReturn(42);
+        $quote->method('getPayment')->willReturn($payment);
+        $quote->method('getBaseGrandTotal')->willReturn(100.00);
+        $quote->method('getBaseCurrencyCode')->willReturn('USD');
+        $quote->method('getStoreId')->willReturn(1);
+
+        $fresh = $this->makeFreshQuote();
+        $fresh->method('getPayment')->willReturn($this->createMock(QuotePayment::class));
+        $this->cartRepository->method('get')->with(42)->willReturn($fresh);
+
+        $payment->expects($this->never())->method('setAdditionalInformation');
+        $this->cartRepository->expects($this->once())
+            ->method('save')
+            ->willReturnCallback(function ($saved) use ($quote, $fresh) {
+                $this->assertNotSame($quote, $saved);
+                $this->assertSame($fresh, $saved);
+            });
 
         $this->service->releaseStrandedAuthorization($quote);
     }
