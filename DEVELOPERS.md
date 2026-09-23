@@ -350,8 +350,40 @@ php -d memory_limit=-1 bin/magento cache:clean
 1. Update `version` number in `composer.json`
 1. Delete previous version zip file
 1. `open .`
-1. Select all *contents* of magento2AppFrontends and compress, renaming the zip file `sezzle_sezzlepay-{version}.zip`
+1. Select all *contents* of magento2AppFrontends **except the items under [Excluded from the release package](#excluded-from-the-release-package)**, and compress, renaming the zip file `sezzle_sezzlepay-{version}.zip`
+    - The module files must sit at the **root of the archive**. If the zip contains a single `sezzle_sezzlepay-{version}/` folder with everything inside it, the package is wrong: Magento expects `registration.php`, `composer.json`, `etc/` and the rest at the top level.
 1. Merge to production
+
+#### Excluded from the release package
+
+This is an exclude list rather than an include list on purpose. Nearly everything in the repository is part of the shipped module, so a forgotten entry on an *include* list would ship a broken extension, whereas a forgotten entry here only ships a harmless extra file. Exclude:
+
+| Exclude | Why |
+| --- | --- |
+| `.git/`, `.gitignore`, `.gitlab-ci.yml` | Version control and CI configuration; meaningless to a merchant |
+| `AGENTS.md`, `CLAUDE.md` | Internal AI agent instructions. `AGENTS.md` also carries local admin credentials |
+| `CODEOWNERS` | Internal GitLab review routing |
+| `DEVELOPERS.md` | This file, an internal setup guide |
+| `Dockerfile`, `docker-compose.yml`, `docker.env`, `process` | Local development environment only. `docker.env` also carries database passwords |
+| `vendor/` | Here it only ever holds dev tooling (phpstan, rector, php_codesniffer). Merchants resolve real dependencies through Composer from `composer.json` |
+| `sezzle_sezzlepay-*.zip` | Never nest a release archive inside another |
+| `.DS_Store` | Finder metadata |
+
+Everything else ships, including `Test/`, `README.md`, `LICENSE` and `CHANGELOG.md`.
+
+To avoid the Finder selection entirely, build the archive from the command line instead. This produces the same package deterministically:
+
+```bash
+cd ~/go/src/sezzle/magento2AppFrontends
+VERSION=$(grep -m1 '"version"' composer.json | sed -E 's/.*"version" *: *"([^"]+)".*/\1/')
+rm -f "sezzle_sezzlepay-${VERSION}.zip"
+zip -r "sezzle_sezzlepay-${VERSION}.zip" . \
+  -x '.git/*' '.gitignore' '.gitlab-ci.yml' \
+     'AGENTS.md' 'CLAUDE.md' 'CODEOWNERS' 'DEVELOPERS.md' \
+     'Dockerfile' 'docker-compose.yml' 'docker.env' 'process' \
+     'vendor/*' 'sezzle_sezzlepay-*.zip' \
+     '.DS_Store' '*/.DS_Store'
+```
 
 ### Magento Submission
 

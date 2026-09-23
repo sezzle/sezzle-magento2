@@ -102,14 +102,56 @@ class Data extends AbstractHelper
                 return;
             }
 
+            // Redact before serializing, not at the call sites. This log file is routinely
+            // sent to Sezzle support by merchants, and a credential that reaches it has
+            // left the merchant's control.
             if (is_array($data)) {
-                $data = $this->jsonSerializer->serialize($data);
+                $data = $this->jsonSerializer->serialize(Util::redactSensitive($data));
+            } elseif (is_string($data)) {
+                $data = Util::redactSensitiveText($data);
             }
 
             $customerSessionId = $this->customerSession->getSessionId();
             $logData = $customerSessionId . ' ' . $data;
             $this->logger->info($logData);
         } catch (NoSuchEntityException|InputException $e) {
+        } catch (\Throwable $e) {
+            // Broadened deliberately. Callers on the order-failure path log ahead of releasing
+            // the shopper's authorization, and several do so from inside a catch block, so an
+            // exception escaping here costs the release or puts the shopper back on a raw error
+            // page. Serializing a message with invalid UTF-8 and a failing log handler both
+            // reach this. Reported through Magento's own logger so it does not go unnoticed.
+            $this->logCriticalFailure('Could not write to the Sezzle log', $e);
+        }
+    }
+
+    /**
+     * Record a failure in Magento's own log, whatever the Sezzle log tracker is set to.
+     *
+     * logSezzleActions() returns early when payment/sezzlepay/log_tracker is off, and that
+     * setting is store-scoped. That is the right behaviour for the running commentary this
+     * module writes, but it is the wrong behaviour for a checkout that failed after the
+     * shopper was authorized: the order-placement entry points catch \Throwable and do not
+     * rethrow, so with the tracker off there would be no error report, nothing in system.log
+     * or exception.log, and nothing for an APM to see - a silent failed checkout.
+     *
+     * This writes to the PSR logger the helper context already carries, so the record lands
+     * in Magento's own log alongside whatever the Sezzle log does or does not capture.
+     *
+     * Never throws: callers use it on the failure path, ahead of releasing the shopper's
+     * authorization.
+     *
+     * @param string $message
+     * @param \Throwable|null $e
+     * @return void
+     */
+    public function logCriticalFailure(string $message, ?\Throwable $e = null): void
+    {
+        try {
+            $this->_logger->critical($message, $e ? ['exception' => $e] : []);
+        } catch (\Throwable $loggingFailure) {
+            // Nothing further to try - the logger itself is the thing that failed, and the
+            // authorization release this runs ahead of matters more than this line.
         }
     }
 

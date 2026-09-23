@@ -6,7 +6,9 @@
 
 # Sezzle Magento 2 Extension Changelog
 
-## Unreleased
+## Version 7.0.28
+
+_Mon 21 Sep 2026_
 
 ### Supported Editions & Versions
 
@@ -30,6 +32,22 @@ Tested and verified in clean installations of Magento 2:
 - Keep the in-context modal inside the user gesture on Aheadworks One Step Checkout, so the browser no
   longer blocks it as an unsolicited popup
 - Stop a second click on the in-context Sezzle button from opening another Sezzle session for one cart
+- Make the 7.0.27 order-completion recovery reachable for the failure it was written for: Magento reports it as a plain exception, which the previous release's error handling did not match, so shoppers still reached a Magento error report page with a stranded Sezzle authorization
+- Scope the existing-order lookup to the quote's store, so multi-store setups whose stores share an order-number sequence no longer miss an order that was already placed
+- Log the full exception chain, quote, store and reserved order ID when order placement fails, so the underlying error is recorded instead of only Magento's outer wrapper
+- Stop internal database and PHP errors from being displayed to shoppers or returned by the GraphQL `placeSezzleOrder` mutation
+- Find an already-placed order by its cart rather than only by its order number, so recovery still works on stores where another extension rewrites the order number after placement
+- Record a released Sezzle authorization on the cart, so reloading the return page cannot release it twice or place an order against one that was already given back
+- Reserve a fresh order number and retry only when the conflict is demonstrably this checkout's, rather than on any duplicate-key error
+- Recognise a duplicate order number from the database error code as well as its English message, so detection still works on stores running a translated locale
+- Re-read the cart from the database before writing to it after a failed order placement, so both the retry and the released-authorization record start from committed data rather than from a cart left half-converted by the failed attempt. The re-read bypasses Magento's cart repository cache, which would otherwise hand back that same half-converted cart
+- Also record order-placement failures in Magento's own log, so a failed checkout is still traceable on stores with Sezzle logging switched off
+- Stop the database constraint text behind a duplicate order number from being displayed to shoppers or returned by the GraphQL `placeSezzleOrder` mutation
+- Redact the private key and API auth token from `var/log/sezzlepay.log`, which previously recorded both in cleartext on every authentication call. Field names are matched by shape, so variants such as `privateKey` or `X-Api-Key` are covered, and values are redacted whether they arrive as JSON fields, numbers or embedded JSON
+- Cap exception messages written to `var/log/sezzlepay.log`, so a database error cannot carry shopper details from the failing query into a log file merchants send to support
+
+> Note: this release improves recovery and diagnostics for a failure that originates outside this extension. It does not prevent the underlying error, which occurs inside Magento's order creation — typically caused by another extension that hooks order placement or saving (for example, one that rewrites order increment IDs after placement). The new diagnostics record that originating error in `var/log/sezzlepay.log` so it can be identified and fixed.
+
 
 ## Version 7.0.27
 
