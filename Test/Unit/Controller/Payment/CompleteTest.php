@@ -33,6 +33,8 @@ use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\OrderRecoveryService;
 use Sezzle\Sezzlepay\Model\Tokenize;
+use Sezzle\Sezzlepay\Test\Unit\Stub\CheckoutSessionStub;
+use Sezzle\Sezzlepay\Test\Unit\Stub\QuoteStub;
 
 /**
  * @covers \Sezzle\Sezzlepay\Controller\Payment\Complete
@@ -988,53 +990,5 @@ class CompleteTest extends TestCase
             array_column($entry['exception_chain'], 'class')
         );
         $this->assertSame('The root cause', $entry['exception_chain'][1]['message']);
-    }
-}
-
-/**
- * Test double exposing Magento\Checkout\Model\Session's magic Last* setters as real methods so
- * they can be mocked under PHPUnit 12, where MockBuilder::addMethods() was removed.
- */
-class CheckoutSessionStub extends CheckoutSession
-{
-    public function setLastQuoteId($quoteId)
-    {
-        return $this;
-    }
-
-    public function setLastSuccessQuoteId($quoteId)
-    {
-        return $this;
-    }
-
-    public function setLastOrderId($orderId)
-    {
-        return $this;
-    }
-
-    public function setLastRealOrderId($realOrderId)
-    {
-        return $this;
-    }
-
-    public function setLastOrderStatus($status)
-    {
-        return $this;
-    }
-}
-
-/**
- * Test double exposing Magento\Quote\Model\Quote's magic getBase* getters as real methods.
- */
-class QuoteStub extends Quote
-{
-    public function getBaseGrandTotal()
-    {
-        return null;
-    }
-
-    public function getBaseCurrencyCode()
-    {
-        return null;
     }
 }

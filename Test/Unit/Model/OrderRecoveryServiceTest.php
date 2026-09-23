@@ -23,6 +23,7 @@ use Sezzle\Sezzlepay\Api\V2Interface;
 use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
 use Sezzle\Sezzlepay\Helper\Data;
 use Sezzle\Sezzlepay\Model\OrderRecoveryService;
+use Sezzle\Sezzlepay\Test\Unit\Stub\QuoteStub;
 
 /**
  * @covers \Sezzle\Sezzlepay\Model\OrderRecoveryService
@@ -723,22 +724,5 @@ class OrderRecoveryServiceTest extends TestCase
         $this->helper->expects($this->once())->method('logSezzleActions');
 
         $this->service->releaseStrandedAuthorization($quote);
-    }
-}
-
-/**
- * Test double exposing Magento\Quote\Model\Quote's magic getBase* getters as real methods so they
- * can be mocked under PHPUnit 12, where MockBuilder::addMethods() was removed.
- */
-class QuoteStub extends Quote
-{
-    public function getBaseGrandTotal()
-    {
-        return null;
-    }
-
-    public function getBaseCurrencyCode()
-    {
-        return null;
     }
 }

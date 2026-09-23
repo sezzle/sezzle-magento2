@@ -36,6 +36,7 @@ use Sezzle\Sezzlepay\Model\GraphQl\Resolver\GetCartForUser;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\PlaceSezzleOrder;
 use Sezzle\Sezzlepay\Model\GraphQl\Resolver\Validator;
 use Sezzle\Sezzlepay\Model\OrderRecoveryService;
+use Sezzle\Sezzlepay\Test\Unit\Stub\QuoteStub;
 
 /**
  * @covers \Sezzle\Sezzlepay\Model\GraphQl\Resolver\PlaceSezzleOrder
@@ -909,27 +910,5 @@ class PlaceSezzleOrderTest extends TestCase
             ));
 
         $this->resolve($cartHash);
-    }
-}
-
-/**
- * Test double exposing Magento\Quote\Model\Quote's magic getCustomerEmail/getBase* getters as
- * real methods so they can be mocked under PHPUnit 12, where MockBuilder::addMethods() was removed.
- */
-class QuoteStub extends Quote
-{
-    public function getCustomerEmail()
-    {
-        return null;
-    }
-
-    public function getBaseGrandTotal()
-    {
-        return null;
-    }
-
-    public function getBaseCurrencyCode()
-    {
-        return null;
     }
 }
