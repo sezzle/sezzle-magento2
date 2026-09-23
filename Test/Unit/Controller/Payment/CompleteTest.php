@@ -16,6 +16,9 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\QuoteIdToMaskedQuoteIdInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Payment as QuotePayment;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\QuoteRepository\LoadHandler;
+use Magento\Quote\Model\ResourceModel\Quote\Payment as QuotePaymentResource;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
@@ -105,6 +108,18 @@ class CompleteTest extends TestCase
     private $cartRepository;
 
     /**
+     * @var QuotePaymentResource|MockObject
+     */
+    private $quotePaymentResource;
+
+    /**
+     * What a load past the cart repository's identity map returns - the quote as committed.
+     *
+     * @var Quote|MockObject|null
+     */
+    private $committedQuote;
+
+    /**
      * @var V2Interface|MockObject
      */
     private $v2;
@@ -158,6 +173,8 @@ class CompleteTest extends TestCase
         $this->cartManagement = $this->createMock(CartManagementInterface::class);
         $this->guestCartManagement = $this->createMock(GuestCartManagementInterface::class);
         $this->cartRepository = $this->createMock(CartRepositoryInterface::class);
+        $this->quotePaymentResource = $this->createMock(QuotePaymentResource::class);
+        $this->committedQuote = null;
         $this->v2 = $this->createMock(V2Interface::class);
 
         // The controller delegates order lookup / authorization release to OrderRecoveryService.
@@ -216,12 +233,22 @@ class CompleteTest extends TestCase
             ->getMock();
         $collectionFactory->method('create')->willReturn($collection);
 
+        $quoteFactory = $this->getMockBuilder(QuoteFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $quoteFactory->method('create')->willReturnCallback(function () {
+            return $this->committedQuote ?? $this->makeFreshQuote();
+        });
+
         return new OrderRecoveryService(
             $this->orderFactory,
             $this->v2,
             $this->helper,
             $collectionFactory,
-            $this->cartRepository
+            $quoteFactory,
+            $this->createMock(LoadHandler::class),
+            $this->quotePaymentResource
         );
     }
 
@@ -243,8 +270,8 @@ class CompleteTest extends TestCase
     }
 
     /**
-     * A quote as the repository hands it back: committed state, not the object the rolled-back
-     * submitQuote() left behind.
+     * A quote loaded past the cart repository's identity map: committed state, not the object
+     * the rolled-back submitQuote() left behind.
      *
      * @return Quote|MockObject
      */
@@ -253,13 +280,33 @@ class CompleteTest extends TestCase
         $fresh = $this->getMockBuilder(QuoteStub::class)
             ->disableOriginalConstructor()
             ->onlyMethods([
-                'getId', 'getReservedOrderId', 'setReservedOrderId',
-                'reserveOrderId', 'getPayment'
+                'getId', 'getIsActive', 'loadByIdWithoutStore', 'getReservedOrderId',
+                'setReservedOrderId', 'reserveOrderId', 'getPayment'
             ])
             ->getMock();
-        $fresh->method('getPayment')->willReturn($this->createMock(QuotePayment::class));
+        $fresh->method('loadByIdWithoutStore')->willReturnSelf();
+        $fresh->method('getId')->willReturn(10);
+        $fresh->method('getIsActive')->willReturn(true);
+        $freshPayment = $this->createMock(QuotePayment::class);
+        $freshPayment->method('getId')->willReturn(7);
+        $fresh->method('getPayment')->willReturn($freshPayment);
 
         return $fresh;
+    }
+
+    /**
+     * Model the cart repository as Magento implements it: an identity map keyed by cart ID.
+     *
+     * The checkout session loads its quote through the repository, so by the time any re-read
+     * runs, get() hands back the very object the rolled-back submitQuote() mutated. A mock that
+     * returns a distinct object from get() describes the fix rather than testing it.
+     *
+     * @param Quote|MockObject $sessionQuote
+     * @return void
+     */
+    private function repositoryCaches($sessionQuote): void
+    {
+        $this->cartRepository->method('get')->willReturn($sessionQuote);
     }
 
     /**
@@ -373,8 +420,13 @@ class CompleteTest extends TestCase
             ->method('releasePayment')
             ->with('order-uuid-123', 10000, 'USD', 1);
         // The stamp is written against committed state, not against the object the rolled-back
-        // submitQuote() left behind.
-        $this->cartRepository->method('get')->with(10)->willReturn($this->makeFreshQuote());
+        // submitQuote() left behind - which is what the repository itself would return.
+        $this->repositoryCaches($quote);
+        $fresh = $this->makeFreshQuote();
+        $this->committedQuote = $fresh;
+        $payment->expects($this->never())->method('setAdditionalInformation');
+        $this->cartRepository->expects($this->never())->method('save');
+        $this->quotePaymentResource->expects($this->once())->method('save')->with($fresh->getPayment());
 
         $this->messageManager->expects($this->once())->method('addErrorMessage');
 
@@ -458,13 +510,18 @@ class CompleteTest extends TestCase
             });
 
         // The quote is re-read from committed state before the retry, because the copy in hand
-        // carries mutations from the submitQuote() that rolled back.
-        $this->cartRepository->expects($this->once())->method('get')->with(10)->willReturn($quote);
+        // carries mutations from the submitQuote() that rolled back. The repository would hand
+        // that same copy back, so the re-read has to go past it.
+        $this->repositoryCaches($quote);
+        $fresh = $this->makeFreshQuote();
+        $this->committedQuote = $fresh;
 
-        // A fresh reserved id is generated and persisted before the retry.
-        $quote->expects($this->once())->method('setReservedOrderId')->with(null);
-        $quote->expects($this->once())->method('reserveOrderId')->willReturnSelf();
-        $this->cartRepository->expects($this->once())->method('save')->with($quote);
+        // A fresh reserved id is generated on the committed quote and persisted before the
+        // retry. The save goes through the repository, which evicts its stale cached copy.
+        $quote->expects($this->never())->method('setReservedOrderId');
+        $fresh->expects($this->once())->method('setReservedOrderId')->with(null);
+        $fresh->expects($this->once())->method('reserveOrderId')->willReturnSelf();
+        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
         $this->v2->expects($this->never())->method('releasePayment');
 
         $this->redirect->expects($this->once())->method('setPath')->with(self::SUCCESS_PATH);
@@ -541,10 +598,13 @@ class CompleteTest extends TestCase
                 return 200;
             });
 
-        $this->cartRepository->expects($this->once())->method('get')->with(10)->willReturn($quote);
-        $quote->expects($this->once())->method('setReservedOrderId')->with(null);
-        $quote->expects($this->once())->method('reserveOrderId')->willReturnSelf();
-        $this->cartRepository->expects($this->once())->method('save')->with($quote);
+        $this->repositoryCaches($quote);
+        $fresh = $this->makeFreshQuote();
+        $this->committedQuote = $fresh;
+        $quote->expects($this->never())->method('setReservedOrderId');
+        $fresh->expects($this->once())->method('setReservedOrderId')->with(null);
+        $fresh->expects($this->once())->method('reserveOrderId')->willReturnSelf();
+        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
         $this->v2->expects($this->never())->method('releasePayment');
 
         $this->redirect->expects($this->once())->method('setPath')->with(self::SUCCESS_PATH);
@@ -588,9 +648,10 @@ class CompleteTest extends TestCase
                 throw new LocalizedException(__('Some failure'));
             });
 
+        $this->repositoryCaches($quote);
         $fresh = $this->makeFreshQuote();
         $fresh->method('getReservedOrderId')->willReturn('000000124');
-        $this->cartRepository->method('get')->with(10)->willReturn($fresh);
+        $this->committedQuote = $fresh;
 
         $payment = $this->createMock(QuotePayment::class);
         $payment->method('getAdditionalInformation')->willReturnMap([
@@ -603,22 +664,17 @@ class CompleteTest extends TestCase
 
         $this->v2->expects($this->once())->method('releasePayment');
 
-        // Neither write touches the stale object: the retry reassigns its own local, and the
-        // stamp re-reads for itself.
+        // Neither write touches the stale object, even though the repository would hand it
+        // back: the retry saves the committed quote with its regenerated ID, and the stamp
+        // writes only the payment row, so nothing puts the abandoned reserved ID back.
         $quote->expects($this->never())->method('setReservedOrderId');
         $payment->expects($this->never())->method('setAdditionalInformation');
-
-        $saved = [];
-        $this->cartRepository->expects($this->exactly(2))
-            ->method('save')
-            ->willReturnCallback(function ($cart) use (&$saved) {
-                $saved[] = $cart;
-            });
+        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
+        $this->quotePaymentResource->expects($this->once())->method('save')->with($fresh->getPayment());
 
         $this->redirect->expects($this->once())->method('setPath')->with(self::CART_PATH);
 
         $this->assertSame($this->redirect, $this->controller->execute());
-        $this->assertSame([$fresh, $fresh], $saved);
     }
 
     public function testUnattributableCollisionReleasesRatherThanResubmitting()
@@ -645,8 +701,8 @@ class CompleteTest extends TestCase
             ->willThrowException($this->wrappedCollisionException());
 
         // No regenerate-and-retry: the reserved ID is left alone and placeOrder is not called
-        // a second time. (The re-read quote is still saved once, further down, to stamp the
-        // release.)
+        // a second time. (The committed payment row is still written once, further down, to
+        // stamp the release.)
         $quote->expects($this->never())->method('reserveOrderId');
         $quote->expects($this->never())->method('setReservedOrderId');
 
@@ -665,12 +721,14 @@ class CompleteTest extends TestCase
         $this->v2->expects($this->once())->method('releasePayment');
         // The release is stamped on the payment so a repeat visit cannot resubmit against it -
         // on the quote as committed, not on the one the rolled-back submitQuote() mutated.
-        $this->cartRepository->expects($this->once())->method('get')->with(10)->willReturn($fresh);
+        $this->repositoryCaches($quote);
+        $this->committedQuote = $fresh;
         $payment->expects($this->never())->method('setAdditionalInformation');
         $freshPayment->expects($this->once())
             ->method('setAdditionalInformation')
             ->with(OrderRecoveryService::KEY_AUTH_RELEASED_AT, $this->isInt());
-        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
+        $this->cartRepository->expects($this->never())->method('save');
+        $this->quotePaymentResource->expects($this->once())->method('save')->with($freshPayment);
         $this->redirect->expects($this->once())->method('setPath')->with(self::CART_PATH);
 
         $this->assertSame($this->redirect, $this->controller->execute());
@@ -780,7 +838,7 @@ class CompleteTest extends TestCase
 
         // The release still happens, and the shopper still gets a redirect rather than a raw
         // Magento error report page.
-        $this->cartRepository->method('get')->with(10)->willReturn($this->makeFreshQuote());
+        $this->repositoryCaches($quote);
         $this->v2->expects($this->once())->method('releasePayment');
         $this->redirect->expects($this->once())->method('setPath')->with(self::CART_PATH);
 
@@ -875,7 +933,7 @@ class CompleteTest extends TestCase
         $quote->method('getBaseCurrencyCode')->willReturn('USD');
 
         // A broken lookup must not cost the shopper the release of their authorization.
-        $this->cartRepository->method('get')->with(10)->willReturn($this->makeFreshQuote());
+        $this->repositoryCaches($quote);
         $this->v2->expects($this->once())
             ->method('releasePayment')->with('order-uuid-123', 10000, 'USD', 3);
 

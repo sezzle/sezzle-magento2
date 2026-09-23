@@ -40,7 +40,7 @@ Tested and verified in clean installations of Magento 2:
 - Record a released Sezzle authorization on the cart, so reloading the return page cannot release it twice or place an order against one that was already given back
 - Reserve a fresh order number and retry only when the conflict is demonstrably this checkout's, rather than on any duplicate-key error
 - Recognise a duplicate order number from the database error code as well as its English message, so detection still works on stores running a translated locale
-- Re-read the cart before writing to it after a failed order placement, so both the retry and the released-authorization record start from committed data rather than from a cart left half-converted by the failed attempt
+- Re-read the cart from the database before writing to it after a failed order placement, so both the retry and the released-authorization record start from committed data rather than from a cart left half-converted by the failed attempt. The re-read bypasses Magento's cart repository cache, which would otherwise hand back that same half-converted cart
 - Also record order-placement failures in Magento's own log, so a failed checkout is still traceable on stores with Sezzle logging switched off
 - Stop the database constraint text behind a duplicate order number from being displayed to shoppers or returned by the GraphQL `placeSezzleOrder` mutation
 - Redact the private key and API auth token from `var/log/sezzlepay.log`, which previously recorded both in cleartext on every authentication call. Field names are matched by shape, so variants such as `privateKey` or `X-Api-Key` are covered, and values are redacted whether they arrive as JSON fields, numbers or embedded JSON

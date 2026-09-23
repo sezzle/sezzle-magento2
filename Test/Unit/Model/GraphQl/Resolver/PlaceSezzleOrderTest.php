@@ -19,6 +19,9 @@ use Sezzle\Sezzlepay\Api\CartManagementInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Api\PaymentMethodManagementInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\QuoteRepository\LoadHandler;
+use Magento\Quote\Model\ResourceModel\Quote\Payment as QuotePaymentResource;
 use Magento\QuoteGraphQl\Model\Cart\CheckCartCheckoutAllowance;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -91,6 +94,13 @@ class PlaceSezzleOrderTest extends TestCase
     private $cartRepository;
 
     /**
+     * What a load past the cart repository's identity map returns - the cart as committed.
+     *
+     * @var Quote|MockObject|null
+     */
+    private $committedQuote;
+
+    /**
      * @var OrderFactory|MockObject
      */
     private $orderFactory;
@@ -133,6 +143,7 @@ class PlaceSezzleOrderTest extends TestCase
         $this->orderRepository = $this->createMock(OrderRepositoryInterface::class);
         $this->paymentMethodManagement = $this->createMock(PaymentMethodManagementInterface::class);
         $this->cartRepository = $this->createMock(CartRepositoryInterface::class);
+        $this->committedQuote = null;
         $this->orderFactory = $this->getMockBuilder(OrderFactory::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['create'])
@@ -192,12 +203,22 @@ class PlaceSezzleOrderTest extends TestCase
             ->getMock();
         $collectionFactory->method('create')->willReturn($collection);
 
+        $quoteFactory = $this->getMockBuilder(QuoteFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $quoteFactory->method('create')->willReturnCallback(function () {
+            return $this->committedQuote;
+        });
+
         return new OrderRecoveryService(
             $this->orderFactory,
             $this->v2,
             $this->helper,
             $collectionFactory,
-            $this->cartRepository
+            $quoteFactory,
+            $this->createMock(LoadHandler::class),
+            $this->createMock(QuotePaymentResource::class)
         );
     }
 
@@ -612,12 +633,24 @@ class PlaceSezzleOrderTest extends TestCase
             });
 
         // The cart is re-read from committed state before the retry, because the copy in hand
-        // carries mutations from the submitQuote() that rolled back.
-        $this->cartRepository->expects($this->once())->method('get')->with($cartId)->willReturn($quoteMock);
+        // carries mutations from the submitQuote() that rolled back. The repository is an
+        // identity map and would hand that same copy back, so the re-read has to go past it.
+        $this->cartRepository->method('get')->willReturn($quoteMock);
+        $fresh = $this->getMockBuilder(QuoteStub::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getId', 'getIsActive', 'loadByIdWithoutStore', 'setReservedOrderId', 'reserveOrderId'])
+            ->getMock();
+        $fresh->method('loadByIdWithoutStore')->with($cartId)->willReturnSelf();
+        $fresh->method('getId')->willReturn($cartId);
+        $fresh->method('getIsActive')->willReturn(true);
+        $this->committedQuote = $fresh;
 
-        $quoteMock->expects($this->once())->method('setReservedOrderId')->with(null);
-        $quoteMock->expects($this->once())->method('reserveOrderId')->willReturnSelf();
-        $this->cartRepository->expects($this->once())->method('save')->with($quoteMock);
+        // The regenerated ID goes on the committed cart, and the save goes through the
+        // repository so its stale cached copy is evicted before the retry reloads it.
+        $quoteMock->expects($this->never())->method('setReservedOrderId');
+        $fresh->expects($this->once())->method('setReservedOrderId')->with(null);
+        $fresh->expects($this->once())->method('reserveOrderId')->willReturnSelf();
+        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
 
         $orderMock = $this->makeOrder();
         $orderMock->method('getIncrementId')->willReturn($orderNumber);

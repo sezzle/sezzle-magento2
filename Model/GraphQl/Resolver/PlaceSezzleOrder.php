@@ -286,7 +286,7 @@ class PlaceSezzleOrder implements ResolverInterface
     private function rereadCart(CartInterface $cart, int $cartId): CartInterface
     {
         try {
-            return $this->cartRepository->get($cartId);
+            return $this->orderRecovery->loadCommittedQuote($cartId);
         } catch (\Throwable $rereadFailure) {
             $this->helper->logSezzleActions([
                 'log_origin' => __METHOD__,
@@ -341,7 +341,9 @@ class PlaceSezzleOrder implements ResolverInterface
             // Re-read first. The cart in hand has been through a submitQuote() that rolled
             // back: addresses converted, items mutated, is_active and orig_order_id possibly
             // set, all in memory while the database went back to where it started. Saving it
-            // as-is would persist that half-converted cart and then resubmit it.
+            // as-is would persist that half-converted cart and then resubmit it. The save still
+            // goes through the cart repository on purpose: it evicts the repository's cached copy,
+            // which is the stale one, so the retry's getActive() loads committed state.
             $cart = $this->rereadCart($cart, (int)$cart->getId());
             $cart->setReservedOrderId(null);
             $cart->reserveOrderId();

@@ -149,7 +149,9 @@ class Complete extends Sezzle
             // Re-read first. The quote in hand has been through a submitQuote() that rolled
             // back: addresses converted, items mutated, is_active and orig_order_id possibly
             // set, all in memory while the database went back to where it started. Saving it
-            // as-is would persist that half-converted cart and then resubmit it.
+            // as-is would persist that half-converted cart and then resubmit it. The save still
+            // goes through the cart repository on purpose: it evicts the repository's cached copy,
+            // which is the stale one, so the retry's getActive() loads committed state.
             $quote = $this->rereadQuote($quote, $quoteId);
             $quote->setReservedOrderId(null);
             $quote->reserveOrderId();
@@ -177,7 +179,7 @@ class Complete extends Sezzle
     private function rereadQuote(CartInterface $quote, int $quoteId): CartInterface
     {
         try {
-            return $this->cartRepository->get($quoteId);
+            return $this->orderRecovery->loadCommittedQuote($quoteId);
         } catch (\Throwable $rereadFailure) {
             $this->helper->logSezzleActions([
                 'log_origin' => __METHOD__,

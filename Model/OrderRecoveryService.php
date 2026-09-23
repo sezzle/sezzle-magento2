@@ -9,8 +9,12 @@ namespace Sezzle\Sezzlepay\Model;
 
 use Magento\Framework\DB\Adapter\DuplicateException;
 use Magento\Framework\Exception\AlreadyExistsException;
-use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\QuoteRepository\LoadHandler;
+use Magento\Quote\Model\ResourceModel\Quote\Payment as QuotePaymentResource;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
@@ -82,30 +86,76 @@ class OrderRecoveryService
     private $orderCollectionFactory;
 
     /**
-     * @var CartRepositoryInterface
+     * @var QuoteFactory
      */
-    private $cartRepository;
+    private $quoteFactory;
+
+    /**
+     * @var LoadHandler
+     */
+    private $quoteLoadHandler;
+
+    /**
+     * @var QuotePaymentResource
+     */
+    private $quotePaymentResource;
 
     /**
      * @param OrderFactory $orderFactory
      * @param V2Interface $v2
      * @param Data $helper
      * @param OrderCollectionFactory $orderCollectionFactory
-     * @param CartRepositoryInterface $cartRepository
+     * @param QuoteFactory $quoteFactory
+     * @param LoadHandler $quoteLoadHandler
+     * @param QuotePaymentResource $quotePaymentResource
      */
     public function __construct(
         OrderFactory           $orderFactory,
         V2Interface            $v2,
         Data                   $helper,
         OrderCollectionFactory $orderCollectionFactory,
-        CartRepositoryInterface $cartRepository
+        QuoteFactory           $quoteFactory,
+        LoadHandler            $quoteLoadHandler,
+        QuotePaymentResource   $quotePaymentResource
     )
     {
         $this->orderFactory = $orderFactory;
         $this->v2 = $v2;
         $this->helper = $helper;
         $this->orderCollectionFactory = $orderCollectionFactory;
-        $this->cartRepository = $cartRepository;
+        $this->quoteFactory = $quoteFactory;
+        $this->quoteLoadHandler = $quoteLoadHandler;
+        $this->quotePaymentResource = $quotePaymentResource;
+    }
+
+    /**
+     * Load a quote from committed state, bypassing the cart repository's identity map.
+     *
+     * CartRepositoryInterface::get() caches by cart ID and returns the cached instance, and the
+     * checkout session loads its quote through that same repository. After a rolled-back
+     * submitQuote() the cached instance is the mutated one, so get() hands back exactly the
+     * half-converted cart a re-read is meant to avoid.
+     *
+     * The load handler is run so the result carries its own items and shipping assignments.
+     * CartRepository::save() fills in any key the saved object lacks from the cached instance,
+     * and those two are what its save handler persists - without them a save of this quote
+     * would write the stale items back. Inactive quotes are refused for the same reason: the
+     * load handler skips them, and there is nothing left to place an order for anyway.
+     *
+     * @param int $quoteId
+     * @return Quote
+     * @throws NoSuchEntityException
+     */
+    public function loadCommittedQuote(int $quoteId): Quote
+    {
+        $quote = $this->quoteFactory->create();
+        $quote->loadByIdWithoutStore($quoteId);
+        if (!$quote->getId() || !$quote->getIsActive()) {
+            throw new NoSuchEntityException(__('Quote %1 could not be re-read.', $quoteId));
+        }
+        $this->quoteLoadHandler->load($quote);
+
+        return $quote;
     }
 
     /**
@@ -398,13 +448,16 @@ class OrderRecoveryService
     private function stampReleased(CartInterface $quote): void
     {
         try {
-            // Re-read for the same reason the retry path does: the quote in hand came out of a
-            // rolled-back submitQuote(), and this is the only place that path writes it back.
-            // Saving the object as-is would persist that half-converted cart, and on a retry
-            // would overwrite the reserved ID the retry had just regenerated.
-            $fresh = $this->cartRepository->get((int)$quote->getId());
-            $fresh->getPayment()->setAdditionalInformation(self::KEY_AUTH_RELEASED_AT, time());
-            $this->cartRepository->save($fresh);
+            // The quote in hand came out of a rolled-back submitQuote(), so the stamp is written
+            // against committed state - see loadCommittedQuote() for why that cannot go through
+            // the cart repository. Only the payment row is written: it is all the stamp needs,
+            // and a quote save would cascade into items, addresses and totals.
+            $freshPayment = $this->loadCommittedQuote((int)$quote->getId())->getPayment();
+            if (!$freshPayment->getId()) {
+                throw new NoSuchEntityException(__('Quote %1 has no saved payment.', $quote->getId()));
+            }
+            $freshPayment->setAdditionalInformation(self::KEY_AUTH_RELEASED_AT, time());
+            $this->quotePaymentResource->save($freshPayment);
         } catch (\Throwable $stampFailure) {
             $this->logQuietly([
                 'log_origin' => __METHOD__,

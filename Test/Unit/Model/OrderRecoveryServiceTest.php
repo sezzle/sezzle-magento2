@@ -5,11 +5,14 @@ namespace Sezzle\Sezzlepay\Test\Unit\Model;
 use Magento\Framework\DB\Adapter\DuplicateException;
 use Magento\Framework\Exception\AlreadyExistsException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
-use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Payment as QuotePayment;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\QuoteRepository\LoadHandler;
+use Magento\Quote\Model\ResourceModel\Quote\Payment as QuotePaymentResource;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\ResourceModel\Order\Collection as OrderCollection;
@@ -52,9 +55,26 @@ class OrderRecoveryServiceTest extends TestCase
     private $orderCollection;
 
     /**
-     * @var CartRepositoryInterface|MockObject
+     * @var QuoteFactory|MockObject
      */
-    private $cartRepository;
+    private $quoteFactory;
+
+    /**
+     * @var LoadHandler|MockObject
+     */
+    private $quoteLoadHandler;
+
+    /**
+     * @var QuotePaymentResource|MockObject
+     */
+    private $quotePaymentResource;
+
+    /**
+     * What a load past the cart repository's identity map returns - the quote as committed.
+     *
+     * @var Quote|MockObject|null
+     */
+    private $committedQuote;
 
     /**
      * Order the quote_id lookup currently returns.
@@ -86,7 +106,16 @@ class OrderRecoveryServiceTest extends TestCase
             ->getMock();
         $this->v2 = $this->createMock(V2Interface::class);
         $this->helper = $this->createMock(Data::class);
-        $this->cartRepository = $this->createMock(CartRepositoryInterface::class);
+        $this->quoteFactory = $this->getMockBuilder(QuoteFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+        $this->committedQuote = null;
+        $this->quoteFactory->method('create')->willReturnCallback(function () {
+            return $this->committedQuote ?? $this->makeFreshQuote();
+        });
+        $this->quoteLoadHandler = $this->createMock(LoadHandler::class);
+        $this->quotePaymentResource = $this->createMock(QuotePaymentResource::class);
 
         $this->orderCollection = $this->getMockBuilder(OrderCollection::class)
             ->disableOriginalConstructor()
@@ -121,7 +150,9 @@ class OrderRecoveryServiceTest extends TestCase
             $this->v2,
             $this->helper,
             $this->orderCollectionFactory,
-            $this->cartRepository
+            $this->quoteFactory,
+            $this->quoteLoadHandler,
+            $this->quotePaymentResource
         );
     }
 
@@ -153,17 +184,52 @@ class OrderRecoveryServiceTest extends TestCase
     }
 
     /**
-     * A quote as the repository hands it back: committed state, not the object the rolled-back
-     * submitQuote() left behind.
+     * A quote loaded past the cart repository's identity map: committed state, not the object
+     * the rolled-back submitQuote() left behind.
      *
+     * @param QuotePayment|MockObject|null $payment the saved payment row; one with an ID if omitted
+     * @param int|null $id
+     * @param bool $isActive
      * @return Quote|MockObject
      */
-    private function makeFreshQuote()
+    private function makeFreshQuote($payment = null, ?int $id = 42, bool $isActive = true)
     {
-        return $this->getMockBuilder(QuoteStub::class)
+        if ($payment === null) {
+            $payment = $this->createMock(QuotePayment::class);
+            $payment->method('getId')->willReturn(7);
+        }
+        $fresh = $this->getMockBuilder(QuoteStub::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getId', 'getPayment'])
+            ->onlyMethods(['getId', 'getIsActive', 'loadByIdWithoutStore', 'getPayment'])
             ->getMock();
+        $fresh->method('loadByIdWithoutStore')->willReturnSelf();
+        $fresh->method('getId')->willReturn($id);
+        $fresh->method('getIsActive')->willReturn($isActive);
+        $fresh->method('getPayment')->willReturn($payment);
+
+        return $fresh;
+    }
+
+    /**
+     * An authorized quote as the failure path holds it, ready to be released.
+     *
+     * @param QuotePayment|MockObject $payment
+     * @return Quote|MockObject
+     */
+    private function makeReleasableQuote($payment)
+    {
+        $payment->method('getAdditionalInformation')->willReturnMap([
+            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
+            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
+        ]);
+        $quote = $this->makeQuote();
+        $quote->method('getId')->willReturn(42);
+        $quote->method('getPayment')->willReturn($payment);
+        $quote->method('getBaseGrandTotal')->willReturn(100.00);
+        $quote->method('getBaseCurrencyCode')->willReturn('USD');
+        $quote->method('getStoreId')->willReturn(1);
+
+        return $quote;
     }
 
     /**
@@ -477,7 +543,7 @@ class OrderRecoveryServiceTest extends TestCase
         $quote->method('getPayment')->willReturn($payment);
 
         $this->v2->expects($this->never())->method('releasePayment');
-        $this->cartRepository->expects($this->never())->method('save');
+        $this->quotePaymentResource->expects($this->never())->method('save');
         $this->helper->expects($this->once())->method('logSezzleActions');
 
         $this->service->releaseStrandedAuthorization($quote);
@@ -499,8 +565,7 @@ class OrderRecoveryServiceTest extends TestCase
         $this->v2->expects($this->once())->method('releasePayment');
         // The release has already happened by then; failing to record it must not report the
         // release itself as failed.
-        $this->cartRepository->method('get')->willReturn($this->makeFreshQuote());
-        $this->cartRepository->method('save')->willThrowException(new \Exception('Quote save failed'));
+        $this->quotePaymentResource->method('save')->willThrowException(new \Exception('Payment save failed'));
         $this->helper->expects($this->exactly(2))->method('logSezzleActions');
 
         $this->service->releaseStrandedAuthorization($quote);
@@ -547,55 +612,95 @@ class OrderRecoveryServiceTest extends TestCase
         // The quote in hand came out of a rolled-back submitQuote(), so the stamp is written
         // against committed state instead - see testStampNeverSavesTheQuoteItWasHandedOn.
         $freshPayment = $this->createMock(QuotePayment::class);
-        $fresh = $this->makeFreshQuote();
-        $fresh->method('getPayment')->willReturn($freshPayment);
+        $freshPayment->method('getId')->willReturn(7);
+        $this->committedQuote = $this->makeFreshQuote($freshPayment);
 
         $this->v2->expects($this->once())
             ->method('releasePayment')
             ->with('order-uuid-123', 10000, 'USD', 1);
-        $this->cartRepository->expects($this->once())->method('get')->with(42)->willReturn($fresh);
         // Released authorizations are stamped on the payment so a repeat visit can tell that
         // this one has already been given back.
         $freshPayment->expects($this->once())
             ->method('setAdditionalInformation')
             ->with(OrderRecoveryService::KEY_AUTH_RELEASED_AT, $this->isInt());
-        $this->cartRepository->expects($this->once())->method('save')->with($fresh);
+        $this->quotePaymentResource->expects($this->once())->method('save')->with($freshPayment);
         $this->helper->expects($this->once())->method('logSezzleActions');
 
         $this->service->releaseStrandedAuthorization($quote);
     }
 
-    public function testStampNeverSavesTheQuoteItWasHandedOn()
+    public function testStampWritesOnlyTheCommittedPaymentRow()
     {
-        // The object on this path is the one the rolled-back submitQuote() mutated. Saving it
-        // would persist that half-converted cart, and where the caller has already regenerated
-        // the reserved order ID and retried, would revert reserved_order_id to the abandoned
-        // value that the retry had just replaced.
-        $quote = $this->makeQuote();
+        // The object on this path is the one the rolled-back submitQuote() mutated, and the cart
+        // repository's get() would hand that same object back. The stamp is written to the
+        // payment row of a quote loaded past the repository, and nothing else is saved.
         $payment = $this->createMock(QuotePayment::class);
-        $payment->method('getAdditionalInformation')->willReturnMap([
-            [AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID, 'order-uuid-123'],
-            [OrderRecoveryService::KEY_AUTH_RELEASED_AT, null]
-        ]);
-        $quote->method('getId')->willReturn(42);
-        $quote->method('getPayment')->willReturn($payment);
-        $quote->method('getBaseGrandTotal')->willReturn(100.00);
-        $quote->method('getBaseCurrencyCode')->willReturn('USD');
-        $quote->method('getStoreId')->willReturn(1);
-
-        $fresh = $this->makeFreshQuote();
-        $fresh->method('getPayment')->willReturn($this->createMock(QuotePayment::class));
-        $this->cartRepository->method('get')->with(42)->willReturn($fresh);
+        $quote = $this->makeReleasableQuote($payment);
+        $freshPayment = $this->createMock(QuotePayment::class);
+        $freshPayment->method('getId')->willReturn(7);
+        $this->committedQuote = $this->makeFreshQuote($freshPayment);
 
         $payment->expects($this->never())->method('setAdditionalInformation');
-        $this->cartRepository->expects($this->once())
+        $freshPayment->expects($this->once())
+            ->method('setAdditionalInformation')
+            ->with(OrderRecoveryService::KEY_AUTH_RELEASED_AT, $this->isInt());
+        $this->quotePaymentResource->expects($this->once())
             ->method('save')
-            ->willReturnCallback(function ($saved) use ($quote, $fresh) {
-                $this->assertNotSame($quote, $saved);
-                $this->assertSame($fresh, $saved);
+            ->willReturnCallback(function ($saved) use ($payment, $freshPayment) {
+                $this->assertNotSame($payment, $saved);
+                $this->assertSame($freshPayment, $saved);
             });
 
         $this->service->releaseStrandedAuthorization($quote);
+    }
+
+    public function testStampDoesNotInventAPaymentRowTheQuoteNeverHad()
+    {
+        // Quote::getPayment() creates an unsaved payment when none is stored. Writing that would
+        // add a second payment row to the quote rather than stamp the existing one.
+        $quote = $this->makeReleasableQuote($this->createMock(QuotePayment::class));
+        $unsaved = $this->createMock(QuotePayment::class);
+        $unsaved->method('getId')->willReturn(null);
+        $this->committedQuote = $this->makeFreshQuote($unsaved);
+
+        $this->v2->expects($this->once())->method('releasePayment');
+        $this->quotePaymentResource->expects($this->never())->method('save');
+        // The release is still reported, alongside the failure to record it.
+        $this->helper->expects($this->exactly(2))->method('logSezzleActions');
+
+        $this->service->releaseStrandedAuthorization($quote);
+    }
+
+    public function testLoadCommittedQuoteLoadsPastTheRepositoryAndRunsTheLoadHandler()
+    {
+        $fresh = $this->makeFreshQuote();
+        $fresh->expects($this->once())->method('loadByIdWithoutStore')->with(42);
+        $this->committedQuote = $fresh;
+
+        // Without the load handler the quote carries no items or shipping assignments, and
+        // CartRepository::save() would fill both in from its stale cached copy.
+        $this->quoteLoadHandler->expects($this->once())->method('load')->with($fresh);
+
+        $this->assertSame($fresh, $this->service->loadCommittedQuote(42));
+    }
+
+    public function testLoadCommittedQuoteRefusesAMissingQuote()
+    {
+        $this->committedQuote = $this->makeFreshQuote(null, null);
+        $this->quoteLoadHandler->expects($this->never())->method('load');
+
+        $this->expectException(NoSuchEntityException::class);
+        $this->service->loadCommittedQuote(42);
+    }
+
+    public function testLoadCommittedQuoteRefusesAnInactiveQuote()
+    {
+        // The load handler skips inactive quotes, so one would reach a save without its own items.
+        $this->committedQuote = $this->makeFreshQuote(null, 42, false);
+        $this->quoteLoadHandler->expects($this->never())->method('load');
+
+        $this->expectException(NoSuchEntityException::class);
+        $this->service->loadCommittedQuote(42);
     }
 
     public function testReleaseSwallowsExceptionsAndLogs()
