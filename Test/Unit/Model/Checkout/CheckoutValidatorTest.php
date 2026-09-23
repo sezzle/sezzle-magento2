@@ -2,7 +2,6 @@
 
 namespace Sezzle\Sezzlepay\Test\Unit\Model\Checkout;
 
-use ArrayObject;
 use Magento\Customer\Api\Data\AddressInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -43,7 +42,7 @@ class CheckoutValidatorTest extends TestCase
     /**
      * Backing data for the address doubles, keyed by object id
      *
-     * @var ArrayObject[]
+     * @var array[]
      */
     private $addressState = [];
 
@@ -328,23 +327,22 @@ class CheckoutValidatorTest extends TestCase
     private function buildAddress(array $data, string $type = Address::TYPE_BILLING)
     {
         $data['address_type'] = $type;
-        $state = new ArrayObject($data);
 
         $address = $this->getMockBuilder(Address::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getData', 'getShippingMethod', 'importCustomerAddressData', 'exportCustomerAddress'])
             ->getMock();
 
+        $id = spl_object_id($address);
+        $this->addressState[$id] = $data;
+
         $address->method('getData')->willReturnCallback(
-            static function ($field = null) use ($state) {
-                return $field === null
-                    ? $state->getArrayCopy()
-                    : ($state->offsetExists($field) ? $state->offsetGet($field) : null);
+            function ($field = null) use ($id) {
+                $state = $this->addressState[$id];
+                return $field === null ? $state : ($state[$field] ?? null);
             }
         );
         $address->method('getShippingMethod')->willReturn('flatrate_flatrate');
-
-        $this->addressState[spl_object_id($address)] = $state;
 
         return $address;
     }
@@ -358,9 +356,9 @@ class CheckoutValidatorTest extends TestCase
      */
     private function fillAddress($address, array $data): void
     {
-        $state = $this->addressState[spl_object_id($address)];
+        $id = spl_object_id($address);
         foreach ($data as $field => $value) {
-            $state->offsetSet($field, $value);
+            $this->addressState[$id][$field] = $value;
         }
     }
 
