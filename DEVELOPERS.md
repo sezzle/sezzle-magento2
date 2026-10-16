@@ -364,7 +364,7 @@ This is an exclude list rather than an include list on purpose. Nearly everythin
 | `AGENTS.md`, `CLAUDE.md` | Internal AI agent instructions. `AGENTS.md` also carries local admin credentials |
 | `CODEOWNERS` | Internal GitLab review routing |
 | `DEVELOPERS.md` | This file, an internal setup guide |
-| `Dockerfile`, `docker-compose.yml`, `docker.env`, `process` | Local development environment only. `docker.env` also carries database passwords |
+| `Dockerfile`, `docker-compose.yml`, `docker.env`, `docker.local.env`, `process` | Local development environment only. `docker.env` also carries database passwords and the untracked `docker.local.env` carries repo.magento.com keys |
 | `vendor/` | Here it only ever holds dev tooling (phpstan, rector, php_codesniffer). Merchants resolve real dependencies through Composer from `composer.json` |
 | `sezzle_sezzlepay-*.zip` | Never nest a release archive inside another |
 | `.DS_Store` | Finder metadata |
@@ -380,7 +380,7 @@ rm -f "sezzle_sezzlepay-${VERSION}.zip"
 zip -r "sezzle_sezzlepay-${VERSION}.zip" . \
   -x '.git/*' '.gitignore' '.gitlab-ci.yml' \
      'AGENTS.md' 'CLAUDE.md' 'CODEOWNERS' 'DEVELOPERS.md' \
-     'Dockerfile' 'docker-compose.yml' 'docker.env' 'process' \
+     'Dockerfile' 'docker-compose.yml' 'docker.env' 'docker.local.env' 'process' \
      'vendor/*' 'sezzle_sezzlepay-*.zip' \
      '.DS_Store' '*/.DS_Store'
 ```
