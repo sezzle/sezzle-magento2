@@ -1,29 +1,44 @@
-version: "3.6"
 services:
   web:
       build: .
       container_name: sezzle_magento2
       ports:
       - "8085:80"
-      links:
+      depends_on:
         - db
+        - opensearch
       volumes:
+      - magento-data:/var/www/html
       - .:/var/www/html/app/code/Sezzle/Sezzlepay
       env_file:
         - docker.env
+        # repo.magento.com keys (MAGENTO_PUBLIC_KEY / MAGENTO_PRIVATE_KEY); untracked
+        - path: docker.local.env
+          required: false
   db:
-      image: mysql:5.6.23
+      image: mysql:8.4.11
       container_name: sezzle_magento2_db
       volumes:
-          - db-data:/var/lib/mysql/data
+          - db-data:/var/lib/mysql
       env_file:
           - docker.env
+  opensearch:
+      image: opensearchproject/opensearch:2.19.6
+      container_name: sezzle_magento2_opensearch
+      environment:
+          - discovery.type=single-node
+          - DISABLE_SECURITY_PLUGIN=true
+          - DISABLE_INSTALL_DEMO_CONFIG=true
+          - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
   phpmyadmin:
-      image: phpmyadmin/phpmyadmin
+      image: phpmyadmin/phpmyadmin:5.2.3
       container_name: sezzle_magento2_phpmyadmin
       ports:
           - "8580:80"
-      links:
+      depends_on:
           - db
+      environment:
+          - PMA_HOST=db
 volumes:
+  magento-data:
   db-data:
