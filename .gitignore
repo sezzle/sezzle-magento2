@@ -5,3 +5,6 @@
 .idea/
 .vscode/
 *.swp
+
+# Local Docker secrets (repo.magento.com keys)
+docker.local.env

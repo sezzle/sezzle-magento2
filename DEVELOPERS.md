@@ -154,22 +154,26 @@ When using this method, update the Magento configuration below accordingly.
 
 ## Initial setup
 
-<!-- ### Docker Version
+### Docker Version
 
-```bash
-docker exec -it sezzle_magento2 process install
-docker exec -it sezzle_magento2 process install-sampledata
-docker exec -it sezzle_magento2 process upgrade
-docker exec -it sezzle_magento2 process compile
-docker exec -it sezzle_magento2 process deploy
-docker exec -it sezzle_magento2 process developer
-docker exec -it sezzle_magento2 process clear
-docker-compose down --rmi local -v --remove-orphans
-docker-compose up -d --build
-```
+1. Create `docker.local.env` in the repo root (gitignored) with your repo.magento.com keys from 1Password ("Magento 2 Access Keys"):
+   ```
+   MAGENTO_PUBLIC_KEY=...
+   MAGENTO_PRIVATE_KEY=...
+   ```
+1. If you used the previous Docker setup, remove its volumes first (the MySQL volume path changed and MySQL 8.4 will not initialize a non-empty data directory):
+   ```bash
+   docker compose down --rmi local -v --remove-orphans
+   ```
+1. Build and start the stack, then install Magento (the first run downloads Magento into the `magento-data` volume):
+   ```bash
+   docker compose up -d --build
+   docker exec -it sezzle_magento2 process install
+   ```
+1. Open `localhost:8085`
 
-Open `localhost:8085`  
--->
+Other `process` commands: `upgrade`, `compile`, `deploy`, `developer`, `clear`. To reset the install, run `docker compose down -v` (the `-v` is required to drop the `magento-data` volume).
+
 ### Install Magento to MAMP
 
 In Terminal, run the following:
@@ -364,7 +368,7 @@ This is an exclude list rather than an include list on purpose. Nearly everythin
 | `AGENTS.md`, `CLAUDE.md` | Internal AI agent instructions. `AGENTS.md` also carries local admin credentials |
 | `CODEOWNERS` | Internal GitLab review routing |
 | `DEVELOPERS.md` | This file, an internal setup guide |
-| `Dockerfile`, `docker-compose.yml`, `docker.env`, `process` | Local development environment only. `docker.env` also carries database passwords |
+| `Dockerfile`, `docker-compose.yml`, `docker.env`, `docker.local.env`, `process` | Local development environment only. `docker.env` also carries database passwords and the untracked `docker.local.env` carries repo.magento.com keys |
 | `vendor/` | Here it only ever holds dev tooling (phpstan, rector, php_codesniffer). Merchants resolve real dependencies through Composer from `composer.json` |
 | `sezzle_sezzlepay-*.zip` | Never nest a release archive inside another |
 | `.DS_Store` | Finder metadata |
@@ -380,7 +384,7 @@ rm -f "sezzle_sezzlepay-${VERSION}.zip"
 zip -r "sezzle_sezzlepay-${VERSION}.zip" . \
   -x '.git/*' '.gitignore' '.gitlab-ci.yml' \
      'AGENTS.md' 'CLAUDE.md' 'CODEOWNERS' 'DEVELOPERS.md' \
-     'Dockerfile' 'docker-compose.yml' 'docker.env' 'process' \
+     'Dockerfile' 'docker-compose.yml' 'docker.env' 'docker.local.env' 'process' \
      'vendor/*' 'sezzle_sezzlepay-*.zip' \
      '.DS_Store' '*/.DS_Store'
 ```
