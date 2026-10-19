@@ -18,6 +18,8 @@ services:
   db:
       image: mysql:8.4.11
       container_name: sezzle_magento2_db
+      # Magento creates triggers as a non-SUPER user; MySQL 8 enables binlog by default
+      command: --log_bin_trust_function_creators=1
       volumes:
           - db-data:/var/lib/mysql
       env_file:
