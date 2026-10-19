@@ -22,8 +22,11 @@ COPY --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 WORKDIR $INSTALL_DIR
 
+# Pre-create the bind-mount target so the named volume is seeded with www-data ownership
+# (otherwise Docker creates app/, app/code/ and app/code/Sezzle/ as root)
 RUN chsh -s /bin/bash www-data \
-    && chown www-data:www-data /var/www
+    && mkdir -p "$INSTALL_DIR/app/code/Sezzle/Sezzlepay" \
+    && chown -R www-data:www-data /var/www
 
 COPY ./process /usr/local/bin/process
 RUN chmod +x /usr/local/bin/process
