@@ -18,6 +18,7 @@ Download () {
         exit 1
     fi
     echo "Downloading Magento 2 $MAGENTO_VERSION...."
+    # Expanded by the outer root shell (unquoted heredoc), not by these single quotes
     export COMPOSER_AUTH='{"http-basic":{"repo.magento.com":{"username":"$MAGENTO_PUBLIC_KEY","password":"$MAGENTO_PRIVATE_KEY"}}}'
     rm -rf /tmp/magento
     composer create-project --no-interaction --repository-url=https://repo.magento.com/ magento/project-community-edition=$MAGENTO_VERSION /tmp/magento || exit 1
