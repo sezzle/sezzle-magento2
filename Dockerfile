@@ -18,7 +18,7 @@ RUN a2enmod rewrite \
     && sed -ri 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
     && printf 'memory_limit=2G\nmax_execution_time=1800\n' > "$PHP_INI_DIR/conf.d/magento.ini"
 
-COPY --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.11.0 /usr/bin/composer /usr/bin/composer
 
 WORKDIR $INSTALL_DIR
 
