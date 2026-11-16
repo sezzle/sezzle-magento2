@@ -14,10 +14,12 @@ use Sezzle\Sezzlepay\Block\Widget\Installment;
 ?>
 <?php if ($block->isInstallmentWidgetEnabled()) : ?>
     <?php $script = <<<SCRIPT
-        require(['installmentWidgetSDK'], function () {
-            new SezzleInstallmentWidget({
-            'merchantLocale': 'US',
-            'platform': 'magento2'
+        // The widget takes the shopper's country from the checkout quote, whose
+        // model reads window.checkoutConfig when it loads. This block renders in
+        // the head, before that config is printed, so wait for the DOM first.
+        require(['domReady!'], function () {
+            require(['Sezzle_Sezzlepay/js/installment-widget'], function (initInstallmentWidget) {
+                initInstallmentWidget();
             });
         });
     SCRIPT; ?>
