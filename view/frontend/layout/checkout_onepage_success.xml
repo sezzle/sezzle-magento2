@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <!-- cacheable="false": the config carries the order's Sezzle UUID, which must never reach the full-page cache -->
+            <block class="Sezzle\Sezzlepay\Block\Widget\SezzleAds" name="sezzle.ads.success" template="Sezzle_Sezzlepay::sezzle_ads.phtml" after="checkout.success" cacheable="false"/>
+        </referenceContainer>
+    </body>
+</page>

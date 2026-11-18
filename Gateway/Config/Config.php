@@ -31,6 +31,11 @@ class Config extends PaymentConfig
     const KEY_WIDGET_TICKET_CREATED_AT = 'widget_ticket_created_at';
     const KEY_WIDGET_INSTALLMENT = 'widget_installment';
     const KEY_WIDGET_INSTALLMENT_PRICE = 'widget_installment_price_path';
+    const KEY_SEZZLE_ADS = 'sezzle_ads';
+    const KEY_SEZZLE_ADS_THEME = 'sezzle_ads_theme';
+
+    const SEZZLE_ADS_THEME_DARK = 'dark';
+    const SEZZLE_ADS_THEME_LIGHT = 'light';
 
     const KEY_INCONTEXT_ACTIVE = 'active_in_context';
     const KEY_INCONTEXT_MODE = 'in_context_mode';
@@ -296,6 +301,38 @@ class Config extends PaymentConfig
                 self::KEY_WIDGET_INSTALLMENT_PRICE,
                 $storeId ?? $this->storeConfigResolver->getStoreId()
             );
+    }
+
+    /**
+     * @param int|null $storeId
+     * @return bool
+     * @throws InputException
+     * @throws NoSuchEntityException
+     */
+    public function isSezzleAdsEnabled(?int $storeId = null): bool
+    {
+        return (bool)$this->getValue(
+            self::KEY_SEZZLE_ADS,
+            $storeId ?? $this->storeConfigResolver->getStoreId()
+        );
+    }
+
+    /**
+     * Colour scheme for the Sezzle Ads placement, falling back to dark for anything unrecognised
+     *
+     * @param int|null $storeId
+     * @return string
+     * @throws InputException
+     * @throws NoSuchEntityException
+     */
+    public function getSezzleAdsTheme(?int $storeId = null): string
+    {
+        $theme = $this->getValue(
+            self::KEY_SEZZLE_ADS_THEME,
+            $storeId ?? $this->storeConfigResolver->getStoreId()
+        );
+
+        return $theme === self::SEZZLE_ADS_THEME_LIGHT ? self::SEZZLE_ADS_THEME_LIGHT : self::SEZZLE_ADS_THEME_DARK;
     }
 
     /**

@@ -1,0 +1,141 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+
+namespace Sezzle\Sezzlepay\Block\Widget;
+
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Serialize\Serializer\JsonHexTag;
+use Magento\Framework\View\Element\Template;
+use Sezzle\Sezzlepay\Gateway\Command\AuthorizeCommand;
+use Sezzle\Sezzlepay\Gateway\Config\Config;
+use Sezzle\Sezzlepay\Helper\Data as Helper;
+use Sezzle\Sezzlepay\Model\Ui\ConfigProvider;
+
+/**
+ * Sezzle Ads placement on the checkout success page
+ */
+class SezzleAds extends Template
+{
+    const SDK_URL = 'https://checkout-sdk.sezzle.com/sezzle-ads.js';
+
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @var CheckoutSession
+     */
+    private $checkoutSession;
+
+    /**
+     * @var JsonHexTag
+     */
+    private $json;
+
+    /**
+     * @var Helper
+     */
+    private $helper;
+
+    /**
+     * @param Template\Context $context
+     * @param Config $config
+     * @param CheckoutSession $checkoutSession
+     * @param JsonHexTag $json
+     * @param Helper $helper
+     * @param array $data
+     */
+    public function __construct(
+        Template\Context $context,
+        Config           $config,
+        CheckoutSession  $checkoutSession,
+        JsonHexTag       $json,
+        Helper           $helper,
+        array            $data = []
+    )
+    {
+        $this->config = $config;
+        $this->checkoutSession = $checkoutSession;
+        $this->json = $json;
+        $this->helper = $helper;
+        parent::__construct($context, $data);
+    }
+
+    /**
+     * Whether the placement should render: Sezzle and Sezzle Ads are both on, and a merchant UUID is set
+     *
+     * @return bool
+     */
+    public function isSezzleAdsEnabled(): bool
+    {
+        try {
+            if (!$this->config->isEnabled() || !$this->config->isSezzleAdsEnabled()) {
+                return false;
+            }
+            if (!$this->config->getMerchantUUID()) {
+                $this->helper->logSezzleActions('Sezzle Ads not rendered as Merchant UUID is empty');
+                return false;
+            }
+            return true;
+        } catch (NoSuchEntityException|InputException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getSdkUrl(): string
+    {
+        return self::SDK_URL;
+    }
+
+    /**
+     * Config passed to SezzleAds.mountAll(), JSON encoded with <, >, & and quotes hex-escaped for inline script
+     *
+     * language is deliberately left out: the SDK reads <html lang>, which Magento sets from the store locale.
+     *
+     * @return string
+     */
+    public function getSdkConfigJson(): string
+    {
+        $sdkConfig = [];
+        try {
+            $sdkConfig['merchantUUID'] = (string)$this->config->getMerchantUUID();
+            $sdkConfig['theme'] = $this->config->getSezzleAdsTheme();
+        } catch (NoSuchEntityException|InputException $e) {
+            // isSezzleAdsEnabled() resolved the same values a moment ago, so this is not expected
+        }
+
+        if ($orderUUID = $this->getSezzleOrderUUID()) {
+            $sdkConfig['orderUUID'] = $orderUUID;
+        }
+
+        return $this->json->serialize($sdkConfig);
+    }
+
+    /**
+     * Sezzle order UUID of the order just placed, or null when it was not paid with Sezzle
+     *
+     * @return string|null
+     */
+    private function getSezzleOrderUUID(): ?string
+    {
+        $order = $this->checkoutSession->getLastRealOrder();
+        $payment = $order ? $order->getPayment() : null;
+        if (!$payment || $payment->getMethod() !== ConfigProvider::CODE) {
+            return null;
+        }
+
+        $orderUUID = $payment->getAdditionalInformation(AuthorizeCommand::KEY_ORIGINAL_ORDER_UUID);
+
+        return is_string($orderUUID) && $orderUUID !== '' ? $orderUUID : null;
+    }
+}

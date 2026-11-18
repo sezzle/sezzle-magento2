@@ -1,0 +1,35 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<?php
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Sezzle\Sezzlepay\Block\Widget\SezzleAds;
+
+/** @var SecureHtmlRenderer $secureRenderer */
+/** @var SezzleAds $block */
+?>
+<?php if ($block->isSezzleAdsEnabled()) : ?>
+    <div class="sezzle-ads-container"></div>
+    <?php /* Plain DOM rather than RequireJS so the same template works on Luma and Hyvä. */ ?>
+    <?php $sdkUrl = $block->escapeJs($block->getSdkUrl()); ?>
+    <?php $sdkConfig = /* @noEscape */ $block->getSdkConfigJson(); ?>
+    <?php $script = <<<SCRIPT
+        (function () {
+            var sdk = document.createElement('script');
+            sdk.src = '{$sdkUrl}';
+            sdk.async = true;
+            sdk.onload = function () {
+                if (window.SezzleAds && typeof window.SezzleAds.mountAll === 'function') {
+                    window.SezzleAds.mountAll({$sdkConfig});
+                }
+            };
+            document.head.appendChild(sdk);
+        })();
+    SCRIPT; ?>
+
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false); ?>
+<?php endif; ?>
