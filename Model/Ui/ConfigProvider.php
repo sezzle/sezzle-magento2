@@ -5,6 +5,8 @@ namespace Sezzle\Sezzlepay\Model\Ui;
 use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\CurrencyInterface;
@@ -41,6 +43,10 @@ class ConfigProvider implements ConfigProviderInterface
      * @var CurrencyInterface
      */
     private $localeCurrency;
+    /**
+     * @var DirectoryHelper
+     */
+    private $directoryHelper;
 
     /**
      * ConfigProvider constructor.
@@ -49,13 +55,15 @@ class ConfigProvider implements ConfigProviderInterface
      * @param Tokenize $tokenizeModel
      * @param Manager $moduleManager
      * @param CurrencyInterface $localeCurrency
+     * @param DirectoryHelper|null $directoryHelper
      */
     public function __construct(
         Config            $config,
         Session           $checkoutSession,
         Tokenize          $tokenizeModel,
         Manager           $moduleManager,
-        CurrencyInterface $localeCurrency
+        CurrencyInterface $localeCurrency,
+        ?DirectoryHelper  $directoryHelper = null
     )
     {
         $this->config = $config;
@@ -63,6 +71,8 @@ class ConfigProvider implements ConfigProviderInterface
         $this->tokenizeModel = $tokenizeModel;
         $this->moduleManager = $moduleManager;
         $this->localeCurrency = $localeCurrency;
+        $this->directoryHelper = $directoryHelper
+            ?: ObjectManager::getInstance()->get(DirectoryHelper::class);
     }
 
     /**
@@ -90,6 +100,9 @@ class ConfigProvider implements ConfigProviderInterface
                     'installmentWidgetPricePath' => $this->config->getInstallmentWidgetPricePath(),
                     'currencySymbol' => $this->localeCurrency->getCurrency($quote->getBaseCurrencyCode())->getSymbol(),
                     'img_src' => $this->config->getImageSrc(),
+                    // general/country/default, the country Magento's CountryProvider
+                    // falls back to when deciding whether Sezzle is offered.
+                    'storeCountry' => $this->directoryHelper->getDefaultCountry($quote->getStoreId()),
                 ]
             ]
         ];
