@@ -12,15 +12,21 @@ define([
     /**
      * The shopper's country, read from the quote. Billing is what Sezzle
      * checks eligibility against, so it wins; shipping covers the window
-     * before a billing address has been entered.
+     * before a billing address has been entered. A virtual quote has no real
+     * shipping address (its stub carries the tax default country), so it is
+     * skipped there and the store's default country is used instead.
      *
      * @returns {String|undefined}
      */
     function getShopperCountry() {
         var billing = quote.billingAddress(),
-            shipping = quote.shippingAddress();
+            shipping = quote.isVirtual() ? null : quote.shippingAddress(),
+            config = window.checkoutConfig.payment.sezzlepay || {};
 
-        return (billing && billing.countryId) || (shipping && shipping.countryId) || undefined;
+        return (billing && billing.countryId) ||
+            (shipping && shipping.countryId) ||
+            config.storeCountry ||
+            undefined;
     }
 
     return function () {
