@@ -6,6 +6,7 @@ use Exception;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Locale\CurrencyInterface;
@@ -54,7 +55,7 @@ class ConfigProvider implements ConfigProviderInterface
      * @param Tokenize $tokenizeModel
      * @param Manager $moduleManager
      * @param CurrencyInterface $localeCurrency
-     * @param DirectoryHelper $directoryHelper
+     * @param DirectoryHelper|null $directoryHelper
      */
     public function __construct(
         Config            $config,
@@ -62,7 +63,7 @@ class ConfigProvider implements ConfigProviderInterface
         Tokenize          $tokenizeModel,
         Manager           $moduleManager,
         CurrencyInterface $localeCurrency,
-        DirectoryHelper   $directoryHelper
+        ?DirectoryHelper  $directoryHelper = null
     )
     {
         $this->config = $config;
@@ -70,7 +71,8 @@ class ConfigProvider implements ConfigProviderInterface
         $this->tokenizeModel = $tokenizeModel;
         $this->moduleManager = $moduleManager;
         $this->localeCurrency = $localeCurrency;
-        $this->directoryHelper = $directoryHelper;
+        $this->directoryHelper = $directoryHelper
+            ?: ObjectManager::getInstance()->get(DirectoryHelper::class);
     }
 
     /**
