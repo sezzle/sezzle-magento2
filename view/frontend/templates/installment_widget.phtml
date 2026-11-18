@@ -13,10 +13,8 @@ use Sezzle\Sezzlepay\Block\Widget\Installment;
 /**  @var Installment $block */
 ?>
 <?php if ($block->isInstallmentWidgetEnabled()) : ?>
+    <?php /* The quote model reads window.checkoutConfig on load, which is printed after this head block. */ ?>
     <?php $script = <<<SCRIPT
-        // The widget takes the shopper's country from the checkout quote, whose
-        // model reads window.checkoutConfig when it loads. This block renders in
-        // the head, before that config is printed, so wait for the DOM first.
         require(['domReady!'], function () {
             require(['Sezzle_Sezzlepay/js/installment-widget'], function (initInstallmentWidget) {
                 initInstallmentWidget();
