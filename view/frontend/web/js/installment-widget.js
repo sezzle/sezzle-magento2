@@ -10,23 +10,19 @@ define([
     'use strict';
 
     /**
-     * The shopper's country, read from the quote. Billing is what Sezzle
-     * checks eligibility against, so it wins; shipping covers the window
-     * before a billing address has been entered. A virtual quote has no real
-     * shipping address (its stub carries the tax default country), so it is
-     * skipped there and the store's default country is used instead.
+     * Billing country, else shipping (non-virtual quotes only), else the store default.
      *
      * @returns {String|undefined}
      */
     function getShopperCountry() {
         var billing = quote.billingAddress(),
             shipping = quote.isVirtual() ? null : quote.shippingAddress(),
-            config = window.checkoutConfig.payment.sezzlepay || {};
+            config = window.checkoutConfig.payment.sezzlepay || {},
+            country = (billing && billing.countryId) ||
+                (shipping && shipping.countryId) ||
+                config.storeCountry;
 
-        return (billing && billing.countryId) ||
-            (shipping && shipping.countryId) ||
-            config.storeCountry ||
-            undefined;
+        return country ? country.toUpperCase() : undefined;
     }
 
     return function () {
@@ -37,11 +33,12 @@ define([
             });
 
         /**
-         * The widget reads countryCode only in its constructor, and a second
-         * instance would start a second render loop, so a mid-checkout change of
-         * country (e.g. a US shopper switching to a Canadian billing address) is
-         * applied to this instance. Emptying the box makes its render loop draw
-         * the schedule again for the new country (Pay in 4 only for CA).
+         * Re-renders the widget when the shopper's country changes.
+         *
+         * Relies on SDK internals, not its public API: the countryCode property,
+         * the render loop redrawing an empty #sezzle-installment-widget-box, and
+         * the #sezzle-modal-container id. Replace with a public SDK method once
+         * one exists.
          */
         function onAddressChange() {
             var next = getShopperCountry(),
@@ -53,7 +50,7 @@ define([
             }
 
             country = next;
-            widget.countryCode = next ? next.toUpperCase() : undefined;
+            widget.countryCode = next;
 
             box = document.getElementById('sezzle-installment-widget-box');
 
