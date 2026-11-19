@@ -90,6 +90,49 @@ class SezzleAds extends Template
     }
 
     /**
+     * Whether this instance of the block sits where the merchant chose to place the ad
+     *
+     * The layout declares the block once per placement, each with a "placement" argument, and only the one
+     * matching the configured placement renders.
+     *
+     * @return bool
+     */
+    public function isConfiguredPlacement(): bool
+    {
+        try {
+            return $this->getData('placement') === $this->config->getSezzleAdsPlacement();
+        } catch (NoSuchEntityException|InputException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * ID of this block's container, unique per placement, so its margin can be targeted
+     *
+     * @return string
+     */
+    public function getContainerId(): string
+    {
+        $suffix = (string)($this->getData('placement') ?: $this->getNameInLayout());
+
+        return 'sezzle-ads-' . preg_replace('/[^a-z0-9_-]/i', '-', $suffix);
+    }
+
+    /**
+     * CSS margin for the container, or an empty string for none
+     *
+     * @return string
+     */
+    public function getContainerMargin(): string
+    {
+        try {
+            return $this->config->getSezzleAdsMargin();
+        } catch (NoSuchEntityException|InputException $e) {
+            return '';
+        }
+    }
+
+    /**
      * @return string
      */
     public function getSdkUrl(): string

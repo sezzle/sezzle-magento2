@@ -33,9 +33,22 @@ class Config extends PaymentConfig
     const KEY_WIDGET_INSTALLMENT_PRICE = 'widget_installment_price_path';
     const KEY_SEZZLE_ADS = 'sezzle_ads';
     const KEY_SEZZLE_ADS_THEME = 'sezzle_ads_theme';
+    const KEY_SEZZLE_ADS_PLACEMENT = 'sezzle_ads_placement';
+    const KEY_SEZZLE_ADS_MARGIN = 'sezzle_ads_margin';
 
     const SEZZLE_ADS_THEME_DARK = 'dark';
     const SEZZLE_ADS_THEME_LIGHT = 'light';
+
+    const SEZZLE_ADS_PLACEMENT_MAIN_BOTTOM = 'main_bottom';
+    const SEZZLE_ADS_PLACEMENT_AFTER_CONFIRMATION = 'after_confirmation';
+    const SEZZLE_ADS_PLACEMENT_MAIN_TOP = 'main_top';
+
+    /**
+     * CSS margin shorthand: one to four lengths (px, em, rem, %, vh, vw), unitless 0, or auto. Nothing else is
+     * accepted, since the value is written into the storefront page.
+     */
+    const SEZZLE_ADS_MARGIN_PATTERN =
+        '/^(?:0|auto|-?(?:\\d+(?:\\.\\d+)?|\\.\\d+)(?:px|em|rem|%|vh|vw))(?:\\s+(?:0|auto|-?(?:\\d+(?:\\.\\d+)?|\\.\\d+)(?:px|em|rem|%|vh|vw))){0,3}$/';
 
     const KEY_INCONTEXT_ACTIVE = 'active_in_context';
     const KEY_INCONTEXT_MODE = 'in_context_mode';
@@ -333,6 +346,45 @@ class Config extends PaymentConfig
         );
 
         return $theme === self::SEZZLE_ADS_THEME_LIGHT ? self::SEZZLE_ADS_THEME_LIGHT : self::SEZZLE_ADS_THEME_DARK;
+    }
+
+    /**
+     * Where the Sezzle Ads placement renders on the success page, falling back to the bottom of the main column
+     *
+     * @param int|null $storeId
+     * @return string
+     * @throws InputException
+     * @throws NoSuchEntityException
+     */
+    public function getSezzleAdsPlacement(?int $storeId = null): string
+    {
+        $placement = $this->getValue(
+            self::KEY_SEZZLE_ADS_PLACEMENT,
+            $storeId ?? $this->storeConfigResolver->getStoreId()
+        );
+
+        return in_array($placement, [
+            self::SEZZLE_ADS_PLACEMENT_AFTER_CONFIRMATION,
+            self::SEZZLE_ADS_PLACEMENT_MAIN_TOP,
+        ], true) ? $placement : self::SEZZLE_ADS_PLACEMENT_MAIN_BOTTOM;
+    }
+
+    /**
+     * CSS margin for the Sezzle Ads container, or an empty string when unset or not valid margin shorthand
+     *
+     * @param int|null $storeId
+     * @return string
+     * @throws InputException
+     * @throws NoSuchEntityException
+     */
+    public function getSezzleAdsMargin(?int $storeId = null): string
+    {
+        $margin = trim((string)$this->getValue(
+            self::KEY_SEZZLE_ADS_MARGIN,
+            $storeId ?? $this->storeConfigResolver->getStoreId()
+        ));
+
+        return preg_match(self::SEZZLE_ADS_MARGIN_PATTERN, $margin) ? $margin : '';
     }
 
     /**
