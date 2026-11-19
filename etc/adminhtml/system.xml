@@ -193,6 +193,7 @@
                         <label>Enable Sezzle Ads on Order Confirmation Page</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <comment>Shows a Sezzle ad on the checkout success page.</comment>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
                         <config_path>payment/sezzlepay/sezzle_ads</config_path>
                     </field>
                     <!-- sezzle ads theme -->
@@ -203,6 +204,7 @@
                         <depends>
                             <field id="sezzle_ads">1</field>
                         </depends>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
                         <config_path>payment/sezzlepay/sezzle_ads_theme</config_path>
                     </field>
                     <!-- sezzle ads placement -->
@@ -213,6 +215,7 @@
                         <depends>
                             <field id="sezzle_ads">1</field>
                         </depends>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
                         <config_path>payment/sezzlepay/sezzle_ads_placement</config_path>
                     </field>
                     <!-- sezzle ads margin -->
@@ -223,6 +226,7 @@
                         <depends>
                             <field id="sezzle_ads">1</field>
                         </depends>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
                         <config_path>payment/sezzlepay/sezzle_ads_margin</config_path>
                     </field>
                 </group>

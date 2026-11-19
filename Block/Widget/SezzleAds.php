@@ -69,14 +69,18 @@ class SezzleAds extends Template
     }
 
     /**
-     * Whether the placement should render: Sezzle and Sezzle Ads are both on, and a merchant UUID is set
+     * Whether the placement should render: Sezzle Ads is on and a merchant UUID is set
+     *
+     * Independent of whether the Sezzle payment method is enabled, by Product's decision: the ad promotes the Sezzle
+     * app rather than paying with Sezzle at this store, so it shows for every order whatever the payment method.
+     * Whether Sezzle has enrolled the merchant is decided by the SDK and widget-server, not here.
      *
      * @return bool
      */
     public function isSezzleAdsEnabled(): bool
     {
         try {
-            if (!$this->config->isEnabled() || !$this->config->isSezzleAdsEnabled()) {
+            if (!$this->config->isSezzleAdsEnabled()) {
                 return false;
             }
             if (!$this->config->getMerchantUUID()) {
