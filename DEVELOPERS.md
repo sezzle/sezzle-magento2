@@ -172,7 +172,9 @@ When using this method, update the Magento configuration below accordingly.
    ```
 1. Open `localhost:8085`
 
-Other `process` commands: `upgrade`, `compile`, `deploy`, `developer`, `clear`. To reset the install, run `docker compose down -v` (the `-v` is required to drop the `magento-data` volume).
+`process install` disables admin two-factor auth, since the container cannot send the setup email. For a stack installed before that step was added, run `docker cp process sezzle_magento2:/usr/local/bin/process && docker exec -it sezzle_magento2 process disable-2fa`.
+
+Other `process` commands: `upgrade`, `compile`, `deploy`, `developer`, `clear`, `disable-2fa`. To reset the install, run `docker compose down -v` (the `-v` is required to drop the `magento-data` volume).
 
 ### Install Magento to MAMP
 
