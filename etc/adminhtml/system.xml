@@ -211,7 +211,7 @@
                     <field id="sezzle_ads_placement" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sezzle Ads Placement</label>
                         <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Widget\SezzleAdsPlacement</source_model>
-                        <comment>Where the ad appears on the order confirmation page.</comment>
+                        <comment>Where the ad appears on the order confirmation page. The ad loads after the page, so a top placement may move the content below it down.</comment>
                         <depends>
                             <field id="sezzle_ads">1</field>
                         </depends>

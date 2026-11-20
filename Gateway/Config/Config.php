@@ -383,6 +383,9 @@ class Config extends PaymentConfig
             self::KEY_SEZZLE_ADS_MARGIN,
             $storeId ?? $this->storeConfigResolver->getStoreId()
         ));
+        // The admin backend normalizes whitespace on save, but a value imported or written directly may still hold
+        // newlines, which would break the single-quoted script the margin is rendered into.
+        $margin = (string)preg_replace('/\s+/', ' ', $margin);
 
         return preg_match(self::SEZZLE_ADS_MARGIN_PATTERN, $margin) ? $margin : '';
     }

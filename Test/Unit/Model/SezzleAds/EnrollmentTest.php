@@ -3,7 +3,7 @@
 namespace Sezzle\Sezzlepay\Test\Unit\Model\SezzleAds;
 
 use Exception;
-use Magento\Framework\App\CacheInterface;
+use Magento\Framework\App\Cache\Type\Config as ConfigCache;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -23,7 +23,7 @@ class EnrollmentTest extends TestCase
     private const CACHE_KEY = 'sezzle_ads_enrollment_bea8257263874b7f81c94b92854316c6';
 
     /**
-     * @var CacheInterface|MockObject
+     * @var ConfigCache|MockObject
      */
     private $cache;
 
@@ -49,7 +49,7 @@ class EnrollmentTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->cache = $this->createMock(CacheInterface::class);
+        $this->cache = $this->createMock(ConfigCache::class);
         $this->curl = $this->createMock(Curl::class);
         $this->curlFactory = $this->createMock(CurlFactory::class);
         $this->curlFactory->method('create')->willReturn($this->curl);
@@ -122,7 +122,7 @@ class EnrollmentTest extends TestCase
         $this->curl->method('getBody')->willReturn($body);
         $this->cache->expects($this->once())
             ->method('save')
-            ->with($cachedValue, self::CACHE_KEY, [], $lifetime);
+            ->with($cachedValue, self::CACHE_KEY, [ConfigCache::CACHE_TAG], $lifetime);
 
         $this->assertSame($expected, $this->enrollment->isEnrolled(self::MERCHANT_UUID));
     }
@@ -146,7 +146,7 @@ class EnrollmentTest extends TestCase
         $this->curl->method('get')->willThrowException(new Exception('Operation timed out'));
         $this->cache->expects($this->once())
             ->method('save')
-            ->with('0', self::CACHE_KEY, [], Enrollment::ERROR_CACHE_LIFETIME);
+            ->with('0', self::CACHE_KEY, [ConfigCache::CACHE_TAG], Enrollment::ERROR_CACHE_LIFETIME);
 
         $this->assertFalse($this->enrollment->isEnrolled(self::MERCHANT_UUID));
     }

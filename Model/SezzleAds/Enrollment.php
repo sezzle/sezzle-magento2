@@ -8,7 +8,7 @@
 namespace Sezzle\Sezzlepay\Model\SezzleAds;
 
 use Exception;
-use Magento\Framework\App\CacheInterface;
+use Magento\Framework\App\Cache\Type\Config as ConfigCache;
 use Magento\Framework\HTTP\Client\CurlFactory;
 use Magento\Framework\Serialize\Serializer\Json;
 use Sezzle\Sezzlepay\Gateway\Config\Config;
@@ -36,7 +36,9 @@ class Enrollment
     const UUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
 
     /**
-     * @var CacheInterface
+     * Configuration cache, so refreshing the Configuration cache type also drops a stale enrollment answer
+     *
+     * @var ConfigCache
      */
     private $cache;
 
@@ -61,14 +63,14 @@ class Enrollment
     private $helper;
 
     /**
-     * @param CacheInterface $cache
+     * @param ConfigCache $cache
      * @param CurlFactory $curlFactory
      * @param Json $jsonSerializer
      * @param Config $config
      * @param Data $helper
      */
     public function __construct(
-        CacheInterface $cache,
+        ConfigCache    $cache,
         CurlFactory    $curlFactory,
         Json           $jsonSerializer,
         Config         $config,
@@ -106,7 +108,7 @@ class Enrollment
         $this->cache->save(
             $enrolled === true ? '1' : '0',
             $cacheKey,
-            [],
+            [ConfigCache::CACHE_TAG],
             $enrolled === null ? self::ERROR_CACHE_LIFETIME : self::CACHE_LIFETIME
         );
 
