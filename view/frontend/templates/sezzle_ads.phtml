@@ -1,0 +1,40 @@
+<?php
+/*
+ * @category    Sezzle
+ * @package     Sezzle_Sezzlepay
+ * @copyright   Copyright (c) Sezzle (https://www.sezzle.com/)
+ */
+?>
+<?php
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Sezzle\Sezzlepay\Block\Widget\SezzleAds;
+
+/** @var SecureHtmlRenderer $secureRenderer */
+/** @var SezzleAds $block */
+?>
+<?php if ($block->isConfiguredPlacement() && $block->isSezzleAdsEnabled()) : ?>
+    <?php $containerId = $block->escapeHtmlAttr($block->getContainerId()); ?>
+    <div id="<?= /* @noEscape */ $containerId ?>" class="sezzle-ads-container"></div>
+    <?php if ($margin = $block->getContainerMargin()) : ?>
+        <?php /* Applied by script rather than a style attribute so it survives a strict style-src CSP. */ ?>
+        <?= /* @noEscape */ $secureRenderer->renderStyleAsTag('margin: ' . $margin, '#' . $containerId); ?>
+    <?php endif; ?>
+    <?php /* Plain DOM rather than RequireJS so the same template works on Luma and Hyvä. */ ?>
+    <?php $sdkUrl = $block->escapeJs($block->getSdkUrl()); ?>
+    <?php $sdkConfig = /* @noEscape */ $block->getSdkConfigJson(); ?>
+    <?php $script = <<<SCRIPT
+        (function () {
+            var sdk = document.createElement('script');
+            sdk.src = '{$sdkUrl}';
+            sdk.async = true;
+            sdk.onload = function () {
+                if (window.SezzleAds && typeof window.SezzleAds.mountAll === 'function') {
+                    window.SezzleAds.mountAll({$sdkConfig});
+                }
+            };
+            document.head.appendChild(sdk);
+        })();
+    SCRIPT; ?>
+
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false); ?>
+<?php endif; ?>

@@ -188,6 +188,47 @@
                         <comment>e.g. .grand.totals>.amount</comment>
                         <config_path>payment/sezzlepay/widget_installment_price_path</config_path>
                     </field>
+                    <!-- sezzle ads -->
+                    <field id="sezzle_ads" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Sezzle Ads on Order Confirmation Page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Shows a Sezzle ad on the checkout success page.</comment>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
+                        <config_path>payment/sezzlepay/sezzle_ads</config_path>
+                    </field>
+                    <!-- sezzle ads theme -->
+                    <field id="sezzle_ads_theme" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sezzle Ads Theme</label>
+                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Widget\SezzleAdsTheme</source_model>
+                        <comment>Pick the scheme that matches your confirmation page's background.</comment>
+                        <depends>
+                            <field id="sezzle_ads">1</field>
+                        </depends>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
+                        <config_path>payment/sezzlepay/sezzle_ads_theme</config_path>
+                    </field>
+                    <!-- sezzle ads placement -->
+                    <field id="sezzle_ads_placement" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sezzle Ads Placement</label>
+                        <source_model>Sezzle\Sezzlepay\Model\System\Config\Source\Widget\SezzleAdsPlacement</source_model>
+                        <comment>Where the ad appears on the order confirmation page. The ad loads after the page, so a top placement may move the content below it down.</comment>
+                        <depends>
+                            <field id="sezzle_ads">1</field>
+                        </depends>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
+                        <config_path>payment/sezzlepay/sezzle_ads_placement</config_path>
+                    </field>
+                    <!-- sezzle ads margin -->
+                    <field id="sezzle_ads_margin" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Sezzle Ads Margin</label>
+                        <backend_model>Sezzle\Sezzlepay\Model\System\Config\Backend\CssMargin</backend_model>
+                        <comment><![CDATA[Space around the ad, as CSS margin shorthand: e.g. <code>24px 0</code> (top and bottom) or <code>16px 0 32px</code> (top, sides, bottom). Units: px, em, rem, %, vh, vw. Leave empty for none.]]></comment>
+                        <depends>
+                            <field id="sezzle_ads">1</field>
+                        </depends>
+                        <frontend_model>Sezzle\Sezzlepay\Block\Adminhtml\System\Config\Field\SezzleAds</frontend_model>
+                        <config_path>payment/sezzlepay/sezzle_ads_margin</config_path>
+                    </field>
                 </group>
                 <group id="widget_request" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label><![CDATA[Widget Support]]></label>

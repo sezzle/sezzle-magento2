@@ -57,6 +57,13 @@ CacheClean () {
     echo "Cache cleared successfully...."
 }
 
+DisableTwoFactorAuth () {
+    # Admin 2FA setup is emailed, and the container cannot send mail, so the admin would be unreachable
+    echo "Disabling admin two-factor auth...."
+    bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
+    echo "Two-factor auth disabled successfully...."
+}
+
 SetDeveloperMode () {
     echo "Activating developer mode...."
     bin/magento d:m:se developer
@@ -67,6 +74,7 @@ if [ "$1" == "install" ]
 then
     Download
     Install
+    DisableTwoFactorAuth
     SetDeveloperMode
     Setup
     Compile
@@ -75,6 +83,12 @@ then
 elif [ "$1" == "developer" ]
 then
     SetDeveloperMode
+elif [ "$1" == "disable-2fa" ]
+then
+    DisableTwoFactorAuth
+    Setup
+    Compile
+    CacheClean
 elif [ "$1" == "upgrade" ]
 then
     Setup
