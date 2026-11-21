@@ -25,7 +25,7 @@ services:
       env_file:
           - docker.env
   opensearch:
-      image: opensearchproject/opensearch:2.19.6
+      image: opensearchproject/opensearch:2.19.7
       container_name: sezzle_magento2_opensearch
       environment:
           - discovery.type=single-node
